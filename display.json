@@ -1,0 +1,13 @@
+{
+  "id": "Kad_Code",
+  "name": "Kad Sketcher",
+  "icon": "📐",
+  "group": "Pipeline",
+  "subGroup": "07b · Drawing",
+  "kind": "web",
+  "class": "execution",
+  "description": "The CAD.LIKE.AUDIO bundle. One build, two entrances named in the fragment: #/drawing opens the sketch — lines, true arcs, dimensions, DXF export — and #/big-picture opens the model, where Flow blocks carry typed ports that are read out of the APK:OS Interfaces Terminals table rather than coined. An unrecognised fragment lands on the drawing board, so a bookmark from before the split still works. scripts/verifyFlow.ts asserts the port geometry, the neighbour graph and the DXF BLOCK/INSERT resolution on every build.",
+  "topic": "APK.audio/Gui/Display/Drawing",
+  "autostart": false,
+  "app": "dist/index.html"
+}

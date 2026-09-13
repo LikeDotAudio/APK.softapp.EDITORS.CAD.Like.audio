@@ -1,0 +1,8 @@
+{
+  "maximum": 2,
+  "orphans": [
+    "src/components/GridControls.tsx",
+    "src/components/UnitToggle.tsx"
+  ],
+  "note": "Components not reachable from src/main.tsx. A CEILING: this fails when the number GROWS. Lower it by rendering the component or deleting it, then re-run with --set-baseline. PLAN-111.02 step 4."
+}

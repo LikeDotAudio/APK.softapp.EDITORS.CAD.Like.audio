@@ -1,0 +1,5 @@
+{
+  "maximum": 0,
+  "leaks": [],
+  "note": "Effects that start async work and return no cleanup. A CEILING: this fails when the number GROWS. Seeded at zero as a regression guard — the first entry anybody adds is a regression, not an inheritance. PLAN-111.02 step 4."
+}

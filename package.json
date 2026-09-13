@@ -1,0 +1,34 @@
+{
+  "name": "cad-like-audio",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "CAD.LIKE.AUDIO \u2014 2D CAD sketcher with true-arc geometry and DXF export.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LikeDotAudio/CAD.Like.audio.git"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && npm run verify && npm run gates && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "verify": "esbuild scripts/verifyFlow.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/kad/verifyFlow.mjs --log-level=warning && node node_modules/.cache/kad/verifyFlow.mjs",
+    "gates": "node scripts/check-mount-reach.mjs && node scripts/check-effect-abort.mjs",
+    "example": "esbuild scripts/emitExampleDrawing.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/kad/emitExampleDrawing.mjs --log-level=warning && node node_modules/.cache/kad/emitExampleDrawing.mjs"
+  },
+  "dependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.14",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^5.0.4",
+    "tailwindcss": "^4.1.14",
+    "typescript": "^5.9.3",
+    "vite": "^7.1.9"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "types": ["vite/client"],
+
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": false,
+    "exactOptionalPropertyTypes": false,
+
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  /* `scripts/` is named file by file rather than as a folder: it is a place
+     people drop one-off emitters, and a typecheck that silently widens to
+     whatever is lying there fails for reasons that have nothing to do with
+     the app. */
+  "include": [
+    "src",
+    "scripts/verifyFlow.ts",
+    "scripts/emitExampleDrawing.ts",
+    "vite.config.ts"
+  ]
+}
