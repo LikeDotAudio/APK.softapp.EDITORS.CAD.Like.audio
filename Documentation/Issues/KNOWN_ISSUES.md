@@ -1,4 +1,4 @@
 # Known Issues & Task Tracking — CAD.Like.audio
 
-## 🔍 Active Issues
-Tracked: high-density DXF spline rendering performance on low-end mobile WebGL contexts.
+## 🔍 Active Issues & Edge Cases
+Tracked: high-density DXF spline rendering performance on mobile WebGL contexts; dynamic line weight scaling on ultra-high DPI displays.
