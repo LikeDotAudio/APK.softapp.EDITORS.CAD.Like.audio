@@ -24,7 +24,7 @@
  *
  * THE ACCENT IS NO LONGER SPELLED IN THIS FILE, and that part is closed.
  * `accent`, `accentHover`, `accentTint`, `onAccent` and the three canvas greys
- * below all read `APK:DOCKERS/APK:BareMetal/SRC/contracts/tokens/brand.json`, which is where the
+ * below all read `APK:PODS/APK:BareMetal/SRC/contracts/tokens/brand.json`, which is where the
  * value is now stated once — it is also `SAMPLE and PLAY`'s manifest
  * `theme_color`, and was written out 914 times across 404 files before anything
  * named it. `./.apk.scripts/check.sh brand` holds the count down and asserts the
@@ -51,7 +51,7 @@ export const COLORS = {
 
   // Interactive States & Accents — the whole UI is built around this orange.
   // NOT SPELLED HERE. These four are the repository's brand, shared with four other
-  // top-level directories, and `APK:DOCKERS/APK:BareMetal/SRC/contracts/tokens/brand.json` is where
+  // top-level directories, and `APK:PODS/APK:BareMetal/SRC/contracts/tokens/brand.json` is where
   // they are stated. Imported by relative path rather than as `@apkaudio/contracts`
   // because every path in this repository contains a `:` and npm's own resolution
   // splits on it. Vite and tsc read JSON natively; no build step, no copied file.
