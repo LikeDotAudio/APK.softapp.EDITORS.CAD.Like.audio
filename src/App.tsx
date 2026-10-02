@@ -12,6 +12,7 @@ import { EditorContext } from './state/EditorContext';
 import { currentEntrance } from './shell/entrance';
 import { EntranceContext } from './shell/EntranceContext';
 import { SpreadsheetModal } from './components/spreadsheet/SpreadsheetModal';
+import { ElementsEditorModal } from './components/elementsEditor/ElementsEditorModal';
 
 export default function App() {
   /* Which of the two desktop tiles opened this window. Read once: the fragment
@@ -20,13 +21,17 @@ export default function App() {
   const [entrance] = useState(currentEntrance);
   const [store] = useState(() => new EditorStore(entrance));
   const [showSpreadsheet, setShowSpreadsheet] = useState(false);
+  const [showElementsEditor, setShowElementsEditor] = useState(false);
 
   return (
     <EntranceContext.Provider value={entrance}>
       <EditorContext.Provider value={store}>
         <div className="flex h-full flex-col overflow-hidden bg-[#1e1e1e]">
           {/* Top CAD Header Bar */}
-          <MenuBar onOpenSpreadsheet={() => setShowSpreadsheet(true)} />
+          <MenuBar
+            onOpenSpreadsheet={() => setShowSpreadsheet(true)}
+            onOpenElementsEditor={() => setShowElementsEditor(true)}
+          />
 
           {/* Main Work Area: Left Toolbar + Canvas + Right Sidebar */}
           <div className="flex flex-1 overflow-hidden relative">
@@ -44,6 +49,11 @@ export default function App() {
           {/* Spreadsheet Modal */}
           {showSpreadsheet && (
             <SpreadsheetModal onClose={() => setShowSpreadsheet(false)} />
+          )}
+
+          {/* CAD Elements Editor Modal (Text, Blocks, Fills) */}
+          {showElementsEditor && (
+            <ElementsEditorModal onClose={() => setShowElementsEditor(false)} />
           )}
         </div>
       </EditorContext.Provider>

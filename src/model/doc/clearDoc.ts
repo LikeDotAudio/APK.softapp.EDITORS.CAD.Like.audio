@@ -8,7 +8,13 @@ export function clearDoc(doc: Doc): void {
   doc.edges.clear();
   doc.groupPrimitives.clear();
   doc.groupIntact.clear();
+  doc.texts.clear();
+  doc.fills.clear();
+  doc.blockInstances.clear();
   doc.nextVertexId = 1;
   doc.nextEdgeId = 1;
   doc.nextGroupId = 1;
+  doc.nextTextId = 1;
+  doc.nextFillId = 1;
+  doc.nextBlockInstanceId = 1;
 }

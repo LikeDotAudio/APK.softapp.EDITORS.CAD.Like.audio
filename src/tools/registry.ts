@@ -18,6 +18,9 @@ import { rectTool } from './rectTool';
 import { rotateTool } from './rotateTool';
 import { selectTool } from './selectTool';
 import { splineTool } from './splineTool';
+import { textTool } from './textTool';
+import { fillTool } from './fillTool';
+import { blockTool } from './blockTool';
 import { tangentTool } from './tangentTool';
 import { wireTool } from './wireTool';
 import type { AnyTool } from './types';
@@ -38,6 +41,9 @@ export const TOOLS: AnyTool[] = [
   circle2pTool,
   circle3pTool,
   ellipseTool,
+  textTool,
+  fillTool,
+  blockTool,
   breakTool,
   measureTool,
   flowTool,

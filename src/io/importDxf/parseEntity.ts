@@ -42,7 +42,7 @@ export function parseEntity(
       else if (code === 40) entity.r = numVal;
       else if (code === 50) entity.startAngle = numVal;
       else if (code === 51) entity.endAngle = numVal;
-    } else if (type === 'LWPOLYLINE') {
+    } else if (type === 'LWPOLYLINE' || type === 'HATCH') {
       if (code === 70) {
         const flag = parseInt(value, 10);
         entity.isClosed = (flag & 1) === 1;
@@ -54,10 +54,32 @@ export function parseEntity(
       } else if (code === 42 && currentLwPoint) {
         currentLwPoint.bulge = numVal;
       }
+    } else if (type === 'TEXT' || type === 'MTEXT') {
+      if (code === 10) entity.x1 = numVal;
+      else if (code === 20) entity.y1 = numVal;
+      else if (code === 40) entity.textHeight = numVal;
+      else if (code === 1) entity.text = value;
+      else if (code === 50) entity.rotation = numVal;
+    } else if (type === 'SOLID') {
+      if (code === 10) entity.x1 = numVal;
+      else if (code === 20) entity.y1 = numVal;
+      else if (code === 11) entity.x2 = numVal;
+      else if (code === 21) entity.y2 = numVal;
+      else if (code === 12) entity.x3 = numVal;
+      else if (code === 22) entity.y3 = numVal;
+      else if (code === 13) entity.x4 = numVal;
+      else if (code === 23) entity.y4 = numVal;
+    } else if (type === 'INSERT') {
+      if (code === 2) entity.blockName = value;
+      else if (code === 10) entity.x1 = numVal;
+      else if (code === 20) entity.y1 = numVal;
+      else if (code === 41) entity.scaleX = numVal;
+      else if (code === 42) entity.scaleY = numVal;
+      else if (code === 50) entity.rotation = numVal;
     }
   }
 
-  if (type === 'LWPOLYLINE') {
+  if (type === 'LWPOLYLINE' || type === 'HATCH') {
     if (currentLwPoint) lwPoints.push(currentLwPoint);
     entity.points = lwPoints;
   }

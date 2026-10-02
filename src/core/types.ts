@@ -92,7 +92,59 @@ export type ToolId =
   | 'measure'
   | 'flow'
   | 'wire'
-  | 'group';
+  | 'group'
+  | 'text'
+  | 'block'
+  | 'fill';
+
+export interface TextEntity {
+  id: number;
+  text: string;
+  x: number;
+  y: number;
+  height: number;
+  rotation?: number; // degrees counter-clockwise
+  layerId: string;
+  color?: string;
+  align?: 'left' | 'center' | 'right';
+  protected?: boolean;
+}
+
+export type FillType = 'solid' | 'hatch';
+
+export interface FillEntity {
+  id: number;
+  type: FillType;
+  /** Closed polygon boundary loop. */
+  points: Point[];
+  layerId: string;
+  color?: string;
+  opacity?: number; // 0..1, default 0.35
+  hatchPattern?: string; // 'SOLID' | 'ANSI31' | 'GRID'
+  protected?: boolean;
+}
+
+export interface CadBlockDefinition {
+  name: string;
+  description?: string;
+  basePoint: Point;
+  lines: Array<{ x1: number; y1: number; x2: number; y2: number; layerId?: string }>;
+  arcs: Array<{ cx: number; cy: number; r: number; a1: number; a2: number; layerId?: string }>;
+  circles: Array<{ cx: number; cy: number; r: number; layerId?: string }>;
+  texts?: Array<{ text: string; x: number; y: number; height: number; rotation?: number; layerId?: string }>;
+  fills?: Array<{ points: Point[]; color?: string; opacity?: number; layerId?: string }>;
+}
+
+export interface CadBlockInstance {
+  id: number;
+  blockName: string;
+  x: number;
+  y: number;
+  scale: number;
+  rotation: number; // degrees counter-clockwise
+  layerId: string;
+  protected?: boolean;
+}
 
 export interface ValidationResult {
   valid: boolean;

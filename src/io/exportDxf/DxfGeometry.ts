@@ -108,4 +108,64 @@ export class DxfGeometry {
       pair(' 43', scale.toFixed(6)) +
       pair(' 50', rotationDeg.toFixed(6));
   }
+
+  text(
+    textString: string,
+    x: number,
+    y: number,
+    height: number,
+    layer: string,
+    rotationDeg = 0,
+  ): void {
+    this.entities +=
+      this.head('TEXT', layer, 'AcDbText') +
+      pair(' 10', x.toFixed(6)) +
+      pair(' 20', y.toFixed(6)) +
+      pair(' 30', '0.0') +
+      pair(' 40', height.toFixed(6)) +
+      pair('  1', textString) +
+      pair(' 50', rotationDeg.toFixed(6)) +
+      pair('100', 'AcDbText');
+  }
+
+  solid(p1: Point, p2: Point, p3: Point, p4: Point, layer: string): void {
+    this.entities +=
+      this.head('SOLID', layer, 'AcDbTrace') +
+      pair(' 10', p1.x.toFixed(6)) +
+      pair(' 20', p1.y.toFixed(6)) +
+      pair(' 30', '0.0') +
+      pair(' 11', p2.x.toFixed(6)) +
+      pair(' 21', p2.y.toFixed(6)) +
+      pair(' 31', '0.0') +
+      pair(' 12', p3.x.toFixed(6)) +
+      pair(' 22', p3.y.toFixed(6)) +
+      pair(' 32', '0.0') +
+      pair(' 13', p4.x.toFixed(6)) +
+      pair(' 23', p4.y.toFixed(6)) +
+      pair(' 33', '0.0');
+  }
+
+  hatch(points: Point[], layer: string, isSolid = true): void {
+    if (points.length < 3) return;
+    this.entities +=
+      this.head('HATCH', layer, 'AcDbHatch') +
+      pair(' 10', '0.0') +
+      pair(' 20', '0.0') +
+      pair(' 30', '0.0') +
+      pair('210', '0.0') +
+      pair('220', '0.0') +
+      pair('230', '1.0') +
+      pair('  2', isSolid ? 'SOLID' : 'ANSI31') +
+      pair(' 70', isSolid ? 1 : 0) +
+      pair(' 71', 0) +
+      pair(' 91', 1) +
+      pair(' 92', 2) +
+      pair(' 72', 0) +
+      pair(' 73', 1) +
+      pair(' 93', points.length);
+    for (const p of points) {
+      this.entities += pair(' 10', p.x.toFixed(6)) + pair(' 20', p.y.toFixed(6));
+    }
+    this.entities += pair(' 97', 0);
+  }
 }

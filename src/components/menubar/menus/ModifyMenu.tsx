@@ -46,6 +46,22 @@ export function ModifyMenu({ open, onToggle, onClose }: MenuProps) {
           />
           <MenuDivider />
           <MenuItem icon="💥" label="Explode Groups" shortcut="XP" onSelect={run(() => store.explodeSelection())} />
+          <MenuItem
+            icon="🧱"
+            label="Create Block from Selection"
+            shortcut="CB"
+            onSelect={run(() => {
+              if (store.selection.size === 0) {
+                store.showHint('Select geometry first to create a block.', 2500);
+                return;
+              }
+              const name = window.prompt('Enter block name:', 'CUSTOM_BLOCK');
+              if (!name) return;
+              store.edit(() => store.doc.createBlockFromSelection(name, store.selection) !== null);
+              store.showHint(`Created block "${name}".`, 2000);
+            })}
+          />
+          <MenuItem icon="📥" label="Insert CAD Block..." shortcut="K" onSelect={run(() => store.setTool('block'))} />
         </MenuDropdown>
       )}
     </div>

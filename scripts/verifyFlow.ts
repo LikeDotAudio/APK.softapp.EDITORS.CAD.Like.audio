@@ -51,6 +51,8 @@ import {
   ungroup,
 } from '../src/flow/groups';
 import { buildDxf } from '../src/io/exportDxf/buildDxf';
+import { parseDxf } from '../src/io/importDxf/parseDxf';
+import { loadDxfIntoDoc } from '../src/io/importDxf/loadDxfIntoDoc';
 import { Doc } from '../src/model/Doc';
 
 let failures = 0;
@@ -204,7 +206,10 @@ for (const def of [...FLOW_CATALOG, ...SHOP_CATALOG]) {
    matching no packages and exiting 0). If the shop's termination list is not
    where it is committed, this check has proved nothing and says so. */
 
-const INTERFACES_REL = 'APK:OS/Interfaces/APK-Shop/Interfaces.json';
+const INTERFACES_PATHS = [
+  'PODS/POD:THIN/OS/Interfaces/APK-Shop/Interfaces.json',
+  'APK:OS/Interfaces/APK-Shop/Interfaces.json',
+];
 
 interface TerminalRow {
   interface: string;
@@ -220,16 +225,18 @@ function readTerminals(): TerminalRow[] {
      and `npm run build` runs it from the app. */
   let dir = resolve(dirname(fileURLToPath(import.meta.url)));
   for (let hop = 0; hop < 12; hop += 1) {
-    const candidate = join(dir, INTERFACES_REL);
-    if (existsSync(candidate)) {
-      const doc = JSON.parse(readFileSync(candidate, 'utf8'));
-      return doc['Interface Map'].blocks.Terminals.data as TerminalRow[];
+    for (const rel of INTERFACES_PATHS) {
+      const candidate = join(dir, rel);
+      if (existsSync(candidate)) {
+        const doc = JSON.parse(readFileSync(candidate, 'utf8'));
+        return doc['Interface Map'].blocks.Terminals.data as TerminalRow[];
+      }
     }
     const up = dirname(dir);
     if (up === dir) break;
     dir = up;
   }
-  throw new Error(`${INTERFACES_REL} was not found above ${dirname(fileURLToPath(import.meta.url))} — the join could not be checked, which is a failure and not a skip`);
+  throw new Error(`${INTERFACES_PATHS.join(' or ')} was not found above ${dirname(fileURLToPath(import.meta.url))} — the join could not be checked, which is a failure and not a skip`);
 }
 
 const terminals = readTerminals();
@@ -360,6 +367,61 @@ ok('snapshot: a sheet saved before groups existed still restores', (() => {
   restoreSchematic(old, { placements: [], connectors: [], nextPlacementId: 1, nextConnectorId: 1 });
   return old.groups.length === 0 && old.nextGroupId === 1;
 })());
+
+/* ---------------------------------------------------------------------------
+ * TEXT, BLOCKS AND FILLS SUPPORT & DXF ROUNDTRIP
+ * ------------------------------------------------------------------------- */
+const cadDoc = new Doc();
+
+// 1. Text support
+const textId = cadDoc.addText('TEST_LABEL_123', 5.0, 10.0, 0.75, 45, 'TEXT_LAYER');
+ok('Doc: addText creates text entity', cadDoc.texts.has(textId));
+ok('Doc: text values are preserved', cadDoc.texts.get(textId)?.text === 'TEST_LABEL_123');
+
+// 2. Fill support
+const fillPoints = [
+  { x: 0, y: 0 },
+  { x: 4, y: 0 },
+  { x: 4, y: 3 },
+  { x: 0, y: 3 },
+];
+const fillId = cadDoc.addFill(fillPoints, 'solid', 'FILL_LAYER', '#3b82f6', 0.5);
+ok('Doc: addFill creates fill entity', cadDoc.fills.has(fillId));
+ok('Doc: fill point count matches', cadDoc.fills.get(fillId)?.points.length === 4);
+
+// 3. Block support
+ok('Doc: standard blocks are initialized', cadDoc.blocks.has('RESISTOR'));
+const instId = cadDoc.addBlockInstance('RESISTOR', 12.0, 15.0, 1.5, 90, 'BLOCK_LAYER');
+ok('Doc: addBlockInstance creates block instance', cadDoc.blockInstances.has(instId));
+
+// Test DXF Export
+const exportedDxf = buildDxf(cadDoc, 'in', [
+  { id: '0', name: '0', color: '#ffffff', visible: true },
+  { id: 'TEXT_LAYER', name: 'TEXT_LAYER', color: '#ffffff', visible: true },
+  { id: 'FILL_LAYER', name: 'FILL_LAYER', color: '#3b82f6', visible: true },
+  { id: 'BLOCK_LAYER', name: 'BLOCK_LAYER', color: '#ffffff', visible: true },
+]);
+
+ok('DXF Export: contains TEXT entity', exportedDxf.includes('0\nTEXT\n') && exportedDxf.includes('TEST_LABEL_123'));
+ok('DXF Export: contains HATCH entity', exportedDxf.includes('0\nHATCH\n'));
+ok('DXF Export: contains BLOCK definition', exportedDxf.includes('0\nBLOCK\n') && exportedDxf.includes('2\nRESISTOR\n'));
+ok('DXF Export: contains INSERT reference', exportedDxf.includes('0\nINSERT\n') && exportedDxf.includes('2\nRESISTOR\n'));
+
+// Test DXF Import
+const parsedDxf = parseDxf(exportedDxf);
+const importedDoc = new Doc();
+loadDxfIntoDoc(importedDoc, parsedDxf);
+
+ok('DXF Import: restored text entities', Array.from(importedDoc.texts.values()).some((t) => t.text === 'TEST_LABEL_123'));
+ok('DXF Import: restored fill entities', importedDoc.fills.size > 0);
+ok('DXF Import: restored block instances', Array.from(importedDoc.blockInstances.values()).some((b) => b.blockName === 'RESISTOR'));
+
+// Test Explode Block
+const preExplodeEdgeCount = cadDoc.edgeCount;
+const exploded = cadDoc.explodeBlockInstance(instId);
+ok('Doc: explodeBlockInstance returns true', exploded);
+ok('Doc: explodeBlockInstance removed instance', !cadDoc.blockInstances.has(instId));
+ok('Doc: explodeBlockInstance unpacked edges', cadDoc.edgeCount > preExplodeEdgeCount);
 
 console.log(`flow model + DXF export: ${checks - failures}/${checks} checks passed`);
 // Thrown rather than `process.exit`: this file is typechecked against the DOM

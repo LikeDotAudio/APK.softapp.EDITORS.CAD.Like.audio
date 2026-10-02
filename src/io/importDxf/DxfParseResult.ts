@@ -18,6 +18,19 @@ export interface DxfEntity {
   // POLYLINE / LWPOLYLINE
   points?: { x: number; y: number; bulge?: number }[];
   isClosed?: boolean;
+  // TEXT / MTEXT
+  text?: string;
+  textHeight?: number;
+  rotation?: number;
+  // SOLID quad points (x1,y1, x2,y2, x3,y3, x4,y4)
+  x3?: number;
+  y3?: number;
+  x4?: number;
+  y4?: number;
+  // INSERT (Block reference)
+  blockName?: string;
+  scaleX?: number;
+  scaleY?: number;
 }
 
 export interface DxfLayer {

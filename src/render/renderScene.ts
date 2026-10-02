@@ -8,6 +8,9 @@ import type { Snap } from '../viewport/snap/findSnap';
 import { drawCalibration } from './drawCalibration';
 import { drawBadVertexMarkers } from './edges/drawBadVertexMarkers';
 import { drawEdges } from './edges/drawEdges';
+import { drawFills } from './fills/drawFills';
+import { drawBlockInstances } from './blocks/drawBlockInstances';
+import { drawTexts } from './texts/drawTexts';
 import { drawGroups } from './flow/drawGroups';
 import { drawSchematic } from './flow/drawSchematic';
 import { drawGrid } from './grid/drawGrid';
@@ -39,12 +42,21 @@ export function renderScene(scene: Scene, frame: FrameState): void {
   drawImageLayer(scene, frame.tracing);
   drawCalibration(scene, frame.calibration);
 
+  // Fills sit behind wireframe edges
+  drawFills(scene, { layers: frame.layers, selectedIds: frame.selection });
+
+  // CAD block instances
+  drawBlockInstances(scene, { layers: frame.layers, selectedIds: frame.selection });
+
   drawEdges(scene, {
     selected: frame.selection,
     hoverId: frame.hoverId,
     hoverEnabled: frame.tool.id === 'select',
     layers: frame.layers,
   });
+
+  // Texts sit on top of geometry
+  drawTexts(scene, { layers: frame.layers, selectedIds: frame.selection });
 
   // Containers behind their contents: a group is the ground a block sits on.
   drawGroups(scene, scene.schematic);

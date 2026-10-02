@@ -83,7 +83,7 @@ export function parseDxf(dxfText: string): DxfParseResult {
     } else if (inEntities) {
       if (code === 0) {
         const entityType = value.toUpperCase();
-        if (['LINE', 'CIRCLE', 'ARC', 'LWPOLYLINE', 'POLYLINE'].includes(entityType)) {
+        if (['LINE', 'CIRCLE', 'ARC', 'LWPOLYLINE', 'POLYLINE', 'TEXT', 'MTEXT', 'SOLID', 'HATCH', 'INSERT'].includes(entityType)) {
           const { entity, lastPair } = parseEntity(entityType, () => readPair());
           if (entity) {
             entities.push(entity);

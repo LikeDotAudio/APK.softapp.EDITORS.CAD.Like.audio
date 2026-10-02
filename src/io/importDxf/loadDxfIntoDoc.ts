@@ -91,6 +91,38 @@ export function loadDxfIntoDoc(doc: Doc, parseResult: DxfParseResult): void {
           doc.addLineEdge(v1, v2, groupId, layerId);
         }
       }
+    } else if ((entity.type === 'TEXT' || entity.type === 'MTEXT') && entity.text) {
+      const x = entity.x1 ?? 0;
+      const y = entity.y1 ?? 0;
+      const height = entity.textHeight ?? 0.5;
+      const rot = entity.rotation ?? 0;
+      doc.addText(entity.text, x, y, height, rot, layerId);
+    } else if (
+      entity.type === 'SOLID' &&
+      entity.x1 !== undefined &&
+      entity.x2 !== undefined &&
+      entity.x3 !== undefined
+    ) {
+      const p1 = { x: entity.x1, y: entity.y1 ?? 0 };
+      const p2 = { x: entity.x2, y: entity.y2 ?? 0 };
+      const p3 = { x: entity.x3, y: entity.y3 ?? 0 };
+      const points =
+        entity.x4 !== undefined
+          ? [p1, p2, { x: entity.x4, y: entity.y4 ?? 0 }, p3]
+          : [p1, p2, p3];
+      doc.addFill(points, 'solid', layerId);
+    } else if (entity.type === 'HATCH' && entity.points && entity.points.length >= 3) {
+      doc.addFill(
+        entity.points.map((p) => ({ x: p.x, y: p.y })),
+        'solid',
+        layerId,
+      );
+    } else if (entity.type === 'INSERT' && entity.blockName) {
+      const x = entity.x1 ?? 0;
+      const y = entity.y1 ?? 0;
+      const scale = entity.scaleX ?? 1;
+      const rot = entity.rotation ?? 0;
+      doc.addBlockInstance(entity.blockName, x, y, scale, rot, layerId);
     }
   }
 }

@@ -10,8 +10,15 @@ export function snapshotDoc(doc: Doc): DocSnapshot {
     edges: Array.from(doc.edges.values(), (e) => ({ ...e })),
     groupPrimitives: Array.from(doc.groupPrimitives.entries(), ([k, v]) => [k, { ...v }]),
     groupIntact: Array.from(doc.groupIntact),
+    texts: Array.from(doc.texts.values(), (t) => ({ ...t })),
+    fills: Array.from(doc.fills.values(), (f) => ({ ...f, points: f.points.map((p) => ({ ...p })) })),
+    blocks: Array.from(doc.blocks.entries(), ([k, v]) => [k, JSON.parse(JSON.stringify(v))]),
+    blockInstances: Array.from(doc.blockInstances.values(), (b) => ({ ...b })),
     nextVertexId: doc.nextVertexId,
     nextEdgeId: doc.nextEdgeId,
     nextGroupId: doc.nextGroupId,
+    nextTextId: doc.nextTextId,
+    nextFillId: doc.nextFillId,
+    nextBlockInstanceId: doc.nextBlockInstanceId,
   };
 }

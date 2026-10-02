@@ -71,6 +71,49 @@ export function buildDxf(
     }
   }
 
+  // ------------------------------------------------------------- texts
+  for (const t of doc.texts.values()) {
+    dxf.sheet.text(t.text, t.x, t.y, t.height, t.layerId, t.rotation ?? 0);
+  }
+
+  // ------------------------------------------------------------- fills
+  for (const f of doc.fills.values()) {
+    if (f.points.length >= 3) {
+      dxf.sheet.hatch(f.points, f.layerId, f.type === 'solid');
+    }
+  }
+
+  // ------------------------------------------------------------- CAD blocks
+  for (const [name, blockDef] of doc.blocks.entries()) {
+    const bName = dxfBlockName(name);
+    if (dxf.hasBlock(bName)) continue;
+    const geom = dxf.block(bName);
+    for (const l of blockDef.lines) {
+      geom.line(l.x1, l.y1, l.x2, l.y2, l.layerId || '0');
+    }
+    for (const a of blockDef.arcs) {
+      geom.arc(a.cx, a.cy, a.r, a.a1, a.a2, a.layerId || '0');
+    }
+    for (const c of blockDef.circles) {
+      geom.circle(c.cx, c.cy, c.r, c.layerId || '0');
+    }
+    if (blockDef.texts) {
+      for (const t of blockDef.texts) {
+        geom.text(t.text, t.x, t.y, t.height, t.layerId || '0', t.rotation ?? 0);
+      }
+    }
+    if (blockDef.fills) {
+      for (const f of blockDef.fills) {
+        geom.hatch(f.points, f.layerId || '0', true);
+      }
+    }
+  }
+
+  for (const inst of doc.blockInstances.values()) {
+    const bName = dxfBlockName(inst.blockName);
+    dxf.sheet.insert(bName, inst.x, inst.y, inst.layerId, inst.rotation ?? 0, inst.scale ?? 1);
+  }
+
   // --------------------------------------------------------------- schematic
   if (schematic) {
     // One BLOCK per definition that is actually placed. A definition nobody

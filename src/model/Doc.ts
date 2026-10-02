@@ -1,13 +1,15 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
-import type { ArcEdge, BBox, Edge, GroupPrimitive, Point, Vertex } from '../core/types';
+import type { ArcEdge, BBox, CadBlockDefinition, CadBlockInstance, Edge, FillEntity, GroupPrimitive, Point, TextEntity, Vertex } from '../core/types';
 import type { ArcGeom } from '../geometry/arc/arcGeom';
 import { arcGeom } from '../geometry/arc/arcGeom';
+import { STANDARD_CAD_BLOCKS } from './cadBlocks/standardCadBlocks';
 import { addArc } from './doc/addArc';
 import { addArcEdge } from './doc/addArcEdge';
 import { addLine } from './doc/addLine';
 import { addLineEdge } from './doc/addLineEdge';
 import { addVertex } from './doc/addVertex';
+import { createBlockFromSelection, explodeBlockInstance } from './doc/blockOps';
 import { bounds } from './doc/bounds';
 import { boundsOf } from './doc/boundsOf';
 import { clearDoc } from './doc/clearDoc';
@@ -38,12 +40,8 @@ import { vertexDegree } from './doc/vertexDegree';
 export type { DocSnapshot } from './doc/DocSnapshot';
 
 /**
- * The drawing's geometry: a graph of vertices joined by line or true-arc edges.
- *
- * Everything that mutates geometry lives under `doc/`, one operation per file;
- * this class holds the data and forwards to them. Edges carry a `groupId`
- * identifying the draw operation that created them, which drives "select whole
- * shape" and lossless export of untouched circles.
+ * The drawing's geometry: a graph of vertices joined by line or true-arc edges,
+ * plus text annotations, fill/hatch regions, and reusable CAD block definitions/instances.
  */
 export class Doc {
   vertices = new Map<number, Vertex>();
@@ -53,12 +51,20 @@ export class Doc {
   /** Groups whose primitive has not been cut or split since creation. */
   groupIntact = new Set<number>();
 
+  texts = new Map<number, TextEntity>();
+  fills = new Map<number, FillEntity>();
+  blocks = new Map<string, CadBlockDefinition>(STANDARD_CAD_BLOCKS.map((b) => [b.name, b]));
+  blockInstances = new Map<number, CadBlockInstance>();
+
   /** @internal — id counters, public only so the `doc/` operations can bump them. */
   nextVertexId = 1;
   /** @internal */
   nextEdgeId = 1;
   /** @internal */
   nextGroupId = 1;
+  nextTextId = 1;
+  nextFillId = 1;
+  nextBlockInstanceId = 1;
 
   // ---------------------------------------------------------------- lookups
 
@@ -225,6 +231,79 @@ export class Doc {
 
   explodeSelected(edgeIds: Iterable<number>): number {
     return explodeSelected(this, edgeIds);
+  }
+
+  // ----------------------------------------------------------- texts & annotations
+
+  addText(
+    text: string,
+    x: number,
+    y: number,
+    height = 0.5,
+    rotation = 0,
+    layerId = '0',
+    color?: string,
+  ): number {
+    const id = this.nextTextId++;
+    this.texts.set(id, { id, text, x, y, height, rotation, layerId, color });
+    return id;
+  }
+
+  removeText(id: number): void {
+    this.texts.delete(id);
+  }
+
+  // ------------------------------------------------------------------- fills
+
+  addFill(
+    points: Point[],
+    type: 'solid' | 'hatch' = 'solid',
+    layerId = '0',
+    color?: string,
+    opacity = 0.35,
+  ): number {
+    const id = this.nextFillId++;
+    this.fills.set(id, { id, type, points, layerId, color, opacity });
+    return id;
+  }
+
+  removeFill(id: number): void {
+    this.fills.delete(id);
+  }
+
+  // ------------------------------------------------------------------ blocks
+
+  addBlockDefinition(def: CadBlockDefinition): void {
+    this.blocks.set(def.name, def);
+  }
+
+  addBlockInstance(
+    blockName: string,
+    x: number,
+    y: number,
+    scale = 1,
+    rotation = 0,
+    layerId = '0',
+  ): number {
+    const id = this.nextBlockInstanceId++;
+    this.blockInstances.set(id, { id, blockName, x, y, scale, rotation, layerId });
+    return id;
+  }
+
+  removeBlockInstance(id: number): void {
+    this.blockInstances.delete(id);
+  }
+
+  explodeBlockInstance(id: number): boolean {
+    return explodeBlockInstance(this, id);
+  }
+
+  createBlockFromSelection(
+    name: string,
+    edgeIds: Iterable<number>,
+    basePoint?: Point,
+  ): CadBlockDefinition | null {
+    return createBlockFromSelection(this, name, edgeIds, basePoint);
   }
 
   // ------------------------------------------------------------------- undo
