@@ -44,6 +44,8 @@ export async function restoreBrowserSession(store: EditorStore): Promise<void> {
     }
 
     store.markDocChanged();
+    store.discoverViewports();
+    store.activeViewportId = 'ALL';
     store.view.zoomToFit(store.doc.bounds());
     store.requestDraw();
     store.emit();

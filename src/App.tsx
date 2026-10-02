@@ -16,6 +16,7 @@ import { ElementsEditorModal } from './components/elementsEditor/ElementsEditorM
 import { BlockEditorModal } from './components/blockEditor/BlockEditorModal';
 import { StartupModal } from './components/startup/StartupModal';
 import { LoadingOverlay } from './components/loading/LoadingOverlay';
+import { ViewportTabs } from './components/viewport/ViewportTabs';
 
 export default function App() {
   /* Which of the two desktop tiles opened this window. Read once: the fragment
@@ -69,6 +70,9 @@ export default function App() {
             </div>
             <SidebarPanel />
           </div>
+
+          {/* Viewport & Sheet Tabs (AutoCAD Model/Layout style) */}
+          <ViewportTabs />
 
           {/* Bottom Status Bar */}
           <StatusBar />

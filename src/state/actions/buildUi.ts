@@ -99,6 +99,7 @@ export function buildUi(store: EditorStore): UiState {
       message: store.bigPicture.message,
     },
     loading: store.loading,
+    viewports: store.viewports,
+    activeViewportId: store.activeViewportId,
   };
-
 }

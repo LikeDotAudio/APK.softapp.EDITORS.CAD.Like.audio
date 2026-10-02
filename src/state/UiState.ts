@@ -16,7 +16,7 @@
  *
  * Everything here must be cheap to construct — it is rebuilt on every emit.
  */
-import type { Layer, Point, ToolId, Units, GridMode, ValidationResult } from '../core/types';
+import type { CadViewport, Layer, Point, ToolId, Units, GridMode, ValidationResult } from '../core/types';
 
 export interface DynFieldUi {
   key: string;
@@ -117,4 +117,6 @@ export interface UiState {
   groups: GroupRowUi[];
   bigPicture: BigPictureUi;
   loading: LoadingUi | null;
+  viewports: CadViewport[];
+  activeViewportId: string;
 }

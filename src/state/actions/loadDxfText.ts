@@ -120,6 +120,8 @@ export async function loadDxfText(store: EditorStore, text: string,
   }
 
   loadDxfIntoDoc(store.doc, result);
+  store.discoverViewports();
+  store.activeViewportId = 'ALL';
 
   store.selection.clear();
   store.hoverId = null;
@@ -133,7 +135,8 @@ export async function loadDxfText(store: EditorStore, text: string,
   store.markDocChanged();
   store.requestDraw();
   store.emit();
-  store.showHint(`Opened DXF: imported ${result.entities.length} entities across ${store.layers.size} layers.`, 5000);
+  const sheetMsg = store.viewports.length > 0 ? ` (${store.viewports.length} sheets discovered)` : '';
+  store.showHint(`Opened DXF: imported ${result.entities.length} entities across ${store.layers.size} layers${sheetMsg}.`, 5000);
   } finally {
     store.hideLoading();
   }

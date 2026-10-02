@@ -22,6 +22,14 @@ export interface BBox {
   y2: number;
 }
 
+/** A named drawing sheet or viewport window onto the Model Space. */
+export interface CadViewport {
+  id: string;
+  name: string;
+  subtitle?: string;
+  bounds: BBox;
+}
+
 export interface Layer {
   id: string;
   name: string;

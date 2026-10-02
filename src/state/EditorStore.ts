@@ -32,7 +32,8 @@
  * The body is 94 one-action modules under `actions/`, bound as methods here:
  * a 664-line class is easier to read as a table of contents than as a wall.
  */
-import type { Layer, Point, SchematicModel, ToolId, Units, GridMode, ValidationResult } from '../core/types';
+import type { CadViewport, Layer, Point, SchematicModel, ToolId, Units, GridMode, ValidationResult } from '../core/types';
+import { discoverViewports } from '../viewport/discoverViewports';
 import type { ClipboardItem } from './ClipboardItem';
 import { ORIGIN } from './origin';
 import type { DynUi, UiState, LoadingUi } from './UiState';
@@ -210,6 +211,8 @@ export class EditorStore {
     ['0', { id: '0', name: '0', color: '#ffffff', dxfColorIndex: 7, visible: true }],
   ]);
   activeLayerId = '0';
+  viewports: CadViewport[] = [];
+  activeViewportId = 'ALL';
 
   hoverId: number | null = null;
   snap: Snap | null = null;
@@ -623,6 +626,25 @@ export class EditorStore {
 
   zoomToFit(): void {
     zoomToFit(this);
+  }
+
+  setActiveViewport(id: string): void {
+    this.activeViewportId = id;
+    if (id === 'ALL') {
+      this.zoomToFit();
+    } else {
+      const vp = this.viewports.find((v) => v.id === id);
+      if (vp) {
+        this.view.zoomToFit(vp.bounds);
+        this.requestDraw();
+        this.emit();
+      }
+    }
+  }
+
+  discoverViewports(): void {
+    this.viewports = discoverViewports(this.doc);
+    this.emit();
   }
 
   zoomIn(): void {
