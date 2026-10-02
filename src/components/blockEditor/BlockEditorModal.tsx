@@ -1,7 +1,8 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
-import { useCallback, useEffect, useRef, useState } from 'react';
-import type { CadBlockDefinition, Point } from '../../core/types';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { BlockPlacement, CadBlockDefinition, CadBlockInstance, FillEntity, Point, TextEntity } from '../../core/types';
+import { generateUuid } from '../../core/generateUuid';
 import { useStore } from '../../state/useStore';
 import { useUi } from '../../state/useUi';
 
@@ -10,7 +11,25 @@ interface BlockEditorModalProps {
   onClose: () => void;
 }
 
-type InspectorTab = 'lines' | 'circles' | 'arcs' | 'texts' | 'fills' | 'quickAdd';
+type InspectorTab = 'quickAdd' | 'attributes' | 'lines' | 'circles' | 'arcs' | 'texts' | 'fills';
+type ItemCategory = 'all' | 'drawing' | 'blocks' | 'instances';
+
+interface EditorListItem {
+  id: string;
+  name: string;
+  category: 'master' | 'layer' | 'text' | 'fill' | 'instance' | 'flow' | 'block';
+  groupLabel: string;
+  badge: string;
+  badgeStyle: string;
+  icon: string;
+  detail: string;
+  defName?: string;
+  instance?: CadBlockInstance;
+  textEntity?: TextEntity;
+  fillEntity?: FillEntity;
+  layerId?: string;
+  flowPlacement?: BlockPlacement;
+}
 
 export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModalProps) {
   const store = useStore();
@@ -24,6 +43,12 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
 
   const [selectedBlockName, setSelectedBlockName] = useState<string>(initialName);
   const [originalName, setOriginalName] = useState<string>(initialName);
+  const [selectedItemId, setSelectedItemId] = useState<string>(`block_${initialName}`);
+  const [categoryFilter, setCategoryFilter] = useState<ItemCategory>('all');
+  const [selectedInstance, setSelectedInstance] = useState<CadBlockInstance | null>(null);
+  const [copiedUuid, setCopiedUuid] = useState(false);
+  const [newAttrKey, setNewAttrKey] = useState('');
+  const [newAttrVal, setNewAttrVal] = useState('');
 
   // Editable local copy of the block definition
   const [currentBlock, setCurrentBlock] = useState<CadBlockDefinition>(() => {
@@ -98,8 +123,346 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
     setSelectedBlockName(name);
     setOriginalName(name);
     setCurrentBlock(cloned);
-    setPickingBasePoint(false);
   }, [store]);
+
+  // Helper to build a block from all elements currently on the active drawing canvas
+  const buildActiveDrawingBlock = useCallback((): CadBlockDefinition => {
+    const lines: Array<{ x1: number; y1: number; x2: number; y2: number; layerId?: string }> = [];
+    const arcs: Array<{ cx: number; cy: number; r: number; a1: number; a2: number; layerId?: string }> = [];
+    const circles: Array<{ cx: number; cy: number; r: number; layerId?: string }> = [];
+
+    for (const e of store.doc.edges.values()) {
+      const v1 = store.doc.vertexOf(e.v1);
+      const v2 = store.doc.vertexOf(e.v2);
+      if (!v1 || !v2) continue;
+      if (e.type === 'arc') {
+        let a1 = Math.atan2(v1.y - e.cy, v1.x - e.cx) * (180 / Math.PI);
+        let a2 = Math.atan2(v2.y - e.cy, v2.x - e.cx) * (180 / Math.PI);
+        if (a1 < 0) a1 += 360;
+        if (a2 < 0) a2 += 360;
+        arcs.push({
+          cx: e.cx,
+          cy: e.cy,
+          r: e.r,
+          a1,
+          a2,
+          layerId: e.layerId,
+        });
+      } else {
+        lines.push({
+          x1: v1.x,
+          y1: v1.y,
+          x2: v2.x,
+          y2: v2.y,
+          layerId: e.layerId,
+        });
+      }
+    }
+
+    const texts = Array.from(store.doc.texts.values()).map((t) => ({
+      text: t.text,
+      x: t.x,
+      y: t.y,
+      height: t.height,
+      rotation: t.rotation ?? 0,
+      layerId: t.layerId,
+    }));
+
+    const fills = Array.from(store.doc.fills.values()).map((f) => ({
+      points: f.points.map((p) => ({ ...p })),
+      color: f.color,
+      opacity: f.opacity,
+      layerId: f.layerId,
+    }));
+
+    const b = store.doc.bounds();
+    const basePoint = b ? { x: (b.x1 + b.x2) / 2, y: (b.y1 + b.y2) / 2 } : { x: 0, y: 0 };
+
+    return {
+      name: 'ACTIVE_DRAWING',
+      description: `Complete drawing canvas (${lines.length + arcs.length} edges, ${texts.length} texts)`,
+      basePoint,
+      lines,
+      arcs,
+      circles,
+      texts,
+      fills,
+    };
+  }, [store.doc]);
+
+  const buildLayerBlock = useCallback((layerId: string): CadBlockDefinition => {
+    const lines: Array<{ x1: number; y1: number; x2: number; y2: number; layerId?: string }> = [];
+    const arcs: Array<{ cx: number; cy: number; r: number; a1: number; a2: number; layerId?: string }> = [];
+    const circles: Array<{ cx: number; cy: number; r: number; layerId?: string }> = [];
+
+    for (const e of store.doc.edges.values()) {
+      if ((e.layerId || '0') !== layerId) continue;
+      const v1 = store.doc.vertexOf(e.v1);
+      const v2 = store.doc.vertexOf(e.v2);
+      if (!v1 || !v2) continue;
+      if (e.type === 'arc') {
+        let a1 = Math.atan2(v1.y - e.cy, v1.x - e.cx) * (180 / Math.PI);
+        let a2 = Math.atan2(v2.y - e.cy, v2.x - e.cx) * (180 / Math.PI);
+        if (a1 < 0) a1 += 360;
+        if (a2 < 0) a2 += 360;
+        arcs.push({ cx: e.cx, cy: e.cy, r: e.r, a1, a2, layerId: e.layerId });
+      } else {
+        lines.push({ x1: v1.x, y1: v1.y, x2: v2.x, y2: v2.y, layerId: e.layerId });
+      }
+    }
+
+    const texts = Array.from(store.doc.texts.values())
+      .filter((t) => (t.layerId || '0') === layerId)
+      .map((t) => ({ text: t.text, x: t.x, y: t.y, height: t.height, rotation: t.rotation ?? 0, layerId: t.layerId }));
+
+    const fills = Array.from(store.doc.fills.values())
+      .filter((f) => (f.layerId || '0') === layerId)
+      .map((f) => ({ points: f.points.map((p) => ({ ...p })), color: f.color, opacity: f.opacity, layerId: f.layerId }));
+
+    return {
+      name: `LAYER_${layerId}`,
+      description: `All elements on layer "${layerId}"`,
+      basePoint: { x: 0, y: 0 },
+      lines,
+      arcs,
+      circles,
+      texts,
+      fills,
+    };
+  }, [store.doc]);
+
+  const buildTextBlock = useCallback((t: TextEntity): CadBlockDefinition => {
+    return {
+      name: `TEXT_${t.id}`,
+      description: `Drawing Text: "${t.text}" on layer ${t.layerId}`,
+      basePoint: { x: t.x, y: t.y },
+      lines: [],
+      arcs: [],
+      circles: [],
+      texts: [{ text: t.text, x: t.x, y: t.y, height: t.height, rotation: t.rotation ?? 0, layerId: t.layerId }],
+      fills: [],
+    };
+  }, []);
+
+  const buildFillBlock = useCallback((f: FillEntity): CadBlockDefinition => {
+    return {
+      name: `FILL_${f.id}`,
+      description: `Drawing Fill (${f.type}) with ${f.points.length} points on layer ${f.layerId}`,
+      basePoint: f.points[0] ? { ...f.points[0] } : { x: 0, y: 0 },
+      lines: [],
+      arcs: [],
+      circles: [],
+      texts: [],
+      fills: [{ points: f.points.map((p) => ({ ...p })), color: f.color, opacity: f.opacity, layerId: f.layerId }],
+    };
+  }, []);
+
+  const buildFlowBlock = useCallback((p: BlockPlacement): CadBlockDefinition => {
+    return {
+      name: `FLOW_${p.id}`,
+      description: `Flow Schematic Part ${p.definitionId} (ID: #${p.id})`,
+      basePoint: { x: p.at.x, y: p.at.y },
+      lines: [
+        { x1: p.at.x - 2, y1: p.at.y - 1, x2: p.at.x + 2, y2: p.at.y - 1 },
+        { x1: p.at.x + 2, y1: p.at.y - 1, x2: p.at.x + 2, y2: p.at.y + 1 },
+        { x1: p.at.x + 2, y1: p.at.y + 1, x2: p.at.x - 2, y2: p.at.y + 1 },
+        { x1: p.at.x - 2, y1: p.at.y + 1, x2: p.at.x - 2, y2: p.at.y - 1 },
+      ],
+      arcs: [],
+      circles: [],
+      texts: [{ text: p.refdes || p.definitionId, x: p.at.x, y: p.at.y, height: 0.4, rotation: 0 }],
+      fills: [],
+    };
+  }, []);
+
+  // Compute all elements in the drawings + block definitions
+  const allElementsList = useMemo<EditorListItem[]>(() => {
+    const items: EditorListItem[] = [];
+
+    // 1. Master Drawing Canvas (if any geometry/texts/blocks exist)
+    const hasDrawing =
+      store.doc.edges.size > 0 ||
+      store.doc.texts.size > 0 ||
+      store.doc.fills.size > 0 ||
+      store.doc.blockInstances.size > 0;
+
+    if (hasDrawing) {
+      items.push({
+        id: 'drawing_master',
+        name: 'Active Drawing (All)',
+        category: 'master',
+        groupLabel: 'Drawing Elements',
+        badge: 'DRAWING',
+        badgeStyle: 'bg-emerald-950/60 text-emerald-300 border-emerald-700/60',
+        icon: '🎨',
+        detail: `${store.doc.edges.size} edges, ${store.doc.texts.size} texts, ${store.doc.blockInstances.size} blocks`,
+      });
+    }
+
+    // 2. Placed Block Instances on Canvas
+    for (const inst of store.doc.blockInstances.values()) {
+      items.push({
+        id: `instance_${inst.id}`,
+        name: `${inst.blockName} #${inst.id}`,
+        category: 'instance',
+        groupLabel: 'Drawing Elements',
+        badge: 'INSTANCE',
+        badgeStyle: 'bg-cyan-950/60 text-cyan-300 border-cyan-700/60',
+        icon: '🧱',
+        detail: `UUID: ${inst.uuid.slice(0, 8)}… @ (${inst.x.toFixed(1)}, ${inst.y.toFixed(1)})`,
+        defName: inst.blockName,
+        instance: inst,
+      });
+    }
+
+    // 3. Drawing Text Entities
+    for (const t of store.doc.texts.values()) {
+      const preview = t.text.length > 20 ? t.text.slice(0, 20) + '…' : t.text;
+      items.push({
+        id: `text_${t.id}`,
+        name: `"${preview}"`,
+        category: 'text',
+        groupLabel: 'Drawing Elements',
+        badge: 'TEXT',
+        badgeStyle: 'bg-amber-950/60 text-amber-300 border-amber-700/60',
+        icon: '🔤',
+        detail: `Layer ${t.layerId} @ (${t.x.toFixed(1)}, ${t.y.toFixed(1)})`,
+        textEntity: t,
+      });
+    }
+
+    // 4. Drawing Fills
+    for (const f of store.doc.fills.values()) {
+      items.push({
+        id: `fill_${f.id}`,
+        name: `Fill (${f.type.toUpperCase()}) #${f.id}`,
+        category: 'fill',
+        groupLabel: 'Drawing Elements',
+        badge: 'FILL',
+        badgeStyle: 'bg-purple-950/60 text-purple-300 border-purple-700/60',
+        icon: '⬛',
+        detail: `${f.points.length} vertices on ${f.layerId}`,
+        fillEntity: f,
+      });
+    }
+
+    // 5. Drawing Geometry by Layer
+    const layerCounts = new Map<string, number>();
+    for (const e of store.doc.edges.values()) {
+      const lid = e.layerId || '0';
+      layerCounts.set(lid, (layerCounts.get(lid) ?? 0) + 1);
+    }
+    for (const [layerId, count] of layerCounts.entries()) {
+      items.push({
+        id: `layer_${layerId}`,
+        name: `Layer: ${layerId}`,
+        category: 'layer',
+        groupLabel: 'Drawing Elements',
+        badge: 'GEOMETRY',
+        badgeStyle: 'bg-blue-950/60 text-blue-300 border-blue-700/60',
+        icon: '📐',
+        detail: `${count} edges on layer ${layerId}`,
+        layerId,
+      });
+    }
+
+    // 6. Flow Placements
+    if (store.schematic?.placements?.length) {
+      for (const p of store.schematic.placements) {
+        items.push({
+          id: `flow_${p.id}`,
+          name: p.refdes || p.definitionId,
+          category: 'flow',
+          groupLabel: 'Drawing Elements',
+          badge: 'FLOW',
+          badgeStyle: 'bg-pink-950/60 text-pink-300 border-pink-700/60',
+          icon: '⚡',
+          detail: `${p.definitionId} @ (${p.at.x.toFixed(1)}, ${p.at.y.toFixed(1)})`,
+          flowPlacement: p,
+        });
+      }
+    }
+
+    // 7. Block Definitions Library
+    for (const b of store.doc.blocks.values()) {
+      items.push({
+        id: `block_${b.name}`,
+        name: b.name,
+        category: 'block',
+        groupLabel: 'Block Library',
+        badge: 'BLOCK',
+        badgeStyle: 'bg-neutral-800 text-neutral-300 border-neutral-600',
+        icon: '📦',
+        detail: `${b.lines.length + b.circles.length + b.arcs.length} ent`,
+        defName: b.name,
+      });
+    }
+
+    return items;
+  }, [store.doc, store.schematic]);
+
+  const filteredElements = useMemo(() => {
+    return allElementsList.filter((item) => {
+      if (categoryFilter === 'drawing' && item.groupLabel !== 'Drawing Elements') return false;
+      if (categoryFilter === 'blocks' && item.category !== 'block') return false;
+      if (categoryFilter === 'instances' && item.category !== 'instance') return false;
+
+      if (search.trim()) {
+        const q = search.toLowerCase();
+        const matchName = item.name.toLowerCase().includes(q);
+        const matchDetail = item.detail.toLowerCase().includes(q);
+        const matchBadge = item.badge.toLowerCase().includes(q);
+        const matchUuid = item.instance?.uuid?.toLowerCase().includes(q) ?? false;
+        const matchDef = item.defName?.toLowerCase().includes(q) ?? false;
+        return matchName || matchDetail || matchBadge || matchUuid || matchDef;
+      }
+      return true;
+    });
+  }, [allElementsList, categoryFilter, search]);
+
+  const handleSelectItem = useCallback((item: EditorListItem) => {
+    setSelectedItemId(item.id);
+    setSelectedInstance(item.instance ?? null);
+
+    if (item.category === 'block' && item.defName) {
+      loadBlock(item.defName);
+    } else if (item.category === 'instance' && item.instance) {
+      if (store.doc.blocks.has(item.instance.blockName)) {
+        loadBlock(item.instance.blockName);
+      }
+      setActiveTab('attributes');
+    } else if (item.category === 'master') {
+      const b = buildActiveDrawingBlock();
+      setSelectedBlockName('ACTIVE_DRAWING');
+      setOriginalName('ACTIVE_DRAWING');
+      setCurrentBlock(b);
+      setPickingBasePoint(false);
+    } else if (item.category === 'layer' && item.layerId) {
+      const b = buildLayerBlock(item.layerId);
+      setSelectedBlockName(`LAYER_${item.layerId}`);
+      setOriginalName(`LAYER_${item.layerId}`);
+      setCurrentBlock(b);
+      setPickingBasePoint(false);
+    } else if (item.category === 'text' && item.textEntity) {
+      const b = buildTextBlock(item.textEntity);
+      setSelectedBlockName(`TEXT_${item.textEntity.id}`);
+      setOriginalName(`TEXT_${item.textEntity.id}`);
+      setCurrentBlock(b);
+      setPickingBasePoint(false);
+    } else if (item.category === 'fill' && item.fillEntity) {
+      const b = buildFillBlock(item.fillEntity);
+      setSelectedBlockName(`FILL_${item.fillEntity.id}`);
+      setOriginalName(`FILL_${item.fillEntity.id}`);
+      setCurrentBlock(b);
+      setPickingBasePoint(false);
+    } else if (item.category === 'flow' && item.flowPlacement) {
+      const b = buildFlowBlock(item.flowPlacement);
+      setSelectedBlockName(`FLOW_${item.flowPlacement.id}`);
+      setOriginalName(`FLOW_${item.flowPlacement.id}`);
+      setCurrentBlock(b);
+      setPickingBasePoint(false);
+    }
+  }, [buildActiveDrawingBlock, buildFillBlock, buildFlowBlock, buildLayerBlock, buildTextBlock, loadBlock, store.doc.blocks]);
 
   // When initialBlockName changes externally
   useEffect(() => {
@@ -542,6 +905,142 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
     store.showHint(`Inserted instance of "${currentBlock.name}" at (0, 0).`, 2500);
   };
 
+  const handleCopyUuid = async (uuidText: string) => {
+    try {
+      await navigator.clipboard.writeText(uuidText);
+      setCopiedUuid(true);
+      setTimeout(() => setCopiedUuid(false), 2000);
+      store.showHint('Copied Block UUID to clipboard.', 2000);
+    } catch {
+      // fallback
+    }
+  };
+
+  const handleRegenerateInstanceUuid = () => {
+    if (!selectedInstance) return;
+    const newUuid = generateUuid();
+    store.history.push(store.doc.snapshot());
+    store.edit(() => {
+      const inst = store.doc.blockInstances.get(selectedInstance.id);
+      if (inst) {
+        inst.uuid = newUuid;
+      }
+      return true;
+    });
+    setSelectedInstance((prev) => (prev ? { ...prev, uuid: newUuid } : null));
+    store.showHint('Regenerated Block UUID.', 2000);
+  };
+
+  const handleUpdateInstanceField = (field: keyof CadBlockInstance, value: any) => {
+    if (!selectedInstance) return;
+    store.history.push(store.doc.snapshot());
+    store.edit(() => {
+      const inst = store.doc.blockInstances.get(selectedInstance.id);
+      if (inst) {
+        (inst as any)[field] = value;
+      }
+      return true;
+    });
+    setSelectedInstance((prev) => (prev ? { ...prev, [field]: value } : null));
+  };
+
+  const handleAddInstanceAttribute = () => {
+    if (!selectedInstance || !newAttrKey.trim()) return;
+    const k = newAttrKey.trim();
+    const v = newAttrVal.trim();
+    store.history.push(store.doc.snapshot());
+    store.edit(() => {
+      const inst = store.doc.blockInstances.get(selectedInstance.id);
+      if (inst) {
+        inst.attributes = { ...(inst.attributes ?? {}), [k]: v };
+      }
+      return true;
+    });
+    setSelectedInstance((prev) =>
+      prev ? { ...prev, attributes: { ...(prev.attributes ?? {}), [k]: v } } : null,
+    );
+    setNewAttrKey('');
+    setNewAttrVal('');
+    store.showHint(`Added attribute "${k}" = "${v}".`, 2000);
+  };
+
+  const handleDeleteInstanceAttribute = (key: string) => {
+    if (!selectedInstance) return;
+    store.history.push(store.doc.snapshot());
+    store.edit(() => {
+      const inst = store.doc.blockInstances.get(selectedInstance.id);
+      if (inst && inst.attributes) {
+        delete inst.attributes[key];
+      }
+      return true;
+    });
+    setSelectedInstance((prev) => {
+      if (!prev || !prev.attributes) return prev;
+      const nextAttrs = { ...prev.attributes };
+      delete nextAttrs[key];
+      return { ...prev, attributes: nextAttrs };
+    });
+    store.showHint(`Deleted attribute "${key}".`, 2000);
+  };
+
+  const handleApplyToDrawing = () => {
+    store.history.push(store.doc.snapshot());
+    store.edit(() => {
+      store.doc.clear();
+      const gId = store.doc.newGroupId();
+      for (const l of currentBlock.lines) {
+        const v1 = store.doc.addVertex(l.x1, l.y1);
+        const v2 = store.doc.addVertex(l.x2, l.y2);
+        store.doc.addLineEdge(v1, v2, gId, l.layerId || activeLayerId);
+      }
+      for (const a of currentBlock.arcs) {
+        const rad1 = (a.a1 * Math.PI) / 180;
+        const rad2 = (a.a2 * Math.PI) / 180;
+        const x1 = a.cx + a.r * Math.cos(rad1);
+        const y1 = a.cy + a.r * Math.sin(rad1);
+        const x2 = a.cx + a.r * Math.cos(rad2);
+        const y2 = a.cy + a.r * Math.sin(rad2);
+        const v1 = store.doc.addVertex(x1, y1);
+        const v2 = store.doc.addVertex(x2, y2);
+        store.doc.addArcEdge(v1, v2, a.cx, a.cy, a.r, gId, a.layerId || activeLayerId);
+      }
+      for (const c of currentBlock.circles) {
+        const v1 = store.doc.addVertex(c.cx + c.r, c.cy);
+        const v2 = store.doc.addVertex(c.cx - c.r, c.cy);
+        store.doc.addArcEdge(v1, v2, c.cx, c.cy, c.r, gId, c.layerId || activeLayerId);
+        store.doc.addArcEdge(v2, v1, c.cx, c.cy, c.r, gId, c.layerId || activeLayerId);
+      }
+      for (const t of currentBlock.texts ?? []) {
+        store.doc.addText(t.text, t.x, t.y, t.height, t.rotation, t.layerId || activeLayerId);
+      }
+      for (const f of currentBlock.fills ?? []) {
+        store.doc.addFill(f.points, 'solid', f.layerId || activeLayerId, f.color, f.opacity);
+      }
+      return true;
+    });
+    store.view.zoomToFit(store.doc.bounds());
+    store.requestDraw();
+    store.emit();
+    store.showHint('Applied block changes to drawing canvas.', 3000);
+  };
+
+  const handleSaveAsNewBlock = () => {
+    const name = window.prompt('Enter name for new block definition:', `${currentBlock.name}_BLOCK`);
+    if (!name || !name.trim()) return;
+    const cleanName = name.trim().toUpperCase().replace(/\s+/g, '_');
+    const newDef: CadBlockDefinition = {
+      ...JSON.parse(JSON.stringify(currentBlock)),
+      name: cleanName,
+    };
+    store.doc.addBlockDefinition(newDef);
+    setSelectedBlockName(cleanName);
+    setOriginalName(cleanName);
+    setCurrentBlock(newDef);
+    store.markDocChanged();
+    store.emit();
+    store.showHint(`Saved definition "${cleanName}".`, 2500);
+  };
+
   // Primitives addition helpers
   const handleAddLine = () => {
     const x1 = parseFloat(lineX1) || 0;
@@ -660,11 +1159,6 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
     }));
   };
 
-  const filteredBlocks = blocksList.filter(
-    (b) =>
-      b.name.toLowerCase().includes(search.toLowerCase()) ||
-      (b.description && b.description.toLowerCase().includes(search.toLowerCase())),
-  );
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-xs select-none p-3 animate-in fade-in duration-200">
@@ -689,6 +1183,33 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
           </div>
 
           <div className="flex items-center gap-2">
+            {selectedBlockName === 'ACTIVE_DRAWING' && (
+              <>
+                <button
+                  onClick={handleApplyToDrawing}
+                  className="rounded bg-[#1f6feb] px-3 py-1 text-xs font-semibold text-white hover:bg-[#388bfd] transition-colors shadow-sm"
+                  title="Apply changes made in block editor back to active drawing canvas"
+                >
+                  Apply to Drawing
+                </button>
+                <button
+                  onClick={handleSaveAsNewBlock}
+                  className="rounded bg-[#238636] px-3 py-1 text-xs font-semibold text-white hover:bg-[#2ea043] transition-colors shadow-sm"
+                  title="Package current drawing into a reusable block definition"
+                >
+                  Save as Block...
+                </button>
+              </>
+            )}
+            {selectedInstance && (
+              <button
+                onClick={handleInsertOnSheet}
+                className="rounded bg-[#0e639c] px-3 py-1 text-xs font-semibold text-white hover:bg-[#1177bb] transition-colors shadow-sm"
+                title="Insert another copy of this block on canvas"
+              >
+                + Insert Instance
+              </button>
+            )}
             <button
               onClick={handleNewBlock}
               className="rounded bg-[#238636] px-3 py-1 text-xs font-semibold text-white hover:bg-[#2ea043] transition-colors"
@@ -716,39 +1237,96 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
           </div>
         </div>
 
-        {/* Main Work Area: Left Sidebar (Blocks Catalog) + Center (Interactive Preview) + Right (Inspector & Tools) */}
+        {/* Main Work Area: Left Sidebar (All Drawing Elements & Blocks) + Center (Interactive Preview) + Right (Inspector & Tools) */}
         <div className="flex flex-1 overflow-hidden">
-          {/* 1. Left Catalog Sidebar */}
-          <div className="w-56 border-r border-[#333] bg-[#1a1a1a] flex flex-col overflow-hidden">
+          {/* 1. Left Catalog Sidebar (All Elements in Drawings + Block Definitions) */}
+          <div className="w-72 border-r border-[#333] bg-[#181818] flex flex-col overflow-hidden">
+            {/* Search Box */}
             <div className="p-2 border-b border-[#333]">
               <input
                 type="text"
-                placeholder="Search blocks..."
+                placeholder="Search elements & blocks..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded border border-[#3c3c3c] bg-[#141414] px-2 py-1 text-xs text-white"
+                className="w-full rounded border border-[#3c3c3c] bg-[#141414] px-2 py-1 text-xs text-white placeholder-[#777]"
               />
             </div>
-            <div className="flex-1 overflow-y-auto p-1.5 space-y-1">
-              {filteredBlocks.map((b) => {
-                const active = b.name === selectedBlockName;
+
+            {/* Category Filter Pills */}
+            <div className="flex border-b border-[#2d2d2d] bg-[#1f1f1f] p-1 gap-1 text-[11px]">
+              {(['all', 'drawing', 'blocks', 'instances'] as const).map((cat) => {
+                const count =
+                  cat === 'all'
+                    ? allElementsList.length
+                    : cat === 'drawing'
+                    ? allElementsList.filter((i) => i.groupLabel === 'Drawing Elements').length
+                    : cat === 'blocks'
+                    ? allElementsList.filter((i) => i.category === 'block').length
+                    : allElementsList.filter((i) => i.category === 'instance').length;
+
                 return (
                   <button
-                    key={b.name}
-                    onClick={() => loadBlock(b.name)}
-                    className={`w-full text-left rounded px-2.5 py-1.5 text-xs transition-colors flex items-center justify-between ${
-                      active
-                        ? 'bg-[#0e639c] text-white font-semibold'
-                        : 'text-[#aaa] hover:bg-[#252526] hover:text-white'
+                    key={cat}
+                    onClick={() => setCategoryFilter(cat)}
+                    className={`flex-1 rounded py-1 text-center font-medium capitalize transition-colors ${
+                      categoryFilter === cat
+                        ? 'bg-[#0e639c] text-white shadow-xs'
+                        : 'text-[#888] hover:bg-[#2a2a2a] hover:text-[#ccc]'
                     }`}
                   >
-                    <span className="font-mono truncate">{b.name}</span>
-                    <span className="text-[10px] opacity-60">
-                      {b.lines.length + b.circles.length + b.arcs.length} ent
-                    </span>
+                    {cat} ({count})
                   </button>
                 );
               })}
+            </div>
+
+            {/* List of Drawing Elements and Blocks */}
+            <div className="flex-1 overflow-y-auto p-1.5 space-y-1">
+              {filteredElements.length === 0 ? (
+                <div className="p-4 text-center text-xs text-[#777]">
+                  No matching elements found.
+                </div>
+              ) : (
+                filteredElements.map((item) => {
+                  const active = item.id === selectedItemId;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => handleSelectItem(item)}
+                      className={`w-full text-left rounded-md px-2.5 py-1.5 text-xs transition-all flex items-start gap-2 border ${
+                        active
+                          ? 'bg-[#0e639c] text-white border-[#1177bb] shadow-sm'
+                          : 'border-transparent text-[#bbb] hover:bg-[#252526] hover:text-white'
+                      }`}
+                    >
+                      <span className="text-sm mt-0.5 select-none">{item.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="font-mono font-semibold truncate text-[11px] leading-tight">
+                            {item.name}
+                          </span>
+                          <span
+                            className={`shrink-0 px-1 py-0.2 rounded text-[9px] font-mono border ${item.badgeStyle}`}
+                          >
+                            {item.badge}
+                          </span>
+                        </div>
+                        <div className="text-[10px] text-[#888] truncate mt-0.5">
+                          {item.detail}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Sidebar Summary Footer */}
+            <div className="border-t border-[#2d2d2d] bg-[#141414] px-2.5 py-1.5 text-[10px] text-[#777] flex items-center justify-between">
+              <span>{allElementsList.length} elements in drawings</span>
+              <span className="font-mono text-[#aaa]">
+                {store.doc.blockInstances.size} placed inst
+              </span>
             </div>
           </div>
 
@@ -939,6 +1517,17 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
                 }`}
               >
                 Text ({(currentBlock.texts ?? []).length})
+              </button>
+              <button
+                onClick={() => setActiveTab('attributes')}
+                className={`flex-1 py-1.5 font-medium border-b-2 transition-colors ${
+                  activeTab === 'attributes'
+                    ? 'border-[#f4902c] text-white bg-[#252526]'
+                    : 'border-transparent text-[#888] hover:text-[#ccc]'
+                }`}
+                title="UUID and Key-Value Attributes"
+              >
+                Attrs {selectedInstance ? `(${Object.keys(selectedInstance.attributes ?? {}).length})` : ''}
               </button>
             </div>
 
@@ -1698,6 +2287,229 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
                         </button>
                       </div>
                     ))
+                  )}
+                </div>
+              )}
+
+              {/* TAB: Attributes & UUID */}
+              {activeTab === 'attributes' && (
+                <div className="space-y-4">
+                  {selectedInstance ? (
+                    <div className="space-y-4">
+                      {/* Instance Header Info */}
+                      <div className="rounded border border-[#333] bg-[#252526] p-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                            <span>🏷️</span> Placed Instance
+                          </span>
+                          <span className="rounded bg-[#0e639c]/30 px-2 py-0.5 text-[10px] font-mono text-[#4fc1ff] border border-[#0e639c]/40">
+                            ID: #{selectedInstance.id}
+                          </span>
+                        </div>
+                        <div className="text-xs text-[#aaa]">
+                          Block: <span className="font-mono font-bold text-[#f4902c]">{selectedInstance.blockName}</span>
+                        </div>
+                        <div className="text-xs text-[#aaa]">
+                          Layer: <span className="font-mono text-white">{selectedInstance.layerId}</span>
+                        </div>
+                      </div>
+
+                      {/* UUID Section */}
+                      <div className="rounded border border-[#333] bg-[#252526] p-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label className="text-[10px] font-semibold text-[#888] uppercase tracking-wider">
+                            Instance UUID
+                          </label>
+                          <div className="flex gap-1.5">
+                            <button
+                              onClick={() => handleCopyUuid(selectedInstance.uuid || '')}
+                              className="rounded bg-[#2d2d2d] hover:bg-[#383838] px-2 py-0.5 text-[10px] text-[#ccc] border border-[#444] transition-colors"
+                              title="Copy UUID to clipboard"
+                            >
+                              {copiedUuid ? '✓ Copied' : '📋 Copy'}
+                            </button>
+                            <button
+                              onClick={handleRegenerateInstanceUuid}
+                              className="rounded bg-[#2d2d2d] hover:bg-[#383838] px-2 py-0.5 text-[10px] text-[#ccc] border border-[#444] transition-colors"
+                              title="Regenerate a new UUID for this instance"
+                            >
+                              🔄 Regenerate
+                            </button>
+                          </div>
+                        </div>
+                        <div className="p-2 rounded bg-[#141414] border border-[#3c3c3c] font-mono text-xs text-[#388bfd] break-all select-all">
+                          {selectedInstance.uuid || 'No UUID assigned'}
+                        </div>
+                      </div>
+
+                      {/* Placement Transforms */}
+                      <div className="rounded border border-[#333] bg-[#252526] p-3 space-y-2">
+                        <span className="text-[10px] font-semibold text-[#888] uppercase tracking-wider block">
+                          Placement Transforms
+                        </span>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div>
+                            <label className="text-[10px] text-[#888]">Pos X</label>
+                            <input
+                              type="number"
+                              step="0.5"
+                              value={selectedInstance.x}
+                              onChange={(e) =>
+                                handleUpdateInstanceField('x', parseFloat(e.target.value) || 0)
+                              }
+                              className="mt-0.5 w-full rounded border border-[#3c3c3c] bg-[#141414] px-1.5 py-0.5 font-mono text-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-[#888]">Pos Y</label>
+                            <input
+                              type="number"
+                              step="0.5"
+                              value={selectedInstance.y}
+                              onChange={(e) =>
+                                handleUpdateInstanceField('y', parseFloat(e.target.value) || 0)
+                              }
+                              className="mt-0.5 w-full rounded border border-[#3c3c3c] bg-[#141414] px-1.5 py-0.5 font-mono text-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-[#888]">Scale</label>
+                            <input
+                              type="number"
+                              step="0.1"
+                              value={selectedInstance.scale ?? 1}
+                              onChange={(e) =>
+                                handleUpdateInstanceField('scale', parseFloat(e.target.value) || 1)
+                              }
+                              className="mt-0.5 w-full rounded border border-[#3c3c3c] bg-[#141414] px-1.5 py-0.5 font-mono text-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] text-[#888]">Rotation (°)</label>
+                            <input
+                              type="number"
+                              step="15"
+                              value={selectedInstance.rotation ?? 0}
+                              onChange={(e) =>
+                                handleUpdateInstanceField('rotation', parseFloat(e.target.value) || 0)
+                              }
+                              className="mt-0.5 w-full rounded border border-[#3c3c3c] bg-[#141414] px-1.5 py-0.5 font-mono text-white"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Custom Attributes Table */}
+                      <div className="rounded border border-[#333] bg-[#252526] p-3 space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                            <span>✨</span> Key-Value Attributes
+                          </span>
+                          <span className="text-[10px] text-[#888]">
+                            {Object.keys(selectedInstance.attributes ?? {}).length} custom
+                          </span>
+                        </div>
+
+                        {/* List of attributes */}
+                        {Object.entries(selectedInstance.attributes ?? {}).length === 0 ? (
+                          <p className="text-center text-xs text-[#666] py-3">
+                            No attributes defined on this instance yet.
+                          </p>
+                        ) : (
+                          <div className="space-y-1.5">
+                            {Object.entries(selectedInstance.attributes ?? {}).map(([key, val]) => (
+                              <div
+                                key={key}
+                                className="flex items-center gap-2 rounded bg-[#141414] border border-[#333] px-2 py-1 text-xs"
+                              >
+                                <span className="font-mono text-[#f4902c] font-semibold truncate w-1/3" title={key}>
+                                  {key}:
+                                </span>
+                                <input
+                                  type="text"
+                                  value={val}
+                                  onChange={(e) => {
+                                    const nextVal = e.target.value;
+                                    store.history.push(store.doc.snapshot());
+                                    store.edit(() => {
+                                      const inst = store.doc.blockInstances.get(selectedInstance.id);
+                                      if (inst) {
+                                        inst.attributes = { ...(inst.attributes ?? {}), [key]: nextVal };
+                                      }
+                                      return true;
+                                    });
+                                    setSelectedInstance((prev) =>
+                                      prev
+                                        ? { ...prev, attributes: { ...(prev.attributes ?? {}), [key]: nextVal } }
+                                        : null,
+                                    );
+                                  }}
+                                  className="flex-1 bg-[#1e1e1e] border border-[#3c3c3c] rounded px-1.5 py-0.5 text-white font-mono text-[11px]"
+                                />
+                                <button
+                                  onClick={() => handleDeleteInstanceAttribute(key)}
+                                  className="text-red-400 hover:text-red-200 px-1"
+                                  title="Delete attribute"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Add Attribute Row */}
+                        <div className="border-t border-[#333] pt-2 space-y-1.5">
+                          <label className="text-[10px] font-semibold text-[#888] uppercase tracking-wider">
+                            Add New Attribute
+                          </label>
+                          <div className="flex gap-1.5">
+                            <input
+                              type="text"
+                              placeholder="Key (e.g. PART_NO)"
+                              value={newAttrKey}
+                              onChange={(e) => setNewAttrKey(e.target.value)}
+                              className="w-1/2 rounded border border-[#3c3c3c] bg-[#141414] px-1.5 py-1 text-xs text-white"
+                            />
+                            <input
+                              type="text"
+                              placeholder="Value"
+                              value={newAttrVal}
+                              onChange={(e) => setNewAttrVal(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleAddInstanceAttribute();
+                              }}
+                              className="flex-1 rounded border border-[#3c3c3c] bg-[#141414] px-1.5 py-1 text-xs text-white"
+                            />
+                            <button
+                              onClick={handleAddInstanceAttribute}
+                              className="rounded bg-[#0e639c] px-2.5 py-1 text-xs font-semibold text-white hover:bg-[#1177bb] transition-colors"
+                            >
+                              + Add
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="rounded border border-[#333] bg-[#252526] p-4 text-center space-y-2">
+                      <span className="text-2xl">📦</span>
+                      <h4 className="text-xs font-bold text-white">Block Definition Mode</h4>
+                      <p className="text-[11px] text-[#888] leading-relaxed">
+                        Select a placed instance from the left sidebar ("Instances" tab) to inspect and edit its unique UUID and custom key-value attributes.
+                      </p>
+                      <p className="text-[11px] text-[#888] leading-relaxed">
+                        Currently viewing definition <span className="font-mono text-[#f4902c] font-bold">{currentBlock.name}</span>.
+                      </p>
+                      <div className="pt-2">
+                        <button
+                          onClick={handleInsertOnSheet}
+                          className="rounded bg-[#0e639c] px-3 py-1.5 text-xs text-white hover:bg-[#1177bb] transition-colors"
+                        >
+                          + Place Instance on Canvas
+                        </button>
+                      </div>
+                    </div>
                   )}
                 </div>
               )}
