@@ -1,0 +1,3723 @@
+{
+  "Interface Map": {
+    "type": "OcaBin",
+    "description": {
+      "En": "The connection map as drawn and as solved — every path off this machine, whether it carries, and the node it is called in the deck"
+    },
+    "behavior": {
+      "overflow_ns": "auto"
+    },
+    "blocks": {
+      "Sheet": {
+        "type": "OcaTable",
+        "description": {
+          "En": "What was drawn, and from what"
+        },
+        "topic": "APK.audio/Gui/Interfaces/Map/Sheet",
+        "headers": [
+          "property",
+          "value"
+        ],
+        "data": [
+          {
+            "property": "host",
+            "value": "APK-Shop — PRO B850M-A WIFI (MS-7E66) — Ubuntu 24.04.4 LTS"
+          },
+          {
+            "property": "written",
+            "value": "2026-09-07T18:12:43"
+          },
+          {
+            "property": "drawing",
+            "value": "Interfaces.dxf"
+          },
+          {
+            "property": "deck",
+            "value": "Interfaces.cir"
+          },
+          {
+            "property": "interfaces",
+            "value": 64
+          },
+          {
+            "property": "terminals",
+            "value": 194
+          },
+          {
+            "property": "bindings",
+            "value": 112
+          },
+          {
+            "property": "bindings that carry",
+            "value": 58
+          }
+        ],
+        "refresh": {
+          "source": "/repo/.apk.scripts/build_interfaces_drawing.py",
+          "written": "2026-09-07T18:12:43"
+        }
+      },
+      "Interfaces": {
+        "type": "OcaTable",
+        "description": {
+          "En": "One row per box on the sheet"
+        },
+        "topic": "APK.audio/Gui/Interfaces/Map/Interfaces",
+        "headers": [
+          "interface",
+          "kind",
+          "family",
+          "domain",
+          "carries",
+          "in",
+          "out",
+          "on",
+          "why"
+        ],
+        "data": [
+          {
+            "_row_state": "online",
+            "interface": "APK-Shop",
+            "kind": "MS-7E66",
+            "family": "0 Here",
+            "domain": "host",
+            "carries": "yes",
+            "in": 0,
+            "out": 0,
+            "on": 2,
+            "why": "os: Ubuntu 24.04.4 LTS; kernel: Linux 7.0.0-30-generic; board: PRO B850M-A WIFI (MS-7E66); machine id: 2e458f8dd47d4e5f9d2973ff159ac793"
+          },
+          {
+            "_row_state": "online",
+            "interface": "enp12s0",
+            "kind": "ethernet",
+            "family": "1 Network — physical",
+            "domain": "network",
+            "carries": "yes",
+            "in": 1,
+            "out": 4,
+            "on": 2,
+            "why": "state: up; carrier: yes; speed: 1000 Mb/s; mac: 34:5A:60:BE:6F:E8; mtu: 1500; addresses: 44.44.44.156/16, fe80::6292:4ef9:fe05:f142/64"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "enp5s0f0",
+            "kind": "ethernet",
+            "family": "1 Network — physical",
+            "domain": "network",
+            "carries": "no",
+            "in": 1,
+            "out": 1,
+            "on": 2,
+            "why": "state: up; carrier: yes; speed: 1000 Mb/s; mac: A0:36:9F:2A:C7:78; mtu: 1500; addresses: none"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "enp5s0f1",
+            "kind": "ethernet",
+            "family": "1 Network — physical",
+            "domain": "network",
+            "carries": "no",
+            "in": 1,
+            "out": 1,
+            "on": 2,
+            "why": "state: up; carrier: yes; speed: 1000 Mb/s; mac: A0:36:9F:2A:C7:79; mtu: 1500; addresses: none"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "wlp13s0",
+            "kind": "wireless",
+            "family": "1 Network — physical",
+            "domain": "network",
+            "carries": "no",
+            "in": 1,
+            "out": 1,
+            "on": 2,
+            "why": "state: down; mac: DC:56:7B:2D:AC:C9; mtu: 1500; addresses: none"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-170340c79987",
+            "kind": "virtual",
+            "family": "1 Network — virtual",
+            "domain": "network",
+            "carries": "no",
+            "in": 1,
+            "out": 2,
+            "on": 0,
+            "why": "state: down; carrier: no; mac: A2:3A:E8:9B:64:2B; mtu: 1500; addresses: 172.23.0.1/16"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-1a54c9076636",
+            "kind": "virtual",
+            "family": "1 Network — virtual",
+            "domain": "network",
+            "carries": "no",
+            "in": 1,
+            "out": 2,
+            "on": 0,
+            "why": "state: down; carrier: no; mac: 06:F8:C9:9E:74:5D; mtu: 1500; addresses: 172.18.0.1/16"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-674eae173530",
+            "kind": "virtual",
+            "family": "1 Network — virtual",
+            "domain": "network",
+            "carries": "no",
+            "in": 1,
+            "out": 2,
+            "on": 0,
+            "why": "state: down; carrier: no; mac: CA:3F:8E:82:41:E1; mtu: 1500; addresses: 172.20.0.1/16"
+          },
+          {
+            "_row_state": "online",
+            "interface": "br-852b67f6ba23",
+            "kind": "virtual",
+            "family": "1 Network — virtual",
+            "domain": "network",
+            "carries": "yes",
+            "in": 1,
+            "out": 3,
+            "on": 0,
+            "why": "state: up; carrier: yes; speed: 10000 Mb/s; mac: 9E:C7:96:83:0B:5F; mtu: 1500; addresses: 172.25.0.1/16, fe80::9cc7:96ff:fe83:b5f/64"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-92cf999d5b07",
+            "kind": "virtual",
+            "family": "1 Network — virtual",
+            "domain": "network",
+            "carries": "no",
+            "in": 1,
+            "out": 2,
+            "on": 0,
+            "why": "state: down; carrier: no; mac: 5A:C3:AE:CB:52:A3; mtu: 1500; addresses: 172.22.0.1/16"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-a8588c40fb17",
+            "kind": "virtual",
+            "family": "1 Network — virtual",
+            "domain": "network",
+            "carries": "no",
+            "in": 1,
+            "out": 2,
+            "on": 0,
+            "why": "state: down; carrier: no; mac: 5E:9B:8C:74:8F:83; mtu: 1500; addresses: 172.19.0.1/16"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-bf0f82b0d45c",
+            "kind": "virtual",
+            "family": "1 Network — virtual",
+            "domain": "network",
+            "carries": "no",
+            "in": 1,
+            "out": 2,
+            "on": 0,
+            "why": "state: down; carrier: no; mac: 16:42:FB:A0:88:B2; mtu: 1500; addresses: 172.26.0.1/16"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-ddcd53922112",
+            "kind": "virtual",
+            "family": "1 Network — virtual",
+            "domain": "network",
+            "carries": "no",
+            "in": 1,
+            "out": 2,
+            "on": 0,
+            "why": "state: down; carrier: no; mac: 7E:C9:64:BA:28:B0; mtu: 1500; addresses: 172.21.0.1/16"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "docker0",
+            "kind": "virtual",
+            "family": "1 Network — virtual",
+            "domain": "network",
+            "carries": "no",
+            "in": 1,
+            "out": 3,
+            "on": 0,
+            "why": "state: down; carrier: no; mac: FA:5E:ED:C7:05:30; mtu: 1500; addresses: 172.17.0.1/16, fe80::f85e:edff:fec7:530/64"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "lo",
+            "kind": "loopback",
+            "family": "1 Network — virtual",
+            "domain": "network",
+            "carries": "no",
+            "in": 1,
+            "out": 3,
+            "on": 0,
+            "why": "carrier: yes; mac: 00:00:00:00:00:00; mtu: 65536; addresses: 127.0.0.1/8, ::1/128"
+          },
+          {
+            "_row_state": "online",
+            "interface": "veth3225ef7",
+            "kind": "virtual",
+            "family": "1 Network — virtual",
+            "domain": "network",
+            "carries": "yes",
+            "in": 1,
+            "out": 2,
+            "on": 0,
+            "why": "state: up; carrier: yes; speed: 10000 Mb/s; mac: 6E:06:DC:2F:AB:66; mtu: 1500; addresses: fe80::6c06:dcff:fe2f:ab66/64"
+          },
+          {
+            "_row_state": "online",
+            "interface": "veth3d083e9",
+            "kind": "virtual",
+            "family": "1 Network — virtual",
+            "domain": "network",
+            "carries": "yes",
+            "in": 1,
+            "out": 2,
+            "on": 0,
+            "why": "state: up; carrier: yes; speed: 10000 Mb/s; mac: 1A:FC:78:BD:8D:D8; mtu: 1500; addresses: fe80::18fc:78ff:febd:8dd8/64"
+          },
+          {
+            "_row_state": "online",
+            "interface": "veth5445d65",
+            "kind": "virtual",
+            "family": "1 Network — virtual",
+            "domain": "network",
+            "carries": "yes",
+            "in": 1,
+            "out": 2,
+            "on": 0,
+            "why": "state: up; carrier: yes; speed: 10000 Mb/s; mac: 92:0A:B2:51:9E:45; mtu: 1500; addresses: fe80::900a:b2ff:fe51:9e45/64"
+          },
+          {
+            "_row_state": "online",
+            "interface": "vethca1d3f6",
+            "kind": "virtual",
+            "family": "1 Network — virtual",
+            "domain": "network",
+            "carries": "yes",
+            "in": 1,
+            "out": 2,
+            "on": 0,
+            "why": "state: up; carrier: yes; speed: 10000 Mb/s; mac: EE:CC:90:F6:52:53; mtu: 1500; addresses: fe80::eccc:90ff:fef6:5253/64"
+          },
+          {
+            "_row_state": "online",
+            "interface": "vethdde383f",
+            "kind": "virtual",
+            "family": "1 Network — virtual",
+            "domain": "network",
+            "carries": "yes",
+            "in": 1,
+            "out": 2,
+            "on": 0,
+            "why": "state: up; carrier: yes; speed: 10000 Mb/s; mac: 7E:59:B3:3A:F7:7A; mtu: 1500; addresses: fe80::7c59:b3ff:fe3a:f77a/64"
+          },
+          {
+            "_row_state": "online",
+            "interface": "ptp0",
+            "kind": "/dev/ptp0",
+            "family": "2 Clock",
+            "domain": "clock",
+            "carries": "yes",
+            "in": 1,
+            "out": 2,
+            "on": 1,
+            "why": "name: a0369f2ac778; driver: igb; max adjustment: 62499999"
+          },
+          {
+            "_row_state": "online",
+            "interface": "ptp1",
+            "kind": "/dev/ptp1",
+            "family": "2 Clock",
+            "domain": "clock",
+            "carries": "yes",
+            "in": 1,
+            "out": 2,
+            "on": 1,
+            "why": "name: a0369f2ac779; driver: igb; max adjustment: 62499999"
+          },
+          {
+            "_row_state": "online",
+            "interface": "HDA NVidia",
+            "kind": "HDA-Intel",
+            "family": "3 Audio",
+            "domain": "audio",
+            "carries": "yes",
+            "in": 0,
+            "out": 4,
+            "on": 1,
+            "why": "card: 0; id: NVidia; longname: NVidia"
+          },
+          {
+            "_row_state": "online",
+            "interface": "HD-Audio Generic",
+            "kind": "HDA-Intel",
+            "family": "3 Audio",
+            "domain": "audio",
+            "carries": "yes",
+            "in": 0,
+            "out": 4,
+            "on": 1,
+            "why": "card: 1; id: Generic; longname: Generic"
+          },
+          {
+            "_row_state": "online",
+            "interface": "HD-Audio Generic",
+            "kind": "HDA-Intel",
+            "family": "3 Audio",
+            "domain": "audio",
+            "carries": "yes",
+            "in": 2,
+            "out": 1,
+            "on": 1,
+            "why": "card: 2; id: Generic_1; longname: Generic_1"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "enp5s0f0 — listening",
+            "kind": "AoIP discovery",
+            "family": "3 Audio",
+            "domain": "audio",
+            "carries": "no",
+            "in": 1,
+            "out": 0,
+            "on": 1,
+            "why": "link: up, carrier yes; address: none; multicast rx: 145322; hearing: DEAF — carrier is up but the NIC has no address, so it joins no discovery group"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "enp5s0f1 — listening",
+            "kind": "AoIP discovery",
+            "family": "3 Audio",
+            "domain": "audio",
+            "carries": "no",
+            "in": 1,
+            "out": 0,
+            "on": 1,
+            "why": "link: up, carrier yes; address: none; multicast rx: 0; hearing: DEAF — carrier is up but the NIC has no address, so it joins no discovery group"
+          },
+          {
+            "_row_state": "online",
+            "interface": "enp12s0 — listening",
+            "kind": "AoIP discovery",
+            "family": "3 Audio",
+            "domain": "audio",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 1,
+            "why": "link: up, carrier yes; address: 44.44.44.156; multicast rx: 199230; hearing: listening"
+          },
+          {
+            "_row_state": "online",
+            "interface": "wlp13s0 — listening",
+            "kind": "AoIP discovery",
+            "family": "3 Audio",
+            "domain": "audio",
+            "carries": "yes",
+            "in": 1,
+            "out": 0,
+            "on": 1,
+            "why": "link: down, carrier no; address: none; multicast rx: 0; hearing: no link — nothing is plugged in, or the far end is dark"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "DNS 53",
+            "kind": "tcp",
+            "family": "9 Exchangers",
+            "domain": "socket",
+            "carries": "no",
+            "in": 1,
+            "out": 1,
+            "on": 0,
+            "why": "bound to: 127.0.0.53%lo; reach: this machine only; role: name resolution"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "DNS 53",
+            "kind": "udp",
+            "family": "9 Exchangers",
+            "domain": "socket",
+            "carries": "no",
+            "in": 1,
+            "out": 1,
+            "on": 0,
+            "why": "bound to: 127.0.0.53%lo; reach: this machine only; role: name resolution"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "HTTP 8080",
+            "kind": "tcp",
+            "family": "9 Exchangers",
+            "domain": "socket",
+            "carries": "no",
+            "in": 1,
+            "out": 1,
+            "on": 1,
+            "why": "bound to: 127.0.0.1; reach: this machine only; role: alternate — proxies and REST; process: python3 (3801576)"
+          },
+          {
+            "_row_state": "online",
+            "interface": "IPP 631",
+            "kind": "tcp",
+            "family": "9 Exchangers",
+            "domain": "socket",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 0,
+            "why": "bound to: 0.0.0.0; reach: every interface; role: printing"
+          },
+          {
+            "_row_state": "online",
+            "interface": "SNMP 161",
+            "kind": "udp",
+            "family": "9 Exchangers",
+            "domain": "socket",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 0,
+            "why": "bound to: 0.0.0.0; reach: every interface; role: agent — gets and sets"
+          },
+          {
+            "_row_state": "online",
+            "interface": "SunRPC 111",
+            "kind": "tcp",
+            "family": "9 Exchangers",
+            "domain": "socket",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 0,
+            "why": "bound to: 0.0.0.0; reach: every interface; role: portmapper"
+          },
+          {
+            "_row_state": "online",
+            "interface": "SunRPC 111",
+            "kind": "udp",
+            "family": "9 Exchangers",
+            "domain": "socket",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 0,
+            "why": "bound to: 0.0.0.0; reach: every interface; role: portmapper"
+          },
+          {
+            "_row_state": "online",
+            "interface": "mDNS 5353",
+            "kind": "udp",
+            "family": "9 Exchangers",
+            "domain": "socket",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 0,
+            "why": "bound to: 0.0.0.0; reach: every interface; role: Dante, NMOS and AES67 discovery"
+          },
+          {
+            "_row_state": "online",
+            "interface": "Wireless_Device",
+            "kind": "usb 1-11",
+            "family": "4 USB",
+            "domain": "usb",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 1,
+            "why": "vid:pid: 0489:e14f; manufacturer: MediaTek Inc.; class: miscellaneous; speed: 480 Mb/s; power: 100mA"
+          },
+          {
+            "_row_state": "online",
+            "interface": "MYSTIC LIGHT",
+            "kind": "usb 1-12",
+            "family": "4 USB",
+            "domain": "usb",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 1,
+            "why": "vid:pid: 0db0:0076; manufacturer: MSI; class: per-interface; speed: 12 Mb/s; power: 100mA"
+          },
+          {
+            "_row_state": "online",
+            "interface": "USB2.1 Hub",
+            "kind": "usb 1-6",
+            "family": "4 USB",
+            "domain": "usb",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 1,
+            "why": "vid:pid: 05e3:0610; manufacturer: GenesysLogic; class: hub; speed: 480 Mb/s; power: 0mA"
+          },
+          {
+            "_row_state": "online",
+            "interface": "USB-Serial Controller",
+            "kind": "usb 1-6.1",
+            "family": "4 USB",
+            "domain": "usb",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 1,
+            "why": "vid:pid: 067b:23a3; manufacturer: Prolific Technology Inc.; class: per-interface; speed: 12 Mb/s; power: 100mA"
+          },
+          {
+            "_row_state": "online",
+            "interface": "0424:2514",
+            "kind": "usb 1-6.3",
+            "family": "4 USB",
+            "domain": "usb",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 1,
+            "why": "vid:pid: 0424:2514; class: hub; speed: 480 Mb/s; power: 2mA"
+          },
+          {
+            "_row_state": "online",
+            "interface": "Dell MS116 USB Optical Mouse",
+            "kind": "usb 1-6.3.2",
+            "family": "4 USB",
+            "domain": "usb",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 1,
+            "why": "vid:pid: 413c:301a; manufacturer: PixArt; class: per-interface; speed: 1.5 Mb/s; power: 100mA"
+          },
+          {
+            "_row_state": "online",
+            "interface": "SteelSeries Apex 3",
+            "kind": "usb 1-6.3.3",
+            "family": "4 USB",
+            "domain": "usb",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 1,
+            "why": "vid:pid: 1038:161a; manufacturer: SteelSeries; class: per-interface; speed: 12 Mb/s; power: 400mA"
+          },
+          {
+            "_row_state": "online",
+            "interface": "USB Trackball",
+            "kind": "usb 1-6.3.4",
+            "family": "4 USB",
+            "domain": "usb",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 1,
+            "why": "vid:pid: 046d:c408; manufacturer: Logitech; class: per-interface; speed: 1.5 Mb/s; power: 50mA"
+          },
+          {
+            "_row_state": "online",
+            "interface": "USB3.2 Hub",
+            "kind": "usb 2-6",
+            "family": "4 USB",
+            "domain": "usb",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 1,
+            "why": "vid:pid: 05e3:0620; manufacturer: GenesysLogic; class: hub; speed: 5000 Mb/s; power: 0mA"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "kind": "usb usb1",
+            "family": "4 USB",
+            "domain": "usb",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 1,
+            "why": "vid:pid: 1d6b:0002; manufacturer: Linux 7.0.0-30-generic xhci-hcd; class: hub; speed: 480 Mb/s; power: 0mA"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "kind": "usb usb2",
+            "family": "4 USB",
+            "domain": "usb",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 1,
+            "why": "vid:pid: 1d6b:0003; manufacturer: Linux 7.0.0-30-generic xhci-hcd; class: hub; speed: 10000 Mb/s; power: 0mA"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "kind": "usb usb3",
+            "family": "4 USB",
+            "domain": "usb",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 1,
+            "why": "vid:pid: 1d6b:0002; manufacturer: Linux 7.0.0-30-generic xhci-hcd; class: hub; speed: 480 Mb/s; power: 0mA"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "kind": "usb usb4",
+            "family": "4 USB",
+            "domain": "usb",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 1,
+            "why": "vid:pid: 1d6b:0003; manufacturer: Linux 7.0.0-30-generic xhci-hcd; class: hub; speed: 10000 Mb/s; power: 0mA"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "kind": "usb usb5",
+            "family": "4 USB",
+            "domain": "usb",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 1,
+            "why": "vid:pid: 1d6b:0002; manufacturer: Linux 7.0.0-30-generic xhci-hcd; class: hub; speed: 480 Mb/s; power: 0mA"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "kind": "usb usb6",
+            "family": "4 USB",
+            "domain": "usb",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 1,
+            "why": "vid:pid: 1d6b:0003; manufacturer: Linux 7.0.0-30-generic xhci-hcd; class: hub; speed: 10000 Mb/s; power: 0mA"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "kind": "usb usb7",
+            "family": "4 USB",
+            "domain": "usb",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 1,
+            "why": "vid:pid: 1d6b:0002; manufacturer: Linux 7.0.0-30-generic xhci-hcd; class: hub; speed: 480 Mb/s; power: 0mA"
+          },
+          {
+            "_row_state": "online",
+            "interface": "/dev/ttyS0",
+            "kind": "16550A",
+            "family": "5 Serial",
+            "domain": "serial",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 1,
+            "why": "uart: 16550A; irq: 4; baud base: 1843200"
+          },
+          {
+            "_row_state": "online",
+            "interface": "/dev/ttyUSB0",
+            "kind": "uart",
+            "family": "5 Serial",
+            "domain": "serial",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 1,
+            "why": ""
+          },
+          {
+            "_row_state": "online",
+            "interface": "gpiochip0",
+            "kind": "AMDI0030:00",
+            "family": "6 GPIO",
+            "domain": "gpio",
+            "carries": "yes",
+            "in": 0,
+            "out": 1,
+            "on": 1,
+            "why": "device: /dev/gpiochip0; lines: 256; base: 512"
+          },
+          {
+            "_row_state": "online",
+            "interface": "gpiochip1",
+            "kind": "AMDIF031:00",
+            "family": "6 GPIO",
+            "domain": "gpio",
+            "carries": "yes",
+            "in": 0,
+            "out": 1,
+            "on": 1,
+            "why": "device: /dev/gpiochip1; lines: 24; base: 768"
+          },
+          {
+            "_row_state": "online",
+            "interface": "usb",
+            "kind": "usb",
+            "family": "8 Drivers",
+            "domain": "driver",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 0,
+            "why": "bus: usb; devices: 16; bound to: 1-6, 1-6.1, 1-6.3, 1-6.3.2 +12 more"
+          },
+          {
+            "_row_state": "online",
+            "interface": "igb",
+            "kind": "pci",
+            "family": "8 Drivers",
+            "domain": "driver",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 1,
+            "why": "bus: pci; module: igb; devices: 2; bound to: 0000:05:00.0, 0000:05:00.1"
+          },
+          {
+            "_row_state": "online",
+            "interface": "ctrl",
+            "kind": "serial-base",
+            "family": "8 Drivers",
+            "domain": "driver",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 0,
+            "why": "bus: serial-base; devices: 2; bound to: 00:01:0, serial8250:0"
+          },
+          {
+            "_row_state": "online",
+            "interface": "mt7925e",
+            "kind": "pci",
+            "family": "8 Drivers",
+            "domain": "driver",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 1,
+            "why": "bus: pci; module: mt7925e; devices: 1; bound to: 0000:0d:00.0"
+          },
+          {
+            "_row_state": "online",
+            "interface": "r8169",
+            "kind": "pci",
+            "family": "8 Drivers",
+            "domain": "driver",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 1,
+            "why": "bus: pci; module: r8169; devices: 1; bound to: 0000:0c:00.0"
+          },
+          {
+            "_row_state": "online",
+            "interface": "pl2303",
+            "kind": "usb",
+            "family": "8 Drivers",
+            "domain": "driver",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 1,
+            "why": "bus: usb; module: usbserial; devices: 1; bound to: 1-6.1:1.0"
+          },
+          {
+            "_row_state": "online",
+            "interface": "pl2303",
+            "kind": "usb-serial",
+            "family": "8 Drivers",
+            "domain": "driver",
+            "carries": "yes",
+            "in": 1,
+            "out": 1,
+            "on": 1,
+            "why": "bus: usb-serial; module: pl2303; devices: 1; bound to: ttyUSB0"
+          }
+        ],
+        "refresh": {
+          "source": "/repo/.apk.scripts/build_interfaces_drawing.py",
+          "written": "2026-09-07T18:12:43"
+        }
+      },
+      "Bindings": {
+        "type": "OcaTable",
+        "description": {
+          "En": "One row per edge — every one of them a sentence a table already wrote"
+        },
+        "topic": "APK.audio/Gui/Interfaces/Map/Bindings",
+        "headers": [
+          "from",
+          "to",
+          "binding",
+          "carries",
+          "from node",
+          "to node"
+        ],
+        "data": [
+          {
+            "_row_state": "online",
+            "from": "enp12s0",
+            "to": "r8169",
+            "binding": "driver binding",
+            "carries": "yes",
+            "from node": "NIC_ENP12S0_BUS_R8169",
+            "to node": "DRIVER_R8169_INP_BINDS"
+          },
+          {
+            "_row_state": "offline",
+            "from": "enp5s0f0",
+            "to": "igb",
+            "binding": "driver binding",
+            "carries": "no",
+            "from node": "NIC_ENP5S0F0_BUS_IGB",
+            "to node": "DRIVER_IGB_INP_BINDS"
+          },
+          {
+            "_row_state": "offline",
+            "from": "enp5s0f1",
+            "to": "igb",
+            "binding": "driver binding",
+            "carries": "no",
+            "from node": "NIC_ENP5S0F1_BUS_IGB",
+            "to node": "DRIVER_IGB_INP_BINDS"
+          },
+          {
+            "_row_state": "offline",
+            "from": "wlp13s0",
+            "to": "mt7925e",
+            "binding": "driver binding",
+            "carries": "no",
+            "from node": "NIC_WLP13S0_BUS_MT7925E",
+            "to node": "DRIVER_MT7925E_INP_BINDS"
+          },
+          {
+            "_row_state": "online",
+            "from": "ptp0",
+            "to": "igb",
+            "binding": "driver binding",
+            "carries": "yes",
+            "from node": "PTP_PTP0_BUS_IGB",
+            "to node": "DRIVER_IGB_INP_BINDS"
+          },
+          {
+            "_row_state": "online",
+            "from": "ptp1",
+            "to": "igb",
+            "binding": "driver binding",
+            "carries": "yes",
+            "from node": "PTP_PTP1_BUS_IGB",
+            "to node": "DRIVER_IGB_INP_BINDS"
+          },
+          {
+            "_row_state": "online",
+            "from": "Wireless_Device",
+            "to": "usb",
+            "binding": "driver binding",
+            "carries": "yes",
+            "from node": "USB_1_11_BUS_USB",
+            "to node": "DRIVER_USB_INP_BINDS"
+          },
+          {
+            "_row_state": "online",
+            "from": "MYSTIC LIGHT",
+            "to": "usb",
+            "binding": "driver binding",
+            "carries": "yes",
+            "from node": "USB_1_12_BUS_USB",
+            "to node": "DRIVER_USB_INP_BINDS"
+          },
+          {
+            "_row_state": "online",
+            "from": "USB2.1 Hub",
+            "to": "usb",
+            "binding": "driver binding",
+            "carries": "yes",
+            "from node": "USB_1_6_BUS_USB",
+            "to node": "DRIVER_USB_INP_BINDS"
+          },
+          {
+            "_row_state": "online",
+            "from": "USB-Serial Controller",
+            "to": "usb",
+            "binding": "driver binding",
+            "carries": "yes",
+            "from node": "USB_1_6_1_BUS_USB",
+            "to node": "DRIVER_USB_INP_BINDS"
+          },
+          {
+            "_row_state": "online",
+            "from": "0424:2514",
+            "to": "usb",
+            "binding": "driver binding",
+            "carries": "yes",
+            "from node": "USB_1_6_3_BUS_USB",
+            "to node": "DRIVER_USB_INP_BINDS"
+          },
+          {
+            "_row_state": "online",
+            "from": "Dell MS116 USB Optical Mouse",
+            "to": "usb",
+            "binding": "driver binding",
+            "carries": "yes",
+            "from node": "USB_1_6_3_2_BUS_USB",
+            "to node": "DRIVER_USB_INP_BINDS"
+          },
+          {
+            "_row_state": "online",
+            "from": "SteelSeries Apex 3",
+            "to": "usb",
+            "binding": "driver binding",
+            "carries": "yes",
+            "from node": "USB_1_6_3_3_BUS_USB",
+            "to node": "DRIVER_USB_INP_BINDS"
+          },
+          {
+            "_row_state": "online",
+            "from": "USB Trackball",
+            "to": "usb",
+            "binding": "driver binding",
+            "carries": "yes",
+            "from node": "USB_1_6_3_4_BUS_USB",
+            "to node": "DRIVER_USB_INP_BINDS"
+          },
+          {
+            "_row_state": "online",
+            "from": "USB3.2 Hub",
+            "to": "usb",
+            "binding": "driver binding",
+            "carries": "yes",
+            "from node": "USB_2_6_BUS_USB",
+            "to node": "DRIVER_USB_INP_BINDS"
+          },
+          {
+            "_row_state": "online",
+            "from": "xHCI Host Controller",
+            "to": "usb",
+            "binding": "driver binding",
+            "carries": "yes",
+            "from node": "USB_USB1_BUS_USB",
+            "to node": "DRIVER_USB_INP_BINDS"
+          },
+          {
+            "_row_state": "online",
+            "from": "xHCI Host Controller",
+            "to": "usb",
+            "binding": "driver binding",
+            "carries": "yes",
+            "from node": "USB_USB2_BUS_USB",
+            "to node": "DRIVER_USB_INP_BINDS"
+          },
+          {
+            "_row_state": "online",
+            "from": "xHCI Host Controller",
+            "to": "usb",
+            "binding": "driver binding",
+            "carries": "yes",
+            "from node": "USB_USB3_BUS_USB",
+            "to node": "DRIVER_USB_INP_BINDS"
+          },
+          {
+            "_row_state": "online",
+            "from": "xHCI Host Controller",
+            "to": "usb",
+            "binding": "driver binding",
+            "carries": "yes",
+            "from node": "USB_USB4_BUS_USB",
+            "to node": "DRIVER_USB_INP_BINDS"
+          },
+          {
+            "_row_state": "online",
+            "from": "xHCI Host Controller",
+            "to": "usb",
+            "binding": "driver binding",
+            "carries": "yes",
+            "from node": "USB_USB5_BUS_USB",
+            "to node": "DRIVER_USB_INP_BINDS"
+          },
+          {
+            "_row_state": "online",
+            "from": "xHCI Host Controller",
+            "to": "usb",
+            "binding": "driver binding",
+            "carries": "yes",
+            "from node": "USB_USB6_BUS_USB",
+            "to node": "DRIVER_USB_INP_BINDS"
+          },
+          {
+            "_row_state": "online",
+            "from": "xHCI Host Controller",
+            "to": "usb",
+            "binding": "driver binding",
+            "carries": "yes",
+            "from node": "USB_USB7_BUS_USB",
+            "to node": "DRIVER_USB_INP_BINDS"
+          },
+          {
+            "_row_state": "online",
+            "from": "/dev/ttyS0",
+            "to": "ctrl",
+            "binding": "driver binding",
+            "carries": "yes",
+            "from node": "SERIAL_DEV_TTYS0_BUS_CTRL",
+            "to node": "DRIVER_CTRL_INP_BINDS"
+          },
+          {
+            "_row_state": "online",
+            "from": "/dev/ttyUSB0",
+            "to": "pl2303",
+            "binding": "driver binding",
+            "carries": "yes",
+            "from node": "SERIAL_DEV_TTYUSB0_BUS_PL2303",
+            "to node": "DRIVER_PL2303_INP_BINDS"
+          },
+          {
+            "_row_state": "offline",
+            "from": "enp5s0f0",
+            "to": "ptp0",
+            "binding": "clock source",
+            "carries": "no",
+            "from node": "NIC_ENP5S0F0_OUT_TX",
+            "to node": "PTP_PTP0_INP_ON_INTERFACE"
+          },
+          {
+            "_row_state": "offline",
+            "from": "enp5s0f1",
+            "to": "ptp1",
+            "binding": "clock source",
+            "carries": "no",
+            "from node": "NIC_ENP5S0F1_OUT_TX",
+            "to node": "PTP_PTP1_INP_ON_INTERFACE"
+          },
+          {
+            "_row_state": "offline",
+            "from": "enp5s0f0",
+            "to": "enp5s0f0 — listening",
+            "binding": "multicast join",
+            "carries": "no",
+            "from node": "NIC_ENP5S0F0_OUT_TX",
+            "to node": "EAR_ENP5S0F0_INP_MULTICAST_RX"
+          },
+          {
+            "_row_state": "offline",
+            "from": "enp5s0f1",
+            "to": "enp5s0f1 — listening",
+            "binding": "multicast join",
+            "carries": "no",
+            "from node": "NIC_ENP5S0F1_OUT_TX",
+            "to node": "EAR_ENP5S0F1_INP_MULTICAST_RX"
+          },
+          {
+            "_row_state": "online",
+            "from": "enp12s0",
+            "to": "enp12s0 — listening",
+            "binding": "multicast join",
+            "carries": "yes",
+            "from node": "NIC_ENP12S0_OUT_TX",
+            "to node": "EAR_ENP12S0_INP_MULTICAST_RX"
+          },
+          {
+            "_row_state": "offline",
+            "from": "wlp13s0",
+            "to": "wlp13s0 — listening",
+            "binding": "multicast join",
+            "carries": "no",
+            "from node": "NIC_WLP13S0_OUT_TX",
+            "to node": "EAR_WLP13S0_INP_MULTICAST_RX"
+          },
+          {
+            "_row_state": "offline",
+            "from": "lo",
+            "to": "HTTP 8080",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_LO_OUT_TX",
+            "to node": "POST_HTTP_TCP_8080_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "enp12s0",
+            "to": "IPP 631",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_ENP12S0_OUT_TX",
+            "to node": "POST_IPP_TCP_631_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-170340c79987",
+            "to": "IPP 631",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_170340C79987_OUT_TX",
+            "to node": "POST_IPP_TCP_631_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-1a54c9076636",
+            "to": "IPP 631",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_1A54C9076636_OUT_TX",
+            "to node": "POST_IPP_TCP_631_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-674eae173530",
+            "to": "IPP 631",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_674EAE173530_OUT_TX",
+            "to node": "POST_IPP_TCP_631_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "br-852b67f6ba23",
+            "to": "IPP 631",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_BR_852B67F6BA23_OUT_TX",
+            "to node": "POST_IPP_TCP_631_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-92cf999d5b07",
+            "to": "IPP 631",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_92CF999D5B07_OUT_TX",
+            "to node": "POST_IPP_TCP_631_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-a8588c40fb17",
+            "to": "IPP 631",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_A8588C40FB17_OUT_TX",
+            "to node": "POST_IPP_TCP_631_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-bf0f82b0d45c",
+            "to": "IPP 631",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_BF0F82B0D45C_OUT_TX",
+            "to node": "POST_IPP_TCP_631_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-ddcd53922112",
+            "to": "IPP 631",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_DDCD53922112_OUT_TX",
+            "to node": "POST_IPP_TCP_631_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "docker0",
+            "to": "IPP 631",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_DOCKER0_OUT_TX",
+            "to node": "POST_IPP_TCP_631_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "lo",
+            "to": "IPP 631",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_LO_OUT_TX",
+            "to node": "POST_IPP_TCP_631_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "veth3225ef7",
+            "to": "IPP 631",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_VETH3225EF7_OUT_TX",
+            "to node": "POST_IPP_TCP_631_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "veth3d083e9",
+            "to": "IPP 631",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_VETH3D083E9_OUT_TX",
+            "to node": "POST_IPP_TCP_631_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "veth5445d65",
+            "to": "IPP 631",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_VETH5445D65_OUT_TX",
+            "to node": "POST_IPP_TCP_631_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "vethca1d3f6",
+            "to": "IPP 631",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_VETHCA1D3F6_OUT_TX",
+            "to node": "POST_IPP_TCP_631_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "vethdde383f",
+            "to": "IPP 631",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_VETHDDE383F_OUT_TX",
+            "to node": "POST_IPP_TCP_631_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "enp12s0",
+            "to": "SNMP 161",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_ENP12S0_OUT_TX",
+            "to node": "POST_SNMP_UDP_161_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-170340c79987",
+            "to": "SNMP 161",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_170340C79987_OUT_TX",
+            "to node": "POST_SNMP_UDP_161_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-1a54c9076636",
+            "to": "SNMP 161",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_1A54C9076636_OUT_TX",
+            "to node": "POST_SNMP_UDP_161_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-674eae173530",
+            "to": "SNMP 161",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_674EAE173530_OUT_TX",
+            "to node": "POST_SNMP_UDP_161_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "br-852b67f6ba23",
+            "to": "SNMP 161",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_BR_852B67F6BA23_OUT_TX",
+            "to node": "POST_SNMP_UDP_161_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-92cf999d5b07",
+            "to": "SNMP 161",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_92CF999D5B07_OUT_TX",
+            "to node": "POST_SNMP_UDP_161_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-a8588c40fb17",
+            "to": "SNMP 161",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_A8588C40FB17_OUT_TX",
+            "to node": "POST_SNMP_UDP_161_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-bf0f82b0d45c",
+            "to": "SNMP 161",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_BF0F82B0D45C_OUT_TX",
+            "to node": "POST_SNMP_UDP_161_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-ddcd53922112",
+            "to": "SNMP 161",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_DDCD53922112_OUT_TX",
+            "to node": "POST_SNMP_UDP_161_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "docker0",
+            "to": "SNMP 161",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_DOCKER0_OUT_TX",
+            "to node": "POST_SNMP_UDP_161_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "lo",
+            "to": "SNMP 161",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_LO_OUT_TX",
+            "to node": "POST_SNMP_UDP_161_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "veth3225ef7",
+            "to": "SNMP 161",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_VETH3225EF7_OUT_TX",
+            "to node": "POST_SNMP_UDP_161_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "veth3d083e9",
+            "to": "SNMP 161",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_VETH3D083E9_OUT_TX",
+            "to node": "POST_SNMP_UDP_161_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "veth5445d65",
+            "to": "SNMP 161",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_VETH5445D65_OUT_TX",
+            "to node": "POST_SNMP_UDP_161_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "vethca1d3f6",
+            "to": "SNMP 161",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_VETHCA1D3F6_OUT_TX",
+            "to node": "POST_SNMP_UDP_161_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "vethdde383f",
+            "to": "SNMP 161",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_VETHDDE383F_OUT_TX",
+            "to node": "POST_SNMP_UDP_161_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "enp12s0",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_ENP12S0_OUT_TX",
+            "to node": "POST_SUNRPC_TCP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-170340c79987",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_170340C79987_OUT_TX",
+            "to node": "POST_SUNRPC_TCP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-1a54c9076636",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_1A54C9076636_OUT_TX",
+            "to node": "POST_SUNRPC_TCP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-674eae173530",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_674EAE173530_OUT_TX",
+            "to node": "POST_SUNRPC_TCP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "br-852b67f6ba23",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_BR_852B67F6BA23_OUT_TX",
+            "to node": "POST_SUNRPC_TCP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-92cf999d5b07",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_92CF999D5B07_OUT_TX",
+            "to node": "POST_SUNRPC_TCP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-a8588c40fb17",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_A8588C40FB17_OUT_TX",
+            "to node": "POST_SUNRPC_TCP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-bf0f82b0d45c",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_BF0F82B0D45C_OUT_TX",
+            "to node": "POST_SUNRPC_TCP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-ddcd53922112",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_DDCD53922112_OUT_TX",
+            "to node": "POST_SUNRPC_TCP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "docker0",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_DOCKER0_OUT_TX",
+            "to node": "POST_SUNRPC_TCP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "lo",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_LO_OUT_TX",
+            "to node": "POST_SUNRPC_TCP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "veth3225ef7",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_VETH3225EF7_OUT_TX",
+            "to node": "POST_SUNRPC_TCP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "veth3d083e9",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_VETH3D083E9_OUT_TX",
+            "to node": "POST_SUNRPC_TCP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "veth5445d65",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_VETH5445D65_OUT_TX",
+            "to node": "POST_SUNRPC_TCP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "vethca1d3f6",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_VETHCA1D3F6_OUT_TX",
+            "to node": "POST_SUNRPC_TCP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "vethdde383f",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_VETHDDE383F_OUT_TX",
+            "to node": "POST_SUNRPC_TCP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "enp12s0",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_ENP12S0_OUT_TX",
+            "to node": "POST_SUNRPC_UDP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-170340c79987",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_170340C79987_OUT_TX",
+            "to node": "POST_SUNRPC_UDP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-1a54c9076636",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_1A54C9076636_OUT_TX",
+            "to node": "POST_SUNRPC_UDP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-674eae173530",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_674EAE173530_OUT_TX",
+            "to node": "POST_SUNRPC_UDP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "br-852b67f6ba23",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_BR_852B67F6BA23_OUT_TX",
+            "to node": "POST_SUNRPC_UDP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-92cf999d5b07",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_92CF999D5B07_OUT_TX",
+            "to node": "POST_SUNRPC_UDP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-a8588c40fb17",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_A8588C40FB17_OUT_TX",
+            "to node": "POST_SUNRPC_UDP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-bf0f82b0d45c",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_BF0F82B0D45C_OUT_TX",
+            "to node": "POST_SUNRPC_UDP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-ddcd53922112",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_DDCD53922112_OUT_TX",
+            "to node": "POST_SUNRPC_UDP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "docker0",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_DOCKER0_OUT_TX",
+            "to node": "POST_SUNRPC_UDP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "lo",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_LO_OUT_TX",
+            "to node": "POST_SUNRPC_UDP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "veth3225ef7",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_VETH3225EF7_OUT_TX",
+            "to node": "POST_SUNRPC_UDP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "veth3d083e9",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_VETH3D083E9_OUT_TX",
+            "to node": "POST_SUNRPC_UDP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "veth5445d65",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_VETH5445D65_OUT_TX",
+            "to node": "POST_SUNRPC_UDP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "vethca1d3f6",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_VETHCA1D3F6_OUT_TX",
+            "to node": "POST_SUNRPC_UDP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "vethdde383f",
+            "to": "SunRPC 111",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_VETHDDE383F_OUT_TX",
+            "to node": "POST_SUNRPC_UDP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "enp12s0",
+            "to": "mDNS 5353",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_ENP12S0_OUT_TX",
+            "to node": "POST_MDNS_UDP_5353_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-170340c79987",
+            "to": "mDNS 5353",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_170340C79987_OUT_TX",
+            "to node": "POST_MDNS_UDP_5353_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-1a54c9076636",
+            "to": "mDNS 5353",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_1A54C9076636_OUT_TX",
+            "to node": "POST_MDNS_UDP_5353_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-674eae173530",
+            "to": "mDNS 5353",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_674EAE173530_OUT_TX",
+            "to node": "POST_MDNS_UDP_5353_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "br-852b67f6ba23",
+            "to": "mDNS 5353",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_BR_852B67F6BA23_OUT_TX",
+            "to node": "POST_MDNS_UDP_5353_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-92cf999d5b07",
+            "to": "mDNS 5353",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_92CF999D5B07_OUT_TX",
+            "to node": "POST_MDNS_UDP_5353_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-a8588c40fb17",
+            "to": "mDNS 5353",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_A8588C40FB17_OUT_TX",
+            "to node": "POST_MDNS_UDP_5353_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-bf0f82b0d45c",
+            "to": "mDNS 5353",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_BF0F82B0D45C_OUT_TX",
+            "to node": "POST_MDNS_UDP_5353_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "br-ddcd53922112",
+            "to": "mDNS 5353",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_BR_DDCD53922112_OUT_TX",
+            "to node": "POST_MDNS_UDP_5353_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "docker0",
+            "to": "mDNS 5353",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_DOCKER0_OUT_TX",
+            "to node": "POST_MDNS_UDP_5353_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "from": "lo",
+            "to": "mDNS 5353",
+            "binding": "socket bound",
+            "carries": "no",
+            "from node": "NIC_LO_OUT_TX",
+            "to node": "POST_MDNS_UDP_5353_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "veth3225ef7",
+            "to": "mDNS 5353",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_VETH3225EF7_OUT_TX",
+            "to node": "POST_MDNS_UDP_5353_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "veth3d083e9",
+            "to": "mDNS 5353",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_VETH3D083E9_OUT_TX",
+            "to node": "POST_MDNS_UDP_5353_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "veth5445d65",
+            "to": "mDNS 5353",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_VETH5445D65_OUT_TX",
+            "to node": "POST_MDNS_UDP_5353_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "vethca1d3f6",
+            "to": "mDNS 5353",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_VETHCA1D3F6_OUT_TX",
+            "to node": "POST_MDNS_UDP_5353_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "vethdde383f",
+            "to": "mDNS 5353",
+            "binding": "socket bound",
+            "carries": "yes",
+            "from node": "NIC_VETHDDE383F_OUT_TX",
+            "to node": "POST_MDNS_UDP_5353_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "from": "enp12s0",
+            "to": "APK-Shop",
+            "binding": "default route",
+            "carries": "yes",
+            "from node": "NIC_ENP12S0_OUT_DEFAULT_ROUTE",
+            "to node": "HERE_BUS_LEAVES_BY"
+          }
+        ],
+        "refresh": {
+          "source": "/repo/.apk.scripts/build_interfaces_drawing.py",
+          "written": "2026-09-07T18:12:43"
+        }
+      },
+      "Terminals": {
+        "type": "OcaTable",
+        "description": {
+          "En": "Every terminal, and the SPICE node it is"
+        },
+        "topic": "APK.audio/Gui/Interfaces/Map/Terminals",
+        "headers": [
+          "interface",
+          "side",
+          "terminal",
+          "detail",
+          "domain",
+          "node"
+        ],
+        "data": [
+          {
+            "_row_state": "online",
+            "interface": "APK-Shop",
+            "side": "bus",
+            "terminal": "leaves by",
+            "detail": "enp12s0",
+            "domain": "host",
+            "node": "HERE_BUS_LEAVES_BY"
+          },
+          {
+            "_row_state": "online",
+            "interface": "APK-Shop",
+            "side": "bus",
+            "terminal": "mac",
+            "detail": "34:5a:60:be:6f:e8",
+            "domain": "host",
+            "node": "HERE_BUS_MAC"
+          },
+          {
+            "_row_state": "online",
+            "interface": "enp12s0",
+            "side": "input",
+            "terminal": "rx",
+            "detail": "46.4 GB",
+            "domain": "network",
+            "node": "NIC_ENP12S0_INP_RX"
+          },
+          {
+            "_row_state": "online",
+            "interface": "enp12s0",
+            "side": "output",
+            "terminal": "tx",
+            "detail": "4.7 GB",
+            "domain": "network",
+            "node": "NIC_ENP12S0_OUT_TX"
+          },
+          {
+            "_row_state": "online",
+            "interface": "enp12s0",
+            "side": "output",
+            "terminal": "44.44.44.156/16",
+            "detail": "address",
+            "domain": "network",
+            "node": "NIC_ENP12S0_OUT_44_44_44_156_16"
+          },
+          {
+            "_row_state": "online",
+            "interface": "enp12s0",
+            "side": "output",
+            "terminal": "fe80::6292:4ef9:",
+            "detail": "address",
+            "domain": "network",
+            "node": "NIC_ENP12S0_OUT_FE80_6292_4EF9"
+          },
+          {
+            "_row_state": "online",
+            "interface": "enp12s0",
+            "side": "output",
+            "terminal": "default route",
+            "detail": "yes",
+            "domain": "network",
+            "node": "NIC_ENP12S0_OUT_DEFAULT_ROUTE"
+          },
+          {
+            "_row_state": "online",
+            "interface": "enp12s0",
+            "side": "bus",
+            "terminal": "r8169",
+            "detail": "driver",
+            "domain": "driver",
+            "node": "NIC_ENP12S0_BUS_R8169"
+          },
+          {
+            "_row_state": "online",
+            "interface": "enp12s0",
+            "side": "bus",
+            "terminal": "0000:0c:00.0",
+            "detail": "pci",
+            "domain": "network",
+            "node": "NIC_ENP12S0_BUS_0000_0C_00_0"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "enp5s0f0",
+            "side": "input",
+            "terminal": "rx",
+            "detail": "10.6 MB",
+            "domain": "network",
+            "node": "NIC_ENP5S0F0_INP_RX"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "enp5s0f0",
+            "side": "output",
+            "terminal": "tx",
+            "detail": "1.0 KB",
+            "domain": "network",
+            "node": "NIC_ENP5S0F0_OUT_TX"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "enp5s0f0",
+            "side": "bus",
+            "terminal": "igb",
+            "detail": "driver",
+            "domain": "driver",
+            "node": "NIC_ENP5S0F0_BUS_IGB"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "enp5s0f0",
+            "side": "bus",
+            "terminal": "0000:05:00.0",
+            "detail": "pci",
+            "domain": "network",
+            "node": "NIC_ENP5S0F0_BUS_0000_05_00_0"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "enp5s0f1",
+            "side": "input",
+            "terminal": "rx",
+            "detail": "3.3 MB",
+            "domain": "network",
+            "node": "NIC_ENP5S0F1_INP_RX"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "enp5s0f1",
+            "side": "output",
+            "terminal": "tx",
+            "detail": "1.0 KB",
+            "domain": "network",
+            "node": "NIC_ENP5S0F1_OUT_TX"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "enp5s0f1",
+            "side": "bus",
+            "terminal": "igb",
+            "detail": "driver",
+            "domain": "driver",
+            "node": "NIC_ENP5S0F1_BUS_IGB"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "enp5s0f1",
+            "side": "bus",
+            "terminal": "0000:05:00.1",
+            "detail": "pci",
+            "domain": "network",
+            "node": "NIC_ENP5S0F1_BUS_0000_05_00_1"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "wlp13s0",
+            "side": "input",
+            "terminal": "rx",
+            "detail": "0 B",
+            "domain": "network",
+            "node": "NIC_WLP13S0_INP_RX"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "wlp13s0",
+            "side": "output",
+            "terminal": "tx",
+            "detail": "0 B",
+            "domain": "network",
+            "node": "NIC_WLP13S0_OUT_TX"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "wlp13s0",
+            "side": "bus",
+            "terminal": "mt7925e",
+            "detail": "driver",
+            "domain": "driver",
+            "node": "NIC_WLP13S0_BUS_MT7925E"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "wlp13s0",
+            "side": "bus",
+            "terminal": "0000:0d:00.0",
+            "detail": "pci",
+            "domain": "network",
+            "node": "NIC_WLP13S0_BUS_0000_0D_00_0"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-170340c79987",
+            "side": "input",
+            "terminal": "rx",
+            "detail": "0 B",
+            "domain": "network",
+            "node": "NIC_BR_170340C79987_INP_RX"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-170340c79987",
+            "side": "output",
+            "terminal": "tx",
+            "detail": "0 B",
+            "domain": "network",
+            "node": "NIC_BR_170340C79987_OUT_TX"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-170340c79987",
+            "side": "output",
+            "terminal": "172.23.0.1/16",
+            "detail": "address",
+            "domain": "network",
+            "node": "NIC_BR_170340C79987_OUT_172_23_0_1_16"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-1a54c9076636",
+            "side": "input",
+            "terminal": "rx",
+            "detail": "0 B",
+            "domain": "network",
+            "node": "NIC_BR_1A54C9076636_INP_RX"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-1a54c9076636",
+            "side": "output",
+            "terminal": "tx",
+            "detail": "0 B",
+            "domain": "network",
+            "node": "NIC_BR_1A54C9076636_OUT_TX"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-1a54c9076636",
+            "side": "output",
+            "terminal": "172.18.0.1/16",
+            "detail": "address",
+            "domain": "network",
+            "node": "NIC_BR_1A54C9076636_OUT_172_18_0_1_16"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-674eae173530",
+            "side": "input",
+            "terminal": "rx",
+            "detail": "0 B",
+            "domain": "network",
+            "node": "NIC_BR_674EAE173530_INP_RX"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-674eae173530",
+            "side": "output",
+            "terminal": "tx",
+            "detail": "0 B",
+            "domain": "network",
+            "node": "NIC_BR_674EAE173530_OUT_TX"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-674eae173530",
+            "side": "output",
+            "terminal": "172.20.0.1/16",
+            "detail": "address",
+            "domain": "network",
+            "node": "NIC_BR_674EAE173530_OUT_172_20_0_1_16"
+          },
+          {
+            "_row_state": "online",
+            "interface": "br-852b67f6ba23",
+            "side": "input",
+            "terminal": "rx",
+            "detail": "108.9 MB",
+            "domain": "network",
+            "node": "NIC_BR_852B67F6BA23_INP_RX"
+          },
+          {
+            "_row_state": "online",
+            "interface": "br-852b67f6ba23",
+            "side": "output",
+            "terminal": "tx",
+            "detail": "52.2 MB",
+            "domain": "network",
+            "node": "NIC_BR_852B67F6BA23_OUT_TX"
+          },
+          {
+            "_row_state": "online",
+            "interface": "br-852b67f6ba23",
+            "side": "output",
+            "terminal": "172.25.0.1/16",
+            "detail": "address",
+            "domain": "network",
+            "node": "NIC_BR_852B67F6BA23_OUT_172_25_0_1_16"
+          },
+          {
+            "_row_state": "online",
+            "interface": "br-852b67f6ba23",
+            "side": "output",
+            "terminal": "fe80::9cc7:96ff:",
+            "detail": "address",
+            "domain": "network",
+            "node": "NIC_BR_852B67F6BA23_OUT_FE80_9CC7_96FF"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-92cf999d5b07",
+            "side": "input",
+            "terminal": "rx",
+            "detail": "0 B",
+            "domain": "network",
+            "node": "NIC_BR_92CF999D5B07_INP_RX"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-92cf999d5b07",
+            "side": "output",
+            "terminal": "tx",
+            "detail": "0 B",
+            "domain": "network",
+            "node": "NIC_BR_92CF999D5B07_OUT_TX"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-92cf999d5b07",
+            "side": "output",
+            "terminal": "172.22.0.1/16",
+            "detail": "address",
+            "domain": "network",
+            "node": "NIC_BR_92CF999D5B07_OUT_172_22_0_1_16"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-a8588c40fb17",
+            "side": "input",
+            "terminal": "rx",
+            "detail": "0 B",
+            "domain": "network",
+            "node": "NIC_BR_A8588C40FB17_INP_RX"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-a8588c40fb17",
+            "side": "output",
+            "terminal": "tx",
+            "detail": "0 B",
+            "domain": "network",
+            "node": "NIC_BR_A8588C40FB17_OUT_TX"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-a8588c40fb17",
+            "side": "output",
+            "terminal": "172.19.0.1/16",
+            "detail": "address",
+            "domain": "network",
+            "node": "NIC_BR_A8588C40FB17_OUT_172_19_0_1_16"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-bf0f82b0d45c",
+            "side": "input",
+            "terminal": "rx",
+            "detail": "0 B",
+            "domain": "network",
+            "node": "NIC_BR_BF0F82B0D45C_INP_RX"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-bf0f82b0d45c",
+            "side": "output",
+            "terminal": "tx",
+            "detail": "0 B",
+            "domain": "network",
+            "node": "NIC_BR_BF0F82B0D45C_OUT_TX"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-bf0f82b0d45c",
+            "side": "output",
+            "terminal": "172.26.0.1/16",
+            "detail": "address",
+            "domain": "network",
+            "node": "NIC_BR_BF0F82B0D45C_OUT_172_26_0_1_16"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-ddcd53922112",
+            "side": "input",
+            "terminal": "rx",
+            "detail": "0 B",
+            "domain": "network",
+            "node": "NIC_BR_DDCD53922112_INP_RX"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-ddcd53922112",
+            "side": "output",
+            "terminal": "tx",
+            "detail": "0 B",
+            "domain": "network",
+            "node": "NIC_BR_DDCD53922112_OUT_TX"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "br-ddcd53922112",
+            "side": "output",
+            "terminal": "172.21.0.1/16",
+            "detail": "address",
+            "domain": "network",
+            "node": "NIC_BR_DDCD53922112_OUT_172_21_0_1_16"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "docker0",
+            "side": "input",
+            "terminal": "rx",
+            "detail": "58.6 MB",
+            "domain": "network",
+            "node": "NIC_DOCKER0_INP_RX"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "docker0",
+            "side": "output",
+            "terminal": "tx",
+            "detail": "3.4 GB",
+            "domain": "network",
+            "node": "NIC_DOCKER0_OUT_TX"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "docker0",
+            "side": "output",
+            "terminal": "172.17.0.1/16",
+            "detail": "address",
+            "domain": "network",
+            "node": "NIC_DOCKER0_OUT_172_17_0_1_16"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "docker0",
+            "side": "output",
+            "terminal": "fe80::f85e:edff:",
+            "detail": "address",
+            "domain": "network",
+            "node": "NIC_DOCKER0_OUT_FE80_F85E_EDFF"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "lo",
+            "side": "input",
+            "terminal": "rx",
+            "detail": "9.6 GB",
+            "domain": "network",
+            "node": "NIC_LO_INP_RX"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "lo",
+            "side": "output",
+            "terminal": "tx",
+            "detail": "9.6 GB",
+            "domain": "network",
+            "node": "NIC_LO_OUT_TX"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "lo",
+            "side": "output",
+            "terminal": "127.0.0.1/8",
+            "detail": "address",
+            "domain": "network",
+            "node": "NIC_LO_OUT_127_0_0_1_8"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "lo",
+            "side": "output",
+            "terminal": "::1/128",
+            "detail": "address",
+            "domain": "network",
+            "node": "NIC_LO_OUT_1_128"
+          },
+          {
+            "_row_state": "online",
+            "interface": "veth3225ef7",
+            "side": "input",
+            "terminal": "rx",
+            "detail": "1.0 MB",
+            "domain": "network",
+            "node": "NIC_VETH3225EF7_INP_RX"
+          },
+          {
+            "_row_state": "online",
+            "interface": "veth3225ef7",
+            "side": "output",
+            "terminal": "tx",
+            "detail": "1.7 MB",
+            "domain": "network",
+            "node": "NIC_VETH3225EF7_OUT_TX"
+          },
+          {
+            "_row_state": "online",
+            "interface": "veth3225ef7",
+            "side": "output",
+            "terminal": "fe80::6c06:dcff:",
+            "detail": "address",
+            "domain": "network",
+            "node": "NIC_VETH3225EF7_OUT_FE80_6C06_DCFF"
+          },
+          {
+            "_row_state": "online",
+            "interface": "veth3d083e9",
+            "side": "input",
+            "terminal": "rx",
+            "detail": "938.4 KB",
+            "domain": "network",
+            "node": "NIC_VETH3D083E9_INP_RX"
+          },
+          {
+            "_row_state": "online",
+            "interface": "veth3d083e9",
+            "side": "output",
+            "terminal": "tx",
+            "detail": "2.2 MB",
+            "domain": "network",
+            "node": "NIC_VETH3D083E9_OUT_TX"
+          },
+          {
+            "_row_state": "online",
+            "interface": "veth3d083e9",
+            "side": "output",
+            "terminal": "fe80::18fc:78ff:",
+            "detail": "address",
+            "domain": "network",
+            "node": "NIC_VETH3D083E9_OUT_FE80_18FC_78FF"
+          },
+          {
+            "_row_state": "online",
+            "interface": "veth5445d65",
+            "side": "input",
+            "terminal": "rx",
+            "detail": "98.5 MB",
+            "domain": "network",
+            "node": "NIC_VETH5445D65_INP_RX"
+          },
+          {
+            "_row_state": "online",
+            "interface": "veth5445d65",
+            "side": "output",
+            "terminal": "tx",
+            "detail": "15.7 MB",
+            "domain": "network",
+            "node": "NIC_VETH5445D65_OUT_TX"
+          },
+          {
+            "_row_state": "online",
+            "interface": "veth5445d65",
+            "side": "output",
+            "terminal": "fe80::900a:b2ff:",
+            "detail": "address",
+            "domain": "network",
+            "node": "NIC_VETH5445D65_OUT_FE80_900A_B2FF"
+          },
+          {
+            "_row_state": "online",
+            "interface": "vethca1d3f6",
+            "side": "input",
+            "terminal": "rx",
+            "detail": "8.6 MB",
+            "domain": "network",
+            "node": "NIC_VETHCA1D3F6_INP_RX"
+          },
+          {
+            "_row_state": "online",
+            "interface": "vethca1d3f6",
+            "side": "output",
+            "terminal": "tx",
+            "detail": "23.3 MB",
+            "domain": "network",
+            "node": "NIC_VETHCA1D3F6_OUT_TX"
+          },
+          {
+            "_row_state": "online",
+            "interface": "vethca1d3f6",
+            "side": "output",
+            "terminal": "fe80::eccc:90ff:",
+            "detail": "address",
+            "domain": "network",
+            "node": "NIC_VETHCA1D3F6_OUT_FE80_ECCC_90FF"
+          },
+          {
+            "_row_state": "online",
+            "interface": "vethdde383f",
+            "side": "input",
+            "terminal": "rx",
+            "detail": "2.0 MB",
+            "domain": "network",
+            "node": "NIC_VETHDDE383F_INP_RX"
+          },
+          {
+            "_row_state": "online",
+            "interface": "vethdde383f",
+            "side": "output",
+            "terminal": "tx",
+            "detail": "4.4 MB",
+            "domain": "network",
+            "node": "NIC_VETHDDE383F_OUT_TX"
+          },
+          {
+            "_row_state": "online",
+            "interface": "vethdde383f",
+            "side": "output",
+            "terminal": "fe80::7c59:b3ff:",
+            "detail": "address",
+            "domain": "network",
+            "node": "NIC_VETHDDE383F_OUT_FE80_7C59_B3FF"
+          },
+          {
+            "_row_state": "online",
+            "interface": "ptp0",
+            "side": "input",
+            "terminal": "on interface",
+            "detail": "enp5s0f0",
+            "domain": "clock",
+            "node": "PTP_PTP0_INP_ON_INTERFACE"
+          },
+          {
+            "_row_state": "online",
+            "interface": "ptp0",
+            "side": "output",
+            "terminal": "ext timestamps",
+            "detail": "2",
+            "domain": "clock",
+            "node": "PTP_PTP0_OUT_EXT_TIMESTAMPS"
+          },
+          {
+            "_row_state": "online",
+            "interface": "ptp0",
+            "side": "output",
+            "terminal": "periodic out",
+            "detail": "2",
+            "domain": "clock",
+            "node": "PTP_PTP0_OUT_PERIODIC_OUT"
+          },
+          {
+            "_row_state": "online",
+            "interface": "ptp0",
+            "side": "bus",
+            "terminal": "igb",
+            "detail": "driver",
+            "domain": "driver",
+            "node": "PTP_PTP0_BUS_IGB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "ptp1",
+            "side": "input",
+            "terminal": "on interface",
+            "detail": "enp5s0f1",
+            "domain": "clock",
+            "node": "PTP_PTP1_INP_ON_INTERFACE"
+          },
+          {
+            "_row_state": "online",
+            "interface": "ptp1",
+            "side": "output",
+            "terminal": "ext timestamps",
+            "detail": "2",
+            "domain": "clock",
+            "node": "PTP_PTP1_OUT_EXT_TIMESTAMPS"
+          },
+          {
+            "_row_state": "online",
+            "interface": "ptp1",
+            "side": "output",
+            "terminal": "periodic out",
+            "detail": "2",
+            "domain": "clock",
+            "node": "PTP_PTP1_OUT_PERIODIC_OUT"
+          },
+          {
+            "_row_state": "online",
+            "interface": "ptp1",
+            "side": "bus",
+            "terminal": "igb",
+            "detail": "driver",
+            "domain": "driver",
+            "node": "PTP_PTP1_BUS_IGB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "HDA NVidia",
+            "side": "output",
+            "terminal": "HDMI 0",
+            "detail": "hw:0,3",
+            "domain": "audio",
+            "node": "CARD_0_OUT_HDMI_0"
+          },
+          {
+            "_row_state": "online",
+            "interface": "HDA NVidia",
+            "side": "output",
+            "terminal": "HDMI 1",
+            "detail": "hw:0,7",
+            "domain": "audio",
+            "node": "CARD_0_OUT_HDMI_1"
+          },
+          {
+            "_row_state": "online",
+            "interface": "HDA NVidia",
+            "side": "output",
+            "terminal": "HDMI 2",
+            "detail": "hw:0,8",
+            "domain": "audio",
+            "node": "CARD_0_OUT_HDMI_2"
+          },
+          {
+            "_row_state": "online",
+            "interface": "HDA NVidia",
+            "side": "output",
+            "terminal": "HDMI 3",
+            "detail": "hw:0,9",
+            "domain": "audio",
+            "node": "CARD_0_OUT_HDMI_3"
+          },
+          {
+            "_row_state": "online",
+            "interface": "HDA NVidia",
+            "side": "bus",
+            "terminal": "HDA-Intel",
+            "detail": "driver",
+            "domain": "driver",
+            "node": "CARD_0_BUS_HDA_INTEL"
+          },
+          {
+            "_row_state": "online",
+            "interface": "HD-Audio Generic",
+            "side": "output",
+            "terminal": "HDMI 0",
+            "detail": "hw:1,3",
+            "domain": "audio",
+            "node": "CARD_1_OUT_HDMI_0"
+          },
+          {
+            "_row_state": "online",
+            "interface": "HD-Audio Generic",
+            "side": "output",
+            "terminal": "HDMI 1",
+            "detail": "hw:1,7",
+            "domain": "audio",
+            "node": "CARD_1_OUT_HDMI_1"
+          },
+          {
+            "_row_state": "online",
+            "interface": "HD-Audio Generic",
+            "side": "output",
+            "terminal": "HDMI 2",
+            "detail": "hw:1,8",
+            "domain": "audio",
+            "node": "CARD_1_OUT_HDMI_2"
+          },
+          {
+            "_row_state": "online",
+            "interface": "HD-Audio Generic",
+            "side": "output",
+            "terminal": "HDMI 3",
+            "detail": "hw:1,9",
+            "domain": "audio",
+            "node": "CARD_1_OUT_HDMI_3"
+          },
+          {
+            "_row_state": "online",
+            "interface": "HD-Audio Generic",
+            "side": "bus",
+            "terminal": "HDA-Intel",
+            "detail": "driver",
+            "domain": "driver",
+            "node": "CARD_1_BUS_HDA_INTEL"
+          },
+          {
+            "_row_state": "online",
+            "interface": "HD-Audio Generic",
+            "side": "input",
+            "terminal": "ALC897 Analog",
+            "detail": "hw:2,0",
+            "domain": "audio",
+            "node": "CARD_2_INP_ALC897_ANALOG"
+          },
+          {
+            "_row_state": "online",
+            "interface": "HD-Audio Generic",
+            "side": "input",
+            "terminal": "ALC897 Alt Analog",
+            "detail": "hw:2,2",
+            "domain": "audio",
+            "node": "CARD_2_INP_ALC897_ALT_ANALOG"
+          },
+          {
+            "_row_state": "online",
+            "interface": "HD-Audio Generic",
+            "side": "output",
+            "terminal": "ALC897 Analog",
+            "detail": "hw:2,0",
+            "domain": "audio",
+            "node": "CARD_2_OUT_ALC897_ANALOG"
+          },
+          {
+            "_row_state": "online",
+            "interface": "HD-Audio Generic",
+            "side": "bus",
+            "terminal": "HDA-Intel",
+            "detail": "driver",
+            "domain": "driver",
+            "node": "CARD_2_BUS_HDA_INTEL"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "enp5s0f0 — listening",
+            "side": "input",
+            "terminal": "multicast rx",
+            "detail": "145322",
+            "domain": "audio",
+            "node": "EAR_ENP5S0F0_INP_MULTICAST_RX"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "enp5s0f0 — listening",
+            "side": "bus",
+            "terminal": "enp5s0f0",
+            "detail": "rides",
+            "domain": "network",
+            "node": "EAR_ENP5S0F0_BUS_ENP5S0F0"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "enp5s0f1 — listening",
+            "side": "input",
+            "terminal": "multicast rx",
+            "detail": "0",
+            "domain": "audio",
+            "node": "EAR_ENP5S0F1_INP_MULTICAST_RX"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "enp5s0f1 — listening",
+            "side": "bus",
+            "terminal": "enp5s0f1",
+            "detail": "rides",
+            "domain": "network",
+            "node": "EAR_ENP5S0F1_BUS_ENP5S0F1"
+          },
+          {
+            "_row_state": "online",
+            "interface": "enp12s0 — listening",
+            "side": "input",
+            "terminal": "multicast rx",
+            "detail": "199230",
+            "domain": "audio",
+            "node": "EAR_ENP12S0_INP_MULTICAST_RX"
+          },
+          {
+            "_row_state": "online",
+            "interface": "enp12s0 — listening",
+            "side": "output",
+            "terminal": "Dante",
+            "detail": "listening",
+            "domain": "audio",
+            "node": "EAR_ENP12S0_OUT_DANTE"
+          },
+          {
+            "_row_state": "online",
+            "interface": "enp12s0 — listening",
+            "side": "bus",
+            "terminal": "enp12s0",
+            "detail": "rides",
+            "domain": "network",
+            "node": "EAR_ENP12S0_BUS_ENP12S0"
+          },
+          {
+            "_row_state": "online",
+            "interface": "wlp13s0 — listening",
+            "side": "input",
+            "terminal": "multicast rx",
+            "detail": "0",
+            "domain": "audio",
+            "node": "EAR_WLP13S0_INP_MULTICAST_RX"
+          },
+          {
+            "_row_state": "online",
+            "interface": "wlp13s0 — listening",
+            "side": "bus",
+            "terminal": "wlp13s0",
+            "detail": "rides",
+            "domain": "network",
+            "node": "EAR_WLP13S0_BUS_WLP13S0"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "DNS 53",
+            "side": "input",
+            "terminal": "bound to",
+            "detail": "127.0.0.53%lo",
+            "domain": "socket",
+            "node": "POST_DNS_TCP_53_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "DNS 53",
+            "side": "output",
+            "terminal": "reach",
+            "detail": "this machine only",
+            "domain": "socket",
+            "node": "POST_DNS_TCP_53_OUT_REACH"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "DNS 53",
+            "side": "input",
+            "terminal": "bound to",
+            "detail": "127.0.0.53%lo",
+            "domain": "socket",
+            "node": "POST_DNS_UDP_53_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "DNS 53",
+            "side": "output",
+            "terminal": "reach",
+            "detail": "this machine only",
+            "domain": "socket",
+            "node": "POST_DNS_UDP_53_OUT_REACH"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "HTTP 8080",
+            "side": "input",
+            "terminal": "bound to",
+            "detail": "127.0.0.1",
+            "domain": "socket",
+            "node": "POST_HTTP_TCP_8080_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "HTTP 8080",
+            "side": "output",
+            "terminal": "reach",
+            "detail": "this machine only",
+            "domain": "socket",
+            "node": "POST_HTTP_TCP_8080_OUT_REACH"
+          },
+          {
+            "_row_state": "offline",
+            "interface": "HTTP 8080",
+            "side": "bus",
+            "terminal": "python3 (3801576)",
+            "detail": "process",
+            "domain": "driver",
+            "node": "POST_HTTP_TCP_8080_BUS_PYTHON3_3801576"
+          },
+          {
+            "_row_state": "online",
+            "interface": "IPP 631",
+            "side": "input",
+            "terminal": "bound to",
+            "detail": "0.0.0.0",
+            "domain": "socket",
+            "node": "POST_IPP_TCP_631_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "interface": "IPP 631",
+            "side": "output",
+            "terminal": "reach",
+            "detail": "every interface",
+            "domain": "socket",
+            "node": "POST_IPP_TCP_631_OUT_REACH"
+          },
+          {
+            "_row_state": "online",
+            "interface": "SNMP 161",
+            "side": "input",
+            "terminal": "bound to",
+            "detail": "0.0.0.0",
+            "domain": "socket",
+            "node": "POST_SNMP_UDP_161_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "interface": "SNMP 161",
+            "side": "output",
+            "terminal": "reach",
+            "detail": "every interface",
+            "domain": "socket",
+            "node": "POST_SNMP_UDP_161_OUT_REACH"
+          },
+          {
+            "_row_state": "online",
+            "interface": "SunRPC 111",
+            "side": "input",
+            "terminal": "bound to",
+            "detail": "0.0.0.0",
+            "domain": "socket",
+            "node": "POST_SUNRPC_TCP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "interface": "SunRPC 111",
+            "side": "output",
+            "terminal": "reach",
+            "detail": "every interface",
+            "domain": "socket",
+            "node": "POST_SUNRPC_TCP_111_OUT_REACH"
+          },
+          {
+            "_row_state": "online",
+            "interface": "SunRPC 111",
+            "side": "input",
+            "terminal": "bound to",
+            "detail": "0.0.0.0",
+            "domain": "socket",
+            "node": "POST_SUNRPC_UDP_111_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "interface": "SunRPC 111",
+            "side": "output",
+            "terminal": "reach",
+            "detail": "every interface",
+            "domain": "socket",
+            "node": "POST_SUNRPC_UDP_111_OUT_REACH"
+          },
+          {
+            "_row_state": "online",
+            "interface": "mDNS 5353",
+            "side": "input",
+            "terminal": "bound to",
+            "detail": "0.0.0.0",
+            "domain": "socket",
+            "node": "POST_MDNS_UDP_5353_INP_BOUND_TO"
+          },
+          {
+            "_row_state": "online",
+            "interface": "mDNS 5353",
+            "side": "output",
+            "terminal": "reach",
+            "detail": "every interface",
+            "domain": "socket",
+            "node": "POST_MDNS_UDP_5353_OUT_REACH"
+          },
+          {
+            "_row_state": "online",
+            "interface": "Wireless_Device",
+            "side": "input",
+            "terminal": "bus 1",
+            "detail": "480 Mb/s",
+            "domain": "usb",
+            "node": "USB_1_11_INP_BUS_1"
+          },
+          {
+            "_row_state": "online",
+            "interface": "Wireless_Device",
+            "side": "output",
+            "terminal": "miscellaneous",
+            "detail": "000000000",
+            "domain": "usb",
+            "node": "USB_1_11_OUT_MISCELLANEOUS"
+          },
+          {
+            "_row_state": "online",
+            "interface": "Wireless_Device",
+            "side": "bus",
+            "terminal": "usb",
+            "detail": "driver",
+            "domain": "driver",
+            "node": "USB_1_11_BUS_USB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "MYSTIC LIGHT",
+            "side": "input",
+            "terminal": "bus 1",
+            "detail": "12 Mb/s",
+            "domain": "usb",
+            "node": "USB_1_12_INP_BUS_1"
+          },
+          {
+            "_row_state": "online",
+            "interface": "MYSTIC LIGHT",
+            "side": "output",
+            "terminal": "per-interface",
+            "detail": "7E6624122401",
+            "domain": "usb",
+            "node": "USB_1_12_OUT_PER_INTERFACE"
+          },
+          {
+            "_row_state": "online",
+            "interface": "MYSTIC LIGHT",
+            "side": "bus",
+            "terminal": "usb",
+            "detail": "driver",
+            "domain": "driver",
+            "node": "USB_1_12_BUS_USB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "USB2.1 Hub",
+            "side": "input",
+            "terminal": "bus 1",
+            "detail": "480 Mb/s",
+            "domain": "usb",
+            "node": "USB_1_6_INP_BUS_1"
+          },
+          {
+            "_row_state": "online",
+            "interface": "USB2.1 Hub",
+            "side": "output",
+            "terminal": "hub",
+            "detail": "",
+            "domain": "usb",
+            "node": "USB_1_6_OUT_HUB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "USB2.1 Hub",
+            "side": "bus",
+            "terminal": "usb",
+            "detail": "driver",
+            "domain": "driver",
+            "node": "USB_1_6_BUS_USB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "USB-Serial Controller",
+            "side": "input",
+            "terminal": "bus 1",
+            "detail": "12 Mb/s",
+            "domain": "usb",
+            "node": "USB_1_6_1_INP_BUS_1"
+          },
+          {
+            "_row_state": "online",
+            "interface": "USB-Serial Controller",
+            "side": "output",
+            "terminal": "per-interface",
+            "detail": "BGA5b2A8J14",
+            "domain": "usb",
+            "node": "USB_1_6_1_OUT_PER_INTERFACE"
+          },
+          {
+            "_row_state": "online",
+            "interface": "USB-Serial Controller",
+            "side": "bus",
+            "terminal": "usb",
+            "detail": "driver",
+            "domain": "driver",
+            "node": "USB_1_6_1_BUS_USB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "0424:2514",
+            "side": "input",
+            "terminal": "bus 1",
+            "detail": "480 Mb/s",
+            "domain": "usb",
+            "node": "USB_1_6_3_INP_BUS_1"
+          },
+          {
+            "_row_state": "online",
+            "interface": "0424:2514",
+            "side": "output",
+            "terminal": "hub",
+            "detail": "",
+            "domain": "usb",
+            "node": "USB_1_6_3_OUT_HUB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "0424:2514",
+            "side": "bus",
+            "terminal": "usb",
+            "detail": "driver",
+            "domain": "driver",
+            "node": "USB_1_6_3_BUS_USB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "Dell MS116 USB Optical Mouse",
+            "side": "input",
+            "terminal": "bus 1",
+            "detail": "1.5 Mb/s",
+            "domain": "usb",
+            "node": "USB_1_6_3_2_INP_BUS_1"
+          },
+          {
+            "_row_state": "online",
+            "interface": "Dell MS116 USB Optical Mouse",
+            "side": "output",
+            "terminal": "per-interface",
+            "detail": "",
+            "domain": "usb",
+            "node": "USB_1_6_3_2_OUT_PER_INTERFACE"
+          },
+          {
+            "_row_state": "online",
+            "interface": "Dell MS116 USB Optical Mouse",
+            "side": "bus",
+            "terminal": "usb",
+            "detail": "driver",
+            "domain": "driver",
+            "node": "USB_1_6_3_2_BUS_USB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "SteelSeries Apex 3",
+            "side": "input",
+            "terminal": "bus 1",
+            "detail": "12 Mb/s",
+            "domain": "usb",
+            "node": "USB_1_6_3_3_INP_BUS_1"
+          },
+          {
+            "_row_state": "online",
+            "interface": "SteelSeries Apex 3",
+            "side": "output",
+            "terminal": "per-interface",
+            "detail": "",
+            "domain": "usb",
+            "node": "USB_1_6_3_3_OUT_PER_INTERFACE"
+          },
+          {
+            "_row_state": "online",
+            "interface": "SteelSeries Apex 3",
+            "side": "bus",
+            "terminal": "usb",
+            "detail": "driver",
+            "domain": "driver",
+            "node": "USB_1_6_3_3_BUS_USB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "USB Trackball",
+            "side": "input",
+            "terminal": "bus 1",
+            "detail": "1.5 Mb/s",
+            "domain": "usb",
+            "node": "USB_1_6_3_4_INP_BUS_1"
+          },
+          {
+            "_row_state": "online",
+            "interface": "USB Trackball",
+            "side": "output",
+            "terminal": "per-interface",
+            "detail": "",
+            "domain": "usb",
+            "node": "USB_1_6_3_4_OUT_PER_INTERFACE"
+          },
+          {
+            "_row_state": "online",
+            "interface": "USB Trackball",
+            "side": "bus",
+            "terminal": "usb",
+            "detail": "driver",
+            "domain": "driver",
+            "node": "USB_1_6_3_4_BUS_USB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "USB3.2 Hub",
+            "side": "input",
+            "terminal": "bus 2",
+            "detail": "5000 Mb/s",
+            "domain": "usb",
+            "node": "USB_2_6_INP_BUS_2"
+          },
+          {
+            "_row_state": "online",
+            "interface": "USB3.2 Hub",
+            "side": "output",
+            "terminal": "hub",
+            "detail": "",
+            "domain": "usb",
+            "node": "USB_2_6_OUT_HUB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "USB3.2 Hub",
+            "side": "bus",
+            "terminal": "usb",
+            "detail": "driver",
+            "domain": "driver",
+            "node": "USB_2_6_BUS_USB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "side": "input",
+            "terminal": "bus 1",
+            "detail": "480 Mb/s",
+            "domain": "usb",
+            "node": "USB_USB1_INP_BUS_1"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "side": "output",
+            "terminal": "hub",
+            "detail": "0000:0e:00.0",
+            "domain": "usb",
+            "node": "USB_USB1_OUT_HUB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "side": "bus",
+            "terminal": "usb",
+            "detail": "driver",
+            "domain": "driver",
+            "node": "USB_USB1_BUS_USB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "side": "input",
+            "terminal": "bus 2",
+            "detail": "10000 Mb/s",
+            "domain": "usb",
+            "node": "USB_USB2_INP_BUS_2"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "side": "output",
+            "terminal": "hub",
+            "detail": "0000:0e:00.0",
+            "domain": "usb",
+            "node": "USB_USB2_OUT_HUB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "side": "bus",
+            "terminal": "usb",
+            "detail": "driver",
+            "domain": "driver",
+            "node": "USB_USB2_BUS_USB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "side": "input",
+            "terminal": "bus 3",
+            "detail": "480 Mb/s",
+            "domain": "usb",
+            "node": "USB_USB3_INP_BUS_3"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "side": "output",
+            "terminal": "hub",
+            "detail": "0000:11:00.3",
+            "domain": "usb",
+            "node": "USB_USB3_OUT_HUB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "side": "bus",
+            "terminal": "usb",
+            "detail": "driver",
+            "domain": "driver",
+            "node": "USB_USB3_BUS_USB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "side": "input",
+            "terminal": "bus 4",
+            "detail": "10000 Mb/s",
+            "domain": "usb",
+            "node": "USB_USB4_INP_BUS_4"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "side": "output",
+            "terminal": "hub",
+            "detail": "0000:11:00.3",
+            "domain": "usb",
+            "node": "USB_USB4_OUT_HUB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "side": "bus",
+            "terminal": "usb",
+            "detail": "driver",
+            "domain": "driver",
+            "node": "USB_USB4_BUS_USB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "side": "input",
+            "terminal": "bus 5",
+            "detail": "480 Mb/s",
+            "domain": "usb",
+            "node": "USB_USB5_INP_BUS_5"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "side": "output",
+            "terminal": "hub",
+            "detail": "0000:11:00.4",
+            "domain": "usb",
+            "node": "USB_USB5_OUT_HUB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "side": "bus",
+            "terminal": "usb",
+            "detail": "driver",
+            "domain": "driver",
+            "node": "USB_USB5_BUS_USB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "side": "input",
+            "terminal": "bus 6",
+            "detail": "10000 Mb/s",
+            "domain": "usb",
+            "node": "USB_USB6_INP_BUS_6"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "side": "output",
+            "terminal": "hub",
+            "detail": "0000:11:00.4",
+            "domain": "usb",
+            "node": "USB_USB6_OUT_HUB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "side": "bus",
+            "terminal": "usb",
+            "detail": "driver",
+            "domain": "driver",
+            "node": "USB_USB6_BUS_USB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "side": "input",
+            "terminal": "bus 7",
+            "detail": "480 Mb/s",
+            "domain": "usb",
+            "node": "USB_USB7_INP_BUS_7"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "side": "output",
+            "terminal": "hub",
+            "detail": "0000:12:00.0",
+            "domain": "usb",
+            "node": "USB_USB7_OUT_HUB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "xHCI Host Controller",
+            "side": "bus",
+            "terminal": "usb",
+            "detail": "driver",
+            "domain": "driver",
+            "node": "USB_USB7_BUS_USB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "/dev/ttyS0",
+            "side": "input",
+            "terminal": "rx",
+            "detail": "1843200",
+            "domain": "serial",
+            "node": "SERIAL_DEV_TTYS0_INP_RX"
+          },
+          {
+            "_row_state": "online",
+            "interface": "/dev/ttyS0",
+            "side": "output",
+            "terminal": "tx",
+            "detail": "1843200",
+            "domain": "serial",
+            "node": "SERIAL_DEV_TTYS0_OUT_TX"
+          },
+          {
+            "_row_state": "online",
+            "interface": "/dev/ttyS0",
+            "side": "bus",
+            "terminal": "ctrl",
+            "detail": "driver",
+            "domain": "driver",
+            "node": "SERIAL_DEV_TTYS0_BUS_CTRL"
+          },
+          {
+            "_row_state": "online",
+            "interface": "/dev/ttyUSB0",
+            "side": "input",
+            "terminal": "rx",
+            "detail": "",
+            "domain": "serial",
+            "node": "SERIAL_DEV_TTYUSB0_INP_RX"
+          },
+          {
+            "_row_state": "online",
+            "interface": "/dev/ttyUSB0",
+            "side": "output",
+            "terminal": "tx",
+            "detail": "",
+            "domain": "serial",
+            "node": "SERIAL_DEV_TTYUSB0_OUT_TX"
+          },
+          {
+            "_row_state": "online",
+            "interface": "/dev/ttyUSB0",
+            "side": "bus",
+            "terminal": "pl2303",
+            "detail": "driver",
+            "domain": "driver",
+            "node": "SERIAL_DEV_TTYUSB0_BUS_PL2303"
+          },
+          {
+            "_row_state": "online",
+            "interface": "gpiochip0",
+            "side": "output",
+            "terminal": "256 lines",
+            "detail": "512",
+            "domain": "gpio",
+            "node": "GPIO_GPIOCHIP0_OUT_256_LINES"
+          },
+          {
+            "_row_state": "online",
+            "interface": "gpiochip0",
+            "side": "bus",
+            "terminal": "254:0",
+            "detail": "char device",
+            "domain": "gpio",
+            "node": "GPIO_GPIOCHIP0_BUS_254_0"
+          },
+          {
+            "_row_state": "online",
+            "interface": "gpiochip1",
+            "side": "output",
+            "terminal": "24 lines",
+            "detail": "768",
+            "domain": "gpio",
+            "node": "GPIO_GPIOCHIP1_OUT_24_LINES"
+          },
+          {
+            "_row_state": "online",
+            "interface": "gpiochip1",
+            "side": "bus",
+            "terminal": "254:1",
+            "detail": "char device",
+            "domain": "gpio",
+            "node": "GPIO_GPIOCHIP1_BUS_254_1"
+          },
+          {
+            "_row_state": "online",
+            "interface": "usb",
+            "side": "input",
+            "terminal": "binds",
+            "detail": "16 device(s)",
+            "domain": "driver",
+            "node": "DRIVER_USB_INP_BINDS"
+          },
+          {
+            "_row_state": "online",
+            "interface": "usb",
+            "side": "output",
+            "terminal": "usb",
+            "detail": "",
+            "domain": "driver",
+            "node": "DRIVER_USB_OUT_USB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "igb",
+            "side": "input",
+            "terminal": "binds",
+            "detail": "2 device(s)",
+            "domain": "driver",
+            "node": "DRIVER_IGB_INP_BINDS"
+          },
+          {
+            "_row_state": "online",
+            "interface": "igb",
+            "side": "output",
+            "terminal": "pci",
+            "detail": "igb",
+            "domain": "driver",
+            "node": "DRIVER_IGB_OUT_PCI"
+          },
+          {
+            "_row_state": "online",
+            "interface": "igb",
+            "side": "bus",
+            "terminal": "igb",
+            "detail": "module",
+            "domain": "driver",
+            "node": "DRIVER_IGB_BUS_IGB"
+          },
+          {
+            "_row_state": "online",
+            "interface": "ctrl",
+            "side": "input",
+            "terminal": "binds",
+            "detail": "2 device(s)",
+            "domain": "driver",
+            "node": "DRIVER_CTRL_INP_BINDS"
+          },
+          {
+            "_row_state": "online",
+            "interface": "ctrl",
+            "side": "output",
+            "terminal": "serial-base",
+            "detail": "",
+            "domain": "driver",
+            "node": "DRIVER_CTRL_OUT_SERIAL_BASE"
+          },
+          {
+            "_row_state": "online",
+            "interface": "mt7925e",
+            "side": "input",
+            "terminal": "binds",
+            "detail": "1 device(s)",
+            "domain": "driver",
+            "node": "DRIVER_MT7925E_INP_BINDS"
+          },
+          {
+            "_row_state": "online",
+            "interface": "mt7925e",
+            "side": "output",
+            "terminal": "pci",
+            "detail": "mt7925e",
+            "domain": "driver",
+            "node": "DRIVER_MT7925E_OUT_PCI"
+          },
+          {
+            "_row_state": "online",
+            "interface": "mt7925e",
+            "side": "bus",
+            "terminal": "mt7925e",
+            "detail": "module",
+            "domain": "driver",
+            "node": "DRIVER_MT7925E_BUS_MT7925E"
+          },
+          {
+            "_row_state": "online",
+            "interface": "r8169",
+            "side": "input",
+            "terminal": "binds",
+            "detail": "1 device(s)",
+            "domain": "driver",
+            "node": "DRIVER_R8169_INP_BINDS"
+          },
+          {
+            "_row_state": "online",
+            "interface": "r8169",
+            "side": "output",
+            "terminal": "pci",
+            "detail": "r8169",
+            "domain": "driver",
+            "node": "DRIVER_R8169_OUT_PCI"
+          },
+          {
+            "_row_state": "online",
+            "interface": "r8169",
+            "side": "bus",
+            "terminal": "r8169",
+            "detail": "module",
+            "domain": "driver",
+            "node": "DRIVER_R8169_BUS_R8169"
+          },
+          {
+            "_row_state": "online",
+            "interface": "pl2303",
+            "side": "input",
+            "terminal": "binds",
+            "detail": "1 device(s)",
+            "domain": "driver",
+            "node": "DRIVER_PL2303_INP_BINDS"
+          },
+          {
+            "_row_state": "online",
+            "interface": "pl2303",
+            "side": "output",
+            "terminal": "usb",
+            "detail": "usbserial",
+            "domain": "driver",
+            "node": "DRIVER_PL2303_OUT_USB_SERIAL"
+          },
+          {
+            "_row_state": "online",
+            "interface": "pl2303",
+            "side": "bus",
+            "terminal": "usbserial",
+            "detail": "module",
+            "domain": "driver",
+            "node": "DRIVER_PL2303_BUS_PL2303"
+          },
+          {
+            "_row_state": "online",
+            "interface": "pl2303",
+            "side": "input",
+            "terminal": "binds",
+            "detail": "1 device(s)",
+            "domain": "driver",
+            "node": "DRIVER_PL2303_INP_BINDS"
+          },
+          {
+            "_row_state": "online",
+            "interface": "pl2303",
+            "side": "output",
+            "terminal": "usb-serial",
+            "detail": "pl2303",
+            "domain": "driver",
+            "node": "DRIVER_PL2303_OUT_USB_SERIAL"
+          },
+          {
+            "_row_state": "online",
+            "interface": "pl2303",
+            "side": "bus",
+            "terminal": "pl2303",
+            "detail": "module",
+            "domain": "driver",
+            "node": "DRIVER_PL2303_BUS_PL2303"
+          }
+        ],
+        "refresh": {
+          "source": "/repo/.apk.scripts/build_interfaces_drawing.py",
+          "written": "2026-09-07T18:12:43"
+        }
+      },
+      "Domains": {
+        "type": "OcaTable",
+        "description": {
+          "En": "The impedances both the drawing and the deck read — the F1 fix, as data"
+        },
+        "topic": "APK.audio/Gui/Interfaces/Map/Domains",
+        "headers": [
+          "domain",
+          "source ohms",
+          "load ohms",
+          "note"
+        ],
+        "data": [
+          {
+            "domain": "audio",
+            "source ohms": 50.0,
+            "load ohms": 10000.0,
+            "note": "line level, bridging input"
+          },
+          {
+            "domain": "clock",
+            "source ohms": 50.0,
+            "load ohms": 50.0,
+            "note": "PTP hardware clock distribution"
+          },
+          {
+            "domain": "driver",
+            "source ohms": 100.0,
+            "load ohms": 4700.0,
+            "note": "software binding, control class"
+          },
+          {
+            "domain": "gpio",
+            "source ohms": 33.0,
+            "load ohms": 100000.0,
+            "note": "logic line into a high-Z pin"
+          },
+          {
+            "domain": "host",
+            "source ohms": 10.0,
+            "load ohms": 1000.0,
+            "note": "the machine itself"
+          },
+          {
+            "domain": "network",
+            "source ohms": 100.0,
+            "load ohms": 100.0,
+            "note": "differential pair, terminated"
+          },
+          {
+            "domain": "serial",
+            "source ohms": 120.0,
+            "load ohms": 120.0,
+            "note": "UART, RS-232 class"
+          },
+          {
+            "domain": "socket",
+            "source ohms": 100.0,
+            "load ohms": 4700.0,
+            "note": "a bound port, control class"
+          },
+          {
+            "domain": "usb",
+            "source ohms": 45.0,
+            "load ohms": 45.0,
+            "note": "USB differential pair"
+          }
+        ],
+        "refresh": {
+          "source": "/repo/.apk.scripts/build_interfaces_drawing.py",
+          "written": "2026-09-07T18:12:43"
+        }
+      }
+    }
+  }
+}

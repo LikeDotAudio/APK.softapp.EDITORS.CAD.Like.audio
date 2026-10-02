@@ -209,6 +209,7 @@ for (const def of [...FLOW_CATALOG, ...SHOP_CATALOG]) {
 const INTERFACES_PATHS = [
   'PODS/POD:THIN/OS/Interfaces/APK-Shop/Interfaces.json',
   'APK:OS/Interfaces/APK-Shop/Interfaces.json',
+  'scripts/fixtures/Interfaces.json',
 ];
 
 interface TerminalRow {

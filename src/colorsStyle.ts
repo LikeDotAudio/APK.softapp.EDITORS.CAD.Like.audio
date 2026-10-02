@@ -35,7 +35,7 @@
  * that ratchet counts.
  */
 
-import brand from '../../../../../../contracts/tokens/brand.json';
+import brand from './tokens/brand.json';
 
 export const COLORS = {
   // Window & Panel Backgrounds
