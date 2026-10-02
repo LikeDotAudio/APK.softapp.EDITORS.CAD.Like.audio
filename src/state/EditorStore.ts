@@ -68,6 +68,7 @@ import { captureClipboard } from './actions/captureClipboard';
 import { clearAll } from './actions/clearAll';
 import { closeFile } from './actions/closeFile';
 import { closeDynInput } from './actions/closeDynInput';
+import { createFromClipboard } from './actions/createFromClipboard';
 import { commitDyn } from './actions/commitDyn';
 import { copySelection } from './actions/copySelection';
 import { copySelectionWithReference } from './actions/copySelectionWithReference';
@@ -251,6 +252,8 @@ export class EditorStore {
   openFilePicker: (() => void) | null = null;
   /** Hook registered by the UI to open the Block Editor modal. */
   openBlockEditorModal: ((blockName?: string) => void) | null = null;
+  /** Hook registered by the UI to open the Startup / Welcome modal. */
+  openStartupModal: (() => void) | null = null;
 
   readonly api: ToolApi;
 
@@ -293,10 +296,12 @@ export class EditorStore {
       },
     };
     this.uiSnapshot = this.buildUi();
-    /* The browser's working copy first, then the filed sheet on top of it. In
-       that order deliberately: the file is the record, and `openBigPicture`
-       declines to overwrite a session with an empty one. */
-    void this.restoreBrowserSession().then(() => this.openBigPicture());
+    /* The browser's working copy first, then the filed sheet on top of it.
+       For Big Picture (the bench model), restore automatically.
+       For CAD / Drawing, the StartupModal prompts the user on startup. */
+    if (this.entrance.entrance === 'big-picture') {
+      void this.restoreBrowserSession().then(() => this.openBigPicture());
+    }
     this.showHint(entrance.hint, 8000);
   }
 
@@ -565,6 +570,16 @@ export class EditorStore {
     if (this.openBlockEditorModal) {
       this.openBlockEditorModal(blockName);
     }
+  }
+
+  triggerOpenStartupModal(): void {
+    if (this.openStartupModal) {
+      this.openStartupModal();
+    }
+  }
+
+  async createFromClipboard(): Promise<boolean> {
+    return await createFromClipboard(this);
   }
 
   toggleFixedTextSize(): void {

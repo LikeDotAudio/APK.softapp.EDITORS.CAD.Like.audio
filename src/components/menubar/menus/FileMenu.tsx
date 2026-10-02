@@ -67,12 +67,28 @@ export function FileMenu({ open, onToggle, onClose }: MenuProps) {
             }}
           />
           <MenuItem
+            icon="🚀"
+            label="Startup Screen..."
+            onSelect={() => {
+              onClose();
+              store.triggerOpenStartupModal();
+            }}
+          />
+          <MenuItem
             icon="📂"
             label="Open..."
             shortcut="Ctrl+O"
             onSelect={() => {
               onClose();
               dxfInput.current?.click();
+            }}
+          />
+          <MenuItem
+            icon="📋"
+            label="Create from Clipboard"
+            onSelect={() => {
+              onClose();
+              void store.createFromClipboard();
             }}
           />
           <MenuItem

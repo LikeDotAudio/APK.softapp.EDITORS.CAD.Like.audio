@@ -14,6 +14,7 @@ import { EntranceContext } from './shell/EntranceContext';
 import { SpreadsheetModal } from './components/spreadsheet/SpreadsheetModal';
 import { ElementsEditorModal } from './components/elementsEditor/ElementsEditorModal';
 import { BlockEditorModal } from './components/blockEditor/BlockEditorModal';
+import { StartupModal } from './components/startup/StartupModal';
 
 export default function App() {
   /* Which of the two desktop tiles opened this window. Read once: the fragment
@@ -25,14 +26,20 @@ export default function App() {
   const [showElementsEditor, setShowElementsEditor] = useState(false);
   const [showBlockEditor, setShowBlockEditor] = useState(false);
   const [blockEditorTarget, setBlockEditorTarget] = useState<string | undefined>(undefined);
+  // Prompt user on startup whether to open cached file, open another, create from clipboard, or start fresh
+  const [showStartupModal, setShowStartupModal] = useState(() => entrance.entrance === 'drawing');
 
   useEffect(() => {
     store.openBlockEditorModal = (blockName?: string) => {
       setBlockEditorTarget(blockName);
       setShowBlockEditor(true);
     };
+    store.openStartupModal = () => {
+      setShowStartupModal(true);
+    };
     return () => {
       store.openBlockEditorModal = null;
+      store.openStartupModal = null;
     };
   }, [store]);
 
@@ -84,6 +91,11 @@ export default function App() {
               initialBlockName={blockEditorTarget}
               onClose={() => setShowBlockEditor(false)}
             />
+          )}
+
+          {/* Startup / Welcome Modal */}
+          {showStartupModal && (
+            <StartupModal onClose={() => setShowStartupModal(false)} />
           )}
         </div>
       </EditorContext.Provider>
