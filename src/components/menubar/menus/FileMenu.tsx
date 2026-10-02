@@ -1,6 +1,6 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { RecentFileEntry } from '../../../io/recentFiles/RecentFileEntry';
 import { useEntrance } from '../../../shell/EntranceContext';
 import { useStore } from '../../../state/useStore';
@@ -34,6 +34,15 @@ export function FileMenu({ open, onToggle, onClose }: MenuProps) {
   const recent = useRecentFiles(open);
   const [pendingImport, setPendingImport] = useState<PendingDxfImport | null>(null);
 
+  useEffect(() => {
+    store.openFilePicker = () => {
+      dxfInput.current?.click();
+    };
+    return () => {
+      store.openFilePicker = null;
+    };
+  }, [store]);
+
   const openRecent = (entry: RecentFileEntry) => {
     onClose();
     if (entry.type === 'dxf') {
@@ -49,8 +58,18 @@ export function FileMenu({ open, onToggle, onClose }: MenuProps) {
       {open && (
         <MenuDropdown width="w-48">
           <MenuItem
+            icon="📄"
+            label="New"
+            shortcut="Ctrl+N"
+            onSelect={() => {
+              onClose();
+              store.clearAll();
+            }}
+          />
+          <MenuItem
             icon="📂"
-            label="Open DXF..."
+            label="Open..."
+            shortcut="Ctrl+O"
             onSelect={() => {
               onClose();
               dxfInput.current?.click();

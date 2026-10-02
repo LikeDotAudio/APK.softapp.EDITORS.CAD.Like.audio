@@ -29,11 +29,26 @@ export function attach(store: EditorStore, canvas: HTMLCanvasElement): () => voi
     store.setCursor(store.tool.cursor);
   };
 
+  const onDragOver = (e: DragEvent) => {
+    e.preventDefault();
+  };
+  const onDrop = (e: DragEvent) => {
+    e.preventDefault();
+    const file = e.dataTransfer?.files?.[0];
+    if (file && file.name.toLowerCase().endsWith('.dxf')) {
+      void file.text().then((text) => {
+        void store.loadDxfText(text, file.name);
+      });
+    }
+  };
+
   canvas.addEventListener('mousemove', onMove);
   canvas.addEventListener('mousedown', onDown);
   canvas.addEventListener('dblclick', onDouble);
   canvas.addEventListener('auxclick', onAux);
   canvas.addEventListener('wheel', onWheel, { passive: false });
+  canvas.addEventListener('dragover', onDragOver);
+  canvas.addEventListener('drop', onDrop);
   window.addEventListener('mouseup', onUp);
   window.addEventListener('keydown', onKeyDown);
   window.addEventListener('keyup', onKeyUp);
@@ -45,6 +60,8 @@ export function attach(store: EditorStore, canvas: HTMLCanvasElement): () => voi
     canvas.removeEventListener('dblclick', onDouble);
     canvas.removeEventListener('auxclick', onAux);
     canvas.removeEventListener('wheel', onWheel);
+    canvas.removeEventListener('dragover', onDragOver);
+    canvas.removeEventListener('drop', onDrop);
     window.removeEventListener('mouseup', onUp);
     window.removeEventListener('keydown', onKeyDown);
     window.removeEventListener('keyup', onKeyUp);

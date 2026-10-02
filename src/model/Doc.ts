@@ -88,7 +88,7 @@ export class Doc {
   }
 
   get isEmpty(): boolean {
-    return this.edges.size === 0;
+    return this.edges.size === 0 && this.texts.size === 0 && this.fills.size === 0 && this.blockInstances.size === 0;
   }
 
   newGroupId(): number {

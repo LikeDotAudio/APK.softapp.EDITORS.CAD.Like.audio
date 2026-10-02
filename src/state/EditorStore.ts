@@ -242,6 +242,9 @@ export class EditorStore {
   listeners = new Set<() => void>();
   uiSnapshot: UiState;
 
+  /** Hook registered by the UI to open the native DXF file picker. */
+  openFilePicker: (() => void) | null = null;
+
   readonly api: ToolApi;
 
   constructor(entrance: EntranceProfile = currentEntrance()) {
@@ -539,6 +542,12 @@ export class EditorStore {
 
   async exportDxf(): Promise<void> {
     return await exportDxf(this);
+  }
+
+  openFileDialog(): void {
+    if (this.openFilePicker) {
+      this.openFilePicker();
+    }
   }
 
   async importDxf(file: File): Promise<void> {

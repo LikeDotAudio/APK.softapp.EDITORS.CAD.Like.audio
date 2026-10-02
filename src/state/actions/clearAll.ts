@@ -14,6 +14,11 @@ export function clearAll(store: EditorStore): void {
   store.history.push(store.doc.snapshot());
   store.doc.clear();
   clearSchematic(store.schematic);
+  store.tracing = null;
+  store.imageDrag = null;
+  store.layers.clear();
+  store.layers.set('0', { id: '0', name: '0', color: '#ffffff', dxfColorIndex: 7, visible: true });
+  store.activeLayerId = '0';
   store.selection.clear();
   store.hoverId = null;
   store.toolState = store.tool.createState();

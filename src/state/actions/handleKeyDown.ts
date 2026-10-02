@@ -66,6 +66,15 @@ export function handleKeyDown(store: EditorStore, e: KeyboardEvent): void {
     } else if (key === 'v') {
       e.preventDefault();
       store.pasteClipboard();
+    } else if (key === 'n') {
+      e.preventDefault();
+      store.clearAll();
+    } else if (key === 'o') {
+      e.preventDefault();
+      store.openFileDialog();
+    } else if (key === 's') {
+      e.preventDefault();
+      void store.exportDxf();
     }
     return;
   }
