@@ -9,5 +9,14 @@ export function addVertex(doc: Doc, x: number, y: number): number {
   if (existing !== null) return existing;
   const id = doc.nextVertexId++;
   doc.vertices.set(id, { id, x, y });
+
+  const k = `${Math.floor(x)}:${Math.floor(y)}`;
+  let bucket = doc.vertexGrid.get(k);
+  if (!bucket) {
+    bucket = [];
+    doc.vertexGrid.set(k, bucket);
+  }
+  bucket.push(id);
+
   return id;
 }

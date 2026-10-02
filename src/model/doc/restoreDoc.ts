@@ -25,4 +25,5 @@ export function restoreDoc(doc: Doc, s: DocSnapshot): void {
   doc.nextTextId = s.nextTextId ?? 1;
   doc.nextFillId = s.nextFillId ?? 1;
   doc.nextBlockInstanceId = s.nextBlockInstanceId ?? 1;
+  doc.rebuildVertexGrid();
 }

@@ -17,6 +17,7 @@ export function moveVertex(doc: Doc, vId: number, x: number, y: number): boolean
 
   v.x = x;
   v.y = y;
+  doc.rebuildVertexGrid();
 
   // The shape no longer matches whatever primitive drew it.
   for (const e of doc.edges.values()) {

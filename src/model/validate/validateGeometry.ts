@@ -17,10 +17,16 @@ export function validateGeometry(doc: Doc): ValidationResult {
   const errs: string[] = [];
   if (doc.isEmpty) return { valid: false, errs: ['No geometry to cut yet'] };
 
+  const degrees = new Map<number, number>();
+  for (const e of doc.edges.values()) {
+    degrees.set(e.v1, (degrees.get(e.v1) ?? 0) + 1);
+    degrees.set(e.v2, (degrees.get(e.v2) ?? 0) + 1);
+  }
+
   let dangling = 0;
   let junctions = 0;
   for (const v of doc.vertices.values()) {
-    const d = doc.vertexDegree(v.id);
+    const d = degrees.get(v.id) ?? 0;
     if (d === 1) dangling++;
     else if (d > 2) junctions++;
   }

@@ -6,8 +6,7 @@ import { snapshotSchematic } from '../../flow/Schematic';
 import { saveSessionToBrowser } from '../../io/browserStorage/saveSessionToBrowser';
 
 export async function autoSaveSession(store: EditorStore, forceLoadingScreen = false): Promise<void> {
-  const isLarge = store.doc.edgeCount > 150 || (store.doc.snapshot().texts?.length ?? 0) > 30 || store.tracing !== null;
-  const showLoading = (forceLoadingScreen || isLarge) && !store.loading;
+  const showLoading = forceLoadingScreen && !store.loading;
 
   if (showLoading) {
     await store.showLoading('Opening drawings', 'Caching drawing session to browser storage...');

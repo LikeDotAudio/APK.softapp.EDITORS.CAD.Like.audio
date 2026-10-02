@@ -20,19 +20,28 @@ export async function saveSessionToBrowser(session: SavedSession): Promise<void>
   }
 
   try {
-    // Tracing image is dropped from localStorage backup — it would blow the quota.
-    const lightweightSession = {
-      ...session,
-      tracing: session.tracing ? { ...session.tracing, dataUrl: '' } : null,
-    };
-    const json = JSON.stringify(lightweightSession);
+    const vertCount = session.docSnapshot.vertices?.length ?? 0;
+    const edgeCount = session.docSnapshot.edges?.length ?? 0;
+    const textCount = session.docSnapshot.texts?.length ?? 0;
+    const isSmall = vertCount < 2000 && edgeCount < 2000 && textCount < 500;
 
-    // LocalStorage has a strict ~5MB origin limit.
-    // If session JSON is small (< 256 KB), keep as fallback.
-    // If large and IndexedDB succeeded, remove any stale large entry so quota is not starved.
-    if (json.length < 256 * 1024) {
-      localStorage.setItem(LOCALSTORAGE_SESSION_KEY, json);
+    if (isSmall) {
+      // Tracing image is dropped from localStorage backup — it would blow the quota.
+      const lightweightSession = {
+        ...session,
+        tracing: session.tracing ? { ...session.tracing, dataUrl: '' } : null,
+      };
+      const json = JSON.stringify(lightweightSession);
+
+      // LocalStorage has a strict ~5MB origin limit.
+      // If session JSON is small (< 256 KB), keep as fallback.
+      if (json.length < 256 * 1024) {
+        localStorage.setItem(LOCALSTORAGE_SESSION_KEY, json);
+      } else if (idbOk) {
+        localStorage.removeItem(LOCALSTORAGE_SESSION_KEY);
+      }
     } else if (idbOk) {
+      // IndexedDB handles large sessions; keep localStorage clean
       localStorage.removeItem(LOCALSTORAGE_SESSION_KEY);
     }
     document.cookie = `cad_active_session=1; path=/; max-age=31536000`;

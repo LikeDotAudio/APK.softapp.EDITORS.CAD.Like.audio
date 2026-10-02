@@ -41,6 +41,7 @@ export function rotateEdges(doc: Doc, edgeIds: Iterable<number>, cx: number, cy:
     }
   }
 
+  doc.rebuildVertexGrid();
   doc.resolveAllIntersections();
   return true;
 }

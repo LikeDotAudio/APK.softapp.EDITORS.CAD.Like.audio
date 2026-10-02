@@ -21,6 +21,16 @@ export function drawTexts(
     if (layer && !layer.visible) continue;
 
     const screenPos = view.toScreen(text.x, text.y);
+    // Viewport culling: skip texts completely outside the visible canvas
+    if (
+      screenPos.x < -400 ||
+      screenPos.x > ctx.canvas.width + 400 ||
+      screenPos.y < -400 ||
+      screenPos.y > ctx.canvas.height + 400
+    ) {
+      continue;
+    }
+
     let pxHeight: number;
     if (scene.fixedTextSize) {
       pxHeight = 11;

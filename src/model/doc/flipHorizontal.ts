@@ -23,6 +23,7 @@ export function flipHorizontal(doc: Doc, edgeIds: Iterable<number>): boolean {
     if (e && e.type === 'arc') e.cx = cx - (e.cx - cx);
   }
 
+  doc.rebuildVertexGrid();
   doc.resolveAllIntersections();
   return true;
 }

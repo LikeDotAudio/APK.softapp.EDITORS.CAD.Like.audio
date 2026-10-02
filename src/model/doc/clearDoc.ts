@@ -6,6 +6,7 @@ import { STANDARD_CAD_BLOCKS } from '../cadBlocks/standardCadBlocks';
 /** Empty the document and reset every id counter. */
 export function clearDoc(doc: Doc): void {
   doc.vertices.clear();
+  doc.vertexGrid.clear();
   doc.edges.clear();
   doc.groupPrimitives.clear();
   doc.groupIntact.clear();

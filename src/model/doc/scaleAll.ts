@@ -20,4 +20,5 @@ export function scaleAll(doc: Doc, f: number): void {
     p.cy *= f;
     p.r *= f;
   }
+  doc.rebuildVertexGrid();
 }

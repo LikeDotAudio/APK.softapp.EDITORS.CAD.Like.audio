@@ -119,7 +119,13 @@ export async function loadDxfText(store: EditorStore, text: string,
     }
   }
 
-  loadDxfIntoDoc(store.doc, result);
+  await store.showLoading('Opening drawings', `Importing ${result.entities.length.toLocaleString()} entities...`);
+  await loadDxfIntoDoc(store.doc, result, async (loaded, total) => {
+    store.showLoading('Opening drawings', `Importing entities (${loaded.toLocaleString()} / ${total.toLocaleString()})...`);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+
+  await store.showLoading('Opening drawings', 'Discovering drawing sheets & caching session...');
   store.discoverViewports();
   store.activeViewportId = 'ALL';
 
@@ -129,8 +135,7 @@ export async function loadDxfText(store: EditorStore, text: string,
   store.closeDynInput();
   store.view.zoomToFit(store.doc.bounds());
 
-  await store.showLoading('Opening drawings', 'Caching drawing session to local storage...');
-  await store.autoSaveSession();
+  await store.autoSaveSession(false);
 
   store.markDocChanged();
   store.requestDraw();

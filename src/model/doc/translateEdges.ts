@@ -34,6 +34,7 @@ export function translateEdges(doc: Doc, edgeIds: Iterable<number>, dx: number, 
     }
   }
 
+  doc.rebuildVertexGrid();
   doc.resolveAllIntersections();
   return true;
 }

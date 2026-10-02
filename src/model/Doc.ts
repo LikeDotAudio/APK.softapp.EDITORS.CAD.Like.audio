@@ -60,6 +60,22 @@ export class Doc {
   blocks = new Map<string, CadBlockDefinition>(STANDARD_CAD_BLOCKS.map((b) => [b.name, b]));
   blockInstances = new Map<number, CadBlockInstance>();
 
+  /** Spatial hash grid of vertices for fast O(1) coincidence queries. */
+  vertexGrid = new Map<string, number[]>();
+
+  rebuildVertexGrid(): void {
+    this.vertexGrid.clear();
+    for (const v of this.vertices.values()) {
+      const k = `${Math.floor(v.x)}:${Math.floor(v.y)}`;
+      let list = this.vertexGrid.get(k);
+      if (!list) {
+        list = [];
+        this.vertexGrid.set(k, list);
+      }
+      list.push(v.id);
+    }
+  }
+
   /** @internal — id counters, public only so the `doc/` operations can bump them. */
   nextVertexId = 1;
   /** @internal */

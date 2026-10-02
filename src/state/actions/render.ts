@@ -27,7 +27,7 @@ export function render(store: EditorStore): void {
     snap: store.snap,
     tracing: store.tracing,
     calibration: store.calibration,
-    validation: store.validation(),
+    validation: store.shapeMode ? store.validation() : { valid: true, errs: [] },
     shapeMode: store.shapeMode,
     layers: store.layers,
     pickingBasePoint: store.pickingBasePoint,

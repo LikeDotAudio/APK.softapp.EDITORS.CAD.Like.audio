@@ -28,6 +28,7 @@ export function scaleEdges(doc: Doc, edgeIds: Iterable<number>, cx: number, cy: 
     }
   }
 
+  doc.rebuildVertexGrid();
   doc.resolveAllIntersections();
   return true;
 }
