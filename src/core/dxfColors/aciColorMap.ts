@@ -11,7 +11,7 @@ export const ACI_COLOR_MAP: Record<number, string> = {
   4: '#00ffff', // Cyan
   5: '#0000ff', // Blue
   6: '#ff00ff', // Magenta
-  7: '#1a1a1a', // White/Black (renders dark gray on white canvas)
+  7: '#ffffff', // White/Black: in AutoCAD, ACI 7 is White on dark background, Black on light background. Dark canvas (#1e1e1e) requires #ffffff.
   8: '#808080', // Dark Gray
   9: '#c0c0c0', // Light Gray
   10: '#ff0000',

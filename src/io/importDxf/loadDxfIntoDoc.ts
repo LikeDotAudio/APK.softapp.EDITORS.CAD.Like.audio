@@ -1,5 +1,6 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
+import { aciToHex } from '../../core/dxfColors/aciToHex';
 import type { Doc } from '../../model/Doc';
 import type { DxfParseResult } from './DxfParseResult';
 
@@ -109,7 +110,8 @@ export function loadDxfIntoDoc(doc: Doc, parseResult: DxfParseResult): void {
       else if (entity.vAlign === 1) vAlign = 'bottom';
       else if (entity.vAlign === 0) vAlign = 'baseline';
 
-      doc.addText(entity.text, x, y, height, rot, layerId, undefined, align, vAlign);
+      const textColor = entity.colorIndex ? aciToHex(entity.colorIndex) : undefined;
+      doc.addText(entity.text, x, y, height, rot, layerId, textColor, align, vAlign);
     } else if (
       entity.type === 'SOLID' &&
       entity.x1 !== undefined &&

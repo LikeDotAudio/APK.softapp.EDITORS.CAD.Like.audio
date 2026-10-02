@@ -1,6 +1,7 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { Layer } from '../../core/types';
+import { isDarkColor } from '../edges/isDarkColor';
 import type { Scene } from '../Scene';
 
 export function drawTexts(
@@ -49,7 +50,8 @@ export function drawTexts(
     else baseline = 'bottom';
     ctx.textBaseline = baseline;
 
-    const color = text.color || layer?.color || '#ffffff';
+    const rawColor = text.color || layer?.color || '#ffffff';
+    const color = isDarkColor(rawColor) ? '#ffffff' : rawColor;
     ctx.fillStyle = color;
     ctx.fillText(text.text, 0, 0);
 

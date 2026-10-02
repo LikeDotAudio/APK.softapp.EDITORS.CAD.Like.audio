@@ -14,7 +14,7 @@ export function isDarkColor(color?: string): boolean {
     const r = parseInt(hex.substring(0, 2), 16);
     const g = parseInt(hex.substring(2, 4), 16);
     const b = parseInt(hex.substring(4, 6), 16);
-    if (r + g + b < 60) return true;
+    if (r + g + b < 80 || (r < 50 && g < 50 && b < 50)) return true;
   }
   return false;
 }

@@ -3,6 +3,7 @@
 export interface DxfEntity {
   type: string;
   layer?: string;
+  colorIndex?: number;
   // LINE
   x1?: number;
   y1?: number;

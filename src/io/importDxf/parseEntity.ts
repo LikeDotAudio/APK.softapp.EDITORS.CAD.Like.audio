@@ -25,6 +25,8 @@ export function parseEntity(
 
     if (code === 8) {
       entity.layer = value;
+    } else if (code === 62) {
+      entity.colorIndex = Math.abs(parseInt(value, 10));
     }
 
     if (type === 'LINE') {

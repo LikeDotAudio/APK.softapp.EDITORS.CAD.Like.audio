@@ -1,6 +1,7 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { Layer, Point } from '../../core/types';
+import { isDarkColor } from '../edges/isDarkColor';
 import type { Scene } from '../Scene';
 
 export function drawBlockInstances(
@@ -92,6 +93,8 @@ export function drawBlockInstances(
         ctx.font = `${Math.round(pxH)}px "JetBrains Mono", monospace, sans-serif`;
         ctx.textAlign = 'left';
         ctx.textBaseline = 'bottom';
+        const rawColor = layer?.color || '#ffffff';
+        ctx.fillStyle = isDarkColor(rawColor) ? '#ffffff' : rawColor;
         ctx.fillText(t.text, 0, 0);
         ctx.restore();
       }
