@@ -7,6 +7,7 @@ export async function loadRecentFile(store: EditorStore, entry: RecentFileEntry)
   if (entry.type === 'dxf') {
     await store.loadDxfText(entry.data, entry.name);
   } else if (entry.type === 'image') {
+    store.currentFileName = entry.name;
     await store.loadRecentImage(entry.data);
   }
 

@@ -28,6 +28,7 @@ export async function loadDxfText(store: EditorStore, text: string,
   clearSchematic(store.schematic);
   store.tracing = null;
   store.imageDrag = null;
+  store.currentFileName = filename;
 
   // Reset layers to default layer '0' before populating the file's layers
   store.layers.clear();

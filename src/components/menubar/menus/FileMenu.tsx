@@ -27,7 +27,7 @@ import { useRecentFiles } from './file/useRecentFiles';
  */
 export function FileMenu({ open, onToggle, onClose }: MenuProps) {
   const store = useStore();
-  const { canExport, bigPicture } = useUi();
+  const { canExport, bigPicture, canCloseFile } = useUi();
   const { showsFlowPanel } = useEntrance();
   const dxfInput = useRef<HTMLInputElement>(null);
   const imageInput = useRef<HTMLInputElement>(null);
@@ -73,6 +73,16 @@ export function FileMenu({ open, onToggle, onClose }: MenuProps) {
             onSelect={() => {
               onClose();
               dxfInput.current?.click();
+            }}
+          />
+          <MenuItem
+            icon="✖️"
+            label="Close File"
+            shortcut="Ctrl+W"
+            disabled={!canCloseFile}
+            onSelect={() => {
+              onClose();
+              void store.closeFile();
             }}
           />
           <MenuItem

@@ -13,6 +13,7 @@ export async function importImage(store: EditorStore, file: File): Promise<void>
   });
 
   addRecentFile({ name: file.name, type: 'image', data: dataUrl });
+  store.currentFileName = file.name;
   store.applyLoadedImage(img);
 
 }

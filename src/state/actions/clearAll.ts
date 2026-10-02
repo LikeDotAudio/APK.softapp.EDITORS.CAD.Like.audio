@@ -23,6 +23,7 @@ export function clearAll(store: EditorStore): void {
   store.hoverId = null;
   store.toolState = store.tool.createState();
   store.closeDynInput();
+  store.currentFileName = null;
   store.markDocChanged();
   store.requestDraw();
   store.emit();

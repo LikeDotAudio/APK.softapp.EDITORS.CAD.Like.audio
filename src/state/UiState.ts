@@ -93,6 +93,8 @@ export interface UiState {
   validation: ValidationResult;
   shapeMode: boolean;
   canExport: boolean;
+  currentFileName: string | null;
+  canCloseFile: boolean;
   hint: { text: string; visible: boolean };
   measurement: string | null;
   tracing: TracingUi | null;

@@ -66,6 +66,7 @@ import { cancelDyn } from './actions/cancelDyn';
 import { canvasPoint } from './actions/canvasPoint';
 import { captureClipboard } from './actions/captureClipboard';
 import { clearAll } from './actions/clearAll';
+import { closeFile } from './actions/closeFile';
 import { closeDynInput } from './actions/closeDynInput';
 import { commitDyn } from './actions/commitDyn';
 import { copySelection } from './actions/copySelection';
@@ -201,6 +202,8 @@ export class EditorStore {
   snapToGrid = true;
   /** Text rendered at a fixed readable screen size (no zoom scaling). Enabled by default. */
   fixedTextSize = true;
+  /** Name of the currently loaded file, or null if untitled / closed. */
+  currentFileName: string | null = null;
 
   layers: Map<string, Layer> = new Map([
     ['0', { id: '0', name: '0', color: '#ffffff', dxfColorIndex: 7, visible: true }],
@@ -518,6 +521,10 @@ export class EditorStore {
 
   clearAll(): void {
     clearAll(this);
+  }
+
+  async closeFile(): Promise<void> {
+    return await closeFile(this);
   }
 
   rotateSelectionPrompt(): void {

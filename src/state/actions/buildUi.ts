@@ -59,6 +59,12 @@ export function buildUi(store: EditorStore): UiState {
     canExport:
       (!store.doc.isEmpty || store.schematic.placements.length > 0) &&
       (!store.shapeMode || validation.valid),
+    currentFileName: store.currentFileName,
+    canCloseFile:
+      !store.doc.isEmpty ||
+      store.schematic.placements.length > 0 ||
+      store.currentFileName !== null ||
+      store.tracing !== null,
     hint: { text: store.hintText, visible: store.hintVisible },
     measurement: store.measurement,
     tracing: store.tracing

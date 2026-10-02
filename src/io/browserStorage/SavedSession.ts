@@ -9,6 +9,7 @@ export interface SavedSession {
   version: number;
   timestamp: number;
   docSnapshot: DocSnapshot;
+  currentFileName?: string | null;
   /** Optional: sessions saved before Flow blocks existed do not have one. */
   schematic?: SchematicSnapshot;
   units: Units;

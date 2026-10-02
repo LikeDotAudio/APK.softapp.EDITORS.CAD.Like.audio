@@ -12,6 +12,7 @@ export async function restoreBrowserSession(store: EditorStore): Promise<void> {
   if (session.docSnapshot.edges.length === 0 && heldPlacements === 0) return;
 
   store.doc.restore(session.docSnapshot);
+  store.currentFileName = session.currentFileName ?? null;
   if (session.schematic) restoreSchematic(store.schematic, session.schematic);
   store.units = session.units || 'in';
   store.gridSize = session.gridSize || 0.25;

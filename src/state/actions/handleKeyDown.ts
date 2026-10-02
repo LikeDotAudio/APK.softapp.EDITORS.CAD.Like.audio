@@ -75,6 +75,9 @@ export function handleKeyDown(store: EditorStore, e: KeyboardEvent): void {
     } else if (key === 's') {
       e.preventDefault();
       void store.exportDxf();
+    } else if (key === 'w') {
+      e.preventDefault();
+      void store.closeFile();
     }
     return;
   }

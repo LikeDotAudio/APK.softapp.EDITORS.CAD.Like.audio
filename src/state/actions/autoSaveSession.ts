@@ -10,6 +10,7 @@ export async function autoSaveSession(store: EditorStore): Promise<void> {
     version: 1,
     timestamp: Date.now(),
     docSnapshot: store.doc.snapshot(),
+    currentFileName: store.currentFileName,
     schematic: snapshotSchematic(store.schematic),
     units: store.units,
     gridSize: store.gridSize,
