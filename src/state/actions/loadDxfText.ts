@@ -81,6 +81,8 @@ export async function loadDxfText(store: EditorStore, text: string,
       } else if (type === 'TEXT' || type === 'MTEXT') {
         if (ent.x1 !== undefined) ent.x1 *= factor;
         if (ent.y1 !== undefined) ent.y1 *= factor;
+        if (ent.x2 !== undefined) ent.x2 *= factor;
+        if (ent.y2 !== undefined) ent.y2 *= factor;
         if (ent.textHeight !== undefined) ent.textHeight *= factor;
       } else if (type === 'SOLID') {
         if (ent.x1 !== undefined) ent.x1 *= factor;

@@ -73,7 +73,25 @@ export function buildDxf(
 
   // ------------------------------------------------------------- texts
   for (const t of doc.texts.values()) {
-    dxf.sheet.text(t.text, t.x, t.y, t.height, t.layerId, t.rotation ?? 0);
+    let hAlign = 0;
+    if (t.align === 'center') hAlign = 1;
+    else if (t.align === 'right') hAlign = 2;
+
+    let vAlign = 0;
+    if (t.vAlign === 'bottom') vAlign = 1;
+    else if (t.vAlign === 'middle') vAlign = 2;
+    else if (t.vAlign === 'top') vAlign = 3;
+
+    dxf.sheet.text(
+      t.text,
+      t.x,
+      t.y,
+      t.height,
+      t.layerId,
+      t.rotation ?? 0,
+      hAlign,
+      vAlign,
+    );
   }
 
   // ------------------------------------------------------------- fills

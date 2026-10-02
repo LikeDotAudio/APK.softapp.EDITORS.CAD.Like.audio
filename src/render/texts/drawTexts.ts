@@ -41,21 +41,38 @@ export function drawTexts(
 
     ctx.font = `${Math.round(pxHeight)}px "JetBrains Mono", monospace, sans-serif`;
     ctx.textAlign = text.align ?? 'left';
-    ctx.textBaseline = 'bottom';
+    
+    let baseline: CanvasTextBaseline = 'bottom';
+    if (text.vAlign === 'top') baseline = 'top';
+    else if (text.vAlign === 'middle') baseline = 'middle';
+    else if (text.vAlign === 'baseline') baseline = 'alphabetic';
+    else baseline = 'bottom';
+    ctx.textBaseline = baseline;
 
     const color = text.color || layer?.color || '#ffffff';
     ctx.fillStyle = color;
     ctx.fillText(text.text, 0, 0);
 
-    // If selected, draw outline
+    // If selected, draw outline aligned with text anchor
     if (options?.selectedIds?.has(text.id)) {
       const metrics = ctx.measureText(text.text);
       const w = metrics.width;
       const h = pxHeight;
+
+      let bx = 0;
+      if (text.align === 'center') bx = -w / 2;
+      else if (text.align === 'right') bx = -w;
+
+      let by = 0;
+      if (text.vAlign === 'top') by = 0;
+      else if (text.vAlign === 'middle') by = -h / 2;
+      else if (text.vAlign === 'baseline') by = -h * 0.8;
+      else by = -h; // bottom
+
       ctx.strokeStyle = '#38bdf8';
       ctx.lineWidth = 1.5;
       ctx.setLineDash([3, 3]);
-      ctx.strokeRect(0, -h, w, h);
+      ctx.strokeRect(bx, by, w, h);
     }
 
     ctx.restore();

@@ -1,6 +1,6 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
-import type { TextEntity } from '../../../core/types';
+import type { TextEntity, TextHAlign, TextVAlign } from '../../../core/types';
 import { useStore } from '../../../state/useStore';
 import { useUi } from '../../../state/useUi';
 
@@ -10,7 +10,11 @@ interface TextPropertiesProps {
 
 /**
  * Dedicated sidebar inspector for selected Text annotations.
- * Provides full controls to position (X, Y), format, rotate, align, and place text.
+ * Provides full controls to position (X, Y), format, rotate, and align text:
+ * - Centering (Horizontal & Vertical)
+ * - Bottom alignment / Baseline alignment
+ * - Exact position controls with nudge buttons
+ * - 9-point visual anchor matrix
  */
 export function TextProperties({ textEntity }: TextPropertiesProps) {
   const store = useStore();
@@ -49,6 +53,8 @@ export function TextProperties({ textEntity }: TextPropertiesProps) {
         textEntity.rotation ?? 0,
         textEntity.layerId,
         textEntity.color,
+        textEntity.align,
+        textEntity.vAlign,
       );
       return true;
     });
@@ -59,8 +65,18 @@ export function TextProperties({ textEntity }: TextPropertiesProps) {
     }
   };
 
+  const currentHAlign: TextHAlign = textEntity.align ?? 'left';
+  const currentVAlign: TextVAlign = textEntity.vAlign ?? 'bottom';
+
+  const setAlignBoth = (h: TextHAlign, v: TextVAlign) => {
+    handleUpdate((t) => {
+      t.align = h;
+      t.vAlign = v;
+    });
+  };
+
   return (
-    <div className="space-y-2 rounded border border-[#0e639c]/50 bg-[#1e1e1e] p-2.5 shadow-sm">
+    <div className="space-y-2.5 rounded border border-[#0e639c]/50 bg-[#1e1e1e] p-2.5 shadow-sm">
       {/* Title & Actions */}
       <div className="flex items-center justify-between border-b border-[#333] pb-1.5">
         <div className="flex items-center gap-1.5 font-semibold text-white">
@@ -105,14 +121,44 @@ export function TextProperties({ textEntity }: TextPropertiesProps) {
         />
       </div>
 
-      {/* Position Coordinates (X, Y) */}
+      {/* Position Coordinates (X, Y) with Nudge Controls */}
       <div className="rounded border border-[#2d2d2d] bg-[#181818] p-2 space-y-1.5">
-        <div className="text-[10px] font-semibold uppercase tracking-wider text-[#38bdf8]">
-          Position (World Units)
+        <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-wider text-[#38bdf8]">
+          <span>Position (World Coordinates)</span>
+          <div className="flex items-center gap-0.5">
+            <button
+              onClick={() => handleUpdate((t) => { t.x -= 0.1; })}
+              className="rounded bg-[#252526] px-1 py-0.5 text-[10px] text-[#aaa] hover:text-white"
+              title="Nudge Left -0.1"
+            >
+              ←
+            </button>
+            <button
+              onClick={() => handleUpdate((t) => { t.x += 0.1; })}
+              className="rounded bg-[#252526] px-1 py-0.5 text-[10px] text-[#aaa] hover:text-white"
+              title="Nudge Right +0.1"
+            >
+              →
+            </button>
+            <button
+              onClick={() => handleUpdate((t) => { t.y += 0.1; })}
+              className="rounded bg-[#252526] px-1 py-0.5 text-[10px] text-[#aaa] hover:text-white"
+              title="Nudge Up +0.1"
+            >
+              ↑
+            </button>
+            <button
+              onClick={() => handleUpdate((t) => { t.y -= 0.1; })}
+              className="rounded bg-[#252526] px-1 py-0.5 text-[10px] text-[#aaa] hover:text-white"
+              title="Nudge Down -0.1"
+            >
+              ↓
+            </button>
+          </div>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="text-[10px] text-[#888]">X Coordinate:</label>
+            <label className="text-[10px] text-[#888]">X Position:</label>
             <input
               type="number"
               step="0.05"
@@ -125,7 +171,7 @@ export function TextProperties({ textEntity }: TextPropertiesProps) {
             />
           </div>
           <div>
-            <label className="text-[10px] text-[#888]">Y Coordinate:</label>
+            <label className="text-[10px] text-[#888]">Y Position:</label>
             <input
               type="number"
               step="0.05"
@@ -136,6 +182,90 @@ export function TextProperties({ textEntity }: TextPropertiesProps) {
               }}
               className="w-full rounded border border-[#3c3c3c] bg-[#141414] px-1.5 py-0.5 text-xs text-white font-mono focus:border-[#0e639c] focus:outline-none"
             />
+          </div>
+        </div>
+      </div>
+
+      {/* Alignment Section (Horizontal & Vertical / Centering / Bottom Alignment) */}
+      <div className="rounded border border-[#2d2d2d] bg-[#181818] p-2 space-y-2">
+        <div className="text-[10px] font-semibold uppercase tracking-wider text-[#f4902c]">
+          Text Alignment & Centering
+        </div>
+
+        {/* 9-Point Visual Anchor Preset Grid */}
+        <div className="flex items-center justify-between border-b border-[#2d2d2d] pb-2">
+          <span className="text-[10px] text-[#888]">Anchor Point:</span>
+          <div className="grid grid-cols-3 gap-1 bg-[#141414] p-1 rounded border border-[#333]">
+            {([
+              ['left', 'top', 'TL'],
+              ['center', 'top', 'TC'],
+              ['right', 'top', 'TR'],
+              ['left', 'middle', 'ML'],
+              ['center', 'middle', 'MC'],
+              ['right', 'middle', 'MR'],
+              ['left', 'bottom', 'BL'],
+              ['center', 'bottom', 'BC'],
+              ['right', 'bottom', 'BR'],
+            ] as const).map(([h, v, label]) => {
+              const active = currentHAlign === h && currentVAlign === v;
+              return (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => setAlignBoth(h, v)}
+                  title={`${v} ${h} (${label === 'MC' ? 'Full Center' : label === 'BC' ? 'Bottom Center' : label})`}
+                  className={`w-6 h-5 rounded text-[9px] font-mono font-bold transition-colors ${
+                    active
+                      ? 'bg-[#f4902c] text-black shadow-sm'
+                      : 'bg-[#252526] text-[#888] hover:bg-[#333] hover:text-white'
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Horizontal Alignment */}
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] text-[#888]">Horizontal:</span>
+          <div className="flex rounded border border-[#333] overflow-hidden">
+            {(['left', 'center', 'right'] as const).map((al) => (
+              <button
+                key={al}
+                type="button"
+                onClick={() => handleUpdate((t) => { t.align = al; })}
+                className={`px-2 py-0.5 text-[10px] capitalize transition-colors ${
+                  currentHAlign === al
+                    ? 'bg-[#0e639c] text-white font-semibold'
+                    : 'bg-[#252526] text-[#888] hover:bg-[#333] hover:text-white'
+                }`}
+              >
+                {al}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Vertical Alignment */}
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] text-[#888]">Vertical:</span>
+          <div className="flex rounded border border-[#333] overflow-hidden">
+            {(['top', 'middle', 'baseline', 'bottom'] as const).map((val) => (
+              <button
+                key={val}
+                type="button"
+                onClick={() => handleUpdate((t) => { t.vAlign = val; })}
+                className={`px-1.5 py-0.5 text-[10px] capitalize transition-colors ${
+                  currentVAlign === val
+                    ? 'bg-[#0e639c] text-white font-semibold'
+                    : 'bg-[#252526] text-[#888] hover:bg-[#333] hover:text-white'
+                }`}
+              >
+                {val}
+              </button>
+            ))}
           </div>
         </div>
       </div>
@@ -187,26 +317,6 @@ export function TextProperties({ textEntity }: TextPropertiesProps) {
             {deg}°
           </button>
         ))}
-      </div>
-
-      {/* Alignment Buttons */}
-      <div className="flex items-center justify-between">
-        <span className="text-[10px] text-[#888]">Alignment:</span>
-        <div className="flex rounded border border-[#333] overflow-hidden">
-          {(['left', 'center', 'right'] as const).map((al) => (
-            <button
-              key={al}
-              onClick={() => handleUpdate((t) => { t.align = al; })}
-              className={`px-2 py-0.5 text-[10px] capitalize transition-colors ${
-                (textEntity.align ?? 'left') === al
-                  ? 'bg-[#0e639c] text-white font-semibold'
-                  : 'bg-[#252526] text-[#888] hover:bg-[#333] hover:text-white'
-              }`}
-            >
-              {al}
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* Layer Selection */}

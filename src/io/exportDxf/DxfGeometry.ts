@@ -116,7 +116,10 @@ export class DxfGeometry {
     height: number,
     layer: string,
     rotationDeg = 0,
+    hAlign = 0,
+    vAlign = 0,
   ): void {
+    const hasAlign = hAlign !== 0 || vAlign !== 0;
     this.entities +=
       this.head('TEXT', layer, 'AcDbText') +
       pair(' 10', x.toFixed(6)) +
@@ -125,7 +128,12 @@ export class DxfGeometry {
       pair(' 40', height.toFixed(6)) +
       pair('  1', textString) +
       pair(' 50', rotationDeg.toFixed(6)) +
-      pair('100', 'AcDbText');
+      (hasAlign ? pair(' 72', hAlign.toString()) : '') +
+      (hasAlign
+        ? pair(' 11', x.toFixed(6)) + pair(' 21', y.toFixed(6)) + pair(' 31', '0.0')
+        : '') +
+      pair('100', 'AcDbText') +
+      (hasAlign ? pair(' 73', vAlign.toString()) : '');
   }
 
   solid(p1: Point, p2: Point, p3: Point, p4: Point, layer: string): void {

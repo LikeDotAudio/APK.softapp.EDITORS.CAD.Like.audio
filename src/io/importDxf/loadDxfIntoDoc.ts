@@ -92,11 +92,24 @@ export function loadDxfIntoDoc(doc: Doc, parseResult: DxfParseResult): void {
         }
       }
     } else if ((entity.type === 'TEXT' || entity.type === 'MTEXT') && entity.text) {
-      const x = entity.x1 ?? 0;
-      const y = entity.y1 ?? 0;
+      const hasAlign = (entity.hAlign && entity.hAlign !== 0) || (entity.vAlign && entity.vAlign !== 0);
+      // In DXF, when justification is specified, (x2, y2) / groups 11, 21 is the alignment anchor
+      const x = hasAlign && entity.x2 !== undefined ? entity.x2 : (entity.x1 ?? 0);
+      const y = hasAlign && entity.y2 !== undefined ? entity.y2 : (entity.y1 ?? 0);
       const height = entity.textHeight ?? 0.5;
       const rot = entity.rotation ?? 0;
-      doc.addText(entity.text, x, y, height, rot, layerId);
+
+      let align: 'left' | 'center' | 'right' = 'left';
+      if (entity.hAlign === 1 || entity.hAlign === 4) align = 'center';
+      else if (entity.hAlign === 2) align = 'right';
+
+      let vAlign: 'top' | 'middle' | 'baseline' | 'bottom' = 'bottom';
+      if (entity.vAlign === 3) vAlign = 'top';
+      else if (entity.vAlign === 2 || entity.hAlign === 4) vAlign = 'middle';
+      else if (entity.vAlign === 1) vAlign = 'bottom';
+      else if (entity.vAlign === 0) vAlign = 'baseline';
+
+      doc.addText(entity.text, x, y, height, rot, layerId, undefined, align, vAlign);
     } else if (
       entity.type === 'SOLID' &&
       entity.x1 !== undefined &&

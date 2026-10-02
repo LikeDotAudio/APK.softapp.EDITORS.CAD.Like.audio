@@ -97,6 +97,9 @@ export type ToolId =
   | 'block'
   | 'fill';
 
+export type TextHAlign = 'left' | 'center' | 'right';
+export type TextVAlign = 'top' | 'middle' | 'baseline' | 'bottom';
+
 export interface TextEntity {
   id: number;
   text: string;
@@ -106,7 +109,8 @@ export interface TextEntity {
   rotation?: number; // degrees counter-clockwise
   layerId: string;
   color?: string;
-  align?: 'left' | 'center' | 'right';
+  align?: TextHAlign;
+  vAlign?: TextVAlign;
   protected?: boolean;
 }
 

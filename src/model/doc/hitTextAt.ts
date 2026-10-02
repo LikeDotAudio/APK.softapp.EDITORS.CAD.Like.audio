@@ -47,8 +47,22 @@ export function hitTextAt(
       maxX = 0;
     }
 
-    const minY = 0;
-    const maxY = textHeight;
+    let minY = 0;
+    let maxY = textHeight;
+    if (t.vAlign === 'top') {
+      minY = -textHeight;
+      maxY = 0;
+    } else if (t.vAlign === 'middle') {
+      minY = -textHeight / 2;
+      maxY = textHeight / 2;
+    } else if (t.vAlign === 'baseline') {
+      minY = -textHeight * 0.2;
+      maxY = textHeight * 0.8;
+    } else {
+      // 'bottom' (default)
+      minY = 0;
+      maxY = textHeight;
+    }
 
     // Distance to axis-aligned bounding box in local space
     const clampedX = Math.max(minX, Math.min(maxX, lx));

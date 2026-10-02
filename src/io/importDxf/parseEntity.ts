@@ -57,9 +57,13 @@ export function parseEntity(
     } else if (type === 'TEXT' || type === 'MTEXT') {
       if (code === 10) entity.x1 = numVal;
       else if (code === 20) entity.y1 = numVal;
+      else if (code === 11) entity.x2 = numVal;
+      else if (code === 21) entity.y2 = numVal;
       else if (code === 40) entity.textHeight = numVal;
       else if (code === 1) entity.text = value;
       else if (code === 50) entity.rotation = numVal;
+      else if (code === 72) entity.hAlign = parseInt(value, 10);
+      else if (code === 73) entity.vAlign = parseInt(value, 10);
     } else if (type === 'SOLID') {
       if (code === 10) entity.x1 = numVal;
       else if (code === 20) entity.y1 = numVal;

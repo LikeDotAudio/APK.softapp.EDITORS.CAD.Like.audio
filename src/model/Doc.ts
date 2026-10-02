@@ -259,9 +259,11 @@ export class Doc {
     rotation = 0,
     layerId = '0',
     color?: string,
+    align?: 'left' | 'center' | 'right',
+    vAlign?: 'top' | 'middle' | 'baseline' | 'bottom',
   ): number {
     const id = this.nextTextId++;
-    this.texts.set(id, { id, text, x, y, height, rotation, layerId, color });
+    this.texts.set(id, { id, text, x, y, height, rotation, layerId, color, align, vAlign });
     return id;
   }
 
