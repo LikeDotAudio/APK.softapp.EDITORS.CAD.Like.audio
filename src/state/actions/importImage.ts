@@ -14,7 +14,7 @@ export async function importImage(store: EditorStore, file: File): Promise<void>
       reader.readAsDataURL(file);
     });
 
-    addRecentFile({ name: file.name, type: 'image', data: dataUrl });
+    await addRecentFile({ name: file.name, type: 'image', data: dataUrl });
     store.currentFileName = file.name;
     store.applyLoadedImage(img);
   } finally {

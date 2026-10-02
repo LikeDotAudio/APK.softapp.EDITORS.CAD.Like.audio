@@ -22,7 +22,7 @@ export async function loadDxfText(store: EditorStore, text: string,
     }
 
     await store.showLoading('Opening drawings', 'Caching file to recent drawings...');
-    addRecentFile({ name: filename, type: 'dxf', data: text });
+    await addRecentFile({ name: filename, type: 'dxf', data: text });
 
     store.history.push(store.doc.snapshot());
 

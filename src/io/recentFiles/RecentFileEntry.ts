@@ -5,9 +5,11 @@ export interface RecentFileEntry {
   id: string;
   name: string;
   type: 'dxf' | 'image';
-  data: string;
+  data?: string;
   timestamp: number;
 }
 
 export const RECENT_KEY = 'cad_like_audio_recent_files';
 export const MAX_RECENT = 8;
+export const RECENT_DATA_PREFIX = 'recent_file_data_';
+

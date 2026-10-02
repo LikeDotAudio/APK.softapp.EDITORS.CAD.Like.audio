@@ -17,6 +17,7 @@ import { ImageFileInput } from './file/ImageFileInput';
 import type { PendingDxfImport } from './file/PendingDxfImport';
 import { RecentFilesSubmenu } from './file/RecentFilesSubmenu';
 import { useRecentFiles } from './file/useRecentFiles';
+import { loadRecentFileData } from '../../../io/recentFiles/recentFileDataStore';
 
 /**
  * File ▾ — open, import, recent files, DXF export, and 06a's filed sheet.
@@ -43,14 +44,28 @@ export function FileMenu({ open, onToggle, onClose }: MenuProps) {
     };
   }, [store]);
 
-  const openRecent = (entry: RecentFileEntry) => {
+  const openRecent = async (entry: RecentFileEntry) => {
     onClose();
+    let data = entry.data;
+    if (!data) {
+      await store.showLoading('Opening drawings', `Loading ${entry.name}...`);
+      try {
+        data = (await loadRecentFileData(entry.id)) ?? undefined;
+      } finally {
+        store.hideLoading();
+      }
+    }
+    if (!data) {
+      window.alert(`Could not load recent file "${entry.name}". Cached file data was not found in browser storage.`);
+      return;
+    }
     if (entry.type === 'dxf') {
-      setPendingImport(dxfImportFromText(entry.data, entry.name));
+      setPendingImport(dxfImportFromText(data, entry.name));
     } else {
-      void store.loadRecentFile(entry);
+      void store.loadRecentFile({ ...entry, data });
     }
   };
+
 
   return (
     <div className="relative">
