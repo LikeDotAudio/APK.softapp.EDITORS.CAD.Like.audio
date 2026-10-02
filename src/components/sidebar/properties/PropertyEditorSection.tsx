@@ -3,6 +3,7 @@
 import { useStore } from '../../../state/useStore';
 import { PanelSectionTitle } from '../PanelSectionTitle';
 import { BlockProperties } from './BlockProperties';
+import { TextProperties } from './TextProperties';
 import { ColorProperty } from './ColorProperty';
 import { IdentityProperties } from './IdentityProperties';
 import { LayerProperty } from './LayerProperty';
@@ -14,6 +15,10 @@ import { StyleProperties } from './StyleProperties';
 export function PropertyEditorSection() {
   const store = useStore();
 
+  const selectedTexts = Array.from(store.selection)
+    .map((id) => store.doc.texts.get(id))
+    .filter((t): t is NonNullable<typeof t> => t !== undefined);
+
   const selectedBlocks = Array.from(store.selection)
     .map((id) => store.doc.blockInstances.get(id))
     .filter((b): b is NonNullable<typeof b> => b !== undefined);
@@ -24,6 +29,11 @@ export function PropertyEditorSection() {
 
       <div className="flex-1 space-y-3 overflow-y-auto overflow-x-hidden p-3 text-[11px]">
         <SelectionSummary />
+
+        {/* Selected Text Annotations Inspector with X, Y Positioning */}
+        {selectedTexts.map((text) => (
+          <TextProperties key={text.id} textEntity={text} />
+        ))}
 
         {/* Selected Block Instance Inspector with UUID & Custom Attributes */}
         {selectedBlocks.map((inst) => (

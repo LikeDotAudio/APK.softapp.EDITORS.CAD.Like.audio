@@ -33,8 +33,9 @@ export const textTool: Tool<TextState> = {
     if (!textPrompt || textPrompt.trim() === '') return;
     state.currentText = textPrompt.trim();
 
+    let placedId: number | null = null;
     api.edit(() => {
-      api.doc.addText(
+      placedId = api.doc.addText(
         state.currentText,
         input.world.x,
         input.world.y,
@@ -45,13 +46,18 @@ export const textTool: Tool<TextState> = {
       return true;
     });
 
-    api.showHint(`Placed text: "${state.currentText}"`, 2500);
+    if (placedId !== null) {
+      api.selection.clear();
+      api.selection.add(placedId);
+    }
+
+    api.showHint(`Placed text: "${state.currentText}". Position via mouse drag or Property Editor.`, 3000);
   },
 
   drawPreview(state, scene) {
     const { ctx, view, pointer } = scene;
     const s = view.toScreen(pointer.world.x, pointer.world.y);
-    const pxHeight = Math.max(8, state.height * view.zoom);
+    const pxHeight = Math.max(3, (state.height / 0.7) * view.zoom);
 
     ctx.save();
     ctx.translate(s.x, s.y);

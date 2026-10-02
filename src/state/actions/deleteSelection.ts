@@ -11,6 +11,14 @@ export function deleteSelection(store: EditorStore): void {
     if (e && !e.protected) {
       store.doc.removeEdge(id);
     }
+    const t = store.doc.texts.get(id);
+    if (t && !t.protected) {
+      store.doc.removeText(id);
+    }
+    const b = store.doc.blockInstances.get(id);
+    if (b && !b.protected) {
+      store.doc.removeBlockInstance(id);
+    }
   }
   store.selection.clear();
   store.hoverId = null;

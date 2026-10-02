@@ -25,6 +25,8 @@ import { flipVertical } from './doc/flipVertical';
 import { groupSelected } from './doc/groupSelected';
 import { hitEdgeAt } from './doc/hitEdgeAt';
 import { hitBlockInstanceAt } from './doc/hitBlockInstanceAt';
+import { hitTextAt } from './doc/hitTextAt';
+import { translateSelection } from './doc/translateSelection';
 import { generateUuid } from '../core/generateUuid';
 import { moveVertex } from './doc/moveVertex';
 import { removeEdge } from './doc/removeEdge';
@@ -185,6 +187,10 @@ export class Doc {
     return hitBlockInstanceAt(this, wx, wy, zoom, maxPx);
   }
 
+  hitTextAt(wx: number, wy: number, zoom: number, maxPx?: number): number | null {
+    return hitTextAt(this, wx, wy, zoom, maxPx);
+  }
+
   // ----------------------------------------------------------------- cutting
 
   splitLineAt(edgeId: number, ts: number[]): number[] {
@@ -211,6 +217,10 @@ export class Doc {
 
   translateEdges(edgeIds: Iterable<number>, dx: number, dy: number): boolean {
     return translateEdges(this, edgeIds, dx, dy);
+  }
+
+  translateSelection(ids: Iterable<number>, dx: number, dy: number): boolean {
+    return translateSelection(this, ids, dx, dy);
   }
 
   scaleEdges(edgeIds: Iterable<number>, cx: number, cy: number, scaleFactor: number): boolean {

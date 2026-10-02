@@ -133,7 +133,7 @@ export const selectTool: Tool<SelectState> = {
           api.edit(() => true);
           state.movedSnapshot = true;
         }
-        api.doc.translateEdges(api.selection, dx, dy);
+        api.doc.translateSelection(api.selection, dx, dy);
         state.dragStartWorld = input.world;
         api.redraw();
       }
@@ -161,10 +161,11 @@ export const selectTool: Tool<SelectState> = {
       return;
     }
 
-    const blockHit = api.doc.hitBlockInstanceAt(input.rawWorld.x, input.rawWorld.y, api.view.zoom);
-    const hit = blockHit !== null ? null : api.doc.hitEdgeAt(input.rawWorld.x, input.rawWorld.y, api.view.zoom);
+    const textHit = api.doc.hitTextAt(input.rawWorld.x, input.rawWorld.y, api.view.zoom);
+    const blockHit = textHit !== null ? null : api.doc.hitBlockInstanceAt(input.rawWorld.x, input.rawWorld.y, api.view.zoom);
+    const hit = textHit !== null || blockHit !== null ? null : api.doc.hitEdgeAt(input.rawWorld.x, input.rawWorld.y, api.view.zoom);
     api.setHoverEdge(hit);
-    api.setCursor(hit !== null || blockHit !== null ? 'pointer' : 'default');
+    api.setCursor(hit !== null || blockHit !== null || textHit !== null ? 'pointer' : 'default');
   },
 
   onPointerDown(state, input, api) {
@@ -200,6 +201,25 @@ export const selectTool: Tool<SelectState> = {
       return;
     }
 
+    const textHit = api.doc.hitTextAt(input.rawWorld.x, input.rawWorld.y, api.view.zoom);
+    if (textHit !== null) {
+      if (!api.selection.has(textHit) && !input.shiftKey) {
+        api.selection.clear();
+        api.selection.add(textHit);
+      } else if (input.shiftKey) {
+        if (api.selection.has(textHit)) {
+          api.selection.delete(textHit);
+        } else {
+          api.selection.add(textHit);
+        }
+      }
+      state.isMoving = true;
+      state.dragStartWorld = input.world;
+      state.movedSnapshot = false;
+      api.redraw();
+      return;
+    }
+
     const blockHit = api.doc.hitBlockInstanceAt(input.rawWorld.x, input.rawWorld.y, api.view.zoom);
     if (blockHit !== null) {
       if (!api.selection.has(blockHit) && !input.shiftKey) {
@@ -212,6 +232,9 @@ export const selectTool: Tool<SelectState> = {
           api.selection.add(blockHit);
         }
       }
+      state.isMoving = true;
+      state.dragStartWorld = input.world;
+      state.movedSnapshot = false;
       api.redraw();
       return;
     }
@@ -287,6 +310,20 @@ export const selectTool: Tool<SelectState> = {
           (sb.x >= x1 && sb.x <= x2 && sb.y >= y1 && sb.y <= y2)
         ) {
           api.selection.add(e.id);
+        }
+      }
+
+      for (const t of api.doc.texts.values()) {
+        const st = api.view.toScreen(t.x, t.y);
+        if (st.x >= x1 && st.x <= x2 && st.y >= y1 && st.y <= y2) {
+          api.selection.add(t.id);
+        }
+      }
+
+      for (const b of api.doc.blockInstances.values()) {
+        const sb = api.view.toScreen(b.x, b.y);
+        if (sb.x >= x1 && sb.x <= x2 && sb.y >= y1 && sb.y <= y2) {
+          api.selection.add(b.id);
         }
       }
     }
