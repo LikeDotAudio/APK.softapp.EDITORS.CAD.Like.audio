@@ -200,8 +200,8 @@ export class EditorStore {
   gridSize = 0.25;
   gridMode: GridMode = 'lines';
   snapToGrid = true;
-  /** Text rendered at a fixed readable screen size (no zoom scaling). Enabled by default. */
-  fixedTextSize = true;
+  /** Text rendered at a fixed screen size when true, or true CAD world scale when false (default). */
+  fixedTextSize = false;
   /** Name of the currently loaded file, or null if untitled / closed. */
   currentFileName: string | null = null;
 

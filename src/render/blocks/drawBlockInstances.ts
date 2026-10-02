@@ -79,12 +79,13 @@ export function drawBlockInstances(
       for (const t of def.texts) {
         const tp = transform({ x: t.x, y: t.y });
         let pxH: number;
-        if (scene.fixedTextSize ?? true) {
+        if (scene.fixedTextSize) {
           pxH = 11;
         } else {
-          pxH = t.height * s * view.zoom;
-          if (pxH < 2.5) continue;
+          pxH = ((t.height * s) / 0.7) * view.zoom;
         }
+        // Greeking threshold: skip sub-pixel text when zoomed out
+        if (pxH < 2.5) continue;
         ctx.save();
         ctx.translate(tp.x, tp.y);
         ctx.rotate(-(((t.rotation ?? 0) + (inst.rotation ?? 0)) * Math.PI) / 180);

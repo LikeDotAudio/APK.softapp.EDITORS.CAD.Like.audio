@@ -21,12 +21,15 @@ export function drawTexts(
 
     const screenPos = view.toScreen(text.x, text.y);
     let pxHeight: number;
-    if (scene.fixedTextSize ?? true) {
+    if (scene.fixedTextSize) {
       pxHeight = 11;
     } else {
-      pxHeight = text.height * view.zoom;
-      if (pxHeight < 2.5) continue;
+      // Scale proportionally with CAD geometry matching DXF cap-height to em-square ratio
+      pxHeight = (text.height / 0.7) * view.zoom;
     }
+
+    // Greeking threshold: skip sub-pixel text when zoomed out so text does not clutter or overlap
+    if (pxHeight < 2.5) continue;
 
     ctx.save();
     ctx.translate(screenPos.x, screenPos.y);
