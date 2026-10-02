@@ -78,7 +78,13 @@ export function drawBlockInstances(
     if (def.texts) {
       for (const t of def.texts) {
         const tp = transform({ x: t.x, y: t.y });
-        const pxH = Math.max(8, t.height * s * view.zoom);
+        let pxH: number;
+        if (scene.fixedTextSize ?? true) {
+          pxH = 11;
+        } else {
+          pxH = t.height * s * view.zoom;
+          if (pxH < 2.5) continue;
+        }
         ctx.save();
         ctx.translate(tp.x, tp.y);
         ctx.rotate(-(((t.rotation ?? 0) + (inst.rotation ?? 0)) * Math.PI) / 180);

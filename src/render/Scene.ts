@@ -25,4 +25,6 @@ export interface Scene {
   schematic?: SchematicModel;
   /** Which catalogue symbol the Flow tool would place next. */
   flowDefinitionId?: string;
+  /** Whether text annotations and block text render at fixed readable screen size (no zoom scaling). */
+  fixedTextSize?: boolean;
 }

@@ -3,6 +3,7 @@
 import { MenuBarButton } from '../MenuBarButton';
 import { MenuDropdown } from '../MenuDropdown';
 import type { MenuProps } from '../MenuProps';
+import { FixedTextToggleRow } from './drawing/FixedTextToggleRow';
 import { GridModeRow } from './drawing/GridModeRow';
 import { GridSizeRow } from './drawing/GridSizeRow';
 import { ShapeModeRow } from './drawing/ShapeModeRow';
@@ -21,6 +22,7 @@ export function DrawingMenu({ open, onToggle, onClose }: MenuProps) {
           <GridSizeRow />
           <GridModeRow />
           <SnapToggleRow />
+          <FixedTextToggleRow />
           <ZoomToFitRow onDone={onClose} />
           <div className="border-t border-[#3c3c3c]" />
           <ShapeModeRow />

@@ -13,7 +13,10 @@ export function snapshotDoc(doc: Doc): DocSnapshot {
     texts: Array.from(doc.texts.values(), (t) => ({ ...t })),
     fills: Array.from(doc.fills.values(), (f) => ({ ...f, points: f.points.map((p) => ({ ...p })) })),
     blocks: Array.from(doc.blocks.entries(), ([k, v]) => [k, JSON.parse(JSON.stringify(v))]),
-    blockInstances: Array.from(doc.blockInstances.values(), (b) => ({ ...b })),
+    blockInstances: Array.from(doc.blockInstances.values(), (b) => ({
+      ...b,
+      attributes: b.attributes ? { ...b.attributes } : {},
+    })),
     nextVertexId: doc.nextVertexId,
     nextEdgeId: doc.nextEdgeId,
     nextGroupId: doc.nextGroupId,

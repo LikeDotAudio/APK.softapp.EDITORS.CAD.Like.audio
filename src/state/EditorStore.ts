@@ -199,6 +199,8 @@ export class EditorStore {
   gridSize = 0.25;
   gridMode: GridMode = 'lines';
   snapToGrid = true;
+  /** Text rendered at a fixed readable screen size (no zoom scaling). Enabled by default. */
+  fixedTextSize = true;
 
   layers: Map<string, Layer> = new Map([
     ['0', { id: '0', name: '0', color: '#ffffff', dxfColorIndex: 7, visible: true }],
@@ -556,6 +558,16 @@ export class EditorStore {
     if (this.openBlockEditorModal) {
       this.openBlockEditorModal(blockName);
     }
+  }
+
+  toggleFixedTextSize(): void {
+    this.fixedTextSize = !this.fixedTextSize;
+    this.requestDraw();
+    this.emit();
+    this.showHint(
+      this.fixedTextSize ? 'Fixed text size enabled (no zoom scaling).' : 'World scaled text enabled.',
+      2500,
+    );
   }
 
   async importDxf(file: File): Promise<void> {

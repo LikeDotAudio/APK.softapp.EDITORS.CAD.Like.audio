@@ -87,6 +87,7 @@ export interface UiState {
   gridSize: number;
   gridMode: GridMode;
   snapToGrid: boolean;
+  fixedTextSize: boolean;
   cursor: Point;
   edgeCount: number;
   validation: ValidationResult;

@@ -2,6 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { Doc } from '../Doc';
 import type { DocSnapshot } from './DocSnapshot';
+import { generateUuid } from '../../core/generateUuid';
 
 /** Replace the document's contents with a snapshot. */
 export function restoreDoc(doc: Doc, s: DocSnapshot): void {
@@ -12,7 +13,12 @@ export function restoreDoc(doc: Doc, s: DocSnapshot): void {
   doc.texts = new Map((s.texts ?? []).map((t) => [t.id, { ...t }]));
   doc.fills = new Map((s.fills ?? []).map((f) => [f.id, { ...f, points: f.points.map((p) => ({ ...p })) }]));
   doc.blocks = new Map((s.blocks ?? []).map(([k, v]) => [k, JSON.parse(JSON.stringify(v))]));
-  doc.blockInstances = new Map((s.blockInstances ?? []).map((b) => [b.id, { ...b }]));
+  doc.blockInstances = new Map(
+    (s.blockInstances ?? []).map((b) => [
+      b.id,
+      { ...b, uuid: b.uuid ?? generateUuid(), attributes: b.attributes ? { ...b.attributes } : {} },
+    ]),
+  );
   doc.nextVertexId = s.nextVertexId;
   doc.nextEdgeId = s.nextEdgeId;
   doc.nextGroupId = s.nextGroupId;

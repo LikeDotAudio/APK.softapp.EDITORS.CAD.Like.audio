@@ -24,6 +24,8 @@ import { flipHorizontal } from './doc/flipHorizontal';
 import { flipVertical } from './doc/flipVertical';
 import { groupSelected } from './doc/groupSelected';
 import { hitEdgeAt } from './doc/hitEdgeAt';
+import { hitBlockInstanceAt } from './doc/hitBlockInstanceAt';
+import { generateUuid } from '../core/generateUuid';
 import { moveVertex } from './doc/moveVertex';
 import { removeEdge } from './doc/removeEdge';
 import { resolveAllIntersections } from './doc/resolveAllIntersections';
@@ -179,6 +181,10 @@ export class Doc {
     return hitEdgeAt(this, wx, wy, zoom, maxPx);
   }
 
+  hitBlockInstanceAt(wx: number, wy: number, zoom: number, maxPx?: number): number | null {
+    return hitBlockInstanceAt(this, wx, wy, zoom, maxPx);
+  }
+
   // ----------------------------------------------------------------- cutting
 
   splitLineAt(edgeId: number, ts: number[]): number[] {
@@ -302,9 +308,22 @@ export class Doc {
     scale = 1,
     rotation = 0,
     layerId = '0',
+    uuid?: string,
+    attributes?: Record<string, string>,
   ): number {
     const id = this.nextBlockInstanceId++;
-    this.blockInstances.set(id, { id, blockName, x, y, scale, rotation, layerId });
+    const finalUuid = uuid ?? generateUuid();
+    this.blockInstances.set(id, {
+      id,
+      uuid: finalUuid,
+      blockName,
+      x,
+      y,
+      scale,
+      rotation,
+      layerId,
+      attributes: attributes ? { ...attributes } : {},
+    });
     return id;
   }
 

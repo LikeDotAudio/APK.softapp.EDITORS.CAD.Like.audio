@@ -161,9 +161,10 @@ export const selectTool: Tool<SelectState> = {
       return;
     }
 
-    const hit = api.doc.hitEdgeAt(input.rawWorld.x, input.rawWorld.y, api.view.zoom);
+    const blockHit = api.doc.hitBlockInstanceAt(input.rawWorld.x, input.rawWorld.y, api.view.zoom);
+    const hit = blockHit !== null ? null : api.doc.hitEdgeAt(input.rawWorld.x, input.rawWorld.y, api.view.zoom);
     api.setHoverEdge(hit);
-    api.setCursor(hit !== null ? 'pointer' : 'default');
+    api.setCursor(hit !== null || blockHit !== null ? 'pointer' : 'default');
   },
 
   onPointerDown(state, input, api) {
@@ -195,6 +196,22 @@ export const selectTool: Tool<SelectState> = {
     if (midEdgeId !== null) {
       state.edgeDrag = { edgeId: midEdgeId, lastWorld: input.rawWorld, snapshot: false };
       api.setCursor('move');
+      api.redraw();
+      return;
+    }
+
+    const blockHit = api.doc.hitBlockInstanceAt(input.rawWorld.x, input.rawWorld.y, api.view.zoom);
+    if (blockHit !== null) {
+      if (!api.selection.has(blockHit) && !input.shiftKey) {
+        api.selection.clear();
+        api.selection.add(blockHit);
+      } else if (input.shiftKey) {
+        if (api.selection.has(blockHit)) {
+          api.selection.delete(blockHit);
+        } else {
+          api.selection.add(blockHit);
+        }
+      }
       api.redraw();
       return;
     }

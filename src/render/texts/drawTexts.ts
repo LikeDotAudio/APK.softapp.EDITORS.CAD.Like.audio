@@ -20,7 +20,13 @@ export function drawTexts(
     if (layer && !layer.visible) continue;
 
     const screenPos = view.toScreen(text.x, text.y);
-    const pxHeight = Math.max(8, text.height * view.zoom);
+    let pxHeight: number;
+    if (scene.fixedTextSize ?? true) {
+      pxHeight = 11;
+    } else {
+      pxHeight = text.height * view.zoom;
+      if (pxHeight < 2.5) continue;
+    }
 
     ctx.save();
     ctx.translate(screenPos.x, screenPos.y);

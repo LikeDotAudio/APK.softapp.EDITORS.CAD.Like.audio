@@ -51,6 +51,7 @@ export function buildUi(store: EditorStore): UiState {
     gridSize: store.gridSize,
     gridMode: store.gridMode,
     snapToGrid: store.snapToGrid,
+    fixedTextSize: store.fixedTextSize,
     cursor: store.pointer.world,
     edgeCount: store.doc.edgeCount,
     validation,

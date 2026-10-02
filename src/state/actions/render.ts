@@ -17,6 +17,7 @@ export function render(store: EditorStore): void {
     selection: store.selection,
     schematic: store.schematic,
     flowDefinitionId: store.flowDefinitionId,
+    fixedTextSize: store.fixedTextSize,
   };
   renderScene(scene, {
     tool: store.tool,

@@ -137,6 +137,7 @@ export interface CadBlockDefinition {
 
 export interface CadBlockInstance {
   id: number;
+  uuid: string;
   blockName: string;
   x: number;
   y: number;
@@ -144,6 +145,7 @@ export interface CadBlockInstance {
   rotation: number; // degrees counter-clockwise
   layerId: string;
   protected?: boolean;
+  attributes?: Record<string, string>;
 }
 
 export interface ValidationResult {
