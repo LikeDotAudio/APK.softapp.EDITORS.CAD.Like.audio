@@ -5,15 +5,19 @@ import { addRecentFile } from '../../io/recentFiles/addRecentFile';
 import { loadImageFile } from '../../io/loadImageFile';
 
 export async function importImage(store: EditorStore, file: File): Promise<void> {
-  const img = await loadImageFile(file);
-  const dataUrl = await new Promise<string>((resolve) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.readAsDataURL(file);
-  });
+  await store.showLoading('Opening drawings', `Importing & caching ${file.name}...`);
+  try {
+    const img = await loadImageFile(file);
+    const dataUrl = await new Promise<string>((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.readAsDataURL(file);
+    });
 
-  addRecentFile({ name: file.name, type: 'image', data: dataUrl });
-  store.currentFileName = file.name;
-  store.applyLoadedImage(img);
-
+    addRecentFile({ name: file.name, type: 'image', data: dataUrl });
+    store.currentFileName = file.name;
+    store.applyLoadedImage(img);
+  } finally {
+    store.hideLoading();
+  }
 }

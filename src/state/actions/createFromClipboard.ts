@@ -9,6 +9,7 @@ import { parseDxf } from '../../io/importDxf/parseDxf';
  * and creates a new CAD drawing or places content on the canvas.
  */
 export async function createFromClipboard(store: EditorStore): Promise<boolean> {
+  await store.showLoading('Opening drawings', 'Reading and caching clipboard data...');
   try {
     // 1. Try reading clipboard items to see if an image is present
     if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.read) {
@@ -109,5 +110,7 @@ export async function createFromClipboard(store: EditorStore): Promise<boolean> 
     const msg = err instanceof Error ? err.message : String(err);
     store.showHint(`Could not read clipboard: ${msg}`, 4000);
     return false;
+  } finally {
+    store.hideLoading();
   }
 }

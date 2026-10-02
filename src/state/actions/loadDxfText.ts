@@ -13,15 +13,18 @@ export async function loadDxfText(store: EditorStore, text: string,
     filename = 'drawing.dxf',
     sourceUnit?: Units,
     targetUnit?: Units,): Promise<void> {
-  const result = parseDxf(text);
-  if (result.entities.length === 0) {
-    window.alert('No supported geometry (LINE, CIRCLE, ARC, LWPOLYLINE, TEXT, HATCH, INSERT) found in DXF file.');
-    return;
-  }
+  await store.showLoading('Opening drawings', `Parsing entities in ${filename}...`);
+  try {
+    const result = parseDxf(text);
+    if (result.entities.length === 0) {
+      window.alert('No supported geometry (LINE, CIRCLE, ARC, LWPOLYLINE, TEXT, HATCH, INSERT) found in DXF file.');
+      return;
+    }
 
-  addRecentFile({ name: filename, type: 'dxf', data: text });
+    await store.showLoading('Opening drawings', 'Caching file to recent drawings...');
+    addRecentFile({ name: filename, type: 'dxf', data: text });
 
-  store.history.push(store.doc.snapshot());
+    store.history.push(store.doc.snapshot());
 
   // Clear canvas completely so the opened file cleanly replaces existing content
   store.doc.clear();
@@ -123,9 +126,15 @@ export async function loadDxfText(store: EditorStore, text: string,
   store.toolState = store.tool.createState();
   store.closeDynInput();
   store.view.zoomToFit(store.doc.bounds());
+
+  await store.showLoading('Opening drawings', 'Caching drawing session to local storage...');
+  await store.autoSaveSession();
+
   store.markDocChanged();
   store.requestDraw();
   store.emit();
   store.showHint(`Opened DXF: imported ${result.entities.length} entities across ${store.layers.size} layers.`, 5000);
-
+  } finally {
+    store.hideLoading();
+  }
 }

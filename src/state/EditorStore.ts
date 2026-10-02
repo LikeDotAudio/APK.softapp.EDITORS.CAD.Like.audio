@@ -35,7 +35,7 @@
 import type { Layer, Point, SchematicModel, ToolId, Units, GridMode, ValidationResult } from '../core/types';
 import type { ClipboardItem } from './ClipboardItem';
 import { ORIGIN } from './origin';
-import type { DynUi, UiState } from './UiState';
+import type { DynUi, UiState, LoadingUi } from './UiState';
 import type { CalibrationState } from '../image/calibration/CalibrationState';
 import { idleCalibration } from '../image/calibration/idleCalibration';
 import type { TracingImage } from '../image/TracingImage';
@@ -254,6 +254,8 @@ export class EditorStore {
   openBlockEditorModal: ((blockName?: string) => void) | null = null;
   /** Hook registered by the UI to open the Startup / Welcome modal. */
   openStartupModal: (() => void) | null = null;
+  /** Active loading / caching state for modal loading screen. */
+  loading: LoadingUi | null = null;
 
   readonly api: ToolApi;
 
@@ -332,8 +334,8 @@ export class EditorStore {
     markDocChanged(this);
   }
 
-  async autoSaveSession(): Promise<void> {
-    return await autoSaveSession(this);
+  async autoSaveSession(forceLoadingScreen = false): Promise<void> {
+    return await autoSaveSession(this, forceLoadingScreen);
   }
 
   async restoreBrowserSession(): Promise<void> {
@@ -580,6 +582,22 @@ export class EditorStore {
 
   async createFromClipboard(): Promise<boolean> {
     return await createFromClipboard(this);
+  }
+
+  /**
+   * Display loading screen with "Opening drawings" and caching status,
+   * yielding execution to the browser to ensure the overlay renders before heavy CPU work.
+   */
+  async showLoading(title = 'Opening drawings', subtitle?: string): Promise<void> {
+    this.loading = { active: true, title, subtitle };
+    this.emit();
+    await new Promise<void>((resolve) => setTimeout(resolve, 30));
+  }
+
+  /** Dismiss the loading screen. */
+  hideLoading(): void {
+    this.loading = null;
+    this.emit();
   }
 
   toggleFixedTextSize(): void {

@@ -98,6 +98,7 @@ export function buildUi(store: EditorStore): UiState {
       savedAt: store.bigPicture.savedAt,
       message: store.bigPicture.message,
     },
+    loading: store.loading,
   };
 
 }

@@ -80,6 +80,12 @@ export interface TracingUi {
   worldWidth: number;
 }
 
+export interface LoadingUi {
+  active: boolean;
+  title: string;
+  subtitle?: string;
+}
+
 /** The immutable view of editor state that React components render from. */
 export interface UiState {
   toolId: ToolId;
@@ -110,4 +116,5 @@ export interface UiState {
   /** The group tree, roots first, each parent immediately before its children. */
   groups: GroupRowUi[];
   bigPicture: BigPictureUi;
+  loading: LoadingUi | null;
 }

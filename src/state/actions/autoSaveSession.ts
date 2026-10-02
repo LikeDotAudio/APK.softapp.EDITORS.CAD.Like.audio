@@ -5,31 +5,42 @@ import type { SavedSession } from '../../io/browserStorage/SavedSession';
 import { snapshotSchematic } from '../../flow/Schematic';
 import { saveSessionToBrowser } from '../../io/browserStorage/saveSessionToBrowser';
 
-export async function autoSaveSession(store: EditorStore): Promise<void> {
-  const session: SavedSession = {
-    version: 1,
-    timestamp: Date.now(),
-    docSnapshot: store.doc.snapshot(),
-    currentFileName: store.currentFileName,
-    schematic: snapshotSchematic(store.schematic),
-    units: store.units,
-    gridSize: store.gridSize,
-    gridMode: store.gridMode,
-    snapToGrid: store.snapToGrid,
-    shapeMode: store.shapeMode,
-    activeLayerId: store.activeLayerId,
-    layers: Array.from(store.layers.values()),
-    tracing: store.tracing
-      ? {
-          dataUrl: store.tracing.img.src,
-          x: store.tracing.x,
-          y: store.tracing.y,
-          worldWidth: store.tracing.worldWidth,
-          opacity: store.tracing.opacity,
-          visible: store.tracing.visible,
-        }
-      : null,
-  };
-  await saveSessionToBrowser(session);
+export async function autoSaveSession(store: EditorStore, forceLoadingScreen = false): Promise<void> {
+  const isLarge = store.doc.edgeCount > 150 || (store.doc.snapshot().texts?.length ?? 0) > 30 || store.tracing !== null;
+  const showLoading = (forceLoadingScreen || isLarge) && !store.loading;
 
+  if (showLoading) {
+    await store.showLoading('Opening drawings', 'Caching drawing session to browser storage...');
+  }
+  try {
+    const session: SavedSession = {
+      version: 1,
+      timestamp: Date.now(),
+      docSnapshot: store.doc.snapshot(),
+      currentFileName: store.currentFileName,
+      schematic: snapshotSchematic(store.schematic),
+      units: store.units,
+      gridSize: store.gridSize,
+      gridMode: store.gridMode,
+      snapToGrid: store.snapToGrid,
+      shapeMode: store.shapeMode,
+      activeLayerId: store.activeLayerId,
+      layers: Array.from(store.layers.values()),
+      tracing: store.tracing
+        ? {
+            dataUrl: store.tracing.img.src,
+            x: store.tracing.x,
+            y: store.tracing.y,
+            worldWidth: store.tracing.worldWidth,
+            opacity: store.tracing.opacity,
+            visible: store.tracing.visible,
+          }
+        : null,
+    };
+    await saveSessionToBrowser(session);
+  } finally {
+    if (showLoading) {
+      store.hideLoading();
+    }
+  }
 }

@@ -15,6 +15,7 @@ import { SpreadsheetModal } from './components/spreadsheet/SpreadsheetModal';
 import { ElementsEditorModal } from './components/elementsEditor/ElementsEditorModal';
 import { BlockEditorModal } from './components/blockEditor/BlockEditorModal';
 import { StartupModal } from './components/startup/StartupModal';
+import { LoadingOverlay } from './components/loading/LoadingOverlay';
 
 export default function App() {
   /* Which of the two desktop tiles opened this window. Read once: the fragment
@@ -97,6 +98,9 @@ export default function App() {
           {showStartupModal && (
             <StartupModal onClose={() => setShowStartupModal(false)} />
           )}
+
+          {/* Loading Screen Overlay ("Opening drawings") */}
+          <LoadingOverlay />
         </div>
       </EditorContext.Provider>
     </EntranceContext.Provider>

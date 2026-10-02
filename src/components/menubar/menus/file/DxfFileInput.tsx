@@ -1,6 +1,7 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { RefObject } from 'react';
+import { useStore } from '../../../../state/useStore';
 import { dxfImportFromText } from './dxfImportFromText';
 import type { PendingDxfImport } from './PendingDxfImport';
 
@@ -11,6 +12,7 @@ export interface DxfFileInputProps {
 
 /** Hidden file picker for .dxf, opened by the File menu. */
 export function DxfFileInput({ inputRef, onPicked }: DxfFileInputProps) {
+  const store = useStore();
   return (
     <input
       ref={inputRef}
@@ -21,7 +23,14 @@ export function DxfFileInput({ inputRef, onPicked }: DxfFileInputProps) {
         const file = e.target.files?.[0];
         e.target.value = '';
         if (!file) return;
-        onPicked(dxfImportFromText(await file.text(), file.name));
+        await store.showLoading('Opening drawings', `Reading ${file.name}...`);
+        try {
+          const text = await file.text();
+          await store.showLoading('Opening drawings', 'Inspecting DXF units & geometry...');
+          onPicked(dxfImportFromText(text, file.name));
+        } finally {
+          store.hideLoading();
+        }
       }}
     />
   );
