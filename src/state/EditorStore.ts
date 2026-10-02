@@ -244,6 +244,8 @@ export class EditorStore {
 
   /** Hook registered by the UI to open the native DXF file picker. */
   openFilePicker: (() => void) | null = null;
+  /** Hook registered by the UI to open the Block Editor modal. */
+  openBlockEditorModal: ((blockName?: string) => void) | null = null;
 
   readonly api: ToolApi;
 
@@ -547,6 +549,12 @@ export class EditorStore {
   openFileDialog(): void {
     if (this.openFilePicker) {
       this.openFilePicker();
+    }
+  }
+
+  triggerOpenBlockEditor(blockName?: string): void {
+    if (this.openBlockEditorModal) {
+      this.openBlockEditorModal(blockName);
     }
   }
 

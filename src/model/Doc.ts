@@ -277,6 +277,24 @@ export class Doc {
     this.blocks.set(def.name, def);
   }
 
+  removeBlockDefinition(name: string): boolean {
+    return this.blocks.delete(name);
+  }
+
+  renameBlockDefinition(oldName: string, newName: string): boolean {
+    const def = this.blocks.get(oldName);
+    if (!def) return false;
+    this.blocks.delete(oldName);
+    def.name = newName;
+    this.blocks.set(newName, def);
+    for (const inst of this.blockInstances.values()) {
+      if (inst.blockName === oldName) {
+        inst.blockName = newName;
+      }
+    }
+    return true;
+  }
+
   addBlockInstance(
     blockName: string,
     x: number,

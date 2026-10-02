@@ -1,6 +1,6 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DrawingCanvas } from './components/DrawingCanvas';
 import { ImagePanel } from './components/ImagePanel';
 import { SidebarPanel } from './components/sidebar/SidebarPanel';
@@ -13,6 +13,7 @@ import { currentEntrance } from './shell/entrance';
 import { EntranceContext } from './shell/EntranceContext';
 import { SpreadsheetModal } from './components/spreadsheet/SpreadsheetModal';
 import { ElementsEditorModal } from './components/elementsEditor/ElementsEditorModal';
+import { BlockEditorModal } from './components/blockEditor/BlockEditorModal';
 
 export default function App() {
   /* Which of the two desktop tiles opened this window. Read once: the fragment
@@ -22,6 +23,23 @@ export default function App() {
   const [store] = useState(() => new EditorStore(entrance));
   const [showSpreadsheet, setShowSpreadsheet] = useState(false);
   const [showElementsEditor, setShowElementsEditor] = useState(false);
+  const [showBlockEditor, setShowBlockEditor] = useState(false);
+  const [blockEditorTarget, setBlockEditorTarget] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    store.openBlockEditorModal = (blockName?: string) => {
+      setBlockEditorTarget(blockName);
+      setShowBlockEditor(true);
+    };
+    return () => {
+      store.openBlockEditorModal = null;
+    };
+  }, [store]);
+
+  const handleOpenBlockEditor = (blockName?: string) => {
+    setBlockEditorTarget(blockName);
+    setShowBlockEditor(true);
+  };
 
   return (
     <EntranceContext.Provider value={entrance}>
@@ -31,6 +49,7 @@ export default function App() {
           <MenuBar
             onOpenSpreadsheet={() => setShowSpreadsheet(true)}
             onOpenElementsEditor={() => setShowElementsEditor(true)}
+            onOpenBlockEditor={() => handleOpenBlockEditor()}
           />
 
           {/* Main Work Area: Left Toolbar + Canvas + Right Sidebar */}
@@ -53,7 +72,18 @@ export default function App() {
 
           {/* CAD Elements Editor Modal (Text, Blocks, Fills) */}
           {showElementsEditor && (
-            <ElementsEditorModal onClose={() => setShowElementsEditor(false)} />
+            <ElementsEditorModal
+              onClose={() => setShowElementsEditor(false)}
+              onOpenBlockEditor={(name) => handleOpenBlockEditor(name)}
+            />
+          )}
+
+          {/* CAD Block Editor Modal (BEDIT) */}
+          {showBlockEditor && (
+            <BlockEditorModal
+              initialBlockName={blockEditorTarget}
+              onClose={() => setShowBlockEditor(false)}
+            />
           )}
         </div>
       </EditorContext.Provider>

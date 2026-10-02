@@ -6,11 +6,12 @@ import { useUi } from '../../state/useUi';
 
 interface ElementsEditorModalProps {
   onClose: () => void;
+  onOpenBlockEditor?: (blockName?: string) => void;
 }
 
 type TabType = 'texts' | 'blocks' | 'fills';
 
-export function ElementsEditorModal({ onClose }: ElementsEditorModalProps) {
+export function ElementsEditorModal({ onClose, onOpenBlockEditor }: ElementsEditorModalProps) {
   const store = useStore();
   const { layers, activeLayerId, selectionSize } = useUi();
   const [activeTab, setActiveTab] = useState<TabType>('texts');
@@ -385,21 +386,32 @@ export function ElementsEditorModal({ onClose }: ElementsEditorModalProps) {
               {/* Block Definitions */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-white">Block Definitions (Library)</h3>
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-sm font-semibold text-white">Block Definitions (Library)</h3>
+                    <button
+                      onClick={() => {
+                        onClose();
+                        onOpenBlockEditor?.();
+                      }}
+                      className="rounded bg-[#2ea043] px-2.5 py-0.5 text-xs font-semibold text-white hover:bg-[#3fb950] transition-colors"
+                    >
+                      🧱 Open Block Editor (BEDIT)
+                    </button>
+                  </div>
                   <div className="flex items-center gap-2">
                     <input
                       type="text"
                       placeholder="Block name"
                       value={newBlockName}
                       onChange={(e) => setNewBlockName(e.target.value)}
-                      className="rounded border border-[#3c3c3c] bg-[#141414] px-2 py-1 text-white"
+                      className="rounded border border-[#3c3c3c] bg-[#141414] px-2 py-1 text-white text-xs"
                     />
                     <button
                       onClick={handleCreateBlockFromSelection}
                       disabled={selectionSize === 0}
-                      className="rounded bg-[#f4902c] px-3 py-1 font-semibold text-black hover:bg-[#ffa552] disabled:opacity-40"
+                      className="rounded bg-[#f4902c] px-3 py-1 font-semibold text-black hover:bg-[#ffa552] disabled:opacity-40 text-xs"
                     >
-                      Create Block From Selection ({selectionSize})
+                      Create From Selection ({selectionSize})
                     </button>
                   </div>
                 </div>
@@ -421,21 +433,31 @@ export function ElementsEditorModal({ onClose }: ElementsEditorModalProps) {
                           <p className="mt-1 text-[11px] text-[#aaa]">{b.description}</p>
                         )}
                       </div>
-                      <div className="mt-3 flex items-center justify-between border-t border-[#333] pt-2">
+                      <div className="mt-3 flex items-center justify-between border-t border-[#333] pt-2 gap-1.5">
+                        <button
+                          onClick={() => {
+                            onClose();
+                            onOpenBlockEditor?.(b.name);
+                          }}
+                          className="rounded bg-[#2ea043]/80 px-2 py-1 text-xs text-white hover:bg-[#2ea043]"
+                          title="Open in CAD Block Editor"
+                        >
+                          ✏️ Edit
+                        </button>
                         <button
                           onClick={() => handleInsertBlock(b.name)}
-                          className="rounded bg-[#0e639c] px-2.5 py-1 text-white hover:bg-[#1177bb]"
+                          className="rounded bg-[#0e639c] px-2 py-1 text-xs text-white hover:bg-[#1177bb]"
                         >
-                          + Insert on Sheet
+                          + Insert
                         </button>
                         <button
                           onClick={() => {
                             store.setTool('block');
                             onClose();
                           }}
-                          className="text-[#888] hover:text-[#ccc]"
+                          className="text-[#888] hover:text-[#ccc] text-xs"
                         >
-                          Pick with Tool (K)
+                          Pick (K)
                         </button>
                       </div>
                     </div>

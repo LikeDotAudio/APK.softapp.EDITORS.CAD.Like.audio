@@ -13,13 +13,14 @@ import { ModifyMenu } from './menus/ModifyMenu';
 interface MenuBarProps {
   onOpenSpreadsheet?: () => void;
   onOpenElementsEditor?: () => void;
+  onOpenBlockEditor?: () => void;
 }
 
 /**
  * The application header. It owns only "which menu is open" — every dropdown
  * lives in its own file under `menus/`.
  */
-export function MenuBar({ onOpenSpreadsheet, onOpenElementsEditor }: MenuBarProps) {
+export function MenuBar({ onOpenSpreadsheet, onOpenElementsEditor, onOpenBlockEditor }: MenuBarProps) {
   const [openMenu, setOpenMenu] = useState<MenuId | null>(null);
   const close = useCallback(() => setOpenMenu(null), []);
   useMenuDismiss(close);
@@ -43,6 +44,14 @@ export function MenuBar({ onOpenSpreadsheet, onOpenElementsEditor }: MenuBarProp
         </div>
       </div>
       <div className="flex items-center gap-2">
+        <button
+          onClick={onOpenBlockEditor}
+          className="flex items-center gap-1.5 rounded bg-[#2ea043] px-2.5 py-1 text-xs font-semibold text-white hover:bg-[#3fb950] transition-colors font-mono tracking-wide"
+          title="Open CAD Block Editor (BEDIT) to design and edit reusable component symbols"
+        >
+          <span>🧱</span>
+          <span>Block Editor</span>
+        </button>
         <button
           onClick={onOpenElementsEditor}
           className="flex items-center gap-1.5 rounded bg-[#f4902c] px-2.5 py-1 text-xs font-semibold text-black hover:bg-[#ffa552] transition-colors font-mono tracking-wide"
