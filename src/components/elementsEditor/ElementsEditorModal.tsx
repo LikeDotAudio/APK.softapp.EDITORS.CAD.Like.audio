@@ -1,6 +1,6 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useStore } from '../../state/useStore';
 import { useUi } from '../../state/useUi';
 
@@ -11,11 +11,85 @@ interface ElementsEditorModalProps {
 
 type TabType = 'texts' | 'blocks' | 'fills';
 
+const PAGE_SIZE = 50;
+
+function PaginationBar({
+  currentPage,
+  totalPages,
+  totalItems,
+  pageSize,
+  onPageChange,
+}: {
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  pageSize: number;
+  onPageChange: (p: number) => void;
+}) {
+  if (totalItems <= pageSize) {
+    return (
+      <div className="flex items-center justify-between text-[11px] text-[#888] px-1 py-1">
+        <span>Showing all {totalItems} item{totalItems === 1 ? '' : 's'}</span>
+      </div>
+    );
+  }
+
+  const start = (currentPage - 1) * pageSize + 1;
+  const end = Math.min(currentPage * pageSize, totalItems);
+
+  return (
+    <div className="flex items-center justify-between bg-[#1f1f1f] border border-[#333] rounded px-3 py-1.5 text-xs text-[#ccc]">
+      <span>
+        Showing <span className="font-semibold text-white">{start}–{end}</span> of{' '}
+        <span className="font-semibold text-white">{totalItems}</span>
+      </span>
+      <div className="flex items-center gap-1.5">
+        <button
+          onClick={() => onPageChange(1)}
+          disabled={currentPage <= 1}
+          className="rounded px-2 py-0.5 bg-[#2a2a2a] hover:bg-[#383838] disabled:opacity-30 disabled:cursor-not-allowed text-[11px]"
+        >
+          « First
+        </button>
+        <button
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage <= 1}
+          className="rounded px-2 py-0.5 bg-[#2a2a2a] hover:bg-[#383838] disabled:opacity-30 disabled:cursor-not-allowed text-[11px]"
+        >
+          ‹ Prev
+        </button>
+        <span className="px-2 font-mono text-[11px] text-[#f4902c]">
+          Page {currentPage} of {totalPages}
+        </span>
+        <button
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage >= totalPages}
+          className="rounded px-2 py-0.5 bg-[#2a2a2a] hover:bg-[#383838] disabled:opacity-30 disabled:cursor-not-allowed text-[11px]"
+        >
+          Next ›
+        </button>
+        <button
+          onClick={() => onPageChange(totalPages)}
+          disabled={currentPage >= totalPages}
+          className="rounded px-2 py-0.5 bg-[#2a2a2a] hover:bg-[#383838] disabled:opacity-30 disabled:cursor-not-allowed text-[11px]"
+        >
+          Last »
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function ElementsEditorModal({ onClose, onOpenBlockEditor }: ElementsEditorModalProps) {
   const store = useStore();
   const { layers, activeLayerId, selectionSize } = useUi();
   const [activeTab, setActiveTab] = useState<TabType>('texts');
   const [search, setSearch] = useState('');
+
+  // Pagination states
+  const [textPage, setTextPage] = useState(1);
+  const [instancePage, setInstancePage] = useState(1);
+  const [fillPage, setFillPage] = useState(1);
 
   // Local state for adding a text
   const [newTextStr, setNewTextStr] = useState('NOTE');
@@ -33,28 +107,76 @@ export function ElementsEditorModal({ onClose, onOpenBlockEditor }: ElementsEdit
   const [fillH, setFillH] = useState('4');
   const [fillType, setFillType] = useState<'solid' | 'hatch'>('solid');
 
-  const texts = Array.from(store.doc.texts.values());
-  const fills = Array.from(store.doc.fills.values());
-  const blocks = Array.from(store.doc.blocks.values());
-  const blockInstances = Array.from(store.doc.blockInstances.values());
+  const texts = useMemo(() => Array.from(store.doc.texts.values()), [store.doc.texts]);
+  const fills = useMemo(() => Array.from(store.doc.fills.values()), [store.doc.fills]);
+  const blocks = useMemo(() => Array.from(store.doc.blocks.values()), [store.doc.blocks]);
+  const blockInstances = useMemo(() => Array.from(store.doc.blockInstances.values()), [store.doc.blockInstances]);
 
-  const filteredTexts = texts.filter(
-    (t) =>
-      t.text.toLowerCase().includes(search.toLowerCase()) ||
-      t.layerId.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filteredTexts = useMemo(() => {
+    if (!search.trim()) return texts;
+    const q = search.toLowerCase();
+    return texts.filter(
+      (t) =>
+        t.text.toLowerCase().includes(q) ||
+        t.layerId.toLowerCase().includes(q) ||
+        String(t.id).includes(q),
+    );
+  }, [texts, search]);
 
-  const filteredBlocks = blocks.filter(
-    (b) =>
-      b.name.toLowerCase().includes(search.toLowerCase()) ||
-      (b.description && b.description.toLowerCase().includes(search.toLowerCase())),
-  );
+  const filteredBlocks = useMemo(() => {
+    if (!search.trim()) return blocks;
+    const q = search.toLowerCase();
+    return blocks.filter(
+      (b) =>
+        b.name.toLowerCase().includes(q) ||
+        (b.description && b.description.toLowerCase().includes(q)),
+    );
+  }, [blocks, search]);
 
-  const filteredInstances = blockInstances.filter(
-    (i) =>
-      i.blockName.toLowerCase().includes(search.toLowerCase()) ||
-      i.layerId.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filteredInstances = useMemo(() => {
+    if (!search.trim()) return blockInstances;
+    const q = search.toLowerCase();
+    return blockInstances.filter(
+      (i) =>
+        i.blockName.toLowerCase().includes(q) ||
+        i.layerId.toLowerCase().includes(q) ||
+        (i.uuid && i.uuid.toLowerCase().includes(q)) ||
+        String(i.id).includes(q),
+    );
+  }, [blockInstances, search]);
+
+  const filteredFills = useMemo(() => {
+    if (!search.trim()) return fills;
+    const q = search.toLowerCase();
+    return fills.filter(
+      (f) =>
+        f.layerId.toLowerCase().includes(q) ||
+        f.type.toLowerCase().includes(q) ||
+        String(f.id).includes(q),
+    );
+  }, [fills, search]);
+
+  // Paginated slices
+  const totalTextPages = Math.max(1, Math.ceil(filteredTexts.length / PAGE_SIZE));
+  const currentTextPage = Math.min(textPage, totalTextPages);
+  const pagedTexts = useMemo(() => {
+    const start = (currentTextPage - 1) * PAGE_SIZE;
+    return filteredTexts.slice(start, start + PAGE_SIZE);
+  }, [filteredTexts, currentTextPage]);
+
+  const totalInstancePages = Math.max(1, Math.ceil(filteredInstances.length / PAGE_SIZE));
+  const currentInstancePage = Math.min(instancePage, totalInstancePages);
+  const pagedInstances = useMemo(() => {
+    const start = (currentInstancePage - 1) * PAGE_SIZE;
+    return filteredInstances.slice(start, start + PAGE_SIZE);
+  }, [filteredInstances, currentInstancePage]);
+
+  const totalFillPages = Math.max(1, Math.ceil(filteredFills.length / PAGE_SIZE));
+  const currentFillPage = Math.min(fillPage, totalFillPages);
+  const pagedFills = useMemo(() => {
+    const start = (currentFillPage - 1) * PAGE_SIZE;
+    return filteredFills.slice(start, start + PAGE_SIZE);
+  }, [filteredFills, currentFillPage]);
 
   const handleAddText = () => {
     const x = parseFloat(newTextX) || 0;
@@ -240,6 +362,14 @@ export function ElementsEditorModal({ onClose, onOpenBlockEditor }: ElementsEdit
               </div>
 
               {/* Texts Table */}
+              <PaginationBar
+                currentPage={currentTextPage}
+                totalPages={totalTextPages}
+                totalItems={filteredTexts.length}
+                pageSize={PAGE_SIZE}
+                onPageChange={setTextPage}
+              />
+
               <div className="rounded border border-[#333] overflow-hidden">
                 <table className="w-full text-left">
                   <thead className="bg-[#2d2d2d] text-[#aaa]">
@@ -262,7 +392,7 @@ export function ElementsEditorModal({ onClose, onOpenBlockEditor }: ElementsEdit
                         </td>
                       </tr>
                     ) : (
-                      filteredTexts.map((text) => (
+                      pagedTexts.map((text) => (
                         <tr key={text.id} className="hover:bg-[#252526]">
                           <td className="p-2.5 text-[#888]">#{text.id}</td>
                           <td className="p-2.5">
@@ -377,6 +507,14 @@ export function ElementsEditorModal({ onClose, onOpenBlockEditor }: ElementsEdit
                   </tbody>
                 </table>
               </div>
+
+              <PaginationBar
+                currentPage={currentTextPage}
+                totalPages={totalTextPages}
+                totalItems={filteredTexts.length}
+                pageSize={PAGE_SIZE}
+                onPageChange={setTextPage}
+              />
             </div>
           )}
 
@@ -467,9 +605,20 @@ export function ElementsEditorModal({ onClose, onOpenBlockEditor }: ElementsEdit
 
               {/* Block Instances */}
               <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-white">
-                  Placed Block Instances ({blockInstances.length})
-                </h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold text-white">
+                    Placed Block Instances ({filteredInstances.length})
+                  </h3>
+                </div>
+
+                <PaginationBar
+                  currentPage={currentInstancePage}
+                  totalPages={totalInstancePages}
+                  totalItems={filteredInstances.length}
+                  pageSize={PAGE_SIZE}
+                  onPageChange={setInstancePage}
+                />
+
                 <div className="rounded border border-[#333] overflow-hidden">
                   <table className="w-full text-left">
                     <thead className="bg-[#2d2d2d] text-[#aaa]">
@@ -493,7 +642,7 @@ export function ElementsEditorModal({ onClose, onOpenBlockEditor }: ElementsEdit
                           </td>
                         </tr>
                       ) : (
-                        filteredInstances.map((inst) => (
+                        pagedInstances.map((inst) => (
                           <tr key={inst.id} className="hover:bg-[#252526]">
                             <td className="p-2.5 text-[#888]">#{inst.id}</td>
                             <td className="p-2.5 font-mono text-[#f4902c]">{inst.blockName}</td>
@@ -602,6 +751,14 @@ export function ElementsEditorModal({ onClose, onOpenBlockEditor }: ElementsEdit
                     </tbody>
                   </table>
                 </div>
+
+                <PaginationBar
+                  currentPage={currentInstancePage}
+                  totalPages={totalInstancePages}
+                  totalItems={filteredInstances.length}
+                  pageSize={PAGE_SIZE}
+                  onPageChange={setInstancePage}
+                />
               </div>
             </div>
           )}
@@ -658,6 +815,14 @@ export function ElementsEditorModal({ onClose, onOpenBlockEditor }: ElementsEdit
               </div>
 
               {/* Fills Table */}
+              <PaginationBar
+                currentPage={currentFillPage}
+                totalPages={totalFillPages}
+                totalItems={filteredFills.length}
+                pageSize={PAGE_SIZE}
+                onPageChange={setFillPage}
+              />
+
               <div className="rounded border border-[#333] overflow-hidden">
                 <table className="w-full text-left">
                   <thead className="bg-[#2d2d2d] text-[#aaa]">
@@ -671,7 +836,7 @@ export function ElementsEditorModal({ onClose, onOpenBlockEditor }: ElementsEdit
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#2a2a2a] bg-[#1e1e1e]">
-                    {fills.length === 0 ? (
+                    {filteredFills.length === 0 ? (
                       <tr>
                         <td colSpan={6} className="p-4 text-center text-[#666]">
                           No fill or hatch regions found. Use the Fill tool (H) or the bar above to
@@ -679,7 +844,7 @@ export function ElementsEditorModal({ onClose, onOpenBlockEditor }: ElementsEdit
                         </td>
                       </tr>
                     ) : (
-                      fills.map((fill) => (
+                      pagedFills.map((fill) => (
                         <tr key={fill.id} className="hover:bg-[#252526]">
                           <td className="p-2.5 text-[#888]">#{fill.id}</td>
                           <td className="p-2.5">
@@ -757,6 +922,14 @@ export function ElementsEditorModal({ onClose, onOpenBlockEditor }: ElementsEdit
                   </tbody>
                 </table>
               </div>
+
+              <PaginationBar
+                currentPage={currentFillPage}
+                totalPages={totalFillPages}
+                totalItems={filteredFills.length}
+                pageSize={PAGE_SIZE}
+                onPageChange={setFillPage}
+              />
             </div>
           )}
         </div>

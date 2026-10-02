@@ -50,6 +50,13 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
   const [newAttrKey, setNewAttrKey] = useState('');
   const [newAttrVal, setNewAttrVal] = useState('');
 
+  // Pagination states
+  const [sidebarPage, setSidebarPage] = useState(1);
+  const [linesPage, setLinesPage] = useState(1);
+  const [circlesPage, setCirclesPage] = useState(1);
+  const [arcsPage, setArcsPage] = useState(1);
+  const [textsPage, setTextsPage] = useState(1);
+
   // Editable local copy of the block definition
   const [currentBlock, setCurrentBlock] = useState<CadBlockDefinition>(() => {
     const found = store.doc.blocks.get(initialName);
@@ -419,6 +426,26 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
       return true;
     });
   }, [allElementsList, categoryFilter, search]);
+
+  const categoryCounts = useMemo(() => {
+    let drawing = 0;
+    let blocks = 0;
+    let instances = 0;
+    for (const item of allElementsList) {
+      if (item.groupLabel === 'Drawing Elements') drawing++;
+      if (item.category === 'block') blocks++;
+      if (item.category === 'instance') instances++;
+    }
+    return { all: allElementsList.length, drawing, blocks, instances };
+  }, [allElementsList]);
+
+  const SIDEBAR_PAGE_SIZE = 50;
+  const totalSidebarPages = Math.max(1, Math.ceil(filteredElements.length / SIDEBAR_PAGE_SIZE));
+  const currentSidebarPage = Math.min(sidebarPage, totalSidebarPages);
+  const pagedSidebarElements = useMemo(() => {
+    const start = (currentSidebarPage - 1) * SIDEBAR_PAGE_SIZE;
+    return filteredElements.slice(start, start + SIDEBAR_PAGE_SIZE);
+  }, [filteredElements, currentSidebarPage]);
 
   const handleSelectItem = useCallback((item: EditorListItem) => {
     setSelectedItemId(item.id);
@@ -1247,7 +1274,10 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
                 type="text"
                 placeholder="Search elements & blocks..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setSidebarPage(1);
+                }}
                 className="w-full rounded border border-[#3c3c3c] bg-[#141414] px-2 py-1 text-xs text-white placeholder-[#777]"
               />
             </div>
@@ -1255,19 +1285,15 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
             {/* Category Filter Pills */}
             <div className="flex border-b border-[#2d2d2d] bg-[#1f1f1f] p-1 gap-1 text-[11px]">
               {(['all', 'drawing', 'blocks', 'instances'] as const).map((cat) => {
-                const count =
-                  cat === 'all'
-                    ? allElementsList.length
-                    : cat === 'drawing'
-                    ? allElementsList.filter((i) => i.groupLabel === 'Drawing Elements').length
-                    : cat === 'blocks'
-                    ? allElementsList.filter((i) => i.category === 'block').length
-                    : allElementsList.filter((i) => i.category === 'instance').length;
+                const count = categoryCounts[cat];
 
                 return (
                   <button
                     key={cat}
-                    onClick={() => setCategoryFilter(cat)}
+                    onClick={() => {
+                      setCategoryFilter(cat);
+                      setSidebarPage(1);
+                    }}
                     className={`flex-1 rounded py-1 text-center font-medium capitalize transition-colors ${
                       categoryFilter === cat
                         ? 'bg-[#0e639c] text-white shadow-xs'
@@ -1287,7 +1313,7 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
                   No matching elements found.
                 </div>
               ) : (
-                filteredElements.map((item) => {
+                pagedSidebarElements.map((item) => {
                   const active = item.id === selectedItemId;
                   return (
                     <button
@@ -1320,6 +1346,29 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
                 })
               )}
             </div>
+
+            {/* Sidebar Pagination Bar if multi-page */}
+            {totalSidebarPages > 1 && (
+              <div className="border-t border-[#2d2d2d] bg-[#1a1a1a] px-2 py-1 flex items-center justify-between text-[11px] text-[#aaa]">
+                <button
+                  onClick={() => setSidebarPage((p) => Math.max(1, p - 1))}
+                  disabled={currentSidebarPage <= 1}
+                  className="rounded px-2 py-0.5 bg-[#252526] hover:bg-[#333] disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  ‹ Prev
+                </button>
+                <span className="font-mono text-[10px] text-[#f4902c]">
+                  Page {currentSidebarPage} / {totalSidebarPages}
+                </span>
+                <button
+                  onClick={() => setSidebarPage((p) => Math.min(totalSidebarPages, p + 1))}
+                  disabled={currentSidebarPage >= totalSidebarPages}
+                  className="rounded px-2 py-0.5 bg-[#252526] hover:bg-[#333] disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  Next ›
+                </button>
+              </div>
+            )}
 
             {/* Sidebar Summary Footer */}
             <div className="border-t border-[#2d2d2d] bg-[#141414] px-2.5 py-1.5 text-[10px] text-[#777] flex items-center justify-between">
@@ -1957,339 +2006,476 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
               )}
 
               {/* TAB: Lines List */}
-              {activeTab === 'lines' && (
-                <div className="space-y-2">
-                  {currentBlock.lines.length === 0 ? (
-                    <p className="text-center text-xs text-[#666] py-6">No lines in this block.</p>
-                  ) : (
-                    currentBlock.lines.map((line, idx) => (
-                      <div
-                        key={idx}
-                        className="rounded border border-[#333] bg-[#252526] p-2 flex items-center justify-between text-xs"
-                      >
-                        <div className="grid grid-cols-4 gap-1 text-[11px] font-mono">
-                          <span>
-                            X1: <input
-                              type="number"
-                              step="0.25"
-                              value={line.x1}
-                              onChange={(e) => {
-                                const val = parseFloat(e.target.value) || 0;
-                                const updated = [...currentBlock.lines];
-                                updated[idx] = { ...line, x1: val };
-                                setCurrentBlock({ ...currentBlock, lines: updated });
-                              }}
-                              className="w-12 bg-[#141414] border border-[#3c3c3c] rounded px-1"
-                            />
-                          </span>
-                          <span>
-                            Y1: <input
-                              type="number"
-                              step="0.25"
-                              value={line.y1}
-                              onChange={(e) => {
-                                const val = parseFloat(e.target.value) || 0;
-                                const updated = [...currentBlock.lines];
-                                updated[idx] = { ...line, y1: val };
-                                setCurrentBlock({ ...currentBlock, lines: updated });
-                              }}
-                              className="w-12 bg-[#141414] border border-[#3c3c3c] rounded px-1"
-                            />
-                          </span>
-                          <span>
-                            X2: <input
-                              type="number"
-                              step="0.25"
-                              value={line.x2}
-                              onChange={(e) => {
-                                const val = parseFloat(e.target.value) || 0;
-                                const updated = [...currentBlock.lines];
-                                updated[idx] = { ...line, x2: val };
-                                setCurrentBlock({ ...currentBlock, lines: updated });
-                              }}
-                              className="w-12 bg-[#141414] border border-[#3c3c3c] rounded px-1"
-                            />
-                          </span>
-                          <span>
-                            Y2: <input
-                              type="number"
-                              step="0.25"
-                              value={line.y2}
-                              onChange={(e) => {
-                                const val = parseFloat(e.target.value) || 0;
-                                const updated = [...currentBlock.lines];
-                                updated[idx] = { ...line, y2: val };
-                                setCurrentBlock({ ...currentBlock, lines: updated });
-                              }}
-                              className="w-12 bg-[#141414] border border-[#3c3c3c] rounded px-1"
-                            />
-                          </span>
-                        </div>
+              {activeTab === 'lines' && (() => {
+                const LINES_PAGE_SIZE = 50;
+                const totalLinesPages = Math.max(1, Math.ceil(currentBlock.lines.length / LINES_PAGE_SIZE));
+                const currentLinesPage = Math.min(linesPage, totalLinesPages);
+                const pagedLines = currentBlock.lines.slice(
+                  (currentLinesPage - 1) * LINES_PAGE_SIZE,
+                  currentLinesPage * LINES_PAGE_SIZE,
+                );
+
+                return (
+                  <div className="space-y-2">
+                    {totalLinesPages > 1 && (
+                      <div className="flex items-center justify-between text-xs text-[#aaa] bg-[#252526] px-2.5 py-1 rounded border border-[#333]">
                         <button
-                          onClick={() => {
-                            const updated = currentBlock.lines.filter((_, i) => i !== idx);
-                            setCurrentBlock({ ...currentBlock, lines: updated });
-                          }}
-                          className="ml-2 text-red-400 hover:text-red-200"
+                          onClick={() => setLinesPage((p) => Math.max(1, p - 1))}
+                          disabled={currentLinesPage <= 1}
+                          className="px-2 py-0.5 rounded bg-[#333] hover:bg-[#444] disabled:opacity-30 text-[11px]"
                         >
-                          ✕
+                          ‹ Prev
+                        </button>
+                        <span className="font-mono text-[10px] text-[#f4902c]">
+                          Lines {(currentLinesPage - 1) * LINES_PAGE_SIZE + 1}–{Math.min(currentLinesPage * LINES_PAGE_SIZE, currentBlock.lines.length)} of {currentBlock.lines.length}
+                        </span>
+                        <button
+                          onClick={() => setLinesPage((p) => Math.min(totalLinesPages, p + 1))}
+                          disabled={currentLinesPage >= totalLinesPages}
+                          className="px-2 py-0.5 rounded bg-[#333] hover:bg-[#444] disabled:opacity-30 text-[11px]"
+                        >
+                          Next ›
                         </button>
                       </div>
-                    ))
-                  )}
-                </div>
-              )}
+                    )}
+                    {currentBlock.lines.length === 0 ? (
+                      <p className="text-center text-xs text-[#666] py-6">No lines in this block.</p>
+                    ) : (
+                      pagedLines.map((line, pIdx) => {
+                        const idx = (currentLinesPage - 1) * LINES_PAGE_SIZE + pIdx;
+                        return (
+                          <div
+                            key={idx}
+                            className="rounded border border-[#333] bg-[#252526] p-2 flex items-center justify-between text-xs"
+                          >
+                            <div className="grid grid-cols-4 gap-1 text-[11px] font-mono">
+                              <span>
+                                X1: <input
+                                  type="number"
+                                  step="0.25"
+                                  value={line.x1}
+                                  onChange={(e) => {
+                                    const val = parseFloat(e.target.value) || 0;
+                                    const updated = [...currentBlock.lines];
+                                    updated[idx] = { ...line, x1: val };
+                                    setCurrentBlock({ ...currentBlock, lines: updated });
+                                  }}
+                                  className="w-12 bg-[#141414] border border-[#3c3c3c] rounded px-1"
+                                />
+                              </span>
+                              <span>
+                                Y1: <input
+                                  type="number"
+                                  step="0.25"
+                                  value={line.y1}
+                                  onChange={(e) => {
+                                    const val = parseFloat(e.target.value) || 0;
+                                    const updated = [...currentBlock.lines];
+                                    updated[idx] = { ...line, y1: val };
+                                    setCurrentBlock({ ...currentBlock, lines: updated });
+                                  }}
+                                  className="w-12 bg-[#141414] border border-[#3c3c3c] rounded px-1"
+                                />
+                              </span>
+                              <span>
+                                X2: <input
+                                  type="number"
+                                  step="0.25"
+                                  value={line.x2}
+                                  onChange={(e) => {
+                                    const val = parseFloat(e.target.value) || 0;
+                                    const updated = [...currentBlock.lines];
+                                    updated[idx] = { ...line, x2: val };
+                                    setCurrentBlock({ ...currentBlock, lines: updated });
+                                  }}
+                                  className="w-12 bg-[#141414] border border-[#3c3c3c] rounded px-1"
+                                />
+                              </span>
+                              <span>
+                                Y2: <input
+                                  type="number"
+                                  step="0.25"
+                                  value={line.y2}
+                                  onChange={(e) => {
+                                    const val = parseFloat(e.target.value) || 0;
+                                    const updated = [...currentBlock.lines];
+                                    updated[idx] = { ...line, y2: val };
+                                    setCurrentBlock({ ...currentBlock, lines: updated });
+                                  }}
+                                  className="w-12 bg-[#141414] border border-[#3c3c3c] rounded px-1"
+                                />
+                              </span>
+                            </div>
+                            <button
+                              onClick={() => {
+                                const updated = currentBlock.lines.filter((_, i) => i !== idx);
+                                setCurrentBlock({ ...currentBlock, lines: updated });
+                              }}
+                              className="ml-2 text-red-400 hover:text-red-200"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* TAB: Circles List */}
-              {activeTab === 'circles' && (
-                <div className="space-y-2">
-                  {currentBlock.circles.length === 0 ? (
-                    <p className="text-center text-xs text-[#666] py-6">No circles in this block.</p>
-                  ) : (
-                    currentBlock.circles.map((c, idx) => (
-                      <div
-                        key={idx}
-                        className="rounded border border-[#333] bg-[#252526] p-2 flex items-center justify-between text-xs"
-                      >
-                        <div className="flex gap-2 text-[11px] font-mono">
-                          <span>
-                            CX: <input
-                              type="number"
-                              step="0.25"
-                              value={c.cx}
-                              onChange={(e) => {
-                                const val = parseFloat(e.target.value) || 0;
-                                const updated = [...currentBlock.circles];
-                                updated[idx] = { ...c, cx: val };
-                                setCurrentBlock({ ...currentBlock, circles: updated });
-                              }}
-                              className="w-14 bg-[#141414] border border-[#3c3c3c] rounded px-1"
-                            />
-                          </span>
-                          <span>
-                            CY: <input
-                              type="number"
-                              step="0.25"
-                              value={c.cy}
-                              onChange={(e) => {
-                                const val = parseFloat(e.target.value) || 0;
-                                const updated = [...currentBlock.circles];
-                                updated[idx] = { ...c, cy: val };
-                                setCurrentBlock({ ...currentBlock, circles: updated });
-                              }}
-                              className="w-14 bg-[#141414] border border-[#3c3c3c] rounded px-1"
-                            />
-                          </span>
-                          <span>
-                            R: <input
-                              type="number"
-                              step="0.1"
-                              value={c.r}
-                              onChange={(e) => {
-                                const val = parseFloat(e.target.value) || 0.1;
-                                const updated = [...currentBlock.circles];
-                                updated[idx] = { ...c, r: val };
-                                setCurrentBlock({ ...currentBlock, circles: updated });
-                              }}
-                              className="w-12 bg-[#141414] border border-[#3c3c3c] rounded px-1"
-                            />
-                          </span>
-                        </div>
+              {activeTab === 'circles' && (() => {
+                const CIRCLES_PAGE_SIZE = 50;
+                const totalCirclesPages = Math.max(1, Math.ceil(currentBlock.circles.length / CIRCLES_PAGE_SIZE));
+                const currentCirclesPage = Math.min(circlesPage, totalCirclesPages);
+                const pagedCircles = currentBlock.circles.slice(
+                  (currentCirclesPage - 1) * CIRCLES_PAGE_SIZE,
+                  currentCirclesPage * CIRCLES_PAGE_SIZE,
+                );
+
+                return (
+                  <div className="space-y-2">
+                    {totalCirclesPages > 1 && (
+                      <div className="flex items-center justify-between text-xs text-[#aaa] bg-[#252526] px-2.5 py-1 rounded border border-[#333]">
                         <button
-                          onClick={() => {
-                            const updated = currentBlock.circles.filter((_, i) => i !== idx);
-                            setCurrentBlock({ ...currentBlock, circles: updated });
-                          }}
-                          className="ml-2 text-red-400 hover:text-red-200"
+                          onClick={() => setCirclesPage((p) => Math.max(1, p - 1))}
+                          disabled={currentCirclesPage <= 1}
+                          className="px-2 py-0.5 rounded bg-[#333] hover:bg-[#444] disabled:opacity-30 text-[11px]"
                         >
-                          ✕
+                          ‹ Prev
+                        </button>
+                        <span className="font-mono text-[10px] text-[#f4902c]">
+                          Circles {(currentCirclesPage - 1) * CIRCLES_PAGE_SIZE + 1}–{Math.min(currentCirclesPage * CIRCLES_PAGE_SIZE, currentBlock.circles.length)} of {currentBlock.circles.length}
+                        </span>
+                        <button
+                          onClick={() => setCirclesPage((p) => Math.min(totalCirclesPages, p + 1))}
+                          disabled={currentCirclesPage >= totalCirclesPages}
+                          className="px-2 py-0.5 rounded bg-[#333] hover:bg-[#444] disabled:opacity-30 text-[11px]"
+                        >
+                          Next ›
                         </button>
                       </div>
-                    ))
-                  )}
-                </div>
-              )}
+                    )}
+                    {currentBlock.circles.length === 0 ? (
+                      <p className="text-center text-xs text-[#666] py-6">No circles in this block.</p>
+                    ) : (
+                      pagedCircles.map((c, pIdx) => {
+                        const idx = (currentCirclesPage - 1) * CIRCLES_PAGE_SIZE + pIdx;
+                        return (
+                          <div
+                            key={idx}
+                            className="rounded border border-[#333] bg-[#252526] p-2 flex items-center justify-between text-xs"
+                          >
+                            <div className="flex gap-2 text-[11px] font-mono">
+                              <span>
+                                CX: <input
+                                  type="number"
+                                  step="0.25"
+                                  value={c.cx}
+                                  onChange={(e) => {
+                                    const val = parseFloat(e.target.value) || 0;
+                                    const updated = [...currentBlock.circles];
+                                    updated[idx] = { ...c, cx: val };
+                                    setCurrentBlock({ ...currentBlock, circles: updated });
+                                  }}
+                                  className="w-14 bg-[#141414] border border-[#3c3c3c] rounded px-1"
+                                />
+                              </span>
+                              <span>
+                                CY: <input
+                                  type="number"
+                                  step="0.25"
+                                  value={c.cy}
+                                  onChange={(e) => {
+                                    const val = parseFloat(e.target.value) || 0;
+                                    const updated = [...currentBlock.circles];
+                                    updated[idx] = { ...c, cy: val };
+                                    setCurrentBlock({ ...currentBlock, circles: updated });
+                                  }}
+                                  className="w-14 bg-[#141414] border border-[#3c3c3c] rounded px-1"
+                                />
+                              </span>
+                              <span>
+                                R: <input
+                                  type="number"
+                                  step="0.1"
+                                  value={c.r}
+                                  onChange={(e) => {
+                                    const val = parseFloat(e.target.value) || 0.1;
+                                    const updated = [...currentBlock.circles];
+                                    updated[idx] = { ...c, r: val };
+                                    setCurrentBlock({ ...currentBlock, circles: updated });
+                                  }}
+                                  className="w-12 bg-[#141414] border border-[#3c3c3c] rounded px-1"
+                                />
+                              </span>
+                            </div>
+                            <button
+                              onClick={() => {
+                                const updated = currentBlock.circles.filter((_, i) => i !== idx);
+                                setCurrentBlock({ ...currentBlock, circles: updated });
+                              }}
+                              className="ml-2 text-red-400 hover:text-red-200"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* TAB: Arcs List */}
-              {activeTab === 'arcs' && (
-                <div className="space-y-2">
-                  {currentBlock.arcs.length === 0 ? (
-                    <p className="text-center text-xs text-[#666] py-6">No arcs in this block.</p>
-                  ) : (
-                    currentBlock.arcs.map((a, idx) => (
-                      <div
-                        key={idx}
-                        className="rounded border border-[#333] bg-[#252526] p-2 flex items-center justify-between text-xs"
-                      >
-                        <div className="grid grid-cols-3 gap-1.5 text-[11px] font-mono">
-                          <span>
-                            CX: <input
-                              type="number"
-                              step="0.25"
-                              value={a.cx}
-                              onChange={(e) => {
-                                const val = parseFloat(e.target.value) || 0;
-                                const updated = [...currentBlock.arcs];
-                                updated[idx] = { ...a, cx: val };
-                                setCurrentBlock({ ...currentBlock, arcs: updated });
-                              }}
-                              className="w-12 bg-[#141414] border border-[#3c3c3c] rounded px-1"
-                            />
-                          </span>
-                          <span>
-                            CY: <input
-                              type="number"
-                              step="0.25"
-                              value={a.cy}
-                              onChange={(e) => {
-                                const val = parseFloat(e.target.value) || 0;
-                                const updated = [...currentBlock.arcs];
-                                updated[idx] = { ...a, cy: val };
-                                setCurrentBlock({ ...currentBlock, arcs: updated });
-                              }}
-                              className="w-12 bg-[#141414] border border-[#3c3c3c] rounded px-1"
-                            />
-                          </span>
-                          <span>
-                            R: <input
-                              type="number"
-                              step="0.1"
-                              value={a.r}
-                              onChange={(e) => {
-                                const val = parseFloat(e.target.value) || 0.1;
-                                const updated = [...currentBlock.arcs];
-                                updated[idx] = { ...a, r: val };
-                                setCurrentBlock({ ...currentBlock, arcs: updated });
-                              }}
-                              className="w-12 bg-[#141414] border border-[#3c3c3c] rounded px-1"
-                            />
-                          </span>
-                          <span>
-                            A1: <input
-                              type="number"
-                              step="15"
-                              value={a.a1}
-                              onChange={(e) => {
-                                const val = parseFloat(e.target.value) || 0;
-                                const updated = [...currentBlock.arcs];
-                                updated[idx] = { ...a, a1: val };
-                                setCurrentBlock({ ...currentBlock, arcs: updated });
-                              }}
-                              className="w-12 bg-[#141414] border border-[#3c3c3c] rounded px-1"
-                            />
-                          </span>
-                          <span>
-                            A2: <input
-                              type="number"
-                              step="15"
-                              value={a.a2}
-                              onChange={(e) => {
-                                const val = parseFloat(e.target.value) || 0;
-                                const updated = [...currentBlock.arcs];
-                                updated[idx] = { ...a, a2: val };
-                                setCurrentBlock({ ...currentBlock, arcs: updated });
-                              }}
-                              className="w-12 bg-[#141414] border border-[#3c3c3c] rounded px-1"
-                            />
-                          </span>
-                        </div>
+              {activeTab === 'arcs' && (() => {
+                const ARCS_PAGE_SIZE = 50;
+                const totalArcsPages = Math.max(1, Math.ceil(currentBlock.arcs.length / ARCS_PAGE_SIZE));
+                const currentArcsPage = Math.min(arcsPage, totalArcsPages);
+                const pagedArcs = currentBlock.arcs.slice(
+                  (currentArcsPage - 1) * ARCS_PAGE_SIZE,
+                  currentArcsPage * ARCS_PAGE_SIZE,
+                );
+
+                return (
+                  <div className="space-y-2">
+                    {totalArcsPages > 1 && (
+                      <div className="flex items-center justify-between text-xs text-[#aaa] bg-[#252526] px-2.5 py-1 rounded border border-[#333]">
                         <button
-                          onClick={() => {
-                            const updated = currentBlock.arcs.filter((_, i) => i !== idx);
-                            setCurrentBlock({ ...currentBlock, arcs: updated });
-                          }}
-                          className="ml-2 text-red-400 hover:text-red-200"
+                          onClick={() => setArcsPage((p) => Math.max(1, p - 1))}
+                          disabled={currentArcsPage <= 1}
+                          className="px-2 py-0.5 rounded bg-[#333] hover:bg-[#444] disabled:opacity-30 text-[11px]"
                         >
-                          ✕
+                          ‹ Prev
+                        </button>
+                        <span className="font-mono text-[10px] text-[#f4902c]">
+                          Arcs {(currentArcsPage - 1) * ARCS_PAGE_SIZE + 1}–{Math.min(currentArcsPage * ARCS_PAGE_SIZE, currentBlock.arcs.length)} of {currentBlock.arcs.length}
+                        </span>
+                        <button
+                          onClick={() => setArcsPage((p) => Math.min(totalArcsPages, p + 1))}
+                          disabled={currentArcsPage >= totalArcsPages}
+                          className="px-2 py-0.5 rounded bg-[#333] hover:bg-[#444] disabled:opacity-30 text-[11px]"
+                        >
+                          Next ›
                         </button>
                       </div>
-                    ))
-                  )}
-                </div>
-              )}
+                    )}
+                    {currentBlock.arcs.length === 0 ? (
+                      <p className="text-center text-xs text-[#666] py-6">No arcs in this block.</p>
+                    ) : (
+                      pagedArcs.map((a, pIdx) => {
+                        const idx = (currentArcsPage - 1) * ARCS_PAGE_SIZE + pIdx;
+                        return (
+                          <div
+                            key={idx}
+                            className="rounded border border-[#333] bg-[#252526] p-2 flex items-center justify-between text-xs"
+                          >
+                            <div className="grid grid-cols-3 gap-1.5 text-[11px] font-mono">
+                              <span>
+                                CX: <input
+                                  type="number"
+                                  step="0.25"
+                                  value={a.cx}
+                                  onChange={(e) => {
+                                    const val = parseFloat(e.target.value) || 0;
+                                    const updated = [...currentBlock.arcs];
+                                    updated[idx] = { ...a, cx: val };
+                                    setCurrentBlock({ ...currentBlock, arcs: updated });
+                                  }}
+                                  className="w-12 bg-[#141414] border border-[#3c3c3c] rounded px-1"
+                                />
+                              </span>
+                              <span>
+                                CY: <input
+                                  type="number"
+                                  step="0.25"
+                                  value={a.cy}
+                                  onChange={(e) => {
+                                    const val = parseFloat(e.target.value) || 0;
+                                    const updated = [...currentBlock.arcs];
+                                    updated[idx] = { ...a, cy: val };
+                                    setCurrentBlock({ ...currentBlock, arcs: updated });
+                                  }}
+                                  className="w-12 bg-[#141414] border border-[#3c3c3c] rounded px-1"
+                                />
+                              </span>
+                              <span>
+                                R: <input
+                                  type="number"
+                                  step="0.1"
+                                  value={a.r}
+                                  onChange={(e) => {
+                                    const val = parseFloat(e.target.value) || 0.1;
+                                    const updated = [...currentBlock.arcs];
+                                    updated[idx] = { ...a, r: val };
+                                    setCurrentBlock({ ...currentBlock, arcs: updated });
+                                  }}
+                                  className="w-12 bg-[#141414] border border-[#3c3c3c] rounded px-1"
+                                />
+                              </span>
+                              <span>
+                                A1: <input
+                                  type="number"
+                                  step="15"
+                                  value={a.a1}
+                                  onChange={(e) => {
+                                    const val = parseFloat(e.target.value) || 0;
+                                    const updated = [...currentBlock.arcs];
+                                    updated[idx] = { ...a, a1: val };
+                                    setCurrentBlock({ ...currentBlock, arcs: updated });
+                                  }}
+                                  className="w-12 bg-[#141414] border border-[#3c3c3c] rounded px-1"
+                                />
+                              </span>
+                              <span>
+                                A2: <input
+                                  type="number"
+                                  step="15"
+                                  value={a.a2}
+                                  onChange={(e) => {
+                                    const val = parseFloat(e.target.value) || 0;
+                                    const updated = [...currentBlock.arcs];
+                                    updated[idx] = { ...a, a2: val };
+                                    setCurrentBlock({ ...currentBlock, arcs: updated });
+                                  }}
+                                  className="w-12 bg-[#141414] border border-[#3c3c3c] rounded px-1"
+                                />
+                              </span>
+                            </div>
+                            <button
+                              onClick={() => {
+                                const updated = currentBlock.arcs.filter((_, i) => i !== idx);
+                                setCurrentBlock({ ...currentBlock, arcs: updated });
+                              }}
+                              className="ml-2 text-red-400 hover:text-red-200"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* TAB: Texts List */}
-              {activeTab === 'texts' && (
-                <div className="space-y-2">
-                  {(currentBlock.texts ?? []).length === 0 ? (
-                    <p className="text-center text-xs text-[#666] py-6">No text entities in this block.</p>
-                  ) : (
-                    (currentBlock.texts ?? []).map((t, idx) => (
-                      <div
-                        key={idx}
-                        className="rounded border border-[#333] bg-[#252526] p-2 flex items-center justify-between text-xs"
-                      >
-                        <div className="flex-1 space-y-1">
-                          <input
-                            type="text"
-                            value={t.text}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              const updated = [...(currentBlock.texts ?? [])];
-                              updated[idx] = { ...t, text: val };
-                              setCurrentBlock({ ...currentBlock, texts: updated });
-                            }}
-                            className="w-full bg-[#141414] border border-[#3c3c3c] rounded px-1.5 py-0.5 text-white"
-                          />
-                          <div className="flex gap-2 text-[10px] text-[#888] font-mono">
-                            <span>
-                              X: <input
-                                type="number"
-                                step="0.25"
-                                value={t.x}
-                                onChange={(e) => {
-                                  const val = parseFloat(e.target.value) || 0;
-                                  const updated = [...(currentBlock.texts ?? [])];
-                                  updated[idx] = { ...t, x: val };
-                                  setCurrentBlock({ ...currentBlock, texts: updated });
-                                }}
-                                className="w-12 bg-[#141414] border border-[#3c3c3c] rounded px-1 text-white"
-                              />
-                            </span>
-                            <span>
-                              Y: <input
-                                type="number"
-                                step="0.25"
-                                value={t.y}
-                                onChange={(e) => {
-                                  const val = parseFloat(e.target.value) || 0;
-                                  const updated = [...(currentBlock.texts ?? [])];
-                                  updated[idx] = { ...t, y: val };
-                                  setCurrentBlock({ ...currentBlock, texts: updated });
-                                }}
-                                className="w-12 bg-[#141414] border border-[#3c3c3c] rounded px-1 text-white"
-                              />
-                            </span>
-                            <span>
-                              H: <input
-                                type="number"
-                                step="0.1"
-                                value={t.height}
-                                onChange={(e) => {
-                                  const val = parseFloat(e.target.value) || 0.1;
-                                  const updated = [...(currentBlock.texts ?? [])];
-                                  updated[idx] = { ...t, height: val };
-                                  setCurrentBlock({ ...currentBlock, texts: updated });
-                                }}
-                                className="w-12 bg-[#141414] border border-[#3c3c3c] rounded px-1 text-white"
-                              />
-                            </span>
-                          </div>
-                        </div>
+              {activeTab === 'texts' && (() => {
+                const allTexts = currentBlock.texts ?? [];
+                const TEXTS_PAGE_SIZE = 50;
+                const totalTextsPages = Math.max(1, Math.ceil(allTexts.length / TEXTS_PAGE_SIZE));
+                const currentTextsPage = Math.min(textsPage, totalTextsPages);
+                const pagedTexts = allTexts.slice(
+                  (currentTextsPage - 1) * TEXTS_PAGE_SIZE,
+                  currentTextsPage * TEXTS_PAGE_SIZE,
+                );
+
+                return (
+                  <div className="space-y-2">
+                    {totalTextsPages > 1 && (
+                      <div className="flex items-center justify-between text-xs text-[#aaa] bg-[#252526] px-2.5 py-1 rounded border border-[#333]">
                         <button
-                          onClick={() => {
-                            const updated = (currentBlock.texts ?? []).filter((_, i) => i !== idx);
-                            setCurrentBlock({ ...currentBlock, texts: updated });
-                          }}
-                          className="ml-2 text-red-400 hover:text-red-200"
+                          onClick={() => setTextsPage((p) => Math.max(1, p - 1))}
+                          disabled={currentTextsPage <= 1}
+                          className="px-2 py-0.5 rounded bg-[#333] hover:bg-[#444] disabled:opacity-30 text-[11px]"
                         >
-                          ✕
+                          ‹ Prev
+                        </button>
+                        <span className="font-mono text-[10px] text-[#f4902c]">
+                          Texts {(currentTextsPage - 1) * TEXTS_PAGE_SIZE + 1}–{Math.min(currentTextsPage * TEXTS_PAGE_SIZE, allTexts.length)} of {allTexts.length}
+                        </span>
+                        <button
+                          onClick={() => setTextsPage((p) => Math.min(totalTextsPages, p + 1))}
+                          disabled={currentTextsPage >= totalTextsPages}
+                          className="px-2 py-0.5 rounded bg-[#333] hover:bg-[#444] disabled:opacity-30 text-[11px]"
+                        >
+                          Next ›
                         </button>
                       </div>
-                    ))
-                  )}
-                </div>
-              )}
+                    )}
+                    {allTexts.length === 0 ? (
+                      <p className="text-center text-xs text-[#666] py-6">No text entities in this block.</p>
+                    ) : (
+                      pagedTexts.map((t, pIdx) => {
+                        const idx = (currentTextsPage - 1) * TEXTS_PAGE_SIZE + pIdx;
+                        return (
+                          <div
+                            key={idx}
+                            className="rounded border border-[#333] bg-[#252526] p-2 flex items-center justify-between text-xs"
+                          >
+                            <div className="flex-1 space-y-1">
+                              <input
+                                type="text"
+                                value={t.text}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  const updated = [...(currentBlock.texts ?? [])];
+                                  updated[idx] = { ...t, text: val };
+                                  setCurrentBlock({ ...currentBlock, texts: updated });
+                                }}
+                                className="w-full bg-[#141414] border border-[#3c3c3c] rounded px-1.5 py-0.5 text-white"
+                              />
+                              <div className="flex gap-2 text-[10px] text-[#888] font-mono">
+                                <span>
+                                  X: <input
+                                    type="number"
+                                    step="0.25"
+                                    value={t.x}
+                                    onChange={(e) => {
+                                      const val = parseFloat(e.target.value) || 0;
+                                      const updated = [...(currentBlock.texts ?? [])];
+                                      updated[idx] = { ...t, x: val };
+                                      setCurrentBlock({ ...currentBlock, texts: updated });
+                                    }}
+                                    className="w-12 bg-[#141414] border border-[#3c3c3c] rounded px-1 text-white"
+                                  />
+                                </span>
+                                <span>
+                                  Y: <input
+                                    type="number"
+                                    step="0.25"
+                                    value={t.y}
+                                    onChange={(e) => {
+                                      const val = parseFloat(e.target.value) || 0;
+                                      const updated = [...(currentBlock.texts ?? [])];
+                                      updated[idx] = { ...t, y: val };
+                                      setCurrentBlock({ ...currentBlock, texts: updated });
+                                    }}
+                                    className="w-12 bg-[#141414] border border-[#3c3c3c] rounded px-1 text-white"
+                                  />
+                                </span>
+                                <span>
+                                  H: <input
+                                    type="number"
+                                    step="0.1"
+                                    value={t.height}
+                                    onChange={(e) => {
+                                      const val = parseFloat(e.target.value) || 0.1;
+                                      const updated = [...(currentBlock.texts ?? [])];
+                                      updated[idx] = { ...t, height: val };
+                                      setCurrentBlock({ ...currentBlock, texts: updated });
+                                    }}
+                                    className="w-12 bg-[#141414] border border-[#3c3c3c] rounded px-1 text-white"
+                                  />
+                                </span>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => {
+                                const updated = (currentBlock.texts ?? []).filter((_, i) => i !== idx);
+                                setCurrentBlock({ ...currentBlock, texts: updated });
+                              }}
+                              className="ml-2 text-red-400 hover:text-red-200"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* TAB: Attributes & UUID */}
               {activeTab === 'attributes' && (
