@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+    <defs>
+        <linearGradient id="xlr8P-shell" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#eeeeee" />
+            <stop offset="50%" stop-color="#c0c0c0" />
+            <stop offset="100%" stop-color="#808080" />
+        </linearGradient>
+        <radialGradient id="xlr8P-pin" cx="40%" cy="35%" r="60%">
+            <stop offset="0%" stop-color="#f5d56e" />
+            <stop offset="60%" stop-color="#c9952a" />
+            <stop offset="100%" stop-color="#8a6618" />
+        </radialGradient>
+    </defs>
+    <circle cx="60" cy="60" r="54" fill="#2a75d3" />
+    <circle cx="60" cy="60" r="50" fill="url(#xlr8P-shell)" />
+    <g transform="translate(60,62) scale(1.05) translate(-60,-62)">
+    <rect x="56" y="10" width="8" height="5" rx="1" fill="#aaa" />
+    <circle cx="60" cy="62" r="38" fill="#1a1a1a" />
+    <text x="60" y="62" text-anchor="middle" dominant-baseline="central" fill="#333" font-weight="bold" font-size="38" font-family="monospace">8</text>
+    <circle cx="60" cy="38" r="4.5" fill="url(#xlr8P-pin)" stroke="#8a6618" stroke-width="0.8" />
+    <circle cx="59.1" cy="37.1" r="1.13" fill="#ffe89a" fill-opacity="0.6" />
+    <circle cx="77" cy="45" r="4.5" fill="url(#xlr8P-pin)" stroke="#8a6618" stroke-width="0.8" />
+    <circle cx="76.1" cy="44.1" r="1.13" fill="#ffe89a" fill-opacity="0.6" />
+    <circle cx="84" cy="62" r="4.5" fill="url(#xlr8P-pin)" stroke="#8a6618" stroke-width="0.8" />
+    <circle cx="83.1" cy="61.1" r="1.13" fill="#ffe89a" fill-opacity="0.6" />
+    <circle cx="77" cy="79" r="4.5" fill="url(#xlr8P-pin)" stroke="#8a6618" stroke-width="0.8" />
+    <circle cx="76.1" cy="78.1" r="1.13" fill="#ffe89a" fill-opacity="0.6" />
+    <circle cx="60" cy="86" r="4.5" fill="url(#xlr8P-pin)" stroke="#8a6618" stroke-width="0.8" />
+    <circle cx="59.1" cy="85.1" r="1.13" fill="#ffe89a" fill-opacity="0.6" />
+    <circle cx="43" cy="79" r="4.5" fill="url(#xlr8P-pin)" stroke="#8a6618" stroke-width="0.8" />
+    <circle cx="42.1" cy="78.1" r="1.13" fill="#ffe89a" fill-opacity="0.6" />
+    <circle cx="36" cy="62" r="4.5" fill="url(#xlr8P-pin)" stroke="#8a6618" stroke-width="0.8" />
+    <circle cx="35.1" cy="61.1" r="1.13" fill="#ffe89a" fill-opacity="0.6" />
+    <circle cx="43" cy="45" r="4.5" fill="url(#xlr8P-pin)" stroke="#8a6618" stroke-width="0.8" />
+    <circle cx="42.1" cy="44.1" r="1.13" fill="#ffe89a" fill-opacity="0.6" />
+    </g>
+</svg>

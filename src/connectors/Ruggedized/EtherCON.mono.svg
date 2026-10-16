@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+    <defs>
+      <radialGradient id="econ_bodyGrad" cx="45%" cy="40%" r="55%">
+        <stop offset="0%" stop-color="#c0c0c0" />
+        <stop offset="60%" stop-color="#909090" />
+        <stop offset="100%" stop-color="#707070" />
+      </radialGradient>
+      <linearGradient id="econ_latchGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#bbbbbb" />
+        <stop offset="100%" stop-color="#888888" />
+      </linearGradient>
+    </defs>
+    
+    <circle cx="60" cy="60" r="54" fill="#6c6c6c" />
+    
+    <circle cx="60" cy="60" r="50" fill="#f9f9f9" />
+    
+    <circle cx="60" cy="60" r="44" fill="url(#econ_bodyGrad)" stroke="#888888" stroke-width="1.2" />
+    
+    <rect x="46" y="12" width="28" height="10" rx="2" fill="url(#econ_latchGrad)" stroke="#777777" stroke-width="0.8" />
+    <rect x="50" y="14" width="20" height="6" rx="1" fill="#aaaaaa" />
+    
+    <rect x="56" y="15" width="8" height="4" rx="0.5" fill="#999999" stroke="#777777" stroke-width="0.5" />
+    
+    <circle cx="60" cy="62" r="32" fill="#333333" />
+    
+    <rect x="40" y="46" width="40" height="30" rx="2" fill="#1a1a1a" stroke="#555555" stroke-width="1" />
+    
+    <rect x="43" y="49" width="34" height="24" rx="1" fill="#111111" stroke="#444444" stroke-width="0.5" />
+    
+    <rect x="50" y="70" width="20" height="5" rx="1" fill="#222222" stroke="#444444" stroke-width="0.5" />
+    
+    <rect x="45" y="50" width="2" height="10" rx="0.3" fill="#aeaeae" />
+    <rect x="49" y="50" width="2" height="10" rx="0.3" fill="#aeaeae" />
+    <rect x="53" y="50" width="2" height="10" rx="0.3" fill="#aeaeae" />
+    <rect x="57" y="50" width="2" height="10" rx="0.3" fill="#aeaeae" />
+    <rect x="61" y="50" width="2" height="10" rx="0.3" fill="#aeaeae" />
+    <rect x="65" y="50" width="2" height="10" rx="0.3" fill="#aeaeae" />
+    <rect x="69" y="50" width="2" height="10" rx="0.3" fill="#aeaeae" />
+    <rect x="73" y="50" width="2" height="10" rx="0.3" fill="#aeaeae" />
+  </svg>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="tlock-face" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f0f0f0" />
+        <stop offset="100%" stop-color="#d6d6d6" />
+      </linearGradient>
+      <linearGradient id="tlock-slot" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#1a1a1a" />
+        <stop offset="100%" stop-color="#333333" />
+      </linearGradient>
+    </defs>
+
+    
+    <circle cx="60" cy="60" r="54" fill="#6c6c6c" />
+    
+    <circle cx="60" cy="60" r="50" fill="#f9f9f9" />
+
+    
+    <circle cx="60" cy="60" r="42" fill="url(#tlock-face)" stroke="#b1b1b1" stroke-width="1.5" />
+
+    
+    <circle cx="60" cy="60" r="30" fill="#e1e1e1" stroke="#b9b9b9" stroke-width="1" />
+
+    
+    <path
+      d="M 48,47 A 18,18 0 0 1 55,42 L 55,42"
+      fill="none"
+      stroke="url(#tlock-slot)"
+      stroke-width="4.5"
+      stroke-linecap="round"
+    />
+
+    
+    <path
+      d="M 72,47 A 18,18 0 0 0 65,42 L 65,42"
+      fill="none"
+      stroke="url(#tlock-slot)"
+      stroke-width="4.5"
+      stroke-linecap="round"
+    />
+
+    
+    <path
+      d="M 53,76 A 18,18 0 0 0 67,76 L 67,76"
+      fill="none"
+      stroke="url(#tlock-slot)"
+      stroke-width="4.5"
+      stroke-linecap="round"
+    />
+
+    
+    <circle cx="60" cy="60" r="4" fill="#b9b9b9" stroke="#999999" stroke-width="0.8" />
+
+    
+    <path
+      d="M 42,60 A 18,18 0 0 1 46,50"
+      fill="none"
+      stroke="#999999"
+      stroke-width="1"
+      stroke-linecap="round"
+      stroke-dasharray="2,2"
+    />
+    <path
+      d="M 78,60 A 18,18 0 0 0 74,50"
+      fill="none"
+      stroke="#999999"
+      stroke-width="1"
+      stroke-linecap="round"
+      stroke-dasharray="2,2"
+    />
+  </svg>

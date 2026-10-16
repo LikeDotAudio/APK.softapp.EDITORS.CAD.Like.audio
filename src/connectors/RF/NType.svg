@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="ntype-metalBg" cx="40%" cy="35%" r="60%">
+        <stop offset="0%" stop-color="#e0e0e0" />
+        <stop offset="50%" stop-color="#b8b8b8" />
+        <stop offset="100%" stop-color="#787878" />
+      </radialGradient>
+      <radialGradient id="ntype-hexFace" cx="42%" cy="38%" r="58%">
+        <stop offset="0%" stop-color="#d5d5d5" />
+        <stop offset="40%" stop-color="#b0b0b0" />
+        <stop offset="100%" stop-color="#808080" />
+      </radialGradient>
+      <radialGradient id="ntype-barrel" cx="45%" cy="40%" r="55%">
+        <stop offset="0%" stop-color="#cccccc" />
+        <stop offset="60%" stop-color="#999999" />
+        <stop offset="100%" stop-color="#666666" />
+      </radialGradient>
+      <radialGradient id="ntype-pin" cx="40%" cy="35%" r="50%">
+        <stop offset="0%" stop-color="#f0f0f0" />
+        <stop offset="50%" stop-color="#c8c8c8" />
+        <stop offset="100%" stop-color="#888888" />
+      </radialGradient>
+      <linearGradient id="ntype-knurl" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#909090" />
+        <stop offset="50%" stop-color="#c0c0c0" />
+        <stop offset="100%" stop-color="#909090" />
+      </linearGradient>
+    </defs>
+
+    
+    <circle cx="60" cy="60" r="54" fill="#2a75d3" />
+    
+    <circle cx="60" cy="60" r="50" fill="#f8f9fa" />
+
+    
+    <polygon
+      points="60,14 99.8,37 99.8,83 60,106 20.2,83 20.2,37"
+      fill="url(#ntype-hexFace)"
+      stroke="#666666"
+      stroke-width="2"
+      stroke-linejoin="round"
+    />
+
+    
+    <polygon
+      points="60,18 96,39 96,81 60,102 24,81 24,39"
+      fill="none"
+      stroke="#c8c8c8"
+      stroke-width="0.8"
+      stroke-linejoin="round"
+    />
+
+    
+    <line x1="40" y1="18" x2="33" y2="28" stroke="#a0a0a0" stroke-width="0.4" stroke-linecap="round" />
+    <line x1="80" y1="18" x2="87" y2="28" stroke="#a0a0a0" stroke-width="0.4" stroke-linecap="round" />
+    <line x1="20" y1="60" x2="24" y2="60" stroke="#a0a0a0" stroke-width="0.4" stroke-linecap="round" />
+    <line x1="96" y1="60" x2="100" y2="60" stroke="#a0a0a0" stroke-width="0.4" stroke-linecap="round" />
+
+    
+    <circle cx="60" cy="60" r="32" fill="url(#ntype-barrel)" stroke="#707070" stroke-width="1.2" />
+
+    
+    <circle cx="60" cy="60" r="30" fill="none" stroke="url(#ntype-knurl)" stroke-width="0.6" />
+    <circle cx="60" cy="60" r="28" fill="none" stroke="url(#ntype-knurl)" stroke-width="0.5" />
+    <circle cx="60" cy="60" r="26" fill="none" stroke="url(#ntype-knurl)" stroke-width="0.4" />
+
+    
+    <circle cx="60" cy="60" r="22" fill="#222222" />
+    <circle cx="60" cy="60" r="21" fill="#1a1a1a" stroke="#333333" stroke-width="0.5" />
+
+    
+    <circle cx="60" cy="60" r="14" fill="#e8e4d8" stroke="#b5b0a0" stroke-width="1" />
+
+    
+    <circle cx="60" cy="60" r="10" fill="#d8d4c8" stroke="#a8a498" stroke-width="0.5" />
+
+    
+    <circle cx="60" cy="60" r="5" fill="url(#ntype-pin)" stroke="#888888" stroke-width="0.8" />
+    
+    <circle cx="58" cy="58" r="1.8" fill="#ffffff" fill-opacity="0.55" />
+  </svg>

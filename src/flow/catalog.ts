@@ -454,9 +454,470 @@ export const SCHEMATIC_SYMBOL_CATALOG: BlockDefinition[] = [
 ];
 
 /**
- * Everything placeable: the generic set, shop parts, and schematic symbols.
+ * MATH, LOGIC & DATAFLOW BLOCKS
+ *
+ * Arithmetic operators, Boolean logic gates, and Idea/Value blocks.
  */
-export const CATALOG: BlockDefinition[] = [...FLOW_CATALOG, ...SHOP_CATALOG, ...SCHEMATIC_SYMBOL_CATALOG];
+export const MATH_LOGIC_CATALOG: BlockDefinition[] = [
+  {
+    id: 'math.add',
+    name: 'MATH_ADD',
+    description: 'Arithmetic Addition (A + B). Sums wired inputs.',
+    size: { w: 1.4, h: 1.0 },
+    glyph: [
+      [
+        { x: -0.35, y: -0.35 },
+        { x: 0.35, y: -0.35 },
+        { x: 0.35, y: 0.35 },
+        { x: -0.35, y: 0.35 },
+        { x: -0.35, y: -0.35 },
+      ],
+      [
+        { x: 0, y: -0.2 },
+        { x: 0, y: 0.2 },
+      ],
+      [
+        { x: -0.2, y: 0 },
+        { x: 0.2, y: 0 },
+      ],
+    ],
+    ports: [
+      { id: 'A', side: 'input', label: 'A', domain: 'numeric' },
+      { id: 'B', side: 'input', label: 'B', domain: 'numeric' },
+      { id: 'OUT', side: 'output', label: '+', domain: 'numeric' },
+    ],
+  },
+  {
+    id: 'math.sub',
+    name: 'MATH_SUB',
+    description: 'Arithmetic Subtraction (A - B).',
+    size: { w: 1.4, h: 1.0 },
+    glyph: [
+      [
+        { x: -0.35, y: -0.35 },
+        { x: 0.35, y: -0.35 },
+        { x: 0.35, y: 0.35 },
+        { x: -0.35, y: 0.35 },
+        { x: -0.35, y: -0.35 },
+      ],
+      [
+        { x: -0.2, y: 0 },
+        { x: 0.2, y: 0 },
+      ],
+    ],
+    ports: [
+      { id: 'A', side: 'input', label: 'A', domain: 'numeric' },
+      { id: 'B', side: 'input', label: 'B', domain: 'numeric' },
+      { id: 'OUT', side: 'output', label: '−', domain: 'numeric' },
+    ],
+  },
+  {
+    id: 'math.mul',
+    name: 'MATH_MUL',
+    description: 'Arithmetic Multiplication (A × B). Scale factor or product.',
+    size: { w: 1.4, h: 1.0 },
+    glyph: [
+      [
+        { x: -0.35, y: -0.35 },
+        { x: 0.35, y: -0.35 },
+        { x: 0.35, y: 0.35 },
+        { x: -0.35, y: 0.35 },
+        { x: -0.35, y: -0.35 },
+      ],
+      [
+        { x: -0.15, y: -0.15 },
+        { x: 0.15, y: 0.15 },
+      ],
+      [
+        { x: -0.15, y: 0.15 },
+        { x: 0.15, y: -0.15 },
+      ],
+    ],
+    ports: [
+      { id: 'A', side: 'input', label: 'A', domain: 'numeric' },
+      { id: 'B', side: 'input', label: 'B', domain: 'numeric' },
+      { id: 'OUT', side: 'output', label: '×', domain: 'numeric' },
+    ],
+  },
+  {
+    id: 'math.compare',
+    name: 'MATH_CMP',
+    description: 'Arithmetic Comparator (A vs B). Outputs EQ, GT, LT booleans.',
+    size: { w: 1.6, h: 1.2 },
+    glyph: [
+      [
+        { x: -0.4, y: -0.4 },
+        { x: 0.4, y: -0.4 },
+        { x: 0.4, y: 0.4 },
+        { x: -0.4, y: 0.4 },
+        { x: -0.4, y: -0.4 },
+      ],
+      [
+        { x: -0.2, y: -0.15 },
+        { x: 0.2, y: -0.15 },
+      ],
+      [
+        { x: -0.2, y: -0.05 },
+        { x: 0.2, y: -0.05 },
+      ],
+      [
+        { x: 0.1, y: 0.1 },
+        { x: -0.1, y: 0.2 },
+        { x: 0.1, y: 0.3 },
+      ],
+    ],
+    ports: [
+      { id: 'A', side: 'input', label: 'A', domain: 'numeric' },
+      { id: 'B', side: 'input', label: 'B', domain: 'numeric' },
+      { id: 'EQ', side: 'output', label: '=', domain: 'logic_bool' },
+      { id: 'GT', side: 'output', label: '>', domain: 'logic_bool' },
+      { id: 'LT', side: 'output', label: '<', domain: 'logic_bool' },
+    ],
+  },
+  {
+    id: 'logic.and',
+    name: 'LOGIC_AND',
+    description: 'ANSI / IEEE AND Gate. True when all inputs are true.',
+    size: { w: 1.6, h: 1.1 },
+    glyph: [
+      [
+        { x: -0.4, y: -0.4 },
+        { x: 0, y: -0.4 },
+        { x: 0.25, y: -0.2 },
+        { x: 0.35, y: 0 },
+        { x: 0.25, y: 0.2 },
+        { x: 0, y: 0.4 },
+        { x: -0.4, y: 0.4 },
+        { x: -0.4, y: -0.4 },
+      ],
+    ],
+    ports: [
+      { id: 'A', side: 'input', label: 'A', domain: 'logic_bool' },
+      { id: 'B', side: 'input', label: 'B', domain: 'logic_bool' },
+      { id: 'OUT', side: 'output', label: 'out', domain: 'logic_bool' },
+    ],
+  },
+  {
+    id: 'logic.or',
+    name: 'LOGIC_OR',
+    description: 'ANSI / IEEE OR Gate. True when any input is true.',
+    size: { w: 1.6, h: 1.1 },
+    glyph: [
+      [
+        { x: -0.4, y: -0.4 },
+        { x: -0.2, y: 0 },
+        { x: -0.4, y: 0.4 },
+        { x: 0, y: 0.35 },
+        { x: 0.4, y: 0 },
+        { x: 0, y: -0.35 },
+        { x: -0.4, y: -0.4 },
+      ],
+    ],
+    ports: [
+      { id: 'A', side: 'input', label: 'A', domain: 'logic_bool' },
+      { id: 'B', side: 'input', label: 'B', domain: 'logic_bool' },
+      { id: 'OUT', side: 'output', label: 'out', domain: 'logic_bool' },
+    ],
+  },
+  {
+    id: 'logic.not',
+    name: 'LOGIC_NOT',
+    description: 'ANSI / IEEE NOT Inverter Gate. Inverts true / false.',
+    size: { w: 1.4, h: 0.8 },
+    glyph: [
+      [
+        { x: -0.35, y: -0.3 },
+        { x: 0.15, y: 0 },
+        { x: -0.35, y: 0.3 },
+        { x: -0.35, y: -0.3 },
+      ],
+      [
+        { x: 0.15, y: -0.06 },
+        { x: 0.27, y: -0.06 },
+        { x: 0.27, y: 0.06 },
+        { x: 0.15, y: 0.06 },
+        { x: 0.15, y: -0.06 },
+      ],
+    ],
+    ports: [
+      { id: 'IN', side: 'input', label: 'in', domain: 'logic_bool' },
+      { id: 'OUT', side: 'output', label: 'out', domain: 'logic_bool' },
+    ],
+  },
+  {
+    id: 'idea.value',
+    name: 'IDEA_VALUE',
+    description: 'Idea / Parameter Value source. Inlines an idea, constant, or switch into the schematic.',
+    size: { w: 1.5, h: 1.0 },
+    glyph: [
+      [
+        { x: -0.35, y: 0 },
+        { x: -0.18, y: 0.3 },
+        { x: 0.18, y: 0.3 },
+        { x: 0.35, y: 0 },
+        { x: 0.18, y: -0.3 },
+        { x: -0.18, y: -0.3 },
+        { x: -0.35, y: 0 },
+      ],
+      [
+        { x: -0.1, y: 0 },
+        { x: 0.1, y: 0 },
+      ],
+    ],
+    ports: [
+      { id: 'VAL_IN', side: 'input', label: 'in', domain: 'universal' },
+      { id: 'VAL_OUT', side: 'output', label: 'idea', domain: 'universal' },
+      { id: 'PARAM', side: 'control', label: 'param', domain: 'universal' },
+    ],
+  },
+];
+
+/**
+ * ADAPTER & PROTOCOL CONVERTER BLOCKS
+ *
+ * Blocks designed to reconcile incompatible signals, demux containers,
+ * bridge ST 2110 essences, and provide seamless media routing.
+ */
+export const ADAPTER_CATALOG: BlockDefinition[] = [
+  {
+    id: 'adapter.value',
+    name: 'ADAPTER_VALUE',
+    description: 'In-line Value & Idea Adapter: bridges mismatched data types, units, and signal domains.',
+    size: { w: 1.6, h: 1.0 },
+    glyph: [
+      [
+        { x: -0.4, y: 0 },
+        { x: -0.2, y: 0.35 },
+        { x: 0.2, y: 0.35 },
+        { x: 0.4, y: 0 },
+        { x: 0.2, y: -0.35 },
+        { x: -0.2, y: -0.35 },
+        { x: -0.4, y: 0 },
+      ],
+      [
+        { x: -0.15, y: 0 },
+        { x: 0.15, y: 0 },
+      ],
+      [
+        { x: 0.05, y: -0.1 },
+        { x: 0.15, y: 0 },
+        { x: 0.05, y: 0.1 },
+      ],
+    ],
+    ports: [
+      { id: 'IN', side: 'input', label: 'in', domain: 'universal' },
+      { id: 'OUT', side: 'output', label: 'out', domain: 'universal' },
+      { id: 'RULE', side: 'control', label: 'rule' },
+    ],
+  },
+  {
+    id: 'adapter.demux',
+    name: 'CONTAINER_DEMUX',
+    description: 'Media Container Demultiplexer: demuxes MP4, MOV, MKV, MXF into Video, Audio, and ANC tracks.',
+    size: { w: 1.8, h: 1.4 },
+    glyph: [
+      [
+        { x: -0.4, y: -0.2 },
+        { x: 0.4, y: -0.45 },
+        { x: 0.4, y: 0.45 },
+        { x: -0.4, y: 0.2 },
+        { x: -0.4, y: -0.2 },
+      ],
+      [
+        { x: -0.2, y: 0 },
+        { x: 0.15, y: -0.25 },
+      ],
+      [
+        { x: -0.2, y: 0 },
+        { x: 0.15, y: 0 },
+      ],
+      [
+        { x: -0.2, y: 0 },
+        { x: 0.15, y: 0.25 },
+      ],
+    ],
+    ports: [
+      { id: 'FILE_IN', side: 'input', label: 'file', domain: 'container' },
+      { id: 'VIDEO_OUT', side: 'output', label: 'video', domain: 'video' },
+      { id: 'AUDIO_OUT', side: 'output', label: 'audio', domain: 'audio' },
+      { id: 'ANC_OUT', side: 'output', label: 'anc', domain: 'ancillary' },
+    ],
+  },
+  {
+    id: 'adapter.mux',
+    name: 'CONTAINER_MUX',
+    description: 'Media Container Multiplexer: multiplexes Video, Audio, and ANC into an MP4/MKV/MXF container.',
+    size: { w: 1.8, h: 1.4 },
+    glyph: [
+      [
+        { x: -0.4, y: -0.45 },
+        { x: 0.4, y: -0.2 },
+        { x: 0.4, y: 0.2 },
+        { x: -0.4, y: 0.45 },
+        { x: -0.4, y: -0.45 },
+      ],
+      [
+        { x: -0.2, y: -0.25 },
+        { x: 0.15, y: 0 },
+      ],
+      [
+        { x: -0.2, y: 0 },
+        { x: 0.15, y: 0 },
+      ],
+      [
+        { x: -0.2, y: 0.25 },
+        { x: 0.15, y: 0 },
+      ],
+    ],
+    ports: [
+      { id: 'VIDEO_IN', side: 'input', label: 'video', domain: 'video' },
+      { id: 'AUDIO_IN', side: 'input', label: 'audio', domain: 'audio' },
+      { id: 'ANC_IN', side: 'input', label: 'anc', domain: 'ancillary' },
+      { id: 'FILE_OUT', side: 'output', label: 'file', domain: 'container' },
+    ],
+  },
+  {
+    id: 'adapter.transcode',
+    name: 'CODEC_TRANSCODE',
+    description: 'Media Transcoder & Converter: converts video/audio codecs and formats (e.g. H.264 to ProRes, PCM to AAC).',
+    size: { w: 1.6, h: 1.0 },
+    glyph: [
+      [
+        { x: -0.45, y: -0.3 },
+        { x: 0.45, y: -0.3 },
+        { x: 0.45, y: 0.3 },
+        { x: -0.45, y: 0.3 },
+        { x: -0.45, y: -0.3 },
+      ],
+      [
+        { x: -0.2, y: -0.1 },
+        { x: 0.2, y: 0.1 },
+      ],
+      [
+        { x: 0.2, y: -0.1 },
+        { x: -0.2, y: 0.1 },
+      ],
+    ],
+    ports: [
+      { id: 'IN', side: 'input', label: 'in' },
+      { id: 'OUT', side: 'output', label: 'out' },
+      { id: 'PROFILE', side: 'control', label: 'prof' },
+    ],
+  },
+  {
+    id: 'adapter.st2110_gateway',
+    name: 'ST2110_GATEWAY',
+    description: 'SMPTE ST 2110 IP Media Gateway. Separates or combines -20 video, -30 audio, -40 ANC over 10G/25G IP.',
+    size: { w: 2.0, h: 1.5 },
+    glyph: [
+      [
+        { x: -0.5, y: -0.4 },
+        { x: 0.5, y: -0.4 },
+        { x: 0.5, y: 0.4 },
+        { x: -0.5, y: 0.4 },
+        { x: -0.5, y: -0.4 },
+      ],
+      [
+        { x: -0.3, y: -0.15 },
+        { x: -0.3, y: 0.15 },
+      ],
+      [
+        { x: -0.4, y: 0 },
+        { x: -0.2, y: 0 },
+      ],
+      [
+        { x: 0.1, y: -0.2 },
+        { x: 0.4, y: -0.2 },
+      ],
+      [
+        { x: 0.1, y: 0 },
+        { x: 0.4, y: 0 },
+      ],
+      [
+        { x: 0.1, y: 0.2 },
+        { x: 0.4, y: 0.2 },
+      ],
+    ],
+    ports: [
+      { id: 'ETH_PRIMARY', side: 'input', label: 'eth1', domain: 'network' },
+      { id: 'ETH_SECONDARY', side: 'input', label: 'eth2', domain: 'network' },
+      { id: 'ST2110_20', side: 'output', label: 'video (-20)', domain: 'video' },
+      { id: 'ST2110_30', side: 'output', label: 'audio (-30)', domain: 'audio' },
+      { id: 'ST2110_40', side: 'output', label: 'anc (-40)', domain: 'ancillary' },
+      { id: 'PTP_10', side: 'control', label: 'ptp (-10)', domain: 'clock' },
+    ],
+  },
+  {
+    id: 'adapter.st2022_7',
+    name: 'ST2022_7_REDUNDANCY',
+    description: 'SMPTE ST 2022-7 Seamless Hitless Protection Switching. Merges redundant Red & Blue network paths.',
+    size: { w: 1.6, h: 1.1 },
+    glyph: [
+      [
+        { x: -0.4, y: -0.3 },
+        { x: 0.4, y: -0.3 },
+        { x: 0.4, y: 0.3 },
+        { x: -0.4, y: 0.3 },
+        { x: -0.4, y: -0.3 },
+      ],
+      [
+        { x: -0.25, y: -0.15 },
+        { x: 0.25, y: -0.15 },
+      ],
+      [
+        { x: -0.25, y: 0.15 },
+        { x: 0.25, y: 0.15 },
+      ],
+    ],
+    ports: [
+      { id: 'RED_PATH', side: 'input', label: 'red (A)', domain: 'network' },
+      { id: 'BLUE_PATH', side: 'input', label: 'blue (B)', domain: 'network' },
+      { id: 'OUT', side: 'output', label: 'stream', domain: 'network' },
+      { id: 'STATUS', side: 'control', label: 'stat' },
+    ],
+  },
+  {
+    id: 'adapter.deembedder',
+    name: 'SDI_DEEMBEDDER',
+    description: 'SMPTE ST 299-1 SDI Audio De-embedder. Demuxes 16 channels of embedded AES3 audio from HD/3G-SDI.',
+    size: { w: 1.8, h: 1.2 },
+    glyph: [
+      [
+        { x: -0.45, y: -0.35 },
+        { x: 0.45, y: -0.35 },
+        { x: 0.45, y: 0.35 },
+        { x: -0.45, y: 0.35 },
+        { x: -0.45, y: -0.35 },
+      ],
+      [
+        { x: -0.25, y: 0 },
+        { x: 0.25, y: 0 },
+      ],
+      [
+        { x: 0, y: 0 },
+        { x: 0.25, y: -0.2 },
+      ],
+    ],
+    ports: [
+      { id: 'SDI_IN', side: 'input', label: 'sdi in', domain: 'video' },
+      { id: 'SDI_THRU', side: 'output', label: 'sdi thru', domain: 'video' },
+      { id: 'AUDIO_1_8', side: 'output', label: 'ch 1-8', domain: 'audio' },
+      { id: 'AUDIO_9_16', side: 'output', label: 'ch 9-16', domain: 'audio' },
+    ],
+  },
+];
+
+/**
+ * Everything placeable: the generic set, shop parts, schematic symbols, math & logic, and adapters.
+ */
+export const CATALOG: BlockDefinition[] = [
+  ...FLOW_CATALOG,
+  ...SHOP_CATALOG,
+  ...SCHEMATIC_SYMBOL_CATALOG,
+  ...MATH_LOGIC_CATALOG,
+  ...ADAPTER_CATALOG,
+];
 
 /** The symbol the Flow tool places until the sidebar is told otherwise. */
 export const DEFAULT_FLOW_DEFINITION = 'flow.process';
+

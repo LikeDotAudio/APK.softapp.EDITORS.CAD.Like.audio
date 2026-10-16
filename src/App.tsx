@@ -14,6 +14,8 @@ import { EntranceContext } from './shell/EntranceContext';
 import { SpreadsheetModal } from './components/spreadsheet/SpreadsheetModal';
 import { ElementsEditorModal } from './components/elementsEditor/ElementsEditorModal';
 import { BlockEditorModal } from './components/blockEditor/BlockEditorModal';
+import { ConceptLibraryModal } from './components/conceptLibrary/ConceptLibraryModal';
+import { ConnectorsDock } from './connectors/ui/ConnectorsDock';
 import { StartupModal } from './components/startup/StartupModal';
 import { LoadingOverlay } from './components/loading/LoadingOverlay';
 import { ViewportTabs } from './components/viewport/ViewportTabs';
@@ -28,6 +30,8 @@ export default function App() {
   const [spreadsheetTab, setSpreadsheetTab] = useState<'placements' | 'connectors' | 'groups' | 'bom'>('placements');
   const [showElementsEditor, setShowElementsEditor] = useState(false);
   const [showBlockEditor, setShowBlockEditor] = useState(false);
+  const [showConceptLibrary, setShowConceptLibrary] = useState(false);
+  const [showConnectorsDock, setShowConnectorsDock] = useState(true);
   const [blockEditorTarget, setBlockEditorTarget] = useState<string | undefined>(undefined);
   // Prompt user on startup whether to open cached file, open another, create from clipboard, or start fresh
   const [showStartupModal, setShowStartupModal] = useState(() => entrance.entrance === 'drawing');
@@ -42,11 +46,15 @@ export default function App() {
       setBlockEditorTarget(blockName);
       setShowBlockEditor(true);
     };
+    store.openConceptLibraryModal = () => {
+      setShowConceptLibrary(true);
+    };
     store.openStartupModal = () => {
       setShowStartupModal(true);
     };
     return () => {
       store.openBlockEditorModal = null;
+      store.openConceptLibraryModal = null;
       store.openStartupModal = null;
     };
   }, [store]);
@@ -66,6 +74,7 @@ export default function App() {
             onOpenBom={() => handleOpenSpreadsheet('bom')}
             onOpenElementsEditor={() => setShowElementsEditor(true)}
             onOpenBlockEditor={() => handleOpenBlockEditor()}
+            onOpenConceptLibrary={() => setShowConceptLibrary(true)}
           />
 
           {/* Main Work Area: Left Toolbar + Canvas + Right Sidebar */}
@@ -78,11 +87,26 @@ export default function App() {
             <SidebarPanel />
           </div>
 
+          {/* Connectors Bottom Dock Bar (Exact OneScope Palette) */}
+          <ConnectorsDock
+            isOpen={showConnectorsDock}
+            onClose={() => setShowConnectorsDock(false)}
+          />
+
           {/* Viewport & Sheet Tabs (AutoCAD Model/Layout style) */}
           <ViewportTabs />
 
           {/* Bottom Status Bar */}
-          <StatusBar />
+          <StatusBar
+            isConnectorsOpen={showConnectorsDock}
+            onToggleConnectors={() => setShowConnectorsDock((prev) => !prev)}
+          />
+
+          {/* Universal Part & Concept Library Modal */}
+          <ConceptLibraryModal
+            isOpen={showConceptLibrary}
+            onClose={() => setShowConceptLibrary(false)}
+          />
 
           {/* Spreadsheet Modal */}
           {showSpreadsheet && (

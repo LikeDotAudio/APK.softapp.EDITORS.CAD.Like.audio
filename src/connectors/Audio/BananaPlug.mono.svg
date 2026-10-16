@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+    <defs>
+        <linearGradient id="ban1-body" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#222222" />
+            <stop offset="50%" stop-color="#444444" />
+            <stop offset="100%" stop-color="#222222" />
+        </linearGradient>
+        <linearGradient id="ban1-pin" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#d4d4d4" />
+            <stop offset="40%" stop-color="#989898" />
+            <stop offset="100%" stop-color="#686868" />
+        </linearGradient>
+        <linearGradient id="ban1-spring" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#e7e7e7" />
+            <stop offset="100%" stop-color="#989898" />
+        </linearGradient>
+    </defs>
+    <circle cx="60" cy="60" r="54" fill="#6c6c6c" />
+    <circle cx="60" cy="60" r="50" fill="#f9f9f9" />
+    <rect x="14" y="56" width="36" height="8" rx="1" fill="url(#ban1-pin)" stroke="#686868" stroke-width="0.5" />
+    <path d="M 18 56 Q 14 60 18 64" stroke="url(#ban1-spring)" stroke-width="1.5" fill="none" stroke-linecap="round" />
+    <path d="M 26 56 Q 22 60 26 64" stroke="url(#ban1-spring)" stroke-width="1.5" fill="none" stroke-linecap="round" />
+    <path d="M 34 56 Q 30 60 34 64" stroke="url(#ban1-spring)" stroke-width="1.5" fill="none" stroke-linecap="round" />
+    <path d="M 42 56 Q 38 60 42 64" stroke="url(#ban1-spring)" stroke-width="1.5" fill="none" stroke-linecap="round" />
+    <rect x="50" y="53" width="4" height="14" rx="1" fill="#999999" stroke="#666666" stroke-width="0.5" />
+    <rect x="54" y="50" width="40" height="20" rx="3" fill="url(#ban1-body)" stroke="#333333" stroke-width="1" />
+    <line x1="60" y1="51" x2="60" y2="69" stroke="#555555" stroke-width="0.5" />
+    <line x1="64" y1="51" x2="64" y2="69" stroke="#555555" stroke-width="0.5" />
+    <line x1="68" y1="51" x2="68" y2="69" stroke="#555555" stroke-width="0.5" />
+    <line x1="72" y1="51" x2="72" y2="69" stroke="#555555" stroke-width="0.5" />
+    <line x1="76" y1="51" x2="76" y2="69" stroke="#555555" stroke-width="0.5" />
+    <line x1="80" y1="51" x2="80" y2="69" stroke="#555555" stroke-width="0.5" />
+    <line x1="84" y1="51" x2="84" y2="69" stroke="#555555" stroke-width="0.5" />
+    <line x1="88" y1="51" x2="88" y2="69" stroke="#555555" stroke-width="0.5" />
+    <rect x="54" y="53" width="40" height="3" rx="1" fill="#555555" fill-opacity="0.4" />
+    <rect x="94" y="55" width="10" height="10" rx="2" fill="#333333" stroke="#222222" stroke-width="0.5" />
+    <circle cx="104" cy="60" r="3" fill="#111111" />
+</svg>

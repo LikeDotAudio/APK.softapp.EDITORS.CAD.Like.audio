@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+        <defs>
+            <radialGradient id="trs_outerMetal" cx="50%" cy="45%" r="50%">
+                <stop offset="0%" stop-color="#c0c0c0" />
+                <stop offset="100%" stop-color="#808080" />
+            </radialGradient>
+            <radialGradient id="trs_ringMetal" cx="50%" cy="45%" r="50%">
+                <stop offset="0%" stop-color="#f5d56e" />
+                <stop offset="100%" stop-color="#c9952a" />
+            </radialGradient>
+            <radialGradient id="trs_tipMetal" cx="45%" cy="40%" r="50%">
+                <stop offset="0%" stop-color="#ffe89a" />
+                <stop offset="100%" stop-color="#d4a832" />
+            </radialGradient>
+        </defs>
+        
+        <circle cx="60" cy="60" r="54" fill="#2a75d3" />
+        
+        <circle cx="60" cy="60" r="50" fill="#f8f9fa" />
+        
+        <circle cx="60" cy="60" r="40" fill="url(#trs_outerMetal)" />
+        <circle cx="60" cy="60" r="40" fill="none" stroke="#666" stroke-width="1" />
+        
+        <path d="M30 45 A40 40 0 0 1 90 45" fill="none" stroke="#ddd" stroke-width="1" stroke-opacity="0.4" />
+        
+        <circle cx="60" cy="60" r="32" fill="#1a1a1a" />
+        
+        <circle cx="60" cy="60" r="28" fill="url(#trs_ringMetal)" />
+        <circle cx="60" cy="60" r="28" fill="none" stroke="#8a6618" stroke-width="0.8" />
+        
+        <circle cx="60" cy="60" r="20" fill="#1a1a1a" />
+        
+        <circle cx="60" cy="60" r="14" fill="url(#trs_tipMetal)" />
+        <circle cx="60" cy="60" r="14" fill="none" stroke="#8a6618" stroke-width="0.8" />
+        
+        <circle cx="60" cy="60" r="4" fill="#c9952a" />
+        <circle cx="58" cy="58" r="1.5" fill="#ffe89a" fill-opacity="0.5" />
+    </svg>

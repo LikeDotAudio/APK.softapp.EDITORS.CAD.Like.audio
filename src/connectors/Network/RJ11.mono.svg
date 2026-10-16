@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+    <defs>
+      <linearGradient id="rj11_bodyGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f0f0f0" />
+        <stop offset="100%" stop-color="#d8d8d8" />
+      </linearGradient>
+    </defs>
+    
+    <circle cx="60" cy="60" r="54" fill="#6c6c6c" />
+    
+    <circle cx="60" cy="60" r="50" fill="#f9f9f9" />
+    
+    <rect x="32" y="30" width="56" height="58" rx="3" fill="url(#rj11_bodyGrad)" stroke="#bbbbbb" stroke-width="1.2" />
+    
+    <rect x="36" y="34" width="48" height="50" rx="2" fill="#e8e8e8" stroke="#cccccc" stroke-width="0.5" />
+    
+    <rect x="38" y="40" width="44" height="34" rx="2" fill="#222222" stroke="#555555" stroke-width="1" />
+    
+    <rect x="41" y="43" width="38" height="28" rx="1" fill="#111111" />
+    
+    <rect x="48" y="70" width="24" height="6" rx="1" fill="#333333" stroke="#555555" stroke-width="0.5" />
+    
+    <rect x="44" y="44" width="2" height="12" rx="0.3" fill="#aeaeae" />
+    <rect x="49" y="44" width="2" height="12" rx="0.3" fill="#aeaeae" />
+    <rect x="54" y="44" width="2" height="12" rx="0.3" fill="#aeaeae" />
+    <rect x="59" y="44" width="2" height="12" rx="0.3" fill="#aeaeae" />
+    <rect x="64" y="44" width="2" height="12" rx="0.3" fill="#aeaeae" />
+    <rect x="69" y="44" width="2" height="12" rx="0.3" fill="#aeaeae" />
+  </svg>

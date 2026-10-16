@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+        <defs>
+            <linearGradient id="mu-shell" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#e8e8e8" />
+                <stop offset="40%" stop-color="#cccccc" />
+                <stop offset="100%" stop-color="#999999" />
+            </linearGradient>
+            <linearGradient id="mu-gold" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#ffe670" />
+                <stop offset="60%" stop-color="#d4af37" />
+                <stop offset="100%" stop-color="#997a00" />
+            </linearGradient>
+        </defs>
+        
+        <circle cx="60" cy="60" r="54" fill="#2a75d3" />
+        
+        <circle cx="60" cy="60" r="50" fill="#f8f9fa" />
+        
+        <path
+            d="M 30 42 L 90 42 L 84 82 L 36 82 Z"
+            fill="url(#mu-shell)"
+            stroke="#888"
+            stroke-width="1.5"
+            stroke-linejoin="round"
+        />
+        
+        <path d="M 30 42 L 90 42 L 89 45 L 31 45 Z" fill="#ddd" fill-opacity="0.5" />
+        
+        <path
+            d="M 35 47 L 85 47 L 80 77 L 40 77 Z"
+            fill="#1a1a1a"
+        />
+        
+        <path
+            d="M 39 52 L 81 52 L 78 72 L 42 72 Z"
+            fill="#2a2a2a"
+            stroke="#444"
+            stroke-width="0.6"
+        />
+        
+        <g fill="url(#mu-gold)">
+            <rect x="46" y="58" width="3.5" height="8" rx="0.6" />
+            <rect x="52" y="58" width="3.5" height="8" rx="0.6" />
+            <rect x="58" y="58" width="3.5" height="8" rx="0.6" />
+            <rect x="64" y="58" width="3.5" height="8" rx="0.6" />
+            <rect x="70" y="58" width="3.5" height="8" rx="0.6" />
+        </g>
+    </svg>

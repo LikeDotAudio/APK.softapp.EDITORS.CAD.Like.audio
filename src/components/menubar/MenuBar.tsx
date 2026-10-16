@@ -15,13 +15,14 @@ interface MenuBarProps {
   onOpenBom?: () => void;
   onOpenElementsEditor?: () => void;
   onOpenBlockEditor?: () => void;
+  onOpenConceptLibrary?: () => void;
 }
 
 /**
  * The application header. It owns only "which menu is open" — every dropdown
  * lives in its own file under `menus/`.
  */
-export function MenuBar({ onOpenSpreadsheet, onOpenBom, onOpenElementsEditor, onOpenBlockEditor }: MenuBarProps) {
+export function MenuBar({ onOpenSpreadsheet, onOpenBom, onOpenElementsEditor, onOpenBlockEditor, onOpenConceptLibrary }: MenuBarProps) {
   const [openMenu, setOpenMenu] = useState<MenuId | null>(null);
   const close = useCallback(() => setOpenMenu(null), []);
   useMenuDismiss(close);
@@ -45,6 +46,14 @@ export function MenuBar({ onOpenSpreadsheet, onOpenBom, onOpenElementsEditor, on
         </div>
       </div>
       <div className="flex items-center gap-2">
+        <button
+          onClick={onOpenConceptLibrary}
+          className="flex items-center gap-1.5 rounded bg-[#007acc] px-2.5 py-1 text-xs font-semibold text-white hover:bg-[#1188dd] transition-colors font-mono tracking-wide"
+          title="Open Universal Part & Concept Library (connectors, badges, ST 2110, codecs, adapters)"
+        >
+          <span>📚</span>
+          <span>Library</span>
+        </button>
         <button
           onClick={onOpenBlockEditor}
           className="flex items-center gap-1.5 rounded bg-[#2ea043] px-2.5 py-1 text-xs font-semibold text-white hover:bg-[#3fb950] transition-colors font-mono tracking-wide"

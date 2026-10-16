@@ -267,6 +267,8 @@ export class EditorStore {
   openFilePicker: (() => void) | null = null;
   /** Hook registered by the UI to open the Block Editor modal. */
   openBlockEditorModal: ((blockName?: string) => void) | null = null;
+  /** Hook registered by the UI to open the Part & Concept Library modal. */
+  openConceptLibraryModal: (() => void) | null = null;
   /** Hook registered by the UI to open the Startup / Welcome modal. */
   openStartupModal: (() => void) | null = null;
   /** Active loading / caching state for modal loading screen. */
@@ -586,6 +588,12 @@ export class EditorStore {
   triggerOpenBlockEditor(blockName?: string): void {
     if (this.openBlockEditorModal) {
       this.openBlockEditorModal(blockName);
+    }
+  }
+
+  triggerOpenConceptLibrary(): void {
+    if (this.openConceptLibraryModal) {
+      this.openConceptLibraryModal();
     }
   }
 

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+    <defs>
+        <linearGradient id="ban2-body" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#333333" />
+            <stop offset="50%" stop-color="#555555" />
+            <stop offset="100%" stop-color="#2a2a2a" />
+        </linearGradient>
+        <radialGradient id="ban2-jack" cx="50%" cy="40%" r="50%">
+            <stop offset="0%" stop-color="#d4d4d4" />
+            <stop offset="60%" stop-color="#989898" />
+            <stop offset="100%" stop-color="#686868" />
+        </radialGradient>
+    </defs>
+    <circle cx="60" cy="60" r="54" fill="#6c6c6c" />
+    <circle cx="60" cy="60" r="50" fill="#f9f9f9" />
+    <rect x="18" y="36" width="84" height="48" rx="6" fill="url(#ban2-body)" stroke="#222222" stroke-width="1.5" />
+    <rect x="22" y="40" width="76" height="40" rx="4" fill="#444444" stroke="#333333" stroke-width="1" />
+    <rect x="22" y="40" width="6" height="40" rx="2" fill="#545454" />
+    <rect x="92" y="40" width="6" height="40" rx="2" fill="#111111" />
+    <circle cx="42" cy="60" r="11" fill="#1a1a1a" stroke="#333333" stroke-width="1" />
+    <circle cx="42" cy="60" r="8" fill="url(#ban2-jack)" />
+    <circle cx="42" cy="60" r="3.5" fill="#111111" stroke="#686868" stroke-width="0.5" />
+    <path d="M 39 57 L 39 63" stroke="#e7e7e7" stroke-width="0.8" />
+    <path d="M 45 57 L 45 63" stroke="#e7e7e7" stroke-width="0.8" />
+    <circle cx="78" cy="60" r="11" fill="#1a1a1a" stroke="#333333" stroke-width="1" />
+    <circle cx="78" cy="60" r="8" fill="url(#ban2-jack)" />
+    <circle cx="78" cy="60" r="3.5" fill="#111111" stroke="#686868" stroke-width="0.5" />
+    <path d="M 75 57 L 75 63" stroke="#e7e7e7" stroke-width="0.8" />
+    <path d="M 81 57 L 81 63" stroke="#e7e7e7" stroke-width="0.8" />
+    <line x1="42" y1="82" x2="78" y2="82" stroke="#666666" stroke-width="0.5" stroke-dasharray="2 1" />
+    <text x="42" y="48" text-anchor="middle" font-size="8" font-weight="bold" fill="#6c6c6c" font-family="Arial">+</text>
+    <text x="78" y="48" text-anchor="middle" font-size="8" font-weight="bold" fill="#999999" font-family="Arial">&#x2013;</text>
+</svg>

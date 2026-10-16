@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+        <defs>
+            <linearGradient id="db25-shell" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#e0e0e0" />
+                <stop offset="40%" stop-color="#c0c0c0" />
+                <stop offset="100%" stop-color="#808080" />
+            </linearGradient>
+            <linearGradient id="db25-shellEdge" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#d0d0d0" />
+                <stop offset="100%" stop-color="#707070" />
+            </linearGradient>
+            <radialGradient id="db25-pin" cx="40%" cy="35%" r="60%">
+                <stop offset="0%" stop-color="#e4e4e4" />
+                <stop offset="100%" stop-color="#888888" />
+            </radialGradient>
+            <radialGradient id="db25-screw" cx="40%" cy="35%" r="60%">
+                <stop offset="0%" stop-color="#cccccc" />
+                <stop offset="100%" stop-color="#666666" />
+            </radialGradient>
+        </defs>
+        
+        <circle cx="60" cy="60" r="54" fill="#6c6c6c" />
+        
+        <circle cx="60" cy="60" r="50" fill="#f9f9f9" />
+        
+        <path
+            d="M 10 40 L 110 40 L 100 80 L 20 80 Z"
+            fill="url(#db25-shell)"
+            stroke="url(#db25-shellEdge)"
+            stroke-width="1.5"
+            stroke-linejoin="round"
+        />
+        
+        <path
+            d="M 15 44 L 105 44 L 96 76 L 24 76 Z"
+            fill="none"
+            stroke="#aaaaaa"
+            stroke-width="0.5"
+        />
+        
+        <path
+            d="M 20 46 L 100 46 L 93 74 L 27 74 Z"
+            fill="#1b1b1b"
+            stroke="#333333"
+            stroke-width="0.5"
+        />
+        
+        {Array.from({ length: 13 }, (_, i) => (
+            <circle
+                key={`t${i}`}
+                cx={25 + i * 5.4}
+                cy="54"
+                r="1.8"
+                fill="url(#db25-pin)"
+            />
+        ))}
+        
+        {Array.from({ length: 12 }, (_, i) => (
+            <circle
+                key={`b${i}`}
+                cx={27.7 + i * 5.4}
+                cy="64"
+                r="1.8"
+                fill="url(#db25-pin)"
+            />
+        ))}
+        
+        <circle cx="15" cy="60" r="5.5" fill="url(#db25-screw)" />
+        <circle cx="15" cy="60" r="3" fill="#888888" />
+        <line x1="13" y1="60" x2="17" y2="60" stroke="#555555" stroke-width="1" />
+        <line x1="15" y1="58" x2="15" y2="62" stroke="#555555" stroke-width="1" />
+        
+        <circle cx="105" cy="60" r="5.5" fill="url(#db25-screw)" />
+        <circle cx="105" cy="60" r="3" fill="#888888" />
+        <line x1="103" y1="60" x2="107" y2="60" stroke="#555555" stroke-width="1" />
+        <line x1="105" y1="58" x2="105" y2="62" stroke="#555555" stroke-width="1" />
+    </svg>

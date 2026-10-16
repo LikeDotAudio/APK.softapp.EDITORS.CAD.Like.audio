@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="smb-goldOuter" cx="40%" cy="35%" r="60%">
+        <stop offset="0%" stop-color="#d7d7d7" />
+        <stop offset="40%" stop-color="#a9a9a9" />
+        <stop offset="100%" stop-color="#777777" />
+      </radialGradient>
+      <radialGradient id="smb-goldBarrel" cx="45%" cy="40%" r="55%">
+        <stop offset="0%" stop-color="#cecece" />
+        <stop offset="50%" stop-color="#9e9e9e" />
+        <stop offset="100%" stop-color="#696969" />
+      </radialGradient>
+      <radialGradient id="smb-goldPin" cx="40%" cy="35%" r="50%">
+        <stop offset="0%" stop-color="#efefef" />
+        <stop offset="50%" stop-color="#a9a9a9" />
+        <stop offset="100%" stop-color="#777777" />
+      </radialGradient>
+      <linearGradient id="smb-sheen" x1="0" y1="0" x2="0.7" y2="0.7">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25" />
+        <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+      </linearGradient>
+    </defs>
+
+    
+    <circle cx="60" cy="60" r="54" fill="#6c6c6c" />
+    
+    <circle cx="60" cy="60" r="50" fill="#f9f9f9" />
+
+    
+    <circle cx="60" cy="60" r="36" fill="url(#smb-goldOuter)" stroke="#696969" stroke-width="1.2" />
+
+    
+    <circle cx="60" cy="60" r="35" fill="url(#smb-sheen)" />
+
+    
+    <circle cx="60" cy="60" r="33" fill="none" stroke="#989898" stroke-width="0.6" />
+    <circle cx="60" cy="60" r="30" fill="none" stroke="#898989" stroke-width="0.4" />
+
+    
+    <circle cx="60" cy="60" r="26" fill="url(#smb-goldBarrel)" stroke="#696969" stroke-width="0.8" />
+
+    
+    <circle cx="60" cy="60" r="23" fill="none" stroke="#777777" stroke-width="1.2" />
+
+    
+    <circle cx="60" cy="60" r="18" fill="#222222" />
+    <circle cx="60" cy="60" r="17" fill="#1a1a1a" stroke="#333333" stroke-width="0.5" />
+
+    
+    <circle cx="60" cy="60" r="10" fill="#e4e4e4" stroke="#b0b0b0" stroke-width="0.7" />
+
+    
+    <circle cx="60" cy="60" r="3" fill="url(#smb-goldPin)" stroke="#777777" stroke-width="0.5" />
+    
+    <circle cx="58.8" cy="58.8" r="1" fill="#ffffff" fill-opacity="0.5" />
+  </svg>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+    <defs>
+      <radialGradient id="st_bodyGrad" cx="45%" cy="40%" r="55%">
+        <stop offset="0%" stop-color="#c8c8c8" />
+        <stop offset="60%" stop-color="#a0a0a0" />
+        <stop offset="100%" stop-color="#787878" />
+      </radialGradient>
+      <radialGradient id="st_ferruleGrad" cx="50%" cy="40%" r="50%">
+        <stop offset="0%" stop-color="#ffffff" />
+        <stop offset="100%" stop-color="#e8e8e8" />
+      </radialGradient>
+    </defs>
+    
+    <circle cx="60" cy="60" r="54" fill="#2a75d3" />
+    
+    <circle cx="60" cy="60" r="50" fill="#f8f9fa" />
+    
+    <circle cx="60" cy="60" r="44" fill="url(#st_bodyGrad)" stroke="#888" stroke-width="1" />
+    
+    <path d="M 85 35 A 38 38 0 0 0 78 28 L 72 34 A 30 30 0 0 1 78 40 Z" fill="#666" stroke="#555" stroke-width="0.5" />
+    
+    <path d="M 35 85 A 38 38 0 0 0 42 92 L 48 86 A 30 30 0 0 1 42 80 Z" fill="#666" stroke="#555" stroke-width="0.5" />
+    
+    <circle cx="60" cy="20" r="3" fill="#999" stroke="#777" stroke-width="0.5" />
+    
+    <circle cx="60" cy="60" r="30" fill="#555" stroke="#666" stroke-width="1" />
+    
+    <circle cx="60" cy="60" r="24" fill="#777" stroke="#888" stroke-width="0.8" />
+    <circle cx="60" cy="60" r="22" fill="#666" />
+    
+    <circle cx="60" cy="60" r="14" fill="url(#st_ferruleGrad)" stroke="#ccc" stroke-width="0.8" />
+    
+    <circle cx="60" cy="60" r="10" fill="none" stroke="#ddd" stroke-width="0.5" />
+    
+    <circle cx="60" cy="60" r="3" fill="#111" />
+    
+    <circle cx="59" cy="59" r="1" fill="#333" fill-opacity="0.5" />
+  </svg>

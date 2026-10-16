@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+        <defs>
+            <linearGradient id="bnc-metalOuter" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#eeeeee" />
+                <stop offset="50%" stop-color="#c0c0c0" />
+                <stop offset="100%" stop-color="#808080" />
+            </linearGradient>
+            <linearGradient id="bnc-metalInner" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#dddddd" />
+                <stop offset="100%" stop-color="#888888" />
+            </linearGradient>
+            <radialGradient id="bnc-dielectric" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#ffffff" />
+                <stop offset="100%" stop-color="#dddddd" />
+            </radialGradient>
+            <radialGradient id="bnc-goldPin" cx="40%" cy="40%" r="60%">
+                <stop offset="0%" stop-color="#ffe680" />
+                <stop offset="100%" stop-color="#b8860b" />
+            </radialGradient>
+        </defs>
+        
+        <circle cx="60" cy="60" r="54" fill="#2a75d3" />
+        
+        <circle cx="60" cy="60" r="50" fill="url(#bnc-metalOuter)" />
+        
+        <rect x="8" y="56" width="16" height="8" rx="2" fill="#666" />
+        <rect x="96" y="56" width="16" height="8" rx="2" fill="#666" />
+        
+        <circle cx="14" cy="60" r="3" fill="#999" />
+        <circle cx="106" cy="60" r="3" fill="#999" />
+        
+        <circle cx="60" cy="60" r="36" fill="#1a1a1a" />
+        
+        <circle cx="60" cy="60" r="30" fill="url(#bnc-metalInner)" />
+        <circle cx="60" cy="60" r="26" fill="#111" />
+        
+        <circle cx="60" cy="60" r="16" fill="url(#bnc-dielectric)" />
+        
+        <circle cx="60" cy="60" r="6" fill="url(#bnc-goldPin)" />
+    </svg>

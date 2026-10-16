@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+        <defs>
+            <linearGradient id="hdbnc-metalOuter" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#eeeeee" />
+                <stop offset="50%" stop-color="#c0c0c0" />
+                <stop offset="100%" stop-color="#808080" />
+            </linearGradient>
+            <linearGradient id="hdbnc-metalInner" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#dddddd" />
+                <stop offset="100%" stop-color="#888888" />
+            </linearGradient>
+            <radialGradient id="hdbnc-dielectric" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#ffffff" />
+                <stop offset="100%" stop-color="#dddddd" />
+            </radialGradient>
+            <radialGradient id="hdbnc-goldPin" cx="40%" cy="40%" r="60%">
+                <stop offset="0%" stop-color="#ffe680" />
+                <stop offset="100%" stop-color="#b8860b" />
+            </radialGradient>
+            <linearGradient id="hdbnc-ring" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#d8d8d8" />
+                <stop offset="100%" stop-color="#999999" />
+            </linearGradient>
+        </defs>
+        
+        <circle cx="60" cy="60" r="54" fill="#2a75d3" />
+        
+        <circle cx="60" cy="60" r="50" fill="#f8f9fa" />
+        
+        <circle cx="60" cy="60" r="38" fill="url(#hdbnc-metalOuter)" />
+        
+        <circle cx="60" cy="60" r="38" fill="none" stroke="url(#hdbnc-ring)" stroke-width="2" />
+        <circle cx="60" cy="60" r="35" fill="none" stroke="#aaa" stroke-width="0.5" />
+        
+        {Array.from({ length: 24 }, (_, i) => {
+            const angle = (i * 15 * Math.PI) / 180;
+            const x1 = 60 + Math.cos(angle) * 34;
+            const y1 = 60 + Math.sin(angle) * 34;
+            const x2 = 60 + Math.cos(angle) * 37;
+            const y2 = 60 + Math.sin(angle) * 37;
+            return (
+                <line
+                    key={`k${i}`}
+                    x1={x1} y1={y1} x2={x2} y2={y2}
+                    stroke="#999"
+                    stroke-width="0.5"
+                    fill-opacity="0.6"
+                />
+            );
+        })}
+        
+        <circle cx="60" cy="60" r="28" fill="#1a1a1a" />
+        
+        <circle cx="60" cy="60" r="22" fill="url(#hdbnc-metalInner)" />
+        <circle cx="60" cy="60" r="19" fill="#111" />
+        
+        <circle cx="60" cy="60" r="12" fill="url(#hdbnc-dielectric)" />
+        
+        <circle cx="60" cy="60" r="4.5" fill="url(#hdbnc-goldPin)" />
+    </svg>

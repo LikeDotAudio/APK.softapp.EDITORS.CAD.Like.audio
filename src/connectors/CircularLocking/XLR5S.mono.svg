@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+    <defs>
+        <linearGradient id="xlr5S-shell" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#eeeeee" />
+            <stop offset="50%" stop-color="#c0c0c0" />
+            <stop offset="100%" stop-color="#808080" />
+        </linearGradient>
+        <radialGradient id="xlr5S-pin" cx="40%" cy="35%" r="60%">
+            <stop offset="0%" stop-color="#d4d4d4" />
+            <stop offset="60%" stop-color="#989898" />
+            <stop offset="100%" stop-color="#686868" />
+        </radialGradient>
+    </defs>
+    <circle cx="60" cy="60" r="54" fill="#6c6c6c" />
+    <circle cx="60" cy="60" r="50" fill="url(#xlr5S-shell)" />
+    <g transform="translate(60,62) scale(1.05) translate(-60,-62)">
+    <rect x="44" y="6" width="32" height="10" rx="2" fill="#b0b0b0" stroke="#888888" stroke-width="1" />
+    <rect x="48" y="2" width="24" height="12" rx="3" fill="#d0d0d0" stroke="#999999" stroke-width="1.2" />
+    <rect x="53" y="5" width="14" height="5" rx="1.5" fill="#333333" />
+    <rect x="46" y="14" width="28" height="4" fill="#999999" />
+    <rect x="56" y="10" width="8" height="5" rx="1" fill="#888888" />
+    <circle cx="60" cy="62" r="38" fill="#1a1a1a" />
+    <text x="60" y="62" text-anchor="middle" dominant-baseline="central" fill="#333333" font-weight="bold" font-size="38" font-family="monospace">5</text>
+    <circle cx="60" cy="41.9" r="5.5" fill="#0a0a0a" stroke="#444444" stroke-width="1" />
+    <circle cx="60" cy="41.9" r="3.5" fill="none" stroke="#555555" stroke-width="0.8" />
+    <circle cx="79.1" cy="55.8" r="5.5" fill="#0a0a0a" stroke="#444444" stroke-width="1" />
+    <circle cx="79.1" cy="55.8" r="3.5" fill="none" stroke="#555555" stroke-width="0.8" />
+    <circle cx="71.8" cy="78.3" r="5.5" fill="#0a0a0a" stroke="#444444" stroke-width="1" />
+    <circle cx="71.8" cy="78.3" r="3.5" fill="none" stroke="#555555" stroke-width="0.8" />
+    <circle cx="48.2" cy="78.3" r="5.5" fill="#0a0a0a" stroke="#444444" stroke-width="1" />
+    <circle cx="48.2" cy="78.3" r="3.5" fill="none" stroke="#555555" stroke-width="0.8" />
+    <circle cx="40.9" cy="55.8" r="5.5" fill="#0a0a0a" stroke="#444444" stroke-width="1" />
+    <circle cx="40.9" cy="55.8" r="3.5" fill="none" stroke="#555555" stroke-width="0.8" />
+    </g>
+</svg>

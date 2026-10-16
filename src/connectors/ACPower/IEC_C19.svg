@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="iec19-metal" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#b0b0b0" />
+        <stop offset="100%" stop-color="#808080" />
+      </linearGradient>
+      <linearGradient id="iec19-cavity" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#1a1a1a" />
+        <stop offset="100%" stop-color="#2d2d2d" />
+      </linearGradient>
+      <linearGradient id="iec19-body" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#686868" />
+        <stop offset="50%" stop-color="#585858" />
+        <stop offset="100%" stop-color="#484848" />
+      </linearGradient>
+    </defs>
+
+    
+    <circle cx="60" cy="60" r="54" fill="#2a75d3" />
+    
+    <circle cx="60" cy="60" r="50" fill="#f8f9fa" />
+
+    
+    <rect x="18" y="34" width="84" height="52" rx="5" fill="url(#iec19-metal)" stroke="#666" stroke-width="1" />
+
+    
+    <rect x="22" y="38" width="76" height="44" rx="3" fill="url(#iec19-body)" />
+
+    
+    <rect x="28" y="42" width="64" height="36" rx="2" fill="url(#iec19-cavity)" stroke="#333" stroke-width="1" />
+
+    
+    <rect x="34" y="48" width="14" height="5" rx="1" fill="#0a0a0a" stroke="#444" stroke-width="0.5" />
+
+    
+    <rect x="72" y="48" width="14" height="5" rx="1" fill="#0a0a0a" stroke="#444" stroke-width="0.5" />
+
+    
+    <rect x="53" y="66" width="14" height="5" rx="1" fill="#0a0a0a" stroke="#444" stroke-width="0.5" />
+
+    
+    <line x1="20" y1="36" x2="100" y2="36" stroke="#ccc" stroke-width="0.5" />
+
+    
+    <rect x="44" y="55" width="32" height="7" rx="1" fill="none" stroke="#555" stroke-width="0.4" stroke-dasharray="1,1" />
+  </svg>

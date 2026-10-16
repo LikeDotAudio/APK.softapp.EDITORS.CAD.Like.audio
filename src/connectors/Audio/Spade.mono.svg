@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+        <defs>
+            <linearGradient id="sp_metalGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#d4d4d4" />
+                <stop offset="30%" stop-color="#a9a9a9" />
+                <stop offset="60%" stop-color="#989898" />
+                <stop offset="100%" stop-color="#686868" />
+            </linearGradient>
+            <linearGradient id="sp_highlightGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#e7e7e7" stop-opacity="0.6" />
+                <stop offset="100%" stop-color="#989898" stop-opacity="0" />
+            </linearGradient>
+            <linearGradient id="sp_edgeGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#686868" />
+                <stop offset="50%" stop-color="#a9a9a9" />
+                <stop offset="100%" stop-color="#686868" />
+            </linearGradient>
+        </defs>
+        
+        <circle cx="60" cy="60" r="54" fill="#6c6c6c" />
+        
+        <circle cx="60" cy="60" r="50" fill="#f9f9f9" />
+        
+        <path
+            d="M42 38 L42 65 Q42 80 50 80 L50 65 L50 55 Q50 50 55 50 L55 50 L55 80 L65 80 L65 50 Q70 50 70 55 L70 65 L70 80 Q78 80 78 65 L78 38 L70 38 L70 48 Q65 42 60 42 Q55 42 50 48 L50 38 Z"
+            fill="url(#sp_metalGrad)"
+            stroke="#686868"
+            stroke-width="1.5"
+            stroke-linejoin="round"
+        />
+        
+        
+        <rect x="38" y="34" width="12" height="48" rx="2" fill="url(#sp_metalGrad)" stroke="#686868" stroke-width="1" />
+        
+        <rect x="70" y="34" width="12" height="48" rx="2" fill="url(#sp_metalGrad)" stroke="#686868" stroke-width="1" />
+        
+        <rect x="38" y="72" width="44" height="14" rx="3" fill="url(#sp_metalGrad)" stroke="#686868" stroke-width="1" />
+        
+        <rect x="48" y="86" width="24" height="10" rx="2" fill="url(#sp_edgeGrad)" stroke="#686868" stroke-width="1" />
+        
+        <rect x="50" y="28" width="20" height="44" rx="3" fill="#f9f9f9" />
+        
+        <circle cx="60" cy="38" r="10" fill="#f9f9f9" />
+        
+        <rect x="40" y="36" width="4" height="34" rx="2" fill="url(#sp_highlightGrad)" />
+        
+        <rect x="72" y="36" width="4" height="34" rx="2" fill="url(#sp_highlightGrad)" />
+    </svg>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+    <defs>
+      <linearGradient id="pd_bladeGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#d0d0d0" />
+        <stop offset="100%" stop-color="#999999" />
+      </linearGradient>
+    </defs>
+    
+    <circle cx="60" cy="60" r="54" fill="#6c6c6c" />
+    
+    <circle cx="60" cy="60" r="50" fill="#f9f9f9" />
+    
+    <rect x="14" y="24" width="92" height="72" rx="3" fill="#e7e7e7" stroke="#bbbbbb" stroke-width="1" />
+    
+    <rect x="52" y="24" width="16" height="72" rx="1" fill="#cfcfcf" stroke="#bbbbbb" stroke-width="0.5" />
+    
+    
+    <rect x="24" y="30" width="26" height="3" rx="0.5" fill="url(#pd_bladeGrad)" stroke="#aaaaaa" stroke-width="0.3" />
+    <rect x="24" y="28" width="26" height="2" rx="0.5" fill="#636363" />
+    
+    <rect x="70" y="30" width="26" height="3" rx="0.5" fill="url(#pd_bladeGrad)" stroke="#aaaaaa" stroke-width="0.3" />
+    <rect x="70" y="28" width="26" height="2" rx="0.5" fill="#f0f0f0" />
+    
+    <rect x="24" y="44" width="26" height="3" rx="0.5" fill="url(#pd_bladeGrad)" stroke="#aaaaaa" stroke-width="0.3" />
+    <rect x="24" y="42" width="26" height="2" rx="0.5" fill="#8b8b8b" />
+    <rect x="70" y="44" width="26" height="3" rx="0.5" fill="url(#pd_bladeGrad)" stroke="#aaaaaa" stroke-width="0.3" />
+    <rect x="70" y="42" width="26" height="2" rx="0.5" fill="#f0f0f0" />
+    
+    <rect x="24" y="58" width="26" height="3" rx="0.5" fill="url(#pd_bladeGrad)" stroke="#aaaaaa" stroke-width="0.3" />
+    <rect x="24" y="56" width="26" height="2" rx="0.5" fill="#898989" />
+    <rect x="70" y="58" width="26" height="3" rx="0.5" fill="url(#pd_bladeGrad)" stroke="#aaaaaa" stroke-width="0.3" />
+    <rect x="70" y="56" width="26" height="2" rx="0.5" fill="#f0f0f0" />
+    
+    <rect x="24" y="72" width="26" height="3" rx="0.5" fill="url(#pd_bladeGrad)" stroke="#aaaaaa" stroke-width="0.3" />
+    <rect x="24" y="70" width="26" height="2" rx="0.5" fill="#5c5c5c" />
+    <rect x="70" y="72" width="26" height="3" rx="0.5" fill="url(#pd_bladeGrad)" stroke="#aaaaaa" stroke-width="0.3" />
+    <rect x="70" y="70" width="26" height="2" rx="0.5" fill="#f0f0f0" />
+    
+    <rect x="24" y="86" width="26" height="3" rx="0.5" fill="url(#pd_bladeGrad)" stroke="#aaaaaa" stroke-width="0.3" />
+    <rect x="24" y="84" width="26" height="2" rx="0.5" fill="#636363" fill-opacity="0.6" />
+    <rect x="70" y="86" width="26" height="3" rx="0.5" fill="url(#pd_bladeGrad)" stroke="#aaaaaa" stroke-width="0.3" />
+    <rect x="70" y="84" width="26" height="2" rx="0.5" fill="#f0f0f0" fill-opacity="0.6" />
+  </svg>
