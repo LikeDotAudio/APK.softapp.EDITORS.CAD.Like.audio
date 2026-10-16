@@ -93,21 +93,21 @@ describe('the standard is transcribed, not paraphrased', () => {
 });
 
 describe('every type is a connector the tool knows', () => {
-    it.each(AES72_ABBREVIATIONS)('%s is offered in the picker, with its pinout', (abbrev) => {
+    it.each(AES72_ABBREVIATIONS)('%s is offered in the picker, with its pinout', (abbrev: string) => {
         expect(isKnownConnector(abbrev)).toBe(true);
         // The pin map IS the type — a description that omits it leaves two
         // entries in the list indistinguishable.
         expect(lookupConnector(abbrev)?.description).toMatch(/Pins 1-8: /);
     });
 
-    it.each(AES72_ABBREVIATIONS)('%s draws as its RJ45 shell, in either casing', (abbrev) => {
+    it.each(AES72_ABBREVIATIONS)('%s draws as its RJ45 shell, in either casing', (abbrev: string) => {
         // The canvas asks with the parsed (upper-cased) type, the panel asks with
         // the raw one, and ICONS is an exact-key map — so both must resolve.
         expect(ICONS[abbrev]).toBeDefined();
         expect(ICONS[parseConnectorRef(abbrev).type]).toBe(ICONS[abbrev]);
     });
 
-    it.each(AES72_ABBREVIATIONS)('%s carries four channels and counts as multipin', (abbrev) => {
+    it.each(AES72_ABBREVIATIONS)('%s carries four channels and counts as multipin', (abbrev: string) => {
         expect(connectorCapacity(abbrev)).toBe(AES72_CHANNELS);
         expect(isMultipinType(abbrev)).toBe(true);
     });
