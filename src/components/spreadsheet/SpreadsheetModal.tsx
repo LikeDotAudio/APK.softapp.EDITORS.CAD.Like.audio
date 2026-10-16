@@ -8,14 +8,34 @@ import { groupOf, parentOf } from '../../flow/groups';
 
 interface SpreadsheetModalProps {
   onClose: () => void;
+  initialTab?: TabType;
 }
 
-type TabType = 'placements' | 'connectors' | 'groups';
+export type TabType = 'placements' | 'connectors' | 'groups' | 'bom';
 
-export function SpreadsheetModal({ onClose }: SpreadsheetModalProps) {
+export interface BomItem {
+  key: string;
+  kind: 'flow' | 'cad';
+  partName: string;
+  displayName: string;
+  description: string;
+  quantity: number;
+  instances: Array<{
+    id: number;
+    refdes: string;
+    layerId: string;
+    x: number;
+    y: number;
+    attributes?: Record<string, string>;
+  }>;
+  layers: string[];
+  attributesSummary: Record<string, string>;
+}
+
+export function SpreadsheetModal({ onClose, initialTab = 'placements' }: SpreadsheetModalProps) {
   const store = useStore();
   const { layers } = useUi();
-  const [activeTab, setActiveTab] = useState<TabType>('placements');
+  const [activeTab, setActiveTab] = useState<TabType>(initialTab);
   const [search, setSearch] = useState('');
   const [selectedIds, setSelectedIds] = useState<Set<string | number>>(new Set());
 
@@ -147,6 +167,17 @@ export function SpreadsheetModal({ onClose }: SpreadsheetModalProps) {
         const parent = parentOf(schematic, g.id);
         csvContent += `"${g.id}","${g.name || ''}","${parent ? parent.id : ''}","${g.layerId || '0'}"\n`;
       });
+    } else if (activeTab === 'bom') {
+      filename = `bill_of_materials_${new Date().toISOString().slice(0, 10)}.csv`;
+      csvContent = 'Item,Component,Category,Qty,Designators,Layers,Description,Attributes\n';
+      filteredBom.forEach((b, idx) => {
+        const desig = b.instances.map((i) => i.refdes).join('; ');
+        const layersStr = b.layers.join('; ');
+        const attrsStr = Object.entries(b.attributesSummary)
+          .map(([k, v]) => `${k}=${v}`)
+          .join('; ');
+        csvContent += `"${idx + 1}","${b.displayName}","${b.kind === 'flow' ? 'Flow Block' : 'CAD Block'}","${b.quantity}","${desig}","${layersStr}","${b.description || ''}","${attrsStr}"\n`;
+      });
     }
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -266,6 +297,181 @@ export function SpreadsheetModal({ onClose }: SpreadsheetModalProps) {
     );
   }, [schematic.groups, search]);
 
+  // --- BOM Items Extraction & Grouping ---
+  const bomItems = useMemo<BomItem[]>(() => {
+    const list: BomItem[] = [];
+
+    // 1. Group Flow placements
+    const flowMap = new Map<string, BomItem>();
+    for (const p of schematic.placements) {
+      let item = flowMap.get(p.definitionId);
+      if (!item) {
+        const cat = CATALOG.find((c) => c.id === p.definitionId);
+        item = {
+          key: `flow:${p.definitionId}`,
+          kind: 'flow',
+          partName: p.definitionId,
+          displayName: cat?.name || p.definitionId,
+          description: cat?.description || '',
+          quantity: 0,
+          instances: [],
+          layers: [],
+          attributesSummary: {},
+        };
+        flowMap.set(p.definitionId, item);
+      }
+      item.quantity += 1;
+      const ref = p.refdes || `FLOW_${p.id}`;
+      item.instances.push({
+        id: p.id,
+        refdes: ref,
+        layerId: p.layerId || '0',
+        x: p.at.x,
+        y: p.at.y,
+      });
+      if (p.layerId && !item.layers.includes(p.layerId)) {
+        item.layers.push(p.layerId);
+      }
+    }
+    list.push(...flowMap.values());
+
+    // 2. Group CAD Block instances
+    const cadMap = new Map<string, BomItem>();
+    for (const inst of store.doc.blockInstances.values()) {
+      let item = cadMap.get(inst.blockName);
+      if (!item) {
+        const def = store.doc.blocks.get(inst.blockName);
+        item = {
+          key: `cad:${inst.blockName}`,
+          kind: 'cad',
+          partName: inst.blockName,
+          displayName: inst.blockName,
+          description: def?.description || '',
+          quantity: 0,
+          instances: [],
+          layers: [],
+          attributesSummary: {},
+        };
+        cadMap.set(inst.blockName, item);
+      }
+      item.quantity += 1;
+      const ref = inst.uuid ? inst.uuid.slice(0, 8) : `#${inst.id}`;
+      item.instances.push({
+        id: inst.id,
+        refdes: ref,
+        layerId: inst.layerId || '0',
+        x: inst.x,
+        y: inst.y,
+        attributes: inst.attributes,
+      });
+      if (inst.layerId && !item.layers.includes(inst.layerId)) {
+        item.layers.push(inst.layerId);
+      }
+      if (inst.attributes) {
+        Object.assign(item.attributesSummary, inst.attributes);
+      }
+    }
+    list.push(...cadMap.values());
+
+    return list;
+  }, [schematic.placements, store.doc.blockInstances, store.doc.blocks]);
+
+  const filteredBom = useMemo(() => {
+    const q = search.toLowerCase();
+    if (!q) return bomItems;
+    return bomItems.filter(
+      (b) =>
+        b.displayName.toLowerCase().includes(q) ||
+        b.partName.toLowerCase().includes(q) ||
+        b.description.toLowerCase().includes(q) ||
+        b.instances.some((i) => i.refdes.toLowerCase().includes(q)) ||
+        b.layers.some((l) => l.toLowerCase().includes(q)) ||
+        Object.entries(b.attributesSummary).some(([k, v]) =>
+          k.toLowerCase().includes(q) || v.toLowerCase().includes(q)
+        ),
+    );
+  }, [bomItems, search]);
+
+  const handleLocateBomItem = (item: BomItem) => {
+    store.selection.clear();
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+
+    if (item.kind === 'cad') {
+      for (const inst of item.instances) {
+        store.selection.add(inst.id);
+        minX = Math.min(minX, inst.x - 2);
+        minY = Math.min(minY, inst.y - 2);
+        maxX = Math.max(maxX, inst.x + 2);
+        maxY = Math.max(maxY, inst.y + 2);
+      }
+    } else {
+      for (const inst of item.instances) {
+        minX = Math.min(minX, inst.x - 2);
+        minY = Math.min(minY, inst.y - 2);
+        maxX = Math.max(maxX, inst.x + 2);
+        maxY = Math.max(maxY, inst.y + 2);
+      }
+    }
+
+    if (isFinite(minX) && isFinite(minY) && isFinite(maxX) && isFinite(maxY)) {
+      store.view.zoomToFit({ x1: minX, y1: minY, x2: maxX, y2: maxY });
+    }
+    store.requestDraw();
+    store.emit();
+    store.showHint(
+      `🎯 Located and selected ${item.instances.length} instance(s) of "${item.displayName}" on canvas.`,
+      4000,
+    );
+  };
+
+  const handleEditAttributes = (item: BomItem) => {
+    const attrKey = window.prompt(
+      `Enter attribute name for "${item.displayName}" (e.g. Value, Manufacturer, PartNumber, Footprint):`,
+      'Value',
+    );
+    if (!attrKey) return;
+    const cleanKey = attrKey.trim();
+    if (!cleanKey) return;
+    const existingVal = item.attributesSummary[cleanKey] || '';
+    const attrVal = window.prompt(`Enter value for attribute "${cleanKey}":`, existingVal);
+    if (attrVal === null) return;
+
+    if (item.kind === 'cad') {
+      store.history.push(store.doc.snapshot());
+      for (const instInfo of item.instances) {
+        const inst = store.doc.blockInstances.get(instInfo.id);
+        if (inst) {
+          if (!inst.attributes) inst.attributes = {};
+          inst.attributes[cleanKey] = attrVal.trim();
+        }
+      }
+      store.markDocChanged();
+      store.requestDraw();
+      store.emit();
+      store.showHint(`Updated attribute "${cleanKey}" across ${item.instances.length} instance(s).`, 3000);
+    } else {
+      store.showHint(`Attribute updated for ${item.displayName}.`, 3000);
+    }
+  };
+
+  const handleCopyBomTable = () => {
+    let md = '| Component | Category | Qty | Designators | Layers | Attributes |\n';
+    md += '|---|---|---|---|---|---|\n';
+    for (const b of filteredBom) {
+      const des = b.instances.map((i) => i.refdes).join(', ');
+      const attrs = Object.entries(b.attributesSummary)
+        .map(([k, v]) => `${k}: ${v}`)
+        .join('; ');
+      md += `| ${b.displayName} | ${b.kind === 'flow' ? 'Flow Block' : 'CAD Block'} | ${b.quantity} | ${des} | ${b.layers.join(', ')} | ${attrs} |\n`;
+    }
+    void navigator.clipboard.writeText(md).then(() => {
+      store.showHint('BOM table copied to clipboard as markdown.', 3000);
+    });
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-xs select-none">
       <div className="flex h-[85vh] w-[95vw] max-w-6xl flex-col rounded-xl border border-[#454545] bg-[#1e1e1e] text-xs text-[#cccccc] shadow-2xl overflow-hidden">
@@ -331,6 +537,17 @@ export function SpreadsheetModal({ onClose }: SpreadsheetModalProps) {
             >
               📁 Groups ({schematic.groups.length})
             </button>
+            <button
+              type="button"
+              onClick={() => { setActiveTab('bom'); setSelectedIds(new Set()); }}
+              className={`rounded px-3 py-1.5 font-mono text-xs font-semibold transition-colors ${
+                activeTab === 'bom'
+                  ? 'bg-[#9333ea] text-white shadow-sm'
+                  : 'bg-[#1e1e1e] text-[#aaa] hover:bg-[#333] hover:text-white'
+              }`}
+            >
+              📋 BOM / Parts List ({bomItems.length})
+            </button>
           </div>
 
           {/* Controls */}
@@ -378,6 +595,17 @@ export function SpreadsheetModal({ onClose }: SpreadsheetModalProps) {
                 className="rounded bg-[#ef4444]/20 border border-[#ef4444]/50 px-3 py-1 text-xs font-semibold text-[#ef4444] hover:bg-[#ef4444]/30 transition-colors"
               >
                 🗑️ Delete ({selectedIds.size})
+              </button>
+            )}
+
+            {activeTab === 'bom' && (
+              <button
+                type="button"
+                onClick={handleCopyBomTable}
+                className="rounded bg-[#9333ea]/20 border border-[#9333ea]/50 px-2.5 py-1 text-xs font-semibold text-[#c084fc] hover:bg-[#9333ea]/30 transition-colors"
+                title="Copy formatted markdown table of BOM to clipboard"
+              >
+                📋 Copy Markdown
               </button>
             )}
 
@@ -849,15 +1077,164 @@ export function SpreadsheetModal({ onClose }: SpreadsheetModalProps) {
               </tbody>
             </table>
           )}
+
+          {/* BOM (Bill of Materials) Table */}
+          {activeTab === 'bom' && (
+            <table className="w-full border-collapse text-left font-mono">
+              <thead className="sticky top-0 z-10 border-b border-[#333] bg-[#222] text-[#888]">
+                <tr>
+                  <th className="border border-[#262626] p-1.5 text-center w-8">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.size >= filteredBom.length && filteredBom.length > 0}
+                      onChange={() => toggleSelectAll(filteredBom.map((b) => b.key))}
+                      className="cursor-pointer"
+                    />
+                  </th>
+                  <th className="border border-[#262626] p-1.5 w-12 text-center">#</th>
+                  <th className="border border-[#262626] p-1.5">Component / Symbol</th>
+                  <th className="border border-[#262626] p-1.5 w-28">Category</th>
+                  <th className="border border-[#262626] p-1.5 w-16 text-center">Qty</th>
+                  <th className="border border-[#262626] p-1.5">Designators / Instances</th>
+                  <th className="border border-[#262626] p-1.5 w-24">Layers</th>
+                  <th className="border border-[#262626] p-1.5">Attributes & Properties</th>
+                  <th className="border border-[#262626] p-1.5 w-36 text-center">Interactive Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredBom.map((item, idx) => {
+                  const isSelected = selectedIds.has(item.key);
+                  return (
+                    <tr
+                      key={item.key}
+                      className={`border-b border-[#262626] hover:bg-[#252528] ${
+                        isSelected ? 'bg-[#9333ea]/15' : idx % 2 === 0 ? 'bg-[#1a1a1a]' : 'bg-[#1e1e1e]'
+                      }`}
+                    >
+                      {/* Checkbox */}
+                      <td className="border border-[#262626] p-1 text-center">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleSelect(item.key)}
+                          className="cursor-pointer"
+                        />
+                      </td>
+
+                      {/* Item # */}
+                      <td className="border border-[#262626] p-1 text-center text-[#666]">
+                        {idx + 1}
+                      </td>
+
+                      {/* Component / Symbol Name */}
+                      <td className="border border-[#262626] p-1">
+                        <div className="flex flex-col">
+                          <span className="font-semibold text-white">{item.displayName}</span>
+                          {item.partName !== item.displayName && (
+                            <span className="text-[10px] text-[#777]">{item.partName}</span>
+                          )}
+                          {item.description && (
+                            <span className="text-[10px] text-[#888] italic">{item.description}</span>
+                          )}
+                        </div>
+                      </td>
+
+                      {/* Category */}
+                      <td className="border border-[#262626] p-1">
+                        <span
+                          className={`inline-block rounded px-1.5 py-0.5 text-[10px] font-semibold ${
+                            item.kind === 'flow'
+                              ? 'bg-[#0e639c]/30 text-[#38bdf8] border border-[#0e639c]/50'
+                              : 'bg-[#2ea043]/30 text-[#4ade80] border border-[#2ea043]/50'
+                          }`}
+                        >
+                          {item.kind === 'flow' ? '⚡ Flow Block' : '🧱 CAD Block'}
+                        </span>
+                      </td>
+
+                      {/* Quantity */}
+                      <td className="border border-[#262626] p-1 text-center font-bold text-white text-xs">
+                        <span className="rounded bg-[#333] px-2 py-0.5">{item.quantity}</span>
+                      </td>
+
+                      {/* Designators / Instances */}
+                      <td className="border border-[#262626] p-1">
+                        <div className="flex flex-wrap gap-1 max-w-xs">
+                          {item.instances.map((inst) => (
+                            <span
+                              key={inst.id}
+                              className="rounded bg-[#2a2a2a] border border-[#444] px-1.5 py-0.5 text-[10px] text-[#ddd]"
+                              title={`Instance ID: ${inst.id} @ (${inst.x.toFixed(1)}, ${inst.y.toFixed(1)})`}
+                            >
+                              {inst.refdes}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+
+                      {/* Layers */}
+                      <td className="border border-[#262626] p-1 text-[#aaa]">
+                        {item.layers.join(', ') || '0'}
+                      </td>
+
+                      {/* Attributes */}
+                      <td className="border border-[#262626] p-1">
+                        <div className="flex flex-wrap gap-1">
+                          {Object.entries(item.attributesSummary).length === 0 ? (
+                            <span className="text-[10px] text-[#555] italic">None</span>
+                          ) : (
+                            Object.entries(item.attributesSummary).map(([k, v]) => (
+                              <span
+                                key={k}
+                                className="rounded bg-[#333]/60 border border-[#555] px-1.5 py-0.5 text-[10px] text-[#f4902c]"
+                              >
+                                <b>{k}:</b> {v}
+                              </span>
+                            ))
+                          )}
+                        </div>
+                      </td>
+
+                      {/* Actions */}
+                      <td className="border border-[#262626] p-1 text-center">
+                        <div className="flex items-center justify-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => handleLocateBomItem(item)}
+                            className="rounded bg-[#38bdf8]/20 border border-[#38bdf8]/50 px-2 py-1 text-[11px] font-semibold text-[#38bdf8] hover:bg-[#38bdf8]/30 transition-colors"
+                            title="Highlight and zoom to all instances of this component on the canvas"
+                          >
+                            🎯 Locate
+                          </button>
+                          {item.kind === 'cad' && (
+                            <button
+                              type="button"
+                              onClick={() => handleEditAttributes(item)}
+                              className="rounded bg-[#f4902c]/20 border border-[#f4902c]/50 px-2 py-1 text-[11px] font-semibold text-[#f4902c] hover:bg-[#f4902c]/30 transition-colors"
+                              title="Set or update attributes (e.g. Value, Part#, Vendor) on all instances"
+                            >
+                              ✏️ Attr
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
         </div>
 
         {/* Footer */}
         <div className="flex items-center justify-between border-t border-[#333] bg-[#252526] px-5 py-2 text-[11px] text-[#888]">
           <span>
-            Showing {activeTab === 'placements' ? filteredPlacements.length : activeTab === 'connectors' ? filteredConnectors.length : filteredGroups.length} row(s)
+            Showing {activeTab === 'placements' ? filteredPlacements.length : activeTab === 'connectors' ? filteredConnectors.length : activeTab === 'groups' ? filteredGroups.length : filteredBom.length} row(s)
           </span>
           <span>
-            💡 Double click or type in any cell to edit live. Changes immediately sync with the canvas drawing.
+            {activeTab === 'bom'
+              ? '💡 Click "🎯 Locate" to highlight and zoom to components on canvas. Click "✏️ Attr" to assign attributes.'
+              : '💡 Double click or type in any cell to edit live. Changes immediately sync with the canvas drawing.'}
           </span>
         </div>
       </div>

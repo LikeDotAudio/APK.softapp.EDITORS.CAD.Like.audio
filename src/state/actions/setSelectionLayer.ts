@@ -4,9 +4,15 @@ import type { EditorStore } from '../EditorStore';
 
 export function setSelectionLayer(store: EditorStore, layerId: string): void {
   if (!store.layers.has(layerId) || store.selection.size === 0) return;
-  for (const edgeId of store.selection) {
-    const e = store.doc.edges.get(edgeId);
+  for (const id of store.selection) {
+    const e = store.doc.edges.get(id);
     if (e && !e.protected) e.layerId = layerId;
+    const t = store.doc.texts.get(id);
+    if (t && !t.protected) t.layerId = layerId;
+    const f = store.doc.fills.get(id);
+    if (f && !f.protected) f.layerId = layerId;
+    const b = store.doc.blockInstances.get(id);
+    if (b && !b.protected) b.layerId = layerId;
   }
   store.requestDraw();
   store.emit();

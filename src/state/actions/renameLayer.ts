@@ -17,9 +17,18 @@ export function renameLayer(store: EditorStore, id: string, newName: string): vo
     store.activeLayerId = clean;
   }
 
-  // Update layerId on all edges referencing old layer id
+  // Update layerId on all entities referencing old layer id
   for (const e of store.doc.edges.values()) {
     if (e.layerId === id) e.layerId = clean;
+  }
+  for (const t of store.doc.texts.values()) {
+    if (t.layerId === id) t.layerId = clean;
+  }
+  for (const f of store.doc.fills.values()) {
+    if (f.layerId === id) f.layerId = clean;
+  }
+  for (const bi of store.doc.blockInstances.values()) {
+    if (bi.layerId === id) bi.layerId = clean;
   }
 
   store.requestDraw();

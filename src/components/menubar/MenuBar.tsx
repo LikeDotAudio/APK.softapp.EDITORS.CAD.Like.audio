@@ -12,6 +12,7 @@ import { ModifyMenu } from './menus/ModifyMenu';
 
 interface MenuBarProps {
   onOpenSpreadsheet?: () => void;
+  onOpenBom?: () => void;
   onOpenElementsEditor?: () => void;
   onOpenBlockEditor?: () => void;
 }
@@ -20,7 +21,7 @@ interface MenuBarProps {
  * The application header. It owns only "which menu is open" — every dropdown
  * lives in its own file under `menus/`.
  */
-export function MenuBar({ onOpenSpreadsheet, onOpenElementsEditor, onOpenBlockEditor }: MenuBarProps) {
+export function MenuBar({ onOpenSpreadsheet, onOpenBom, onOpenElementsEditor, onOpenBlockEditor }: MenuBarProps) {
   const [openMenu, setOpenMenu] = useState<MenuId | null>(null);
   const close = useCallback(() => setOpenMenu(null), []);
   useMenuDismiss(close);
@@ -59,6 +60,14 @@ export function MenuBar({ onOpenSpreadsheet, onOpenElementsEditor, onOpenBlockEd
         >
           <span>🔲</span>
           <span>Elements</span>
+        </button>
+        <button
+          onClick={onOpenBom}
+          className="flex items-center gap-1.5 rounded bg-[#9333ea] px-2.5 py-1 text-xs font-semibold text-white hover:bg-[#a855f7] transition-colors font-mono tracking-wide"
+          title="Open interactive Bill of Materials (BOM) to link, inspect, and export component parts"
+        >
+          <span>📋</span>
+          <span>BOM</span>
         </button>
         <button
           onClick={onOpenSpreadsheet}

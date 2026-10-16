@@ -4,9 +4,15 @@ import type { EditorStore } from '../EditorStore';
 
 export function setSelectionProtected(store: EditorStore, isProtected: boolean): void {
   if (store.selection.size === 0) return;
-  for (const edgeId of store.selection) {
-    const e = store.doc.edges.get(edgeId);
+  for (const id of store.selection) {
+    const e = store.doc.edges.get(id);
     if (e) e.protected = isProtected;
+    const t = store.doc.texts.get(id);
+    if (t) t.protected = isProtected;
+    const f = store.doc.fills.get(id);
+    if (f) f.protected = isProtected;
+    const b = store.doc.blockInstances.get(id);
+    if (b) b.protected = isProtected;
   }
   store.requestDraw();
   store.emit();

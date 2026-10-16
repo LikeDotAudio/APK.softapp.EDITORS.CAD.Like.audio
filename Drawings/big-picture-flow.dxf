@@ -9,7 +9,7 @@ AC1015
   9
 $HANDSEED
   5
-14D
+188
   9
 $INSUNITS
  70
@@ -33,7 +33,7 @@ TABLE
   2
 LTYPE
   5
-12D
+15C
 330
 0
 100
@@ -43,9 +43,9 @@ AcDbSymbolTable
   0
 LTYPE
   5
-12E
+15D
 330
-12D
+15C
 100
 AcDbSymbolTableRecord
 100
@@ -69,7 +69,7 @@ TABLE
   2
 LAYER
   5
-12F
+15E
 330
 0
 100
@@ -79,9 +79,9 @@ AcDbSymbolTable
   0
 LAYER
   5
-130
+15F
 330
-12F
+15E
 100
 AcDbSymbolTableRecord
 100
@@ -105,19 +105,19 @@ TABLE
   2
 BLOCK_RECORD
   5
-131
+160
 330
 0
 100
 AcDbSymbolTable
  70
-6
+12
   0
 BLOCK_RECORD
   5
 101
 330
-131
+160
 100
 AcDbSymbolTableRecord
 100
@@ -133,7 +133,7 @@ BLOCK_RECORD
   5
 102
 330
-131
+160
 100
 AcDbSymbolTableRecord
 100
@@ -149,7 +149,103 @@ BLOCK_RECORD
   5
 103
 330
-131
+160
+100
+AcDbSymbolTableRecord
+100
+AcDbBlockTableRecord
+  2
+RESISTOR
+340
+0
+ 70
+0
+  0
+BLOCK_RECORD
+  5
+10D
+330
+160
+100
+AcDbSymbolTableRecord
+100
+AcDbBlockTableRecord
+  2
+CAPACITOR
+340
+0
+ 70
+0
+  0
+BLOCK_RECORD
+  5
+113
+330
+160
+100
+AcDbSymbolTableRecord
+100
+AcDbBlockTableRecord
+  2
+GROUND
+340
+0
+ 70
+0
+  0
+BLOCK_RECORD
+  5
+118
+330
+160
+100
+AcDbSymbolTableRecord
+100
+AcDbBlockTableRecord
+  2
+DIODE
+340
+0
+ 70
+0
+  0
+BLOCK_RECORD
+  5
+11F
+330
+160
+100
+AcDbSymbolTableRecord
+100
+AcDbBlockTableRecord
+  2
+OPAMP
+340
+0
+ 70
+0
+  0
+BLOCK_RECORD
+  5
+128
+330
+160
+100
+AcDbSymbolTableRecord
+100
+AcDbBlockTableRecord
+  2
+TITLE_BLOCK
+340
+0
+ 70
+0
+  0
+BLOCK_RECORD
+  5
+132
+330
+160
 100
 AcDbSymbolTableRecord
 100
@@ -163,9 +259,9 @@ FLOW_SOURCE
   0
 BLOCK_RECORD
   5
-109
+138
 330
-131
+160
 100
 AcDbSymbolTableRecord
 100
@@ -179,9 +275,9 @@ FLOW_PROCESS
   0
 BLOCK_RECORD
   5
-112
+141
 330
-131
+160
 100
 AcDbSymbolTableRecord
 100
@@ -195,9 +291,9 @@ FLOW_SPLIT
   0
 BLOCK_RECORD
   5
-11B
+14A
 330
-131
+160
 100
 AcDbSymbolTableRecord
 100
@@ -219,7 +315,7 @@ BLOCKS
   0
 BLOCK
   5
-132
+161
 330
 101
 100
@@ -245,7 +341,7 @@ AcDbBlockBegin
   0
 ENDBLK
   5
-133
+162
 330
 101
 100
@@ -257,7 +353,7 @@ AcDbBlockEnd
   0
 BLOCK
   5
-134
+163
 330
 102
 100
@@ -283,7 +379,7 @@ AcDbBlockBegin
   0
 ENDBLK
   5
-135
+164
 330
 102
 100
@@ -295,9 +391,1235 @@ AcDbBlockEnd
   0
 BLOCK
   5
-136
+165
 330
 103
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockBegin
+  2
+RESISTOR
+ 70
+0
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  3
+RESISTOR
+  1
+
+  0
+LINE
+  5
+104
+330
+103
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+-1.000000
+ 20
+0.000000
+ 30
+0.0
+ 11
+-0.600000
+ 21
+0.000000
+ 31
+0.0
+  0
+LINE
+  5
+105
+330
+103
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+-0.600000
+ 20
+0.000000
+ 30
+0.0
+ 11
+-0.400000
+ 21
+0.250000
+ 31
+0.0
+  0
+LINE
+  5
+106
+330
+103
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+-0.400000
+ 20
+0.250000
+ 30
+0.0
+ 11
+-0.200000
+ 21
+-0.250000
+ 31
+0.0
+  0
+LINE
+  5
+107
+330
+103
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+-0.200000
+ 20
+-0.250000
+ 30
+0.0
+ 11
+0.000000
+ 21
+0.250000
+ 31
+0.0
+  0
+LINE
+  5
+108
+330
+103
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+0.000000
+ 20
+0.250000
+ 30
+0.0
+ 11
+0.200000
+ 21
+-0.250000
+ 31
+0.0
+  0
+LINE
+  5
+109
+330
+103
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+0.200000
+ 20
+-0.250000
+ 30
+0.0
+ 11
+0.400000
+ 21
+0.250000
+ 31
+0.0
+  0
+LINE
+  5
+10A
+330
+103
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+0.400000
+ 20
+0.250000
+ 30
+0.0
+ 11
+0.600000
+ 21
+0.000000
+ 31
+0.0
+  0
+LINE
+  5
+10B
+330
+103
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+0.600000
+ 20
+0.000000
+ 30
+0.0
+ 11
+1.000000
+ 21
+0.000000
+ 31
+0.0
+  0
+TEXT
+  5
+10C
+330
+103
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-0.100000
+ 20
+0.350000
+ 30
+0.0
+ 40
+0.250000
+  1
+R
+ 50
+0.000000
+100
+AcDbText
+  0
+ENDBLK
+  5
+166
+330
+103
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockEnd
+  0
+BLOCK
+  5
+167
+330
+10D
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockBegin
+  2
+CAPACITOR
+ 70
+0
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  3
+CAPACITOR
+  1
+
+  0
+LINE
+  5
+10E
+330
+10D
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+-0.800000
+ 20
+0.000000
+ 30
+0.0
+ 11
+-0.150000
+ 21
+0.000000
+ 31
+0.0
+  0
+LINE
+  5
+10F
+330
+10D
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+-0.150000
+ 20
+-0.400000
+ 30
+0.0
+ 11
+-0.150000
+ 21
+0.400000
+ 31
+0.0
+  0
+LINE
+  5
+110
+330
+10D
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+0.150000
+ 20
+-0.400000
+ 30
+0.0
+ 11
+0.150000
+ 21
+0.400000
+ 31
+0.0
+  0
+LINE
+  5
+111
+330
+10D
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+0.150000
+ 20
+0.000000
+ 30
+0.0
+ 11
+0.800000
+ 21
+0.000000
+ 31
+0.0
+  0
+TEXT
+  5
+112
+330
+10D
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-0.100000
+ 20
+0.480000
+ 30
+0.0
+ 40
+0.250000
+  1
+C
+ 50
+0.000000
+100
+AcDbText
+  0
+ENDBLK
+  5
+168
+330
+10D
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockEnd
+  0
+BLOCK
+  5
+169
+330
+113
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockBegin
+  2
+GROUND
+ 70
+0
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  3
+GROUND
+  1
+
+  0
+LINE
+  5
+114
+330
+113
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+0.000000
+ 20
+0.400000
+ 30
+0.0
+ 11
+0.000000
+ 21
+0.000000
+ 31
+0.0
+  0
+LINE
+  5
+115
+330
+113
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+-0.400000
+ 20
+0.000000
+ 30
+0.0
+ 11
+0.400000
+ 21
+0.000000
+ 31
+0.0
+  0
+LINE
+  5
+116
+330
+113
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+-0.250000
+ 20
+-0.150000
+ 30
+0.0
+ 11
+0.250000
+ 21
+-0.150000
+ 31
+0.0
+  0
+LINE
+  5
+117
+330
+113
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+-0.100000
+ 20
+-0.300000
+ 30
+0.0
+ 11
+0.100000
+ 21
+-0.300000
+ 31
+0.0
+  0
+ENDBLK
+  5
+16A
+330
+113
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockEnd
+  0
+BLOCK
+  5
+16B
+330
+118
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockBegin
+  2
+DIODE
+ 70
+0
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  3
+DIODE
+  1
+
+  0
+LINE
+  5
+119
+330
+118
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+-0.800000
+ 20
+0.000000
+ 30
+0.0
+ 11
+-0.300000
+ 21
+0.000000
+ 31
+0.0
+  0
+LINE
+  5
+11A
+330
+118
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+-0.300000
+ 20
+-0.350000
+ 30
+0.0
+ 11
+-0.300000
+ 21
+0.350000
+ 31
+0.0
+  0
+LINE
+  5
+11B
+330
+118
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+-0.300000
+ 20
+0.350000
+ 30
+0.0
+ 11
+0.300000
+ 21
+0.000000
+ 31
+0.0
+  0
+LINE
+  5
+11C
+330
+118
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+0.300000
+ 20
+0.000000
+ 30
+0.0
+ 11
+-0.300000
+ 21
+-0.350000
+ 31
+0.0
+  0
+LINE
+  5
+11D
+330
+118
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+0.300000
+ 20
+-0.350000
+ 30
+0.0
+ 11
+0.300000
+ 21
+0.350000
+ 31
+0.0
+  0
+LINE
+  5
+11E
+330
+118
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+0.300000
+ 20
+0.000000
+ 30
+0.0
+ 11
+0.800000
+ 21
+0.000000
+ 31
+0.0
+  0
+ENDBLK
+  5
+16C
+330
+118
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockEnd
+  0
+BLOCK
+  5
+16D
+330
+11F
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockBegin
+  2
+OPAMP
+ 70
+0
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  3
+OPAMP
+  1
+
+  0
+LINE
+  5
+120
+330
+11F
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+-0.800000
+ 20
+-0.800000
+ 30
+0.0
+ 11
+-0.800000
+ 21
+0.800000
+ 31
+0.0
+  0
+LINE
+  5
+121
+330
+11F
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+-0.800000
+ 20
+0.800000
+ 30
+0.0
+ 11
+0.800000
+ 21
+0.000000
+ 31
+0.0
+  0
+LINE
+  5
+122
+330
+11F
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+0.800000
+ 20
+0.000000
+ 30
+0.0
+ 11
+-0.800000
+ 21
+-0.800000
+ 31
+0.0
+  0
+LINE
+  5
+123
+330
+11F
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+-1.300000
+ 20
+0.400000
+ 30
+0.0
+ 11
+-0.800000
+ 21
+0.400000
+ 31
+0.0
+  0
+LINE
+  5
+124
+330
+11F
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+-1.300000
+ 20
+-0.400000
+ 30
+0.0
+ 11
+-0.800000
+ 21
+-0.400000
+ 31
+0.0
+  0
+LINE
+  5
+125
+330
+11F
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+0.800000
+ 20
+0.000000
+ 30
+0.0
+ 11
+1.300000
+ 21
+0.000000
+ 31
+0.0
+  0
+TEXT
+  5
+126
+330
+11F
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-0.700000
+ 20
+0.300000
+ 30
+0.0
+ 40
+0.200000
+  1
++
+ 50
+0.000000
+100
+AcDbText
+  0
+TEXT
+  5
+127
+330
+11F
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+-0.700000
+ 20
+-0.450000
+ 30
+0.0
+ 40
+0.200000
+  1
+−
+ 50
+0.000000
+100
+AcDbText
+  0
+ENDBLK
+  5
+16E
+330
+11F
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockEnd
+  0
+BLOCK
+  5
+16F
+330
+128
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockBegin
+  2
+TITLE_BLOCK
+ 70
+0
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  3
+TITLE_BLOCK
+  1
+
+  0
+LINE
+  5
+129
+330
+128
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+0.000000
+ 20
+0.000000
+ 30
+0.0
+ 11
+4.000000
+ 21
+0.000000
+ 31
+0.0
+  0
+LINE
+  5
+12A
+330
+128
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+4.000000
+ 20
+0.000000
+ 30
+0.0
+ 11
+4.000000
+ 21
+1.500000
+ 31
+0.0
+  0
+LINE
+  5
+12B
+330
+128
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+4.000000
+ 20
+1.500000
+ 30
+0.0
+ 11
+0.000000
+ 21
+1.500000
+ 31
+0.0
+  0
+LINE
+  5
+12C
+330
+128
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+0.000000
+ 20
+1.500000
+ 30
+0.0
+ 11
+0.000000
+ 21
+0.000000
+ 31
+0.0
+  0
+LINE
+  5
+12D
+330
+128
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+0.000000
+ 20
+0.800000
+ 30
+0.0
+ 11
+4.000000
+ 21
+0.800000
+ 31
+0.0
+  0
+LINE
+  5
+12E
+330
+128
+100
+AcDbEntity
+  8
+0
+100
+AcDbLine
+ 10
+2.200000
+ 20
+0.000000
+ 30
+0.0
+ 11
+2.200000
+ 21
+0.800000
+ 31
+0.0
+  0
+TEXT
+  5
+12F
+330
+128
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+0.150000
+ 20
+1.050000
+ 30
+0.0
+ 40
+0.220000
+  1
+TITLE: CAD.LIKE.AUDIO
+ 50
+0.000000
+100
+AcDbText
+  0
+TEXT
+  5
+130
+330
+128
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+0.150000
+ 20
+0.300000
+ 30
+0.0
+ 40
+0.180000
+  1
+REV: 1.0
+ 50
+0.000000
+100
+AcDbText
+  0
+TEXT
+  5
+131
+330
+128
+100
+AcDbEntity
+  8
+0
+100
+AcDbText
+ 10
+2.350000
+ 20
+0.300000
+ 30
+0.0
+ 40
+0.180000
+  1
+SCALE: 1:1
+ 50
+0.000000
+100
+AcDbText
+  0
+ENDBLK
+  5
+170
+330
+128
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockEnd
+  0
+BLOCK
+  5
+171
+330
+132
 100
 AcDbEntity
   8
@@ -321,9 +1643,9 @@ FLOW_SOURCE
   0
 LWPOLYLINE
   5
-104
+133
 330
-103
+132
 100
 AcDbEntity
   8
@@ -353,9 +1675,9 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-105
+134
 330
-103
+132
 100
 AcDbEntity
   8
@@ -385,9 +1707,9 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-106
+135
 330
-103
+132
 100
 AcDbEntity
   8
@@ -409,9 +1731,9 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-107
+136
 330
-103
+132
 100
 AcDbEntity
   8
@@ -433,9 +1755,9 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-108
+137
 330
-103
+132
 100
 AcDbEntity
   8
@@ -457,9 +1779,9 @@ AcDbPolyline
   0
 ENDBLK
   5
-137
+172
 330
-103
+132
 100
 AcDbEntity
   8
@@ -469,9 +1791,9 @@ AcDbBlockEnd
   0
 BLOCK
   5
-138
+173
 330
-109
+138
 100
 AcDbEntity
   8
@@ -495,9 +1817,9 @@ FLOW_PROCESS
   0
 LWPOLYLINE
   5
-10A
+139
 330
-109
+138
 100
 AcDbEntity
   8
@@ -527,9 +1849,9 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-10B
+13A
 330
-109
+138
 100
 AcDbEntity
   8
@@ -551,9 +1873,9 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-10C
+13B
 330
-109
+138
 100
 AcDbEntity
   8
@@ -587,9 +1909,9 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-10D
+13C
 330
-109
+138
 100
 AcDbEntity
   8
@@ -611,9 +1933,9 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-10E
+13D
 330
-109
+138
 100
 AcDbEntity
   8
@@ -635,9 +1957,9 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-10F
+13E
 330
-109
+138
 100
 AcDbEntity
   8
@@ -659,9 +1981,9 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-110
+13F
 330
-109
+138
 100
 AcDbEntity
   8
@@ -683,9 +2005,9 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-111
+140
 330
-109
+138
 100
 AcDbEntity
   8
@@ -707,9 +2029,9 @@ AcDbPolyline
   0
 ENDBLK
   5
-139
+174
 330
-109
+138
 100
 AcDbEntity
   8
@@ -719,9 +2041,9 @@ AcDbBlockEnd
   0
 BLOCK
   5
-13A
+175
 330
-112
+141
 100
 AcDbEntity
   8
@@ -745,9 +2067,9 @@ FLOW_SPLIT
   0
 LWPOLYLINE
   5
-113
+142
 330
-112
+141
 100
 AcDbEntity
   8
@@ -777,9 +2099,9 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-114
+143
 330
-112
+141
 100
 AcDbEntity
   8
@@ -805,9 +2127,9 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-115
+144
 330
-112
+141
 100
 AcDbEntity
   8
@@ -829,9 +2151,9 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-116
+145
 330
-112
+141
 100
 AcDbEntity
   8
@@ -853,9 +2175,9 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-117
+146
 330
-112
+141
 100
 AcDbEntity
   8
@@ -877,9 +2199,9 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-118
+147
 330
-112
+141
 100
 AcDbEntity
   8
@@ -901,9 +2223,9 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-119
+148
 330
-112
+141
 100
 AcDbEntity
   8
@@ -925,9 +2247,9 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-11A
+149
 330
-112
+141
 100
 AcDbEntity
   8
@@ -949,9 +2271,9 @@ AcDbPolyline
   0
 ENDBLK
   5
-13B
+176
 330
-112
+141
 100
 AcDbEntity
   8
@@ -961,9 +2283,9 @@ AcDbBlockEnd
   0
 BLOCK
   5
-13C
+177
 330
-11B
+14A
 100
 AcDbEntity
   8
@@ -987,9 +2309,9 @@ FLOW_SINK
   0
 LWPOLYLINE
   5
-11C
+14B
 330
-11B
+14A
 100
 AcDbEntity
   8
@@ -1019,9 +2341,9 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-11D
+14C
 330
-11B
+14A
 100
 AcDbEntity
   8
@@ -1043,9 +2365,9 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-11E
+14D
 330
-11B
+14A
 100
 AcDbEntity
   8
@@ -1067,9 +2389,9 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-11F
+14E
 330
-11B
+14A
 100
 AcDbEntity
   8
@@ -1091,9 +2413,9 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-120
+14F
 330
-11B
+14A
 100
 AcDbEntity
   8
@@ -1115,9 +2437,9 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-121
+150
 330
-11B
+14A
 100
 AcDbEntity
   8
@@ -1139,9 +2461,9 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-122
+151
 330
-11B
+14A
 100
 AcDbEntity
   8
@@ -1163,9 +2485,9 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-123
+152
 330
-11B
+14A
 100
 AcDbEntity
   8
@@ -1187,9 +2509,9 @@ AcDbPolyline
   0
 ENDBLK
   5
-13D
+178
 330
-11B
+14A
 100
 AcDbEntity
   8
@@ -1205,7 +2527,7 @@ ENTITIES
   0
 INSERT
   5
-124
+153
 330
 101
 100
@@ -1233,7 +2555,7 @@ FLOW_SOURCE
   0
 INSERT
   5
-125
+154
 330
 101
 100
@@ -1261,7 +2583,7 @@ FLOW_PROCESS
   0
 INSERT
   5
-126
+155
 330
 101
 100
@@ -1289,7 +2611,7 @@ FLOW_SPLIT
   0
 INSERT
   5
-127
+156
 330
 101
 100
@@ -1317,7 +2639,7 @@ FLOW_SINK
   0
 INSERT
   5
-128
+157
 330
 101
 100
@@ -1345,7 +2667,7 @@ FLOW_SINK
   0
 LWPOLYLINE
   5
-129
+158
 330
 101
 100
@@ -1369,7 +2691,7 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-12A
+159
 330
 101
 100
@@ -1393,7 +2715,7 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-12B
+15A
 330
 101
 100
@@ -1417,7 +2739,7 @@ AcDbPolyline
   0
 LWPOLYLINE
   5
-12C
+15B
 330
 101
 100

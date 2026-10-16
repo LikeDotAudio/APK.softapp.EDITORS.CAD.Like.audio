@@ -25,11 +25,17 @@ export default function App() {
   const [entrance] = useState(currentEntrance);
   const [store] = useState(() => new EditorStore(entrance));
   const [showSpreadsheet, setShowSpreadsheet] = useState(false);
+  const [spreadsheetTab, setSpreadsheetTab] = useState<'placements' | 'connectors' | 'groups' | 'bom'>('placements');
   const [showElementsEditor, setShowElementsEditor] = useState(false);
   const [showBlockEditor, setShowBlockEditor] = useState(false);
   const [blockEditorTarget, setBlockEditorTarget] = useState<string | undefined>(undefined);
   // Prompt user on startup whether to open cached file, open another, create from clipboard, or start fresh
   const [showStartupModal, setShowStartupModal] = useState(() => entrance.entrance === 'drawing');
+
+  const handleOpenSpreadsheet = (tab: 'placements' | 'connectors' | 'groups' | 'bom' = 'placements') => {
+    setSpreadsheetTab(tab);
+    setShowSpreadsheet(true);
+  };
 
   useEffect(() => {
     store.openBlockEditorModal = (blockName?: string) => {
@@ -56,7 +62,8 @@ export default function App() {
         <div className="flex h-full flex-col overflow-hidden bg-[#1e1e1e]">
           {/* Top CAD Header Bar */}
           <MenuBar
-            onOpenSpreadsheet={() => setShowSpreadsheet(true)}
+            onOpenSpreadsheet={() => handleOpenSpreadsheet('placements')}
+            onOpenBom={() => handleOpenSpreadsheet('bom')}
             onOpenElementsEditor={() => setShowElementsEditor(true)}
             onOpenBlockEditor={() => handleOpenBlockEditor()}
           />
@@ -79,7 +86,10 @@ export default function App() {
 
           {/* Spreadsheet Modal */}
           {showSpreadsheet && (
-            <SpreadsheetModal onClose={() => setShowSpreadsheet(false)} />
+            <SpreadsheetModal
+              initialTab={spreadsheetTab}
+              onClose={() => setShowSpreadsheet(false)}
+            />
           )}
 
           {/* CAD Elements Editor Modal (Text, Blocks, Fills) */}

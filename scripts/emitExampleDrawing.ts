@@ -16,7 +16,10 @@
  * Four symbols, so the set is exercised rather than asserted; the split's two
  * outputs are what prove ports spread along one edge without special-casing.
  */
-import { writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
+import { cwd } from 'node:process';
+import { fileURLToPath } from 'node:url';
 import type { PortRef } from '../src/core/types';
 import { connectPorts, createSchematic, placeBlock } from '../src/flow/Schematic';
 import { buildDxf } from '../src/io/exportDxf/buildDxf';
@@ -36,7 +39,22 @@ connectPorts(model, at(process.id, 'OUT'), at(split.id, 'IN'));
 connectPorts(model, at(split.id, 'OUT_A'), at(sinkA.id, 'IN'));
 connectPorts(model, at(split.id, 'OUT_B'), at(sinkB.id, 'IN'));
 
-const target = '../Drawings/big-picture-flow';
+function findDrawingsDir(): string {
+  let dir = resolve(dirname(fileURLToPath(import.meta.url)));
+  for (let hop = 0; hop < 6; hop += 1) {
+    const candidate = join(dir, 'Drawings');
+    if (existsSync(candidate)) return candidate;
+    const up = dirname(dir);
+    if (up === dir) break;
+    dir = up;
+  }
+  const fallback = join(cwd(), 'Drawings');
+  if (!existsSync(fallback)) mkdirSync(fallback, { recursive: true });
+  return fallback;
+}
+
+const drawingsDir = findDrawingsDir();
+const target = join(drawingsDir, 'big-picture-flow');
 writeFileSync(`${target}.dxf`, buildDxf(new Doc(), 'in', [], model));
 writeFileSync(
   `${target}.json`,

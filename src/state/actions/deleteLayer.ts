@@ -18,6 +18,21 @@ export function deleteLayer(store: EditorStore, id: string): void {
       e.layerId = fallbackLayerId;
     }
   }
+  for (const t of store.doc.texts.values()) {
+    if (t.layerId === id) {
+      t.layerId = fallbackLayerId;
+    }
+  }
+  for (const f of store.doc.fills.values()) {
+    if (f.layerId === id) {
+      f.layerId = fallbackLayerId;
+    }
+  }
+  for (const bi of store.doc.blockInstances.values()) {
+    if (bi.layerId === id) {
+      bi.layerId = fallbackLayerId;
+    }
+  }
 
   store.markDocChanged();
   store.requestDraw();
