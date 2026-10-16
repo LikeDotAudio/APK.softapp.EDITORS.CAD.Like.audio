@@ -1,10 +1,19 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
+import { canUserSave } from '../../core/userAuth';
 import { openDB } from './openDB';
 import { LOCALSTORAGE_SESSION_KEY, SESSION_KEY, type SavedSession } from './SavedSession';
 
 /** IndexedDB holds the full session; localStorage keeps an optional lightweight backup if small. */
 export async function saveSessionToBrowser(session: SavedSession): Promise<void> {
+  if (session.userAuth) {
+    const authCheck = await canUserSave(session.userAuth);
+    if (!authCheck.allowed) {
+      console.warn(`saveSessionToBrowser: save rejected — ${authCheck.reason}`);
+      return;
+    }
+  }
+
   let idbOk = false;
   try {
     const db = await openDB();

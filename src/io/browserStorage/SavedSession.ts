@@ -1,6 +1,7 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { Layer, Units, GridMode } from '../../core/types';
+import type { UserAuth } from '../../core/userAuth';
 import type { SchematicSnapshot } from '../../flow/Schematic';
 import type { DocSnapshot } from '../../model/doc/DocSnapshot';
 
@@ -8,6 +9,7 @@ import type { DocSnapshot } from '../../model/doc/DocSnapshot';
 export interface SavedSession {
   version: number;
   timestamp: number;
+  userAuth?: UserAuth;
   docSnapshot: DocSnapshot;
   currentFileName?: string | null;
   /** Optional: sessions saved before Flow blocks existed do not have one. */

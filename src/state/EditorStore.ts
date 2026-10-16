@@ -33,6 +33,8 @@
  * a 664-line class is easier to read as a table of contents than as a wall.
  */
 import type { CadViewport, Layer, Point, SchematicModel, ToolId, Units, GridMode, ValidationResult } from '../core/types';
+import type { UserAuth, UserStatus } from '../core/userAuth';
+import { createUserAuth } from '../core/userAuth';
 import { discoverViewports } from '../viewport/discoverViewports';
 import type { ClipboardItem } from './ClipboardItem';
 import { ORIGIN } from './origin';
@@ -205,7 +207,17 @@ export class EditorStore {
   /** Text rendered at a fixed screen size when true, or true CAD world scale when false (default). */
   fixedTextSize = false;
   /** Name of the currently loaded file, or null if untitled / closed. */
+  /** Name of the currently loaded file, or null if untitled / closed. */
   currentFileName: string | null = null;
+  /** Current user identity, authorization status, and cryptographic signature. */
+  currentUserAuth: UserAuth | null = null;
+
+  async setUserAuth(username: string, status: UserStatus = 'allowed'): Promise<UserAuth> {
+    const auth = await createUserAuth(username, status);
+    this.currentUserAuth = auth;
+    this.emit();
+    return auth;
+  }
 
   layers: Map<string, Layer> = new Map([
     ['0', { id: '0', name: '0', color: '#ffffff', dxfColorIndex: 7, visible: true }],

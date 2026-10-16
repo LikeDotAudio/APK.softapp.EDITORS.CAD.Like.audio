@@ -15,6 +15,7 @@ export async function autoSaveSession(store: EditorStore, forceLoadingScreen = f
     const session: SavedSession = {
       version: 1,
       timestamp: Date.now(),
+      userAuth: store.currentUserAuth ?? undefined,
       docSnapshot: store.doc.snapshot(),
       currentFileName: store.currentFileName,
       schematic: snapshotSchematic(store.schematic),
