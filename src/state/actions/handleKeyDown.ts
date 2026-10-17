@@ -78,6 +78,9 @@ export function handleKeyDown(store: EditorStore, e: KeyboardEvent): void {
     } else if (key === 'w') {
       e.preventDefault();
       void store.closeFile();
+    } else if (key === 'm') {
+      e.preventDefault();
+      store.reflectSelectionAcrossMirror();
     }
     return;
   }

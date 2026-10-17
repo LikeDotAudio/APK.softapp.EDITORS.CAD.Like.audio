@@ -33,6 +33,7 @@
  * a 664-line class is easier to read as a table of contents than as a wall.
  */
 import type { CadViewport, Layer, Point, SchematicModel, ToolId, Units, GridMode, ValidationResult } from '../core/types';
+import { DEFAULT_VIRTUAL_MIRROR, type VirtualMirrorState } from '../core/mirror';
 import type { UserAuth, UserStatus } from '../core/userAuth';
 import { createUserAuth } from '../core/userAuth';
 import { discoverViewports } from '../viewport/discoverViewports';
@@ -111,6 +112,7 @@ import { markDocChanged } from './actions/markDocChanged';
 import { openBigPicture } from './actions/openBigPicture';
 import { openDynInput } from './actions/openDynInput';
 import { pasteClipboard } from './actions/pasteClipboard';
+import { reflectSelectionAcrossMirror } from './actions/reflectSelectionAcrossMirror';
 import { removeImage } from './actions/removeImage';
 import { renameLayer } from './actions/renameLayer';
 import { render } from './actions/render';
@@ -122,6 +124,7 @@ import { rotateSelectionPrompt } from './actions/rotateSelectionPrompt';
 import { scaleSelectionPrompt } from './actions/scaleSelectionPrompt';
 import { selectAll } from './actions/selectAll';
 import { selectLayerEntities } from './actions/selectLayerEntities';
+import { selectVirtualMirror } from './actions/selectVirtualMirror';
 import { setActiveLayer } from './actions/setActiveLayer';
 import { setCursor } from './actions/setCursor';
 import { setDynValue } from './actions/setDynValue';
@@ -138,6 +141,8 @@ import { setSelectionProtected } from './actions/setSelectionProtected';
 import { setShapeMode } from './actions/setShapeMode';
 import { setSnapToGrid } from './actions/setSnapToGrid';
 import { setTool } from './actions/setTool';
+import { setVirtualMirror } from './actions/setVirtualMirror';
+import { toggleSymmetryMode } from './actions/toggleSymmetryMode';
 import { setUnits } from './actions/setUnits';
 import { showAllLayers } from './actions/showAllLayers';
 import { showHint } from './actions/showHint';
@@ -246,6 +251,9 @@ export class EditorStore {
   hintTimer: ReturnType<typeof setTimeout> | null = null;
   measurement: string | null = null;
 
+  /** Virtual Mirror for Symmetrical CAD Mode. */
+  mirror: VirtualMirrorState = { ...DEFAULT_VIRTUAL_MIRROR };
+
   /** Snapped cursor before any typed dimension override — the dyn box's reference. */
   dynCursor: Point = ORIGIN;
   dynAnchor: Point | null = null;
@@ -313,6 +321,13 @@ export class EditorStore {
         this.requestDraw();
         this.emit();
       },
+      get mirror() {
+        return store.mirror;
+      },
+      setVirtualMirror: (x, enabled, selected) => this.setVirtualMirror(x, enabled, selected),
+      selectVirtualMirror: (selected) => this.selectVirtualMirror(selected),
+      toggleSymmetryMode: () => this.toggleSymmetryMode(),
+      reflectSelectionAcrossMirror: () => this.reflectSelectionAcrossMirror(),
     };
     this.uiSnapshot = this.buildUi();
     /* The browser's working copy first, then the filed sheet on top of it.
@@ -565,6 +580,22 @@ export class EditorStore {
 
   flipVerticalSelection(): void {
     flipVerticalSelection(this);
+  }
+
+  setVirtualMirror(x: number, enabled = true, selected = true): void {
+    setVirtualMirror(this, x, enabled, selected);
+  }
+
+  toggleSymmetryMode(): boolean {
+    return toggleSymmetryMode(this);
+  }
+
+  selectVirtualMirror(selected: boolean): void {
+    selectVirtualMirror(this, selected);
+  }
+
+  reflectSelectionAcrossMirror(): void {
+    reflectSelectionAcrossMirror(this);
   }
 
   groupSelection(): void {

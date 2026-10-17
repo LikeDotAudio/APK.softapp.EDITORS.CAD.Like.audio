@@ -16,6 +16,7 @@
  *
  * Everything here must be cheap to construct — it is rebuilt on every emit.
  */
+import type { VirtualMirrorState } from '../core/mirror';
 import type { CadViewport, Layer, Point, ToolId, Units, GridMode, ValidationResult } from '../core/types';
 
 export interface DynFieldUi {
@@ -119,4 +120,5 @@ export interface UiState {
   loading: LoadingUi | null;
   viewports: CadViewport[];
   activeViewportId: string;
+  mirror: VirtualMirrorState;
 }

@@ -15,6 +15,8 @@ import { drawGroups } from './flow/drawGroups';
 import { drawSchematic } from './flow/drawSchematic';
 import { drawGrid } from './grid/drawGrid';
 import { drawImageLayer } from './imageLayer';
+import type { VirtualMirrorState } from '../core/mirror';
+import { drawVirtualMirror } from './overlays/drawVirtualMirror';
 import { drawBoundsOverlay } from './overlays/drawBoundsOverlay';
 import { drawErrorBanner } from './overlays/drawErrorBanner';
 import type { Scene } from './Scene';
@@ -33,6 +35,7 @@ export interface FrameState {
   layers?: ReadonlyMap<string, Layer>;
   /** True while Ctrl+Shift+C waits for the reference point click. */
   pickingBasePoint?: boolean;
+  mirror?: VirtualMirrorState;
 }
 
 /** Paint one frame, back to front. */
@@ -61,6 +64,7 @@ export function renderScene(scene: Scene, frame: FrameState): void {
   // Containers behind their contents: a group is the ground a block sits on.
   drawGroups(scene, scene.schematic);
   drawSchematic(scene, scene.schematic);
+  drawVirtualMirror(scene, frame.mirror);
 
   if (frame.shapeMode) {
     drawBadVertexMarkers(scene);

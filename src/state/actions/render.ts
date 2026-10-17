@@ -31,6 +31,7 @@ export function render(store: EditorStore): void {
     shapeMode: store.shapeMode,
     layers: store.layers,
     pickingBasePoint: store.pickingBasePoint,
+    mirror: store.mirror,
   });
 
 }

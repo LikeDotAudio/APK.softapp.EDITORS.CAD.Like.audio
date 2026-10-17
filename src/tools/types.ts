@@ -2,6 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { ReactNode } from 'react';
 import type { Point, SchematicModel, ToolId, Units } from '../core/types';
+import type { VirtualMirrorState } from '../core/mirror';
 import type { Doc } from '../model/Doc';
 import type { Scene } from '../render/Scene';
 import type { Viewport } from '../viewport/Viewport';
@@ -57,6 +58,11 @@ export interface ToolApi {
   openDynInput(anchor: Point): void;
   closeDynInput(): void;
   redraw(): void;
+  readonly mirror: VirtualMirrorState;
+  setVirtualMirror(x: number, enabled?: boolean, selected?: boolean): void;
+  selectVirtualMirror(selected: boolean): void;
+  toggleSymmetryMode(): boolean;
+  reflectSelectionAcrossMirror(): void;
 }
 
 export type DynValues = Record<string, number | null>;

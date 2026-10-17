@@ -7,6 +7,7 @@ import { EdgeCountReadout } from './EdgeCountReadout';
 import { FlowReadout } from './FlowReadout';
 import { MeasurementReadout } from './MeasurementReadout';
 import { RepositoryLink } from './RepositoryLink';
+import { SymmetryPill } from './SymmetryPill';
 
 interface StatusBarProps {
   onToggleConnectors?: () => void;
@@ -23,6 +24,7 @@ export function StatusBar({ onToggleConnectors, isConnectorsOpen }: StatusBarPro
       <CursorReadout />
       <MeasurementReadout />
       <ValidationPill />
+      <SymmetryPill />
       <EdgeCountReadout />
       <FlowReadout />
 

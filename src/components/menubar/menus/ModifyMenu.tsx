@@ -37,6 +37,25 @@ export function ModifyMenu({ open, onToggle, onClose }: MenuProps) {
             onSelect={run(() => store.flipVerticalSelection())}
           />
           <MenuDivider />
+          <MenuItem
+            icon="🪞"
+            label="Place Virtual Mirror..."
+            shortcut="Y"
+            onSelect={run(() => store.setTool('symmetry'))}
+          />
+          <MenuItem
+            icon="✨"
+            label="Toggle Symmetrical Mode"
+            shortcut="SYM"
+            onSelect={run(() => store.toggleSymmetryMode())}
+          />
+          <MenuItem
+            icon="↔️"
+            label="Reflect Selection Across Mirror"
+            shortcut="MR"
+            onSelect={run(() => store.reflectSelectionAcrossMirror())}
+          />
+          <MenuDivider />
           <MenuItem icon="📏" label="Offset (Parallel)" shortcut="OF" onSelect={run(() => store.setTool('parallel'))} />
           <MenuItem
             icon="✂️"

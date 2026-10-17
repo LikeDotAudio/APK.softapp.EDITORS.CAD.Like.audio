@@ -103,7 +103,8 @@ export type ToolId =
   | 'group'
   | 'text'
   | 'block'
-  | 'fill';
+  | 'fill'
+  | 'symmetry';
 
 export type TextHAlign = 'left' | 'center' | 'right';
 export type TextVAlign = 'top' | 'middle' | 'baseline' | 'bottom';

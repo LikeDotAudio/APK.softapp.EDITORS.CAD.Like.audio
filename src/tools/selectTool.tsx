@@ -46,6 +46,7 @@ interface SelectState {
   scaling: ScaleDrag | null;
   vertexDrag: VertexDrag | null;
   edgeDrag: EdgeDrag | null;
+  mirrorDrag: boolean;
 }
 
 const Icon = (
@@ -74,9 +75,15 @@ export const selectTool: Tool<SelectState> = {
     scaling: null,
     vertexDrag: null,
     edgeDrag: null,
+    mirrorDrag: false,
   }),
 
   onPointerMove(state, input, api) {
+    if (state.mirrorDrag) {
+      api.setVirtualMirror(input.world.x, true, true);
+      return;
+    }
+
     if (state.vertexDrag) {
       if (!state.vertexDrag.snapshot) {
         api.edit(() => true);
@@ -161,6 +168,16 @@ export const selectTool: Tool<SelectState> = {
       return;
     }
 
+    // Virtual mirror line hit detection
+    if (api.mirror.enabled || api.mirror.selected) {
+      const mirrorScreenX = api.view.toScreen(api.mirror.x, 0).x;
+      if (Math.abs(input.screen.x - mirrorScreenX) <= 10) {
+        api.setHoverEdge(null);
+        api.setCursor('col-resize');
+        return;
+      }
+    }
+
     const textHit = api.doc.hitTextAt(input.rawWorld.x, input.rawWorld.y, api.view.zoom);
     const blockHit = textHit !== null ? null : api.doc.hitBlockInstanceAt(input.rawWorld.x, input.rawWorld.y, api.view.zoom);
     const hit = textHit !== null || blockHit !== null ? null : api.doc.hitEdgeAt(input.rawWorld.x, input.rawWorld.y, api.view.zoom);
@@ -169,6 +186,19 @@ export const selectTool: Tool<SelectState> = {
   },
 
   onPointerDown(state, input, api) {
+    // Virtual mirror line selection & dragging
+    if (api.mirror.enabled || api.mirror.selected) {
+      const mirrorScreenX = api.view.toScreen(api.mirror.x, 0).x;
+      if (Math.abs(input.screen.x - mirrorScreenX) <= 10) {
+        state.mirrorDrag = true;
+        api.selectVirtualMirror(true);
+        api.selection.clear();
+        api.setCursor('col-resize');
+        api.redraw();
+        return;
+      }
+    }
+
     // Corner grab handles sit on top of everything else, including the geometry under them.
     const net = netBounds(api);
     const corner = net ? hitCorner(api.view, net, input.screen) : null;
@@ -261,7 +291,10 @@ export const selectTool: Tool<SelectState> = {
       state.dragStartWorld = input.world;
       state.movedSnapshot = false;
     } else {
-      if (!input.shiftKey) api.selection.clear();
+      if (!input.shiftKey) {
+        api.selection.clear();
+        api.selectVirtualMirror(false);
+      }
       state.boxStartScreen = input.screen;
       state.boxEndScreen = input.screen;
     }
@@ -269,6 +302,13 @@ export const selectTool: Tool<SelectState> = {
   },
 
   onPointerUp(state, _input, api) {
+    if (state.mirrorDrag) {
+      state.mirrorDrag = false;
+      api.setCursor('default');
+      api.redraw();
+      return;
+    }
+
     if (state.vertexDrag) {
       // Re-planarise once, at the end: doing it per mouse move would split the
       // very edges being dragged and swap their ids mid-drag.

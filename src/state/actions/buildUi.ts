@@ -101,5 +101,6 @@ export function buildUi(store: EditorStore): UiState {
     loading: store.loading,
     viewports: store.viewports,
     activeViewportId: store.activeViewportId,
+    mirror: { ...store.mirror },
   };
 }

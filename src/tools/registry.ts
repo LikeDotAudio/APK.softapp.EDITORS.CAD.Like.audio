@@ -23,11 +23,13 @@ import { fillTool } from './fillTool';
 import { blockTool } from './blockTool';
 import { tangentTool } from './tangentTool';
 import { wireTool } from './wireTool';
+import { symmetryTool } from './symmetryTool';
 import type { AnyTool } from './types';
 
 /** Toolbar order. */
 export const TOOLS: AnyTool[] = [
   selectTool,
+  symmetryTool,
   lineTool,
   parallelTool,
   lineAngleTool,
