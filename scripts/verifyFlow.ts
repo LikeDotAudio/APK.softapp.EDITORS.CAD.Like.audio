@@ -207,7 +207,7 @@ for (const def of [...FLOW_CATALOG, ...SHOP_CATALOG]) {
    where it is committed, this check has proved nothing and says so. */
 
 const INTERFACES_PATHS = [
-  'PODS/POD:THIN/OS/Interfaces/APK-Shop/Interfaces.json',
+  'PODS/POD.THIN/OS/Interfaces/APK-Shop/Interfaces.json',
   'APK:OS/Interfaces/APK-Shop/Interfaces.json',
   'scripts/fixtures/Interfaces.json',
 ];
