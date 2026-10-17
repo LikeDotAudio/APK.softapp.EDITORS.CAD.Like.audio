@@ -47,6 +47,7 @@ interface SelectState {
   vertexDrag: VertexDrag | null;
   edgeDrag: EdgeDrag | null;
   mirrorDrag: boolean;
+  draggedMirrorId?: string;
 }
 
 const Icon = (
@@ -80,6 +81,13 @@ export const selectTool: Tool<SelectState> = {
 
   onPointerMove(state, input, api) {
     if (state.mirrorDrag) {
+      if (state.draggedMirrorId && api.mirror.mirrors && api.mirror.mirrors.length > 0) {
+        const target = api.mirror.mirrors.find((m) => m.id === state.draggedMirrorId);
+        if (target) {
+          target.x = input.world.x;
+          target.selected = true;
+        }
+      }
       api.setVirtualMirror(input.world.x, true, true);
       return;
     }
@@ -169,9 +177,16 @@ export const selectTool: Tool<SelectState> = {
     }
 
     // Virtual mirror line hit detection
-    if (api.mirror.enabled || api.mirror.selected) {
-      const mirrorScreenX = api.view.toScreen(api.mirror.x, 0).x;
-      if (Math.abs(input.screen.x - mirrorScreenX) <= 10) {
+    if (api.mirror.enabled || api.mirror.selected || (api.mirror.mirrors && api.mirror.mirrors.length > 0)) {
+      const mirrorsToCheck =
+        api.mirror.mirrors && api.mirror.mirrors.length > 0
+          ? api.mirror.mirrors
+          : [{ id: 'primary', x: api.mirror.x, selected: api.mirror.selected }];
+      const hitMirror = mirrorsToCheck.find((m) => {
+        const mirrorScreenX = api.view.toScreen(m.x, 0).x;
+        return Math.abs(input.screen.x - mirrorScreenX) <= 10;
+      });
+      if (hitMirror) {
         api.setHoverEdge(null);
         api.setCursor('col-resize');
         return;
@@ -186,12 +201,26 @@ export const selectTool: Tool<SelectState> = {
   },
 
   onPointerDown(state, input, api) {
-    // Virtual mirror line selection & dragging
-    if (api.mirror.enabled || api.mirror.selected) {
-      const mirrorScreenX = api.view.toScreen(api.mirror.x, 0).x;
-      if (Math.abs(input.screen.x - mirrorScreenX) <= 10) {
+    // Virtual mirror line selection & dragging (CAD edge glows when selected!)
+    if (api.mirror.enabled || api.mirror.selected || (api.mirror.mirrors && api.mirror.mirrors.length > 0)) {
+      const mirrorsToCheck =
+        api.mirror.mirrors && api.mirror.mirrors.length > 0
+          ? api.mirror.mirrors
+          : [{ id: 'primary', x: api.mirror.x, selected: api.mirror.selected }];
+      const hitMirror = mirrorsToCheck.find((m) => {
+        const mirrorScreenX = api.view.toScreen(m.x, 0).x;
+        return Math.abs(input.screen.x - mirrorScreenX) <= 10;
+      });
+      if (hitMirror) {
         state.mirrorDrag = true;
+        state.draggedMirrorId = hitMirror.id;
         api.selectVirtualMirror(true);
+        if (api.mirror.mirrors) {
+          for (const m of api.mirror.mirrors) {
+            m.selected = m.id === hitMirror.id;
+          }
+        }
+        api.setVirtualMirror(hitMirror.x, true, true);
         api.selection.clear();
         api.setCursor('col-resize');
         api.redraw();
@@ -304,6 +333,7 @@ export const selectTool: Tool<SelectState> = {
   onPointerUp(state, _input, api) {
     if (state.mirrorDrag) {
       state.mirrorDrag = false;
+      state.draggedMirrorId = undefined;
       api.setCursor('default');
       api.redraw();
       return;

@@ -86,4 +86,19 @@ describe('reflectAcrossMirror', () => {
     expect(rightEdge![1].x).toBeCloseTo(50);
     expect(rightEdge![1].y).toBeCloseTo(80);
   });
+
+  it('reflects a virtual mirror across another virtual mirror (a mirror mirrors a mirror)', async () => {
+    const { createMirror, reflectMirrorAcross } = await import('../../core/mirror');
+    const mirrorA = createMirror(20, 'Mirror A');
+    const mirrorB = createMirror(50, 'Mirror B');
+
+    // Reflect Mirror A across Mirror B (axis at x = 50)
+    // Reflected position = 2 * 50 - 20 = 80
+    const reflected = reflectMirrorAcross(mirrorA, mirrorB.x, mirrorB.name);
+
+    expect(reflected.x).toBeCloseTo(80);
+    expect(reflected.selected).toBe(true); // glowing CAD edge
+    expect(reflected.reflectedFrom).toBe(mirrorA.id);
+    expect(reflected.glowColor).toBe('#f43f5e'); // Distinct radiant glow
+  });
 });

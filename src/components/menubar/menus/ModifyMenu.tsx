@@ -55,6 +55,12 @@ export function ModifyMenu({ open, onToggle, onClose }: MenuProps) {
             shortcut="MR"
             onSelect={run(() => store.reflectSelectionAcrossMirror())}
           />
+          <MenuItem
+            icon="🪞"
+            label="Mirror Another Mirror (Cascade)"
+            shortcut="MM"
+            onSelect={run(() => store.mirrorAnotherMirror())}
+          />
           <MenuDivider />
           <MenuItem icon="📏" label="Offset (Parallel)" shortcut="OF" onSelect={run(() => store.setTool('parallel'))} />
           <MenuItem

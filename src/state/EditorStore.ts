@@ -33,7 +33,7 @@
  * a 664-line class is easier to read as a table of contents than as a wall.
  */
 import type { CadViewport, Layer, Point, SchematicModel, ToolId, Units, GridMode, ValidationResult } from '../core/types';
-import { DEFAULT_VIRTUAL_MIRROR, type VirtualMirrorState } from '../core/mirror';
+import { DEFAULT_VIRTUAL_MIRROR, type VirtualMirrorState, type VirtualMirror } from '../core/mirror';
 import type { UserAuth, UserStatus } from '../core/userAuth';
 import { createUserAuth } from '../core/userAuth';
 import { discoverViewports } from '../viewport/discoverViewports';
@@ -112,6 +112,7 @@ import { markDocChanged } from './actions/markDocChanged';
 import { openBigPicture } from './actions/openBigPicture';
 import { openDynInput } from './actions/openDynInput';
 import { pasteClipboard } from './actions/pasteClipboard';
+import { mirrorAnotherMirror } from './actions/mirrorAnotherMirror';
 import { reflectSelectionAcrossMirror } from './actions/reflectSelectionAcrossMirror';
 import { removeImage } from './actions/removeImage';
 import { renameLayer } from './actions/renameLayer';
@@ -328,6 +329,7 @@ export class EditorStore {
       selectVirtualMirror: (selected) => this.selectVirtualMirror(selected),
       toggleSymmetryMode: () => this.toggleSymmetryMode(),
       reflectSelectionAcrossMirror: () => this.reflectSelectionAcrossMirror(),
+      mirrorAnotherMirror: () => this.mirrorAnotherMirror(),
     };
     this.uiSnapshot = this.buildUi();
     /* The browser's working copy first, then the filed sheet on top of it.
@@ -596,6 +598,10 @@ export class EditorStore {
 
   reflectSelectionAcrossMirror(): void {
     reflectSelectionAcrossMirror(this);
+  }
+
+  mirrorAnotherMirror(): VirtualMirror[] {
+    return mirrorAnotherMirror(this);
   }
 
   groupSelection(): void {

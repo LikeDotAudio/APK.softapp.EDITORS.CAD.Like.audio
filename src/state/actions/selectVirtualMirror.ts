@@ -3,8 +3,12 @@
 import type { EditorStore } from '../EditorStore';
 
 export function selectVirtualMirror(store: EditorStore, selected: boolean): void {
-  if (store.mirror.selected === selected) return;
   store.mirror.selected = selected;
+  if (store.mirror.mirrors) {
+    for (const m of store.mirror.mirrors) {
+      m.selected = selected;
+    }
+  }
   store.requestDraw();
   store.emit();
 }

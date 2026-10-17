@@ -2,7 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { ReactNode } from 'react';
 import type { Point, SchematicModel, ToolId, Units } from '../core/types';
-import type { VirtualMirrorState } from '../core/mirror';
+import type { VirtualMirrorState, VirtualMirror } from '../core/mirror';
 import type { Doc } from '../model/Doc';
 import type { Scene } from '../render/Scene';
 import type { Viewport } from '../viewport/Viewport';
@@ -63,6 +63,7 @@ export interface ToolApi {
   selectVirtualMirror(selected: boolean): void;
   toggleSymmetryMode(): boolean;
   reflectSelectionAcrossMirror(): void;
+  mirrorAnotherMirror(): VirtualMirror[];
 }
 
 export type DynValues = Record<string, number | null>;
