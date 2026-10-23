@@ -67,6 +67,20 @@ export function entranceProfile(entrance: Entrance): EntranceProfile {
   return PROFILES[entrance];
 }
 
+/**
+ * Whether a softapp opened this window as its foundation — `#/drawing?host=acoustic`.
+ * Not "are we in an iframe": the OS desktop iframes every window. A host wants
+ * the sheet, not the welcome dialog or the connector palette, so it asks.
+ */
+export function hostFromHash(hash: string): string | null {
+  const m = /[?&]host=([\w.-]+)/.exec(hash);
+  return m ? m[1]! : null;
+}
+
+export function currentHost(): string | null {
+  return typeof window === 'undefined' ? null : hostFromHash(window.location.hash);
+}
+
 /** The profile for the door this window was opened by. */
 export function currentEntrance(): EntranceProfile {
   const hash = typeof window === 'undefined' ? '' : window.location.hash;

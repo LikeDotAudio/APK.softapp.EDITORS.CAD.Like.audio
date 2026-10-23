@@ -9,7 +9,7 @@ import { MenuBar } from './components/menubar/MenuBar';
 import { VerticalToolbar } from './components/toolbar/VerticalToolbar';
 import { EditorStore } from './state/EditorStore';
 import { EditorContext } from './state/EditorContext';
-import { currentEntrance } from './shell/entrance';
+import { currentEntrance, currentHost } from './shell/entrance';
 import { EntranceContext } from './shell/EntranceContext';
 import { SpreadsheetModal } from './components/spreadsheet/SpreadsheetModal';
 import { ElementsEditorModal } from './components/elementsEditor/ElementsEditorModal';
@@ -31,10 +31,12 @@ export default function App() {
   const [showElementsEditor, setShowElementsEditor] = useState(false);
   const [showBlockEditor, setShowBlockEditor] = useState(false);
   const [showConceptLibrary, setShowConceptLibrary] = useState(false);
-  const [showConnectorsDock, setShowConnectorsDock] = useState(true);
+  /* A softapp built on this editor (the acoustic overlay) wants the sheet, not the palette. */
+  const [hosted] = useState(() => currentHost() !== null);
+  const [showConnectorsDock, setShowConnectorsDock] = useState(!hosted);
   const [blockEditorTarget, setBlockEditorTarget] = useState<string | undefined>(undefined);
   // Prompt user on startup whether to open cached file, open another, create from clipboard, or start fresh
-  const [showStartupModal, setShowStartupModal] = useState(() => entrance.entrance === 'drawing');
+  const [showStartupModal, setShowStartupModal] = useState(() => entrance.entrance === 'drawing' && !hosted);
 
   const handleOpenSpreadsheet = (tab: 'placements' | 'connectors' | 'groups' | 'bom' = 'placements') => {
     setSpreadsheetTab(tab);

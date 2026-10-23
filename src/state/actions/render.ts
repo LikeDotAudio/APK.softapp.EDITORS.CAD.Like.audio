@@ -3,6 +3,7 @@
 import type { EditorStore } from '../EditorStore';
 import type { Scene } from '../../render/Scene';
 import { renderScene } from '../../render/renderScene';
+import { publishToHost } from '../../shell/hostBridge/hostBridge';
 
 export function render(store: EditorStore): void {
   if (!store.ctx) return;
@@ -33,5 +34,6 @@ export function render(store: EditorStore): void {
     pickingBasePoint: store.pickingBasePoint,
     mirror: store.mirror,
   });
+  publishToHost(store);
 
 }
