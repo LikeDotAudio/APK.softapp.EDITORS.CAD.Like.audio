@@ -100,3 +100,24 @@ describe('host place', () => {
     expect(inst.attributes?.hostKey).toBeUndefined();
   });
 });
+
+describe('host move', () => {
+  it('moves a placed product to a new centre and turn, reports both, and leaves other blocks alone', async () => {
+    const { placeHostItems } = await import('./hostPlace');
+    const { moveHostItems } = await import('./hostMove');
+    const s = fakeStore() as ReturnType<typeof fakeStore> & { history: { stack: unknown[]; push(x: unknown): void }; units: string };
+    s.units = 'm';
+    s.history = { stack: [], push(x) { this.stack.push(x); } };
+    placeHostItems(s as unknown as EditorStore, { layer: 'Furniture', items: [{ paletteId: 'panel', at: [1, 2] }] });
+    applyHostMarks(s as unknown as EditorStore, { key: 'cut', hash: 'h', items: [cut] });
+    const [placed, marked] = [...s.doc.blockInstances.values()];
+    const n = moveHostItems(s as unknown as EditorStore, { items: [{ id: `block:${placed!.id}`, at: [4, 5], rotation: 30 }, { id: `block:${marked!.id}`, at: [9, 9] }, { id: 'block:999', at: [0, 0] }] });
+    expect(n).toBe(1);
+    expect(s.history.stack).toHaveLength(1);
+    expect([placed!.x, placed!.y, placed!.rotation]).toEqual([4, 5, 30]);
+    expect([marked!.x, marked!.y]).toEqual([5, 5]);
+    const patch = sceneForHost(s.doc, 'm', s.layers as never).patches.find((p) => p.id === `block:${placed!.id}`);
+    expect(patch?.at).toEqual([4, 5]);
+    expect(patch?.rotation).toBe(30);
+  });
+});

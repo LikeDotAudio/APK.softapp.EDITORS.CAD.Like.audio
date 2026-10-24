@@ -56,6 +56,9 @@ export interface HostPatch {
   paletteId: string;
   layerId: string;
   points: HostXY[];
+  /** A placed product only: its centre and turn (degrees CCW) — what `move` sets. */
+  at?: HostXY;
+  rotation?: number;
 }
 
 export interface HostGeometry {
@@ -116,7 +119,7 @@ export function sceneForHost(doc: Doc, units: Units, layers: ReadonlyMap<string,
     if (!paletteId || !visible(inst.layerId)) continue;
     const pts = paletteFootprint(doc, inst);
     if (!pts) continue;
-    patches.push({ id: `block:${inst.id}`, paletteId, layerId: inst.layerId, points: pts.map((p) => [p.x, p.y]) });
+    patches.push({ id: `block:${inst.id}`, paletteId, layerId: inst.layerId, points: pts.map((p) => [p.x, p.y]), at: [inst.x, inst.y], rotation: inst.rotation ?? 0 });
   }
 
   return {
