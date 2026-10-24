@@ -138,6 +138,7 @@ import { setHoverEdge } from './actions/setHoverEdge';
 import { setImageOpacity } from './actions/setImageOpacity';
 import { setImageWorldWidth } from './actions/setImageWorldWidth';
 import { setLayerColor } from './actions/setLayerColor';
+import { setLayerFinish } from './actions/setLayerFinish';
 import { setMeasurement } from './actions/setMeasurement';
 import { setPalette } from './actions/setPalette';
 import { setSelectionLayer } from './actions/setSelectionLayer';
@@ -795,6 +796,10 @@ export class EditorStore {
 
   setLayerColor(id: string, color: string): void {
     setLayerColor(this, id, color);
+  }
+
+  setLayerFinish(id: string, finish: string | null): void {
+    setLayerFinish(this, id, finish);
   }
 
   renameLayer(id: string, newName: string): void {

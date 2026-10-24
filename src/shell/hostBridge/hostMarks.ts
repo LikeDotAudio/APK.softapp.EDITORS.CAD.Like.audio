@@ -29,6 +29,9 @@ import type { EditorStore } from '../../state/EditorStore';
  *        block: a set the host drew together is one thing on the sheet, and
  *        selecting or moving it takes everything in it. (A fill that must
  *        count as a treatment stays a top-level `fill`: only those come back.)
+ *        Its `attributes` { name: value } (strings) go on the block instance,
+ *        as the properties panel shows them: what the drawing is OF — a
+ *        speaker, a listener — so it can be told on the sheet.
  *
  * Each thing drawn carries `hostKey` and `hostHash`. A `marks` whose hash is
  * already on the sheet is ignored, so a host can resend freely; `geometry`
@@ -66,6 +69,7 @@ interface DrawingMark {
   lines: [number, number, number, number, string?][];
   texts?: { text: string; x: number; y: number; height: number }[];
   fills?: { points: XY[]; color?: string; opacity?: number; layer?: string }[];
+  attributes?: Record<string, string>;
 }
 type Mark = (FillMark | TextMark | DrawingMark) & { layerColor?: string };
 
@@ -160,7 +164,9 @@ export function applyHostMarks(store: EditorStore, msg: { key?: unknown; hash?: 
           })),
       };
       doc.addBlockDefinition(def);
-      doc.addBlockInstance(def.name, raw.at[0], raw.at[1], 1, 0, raw.layer, undefined, { hostKey: key, hostHash: hash });
+      // the host's own attributes, strings only; hostKey and hostHash are ours and always win
+      const own = Object.fromEntries(Object.entries(raw.attributes && typeof raw.attributes === 'object' ? raw.attributes : {}).filter(([, v]) => typeof v === 'string'));
+      doc.addBlockInstance(def.name, raw.at[0], raw.at[1], 1, 0, raw.layer, undefined, { ...own, hostKey: key, hostHash: hash });
     }
   }
   store.markDocChanged();

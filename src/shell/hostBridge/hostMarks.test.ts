@@ -74,6 +74,16 @@ describe('host marks', () => {
     expect(s.doc.blocks.get('HOST:cut:iso')?.fills).toEqual([{ points: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }], color: '#ff0000', opacity: 0.2, layerId: 'Reflections' }]);
   });
 
+  it('a drawing’s attributes go on its block, and cannot take the host key', () => {
+    const s = fakeStore();
+    const spk = { kind: 'drawing', layer: 'Speakers', name: 'wall1:L', at: [0, 0], lines: [[0, 0, 1, 0]], attributes: { object: 'speaker', id: 's7', role: 'L', hostKey: 'theirs', n: 4 } };
+    applyHostMarks(s as unknown as EditorStore, { key: 'blowup', hash: 'h1', items: [spk] });
+    const inst = [...s.doc.blockInstances.values()][0];
+    expect(inst.layerId).toBe('Speakers');
+    expect(inst.attributes).toEqual({ object: 'speaker', id: 's7', role: 'L', hostKey: 'blowup', hostHash: 'h1' });
+    expect(marksInDoc(s.doc)).toEqual({ blowup: 'h1' });
+  });
+
   it('leaves other keys and the user’s own fills alone', () => {
     const s = fakeStore();
     s.doc.addFill([{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }], 'solid', '0');

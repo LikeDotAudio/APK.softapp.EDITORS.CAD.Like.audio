@@ -9,8 +9,9 @@ import { currentHost } from '../entrance';
 import { applyHostMarks, marksInDoc } from './hostMarks';
 import { placeHostItems } from './hostPlace';
 import { moveHostItems } from './hostMove';
+import { ensureHostLayer } from './hostLayer';
 import { showHostSheet } from './hostSheet';
-import { sceneForHost } from './sceneForHost';
+import { pickedOutline, sceneForHost, wallsForHost } from './sceneForHost';
 
 /**
  * THE DOOR FOR SOFTAPPS BUILT ON THIS ONE
@@ -51,6 +52,12 @@ import { sceneForHost } from './sceneForHost';
  * rotation? }] } sets where one of those placed products sits (hostMove.ts),
  * off the undo stack: the acoustic overlay keeps the console at the mixer's nose.
  *
+ * `layer` { name, color?, finish? } makes sure a layer exists (without making
+ * it current) and sets its finish — a palette id, or null (hostLayer.ts).
+ * Geometry carries each layer's finish, and the rooms found three ways —
+ * one clean loop, a drawing's outline, or a selection that closed a loop,
+ * remembered for the session as "these are walls" (sceneForHost).
+ *
  * `marks` { key, hash, items } is the host's own line work and panels, drawn
  * into the sheet and kept current (hostMarks.ts); `geometry` carries `marks`
  * { key: hash } back, so the host knows what is on the sheet.
@@ -79,6 +86,9 @@ let installed = false;
 let lastView = '';
 let lastGeometry = '';
 let lastMirror = '';
+/** Every set of edges the user has selected that closed a loop, this session: "these are walls", taken without asking. */
+const picked = new Map<string, number[]>();
+let lastSelection = '';
 
 /** The window driving this one: the parent frame, else the softapp that popped us out. */
 function host(): Window | null {
@@ -119,6 +129,8 @@ function install(store: EditorStore): void {
       store.armPaletteItem(typeof paletteId === 'string' ? paletteId : null);
     } else if (msg.type === 'place') {
       placeHostItems(store, msg as { layer?: unknown; items?: unknown });
+    } else if (msg.type === 'layer') {
+      ensureHostLayer(store, msg as { name?: unknown; color?: unknown; finish?: unknown });
     } else if (msg.type === 'move') {
       moveHostItems(store, msg as { items?: unknown });
     } else if (msg.type === 'marks') {
@@ -154,11 +166,19 @@ export function publishToHost(store: EditorStore): void {
     post('view', { zoom, panX, panY, rect, units: store.units });
   }
 
-  const layerKey = [...store.layers.values()].map((l) => `${l.id}:${l.visible ? 1 : 0}:${l.color}`).join();
-  const geometryKey = `${store.docVersion}|${store.units}|${layerKey}|${store.doc.edgeCount}`;
+  // a selection that closes a loop is remembered as walls
+  const selKey = [...store.selection].sort((a, b) => a - b).join();
+  if (selKey !== lastSelection) {
+    lastSelection = selKey;
+    const ids = [...store.selection].filter((id) => store.doc.edge(id));
+    // only the selection's own lines, so the test is cheap: a pile of walls or a single outline
+    if (ids.length >= 3 && pickedOutline(wallsForHost(store.doc, store.layers), ids)) picked.set(ids.sort((a, b) => a - b).join(), ids);
+  }
+  const layerKey = [...store.layers.values()].map((l) => `${l.id}:${l.visible ? 1 : 0}:${l.color}:${l.finish ?? ''}`).join();
+  const geometryKey = `${store.docVersion}|${store.units}|${layerKey}|${store.doc.edgeCount}|${[...picked.keys()].join(';')}`;
   if (geometryKey !== lastGeometry) {
     lastGeometry = geometryKey;
-    post('geometry', { fileName: store.currentFileName, ...sceneForHost(store.doc, store.units, store.layers), marks: marksInDoc(store.doc) });
+    post('geometry', { fileName: store.currentFileName, ...sceneForHost(store.doc, store.units, store.layers, [...picked.values()]), marks: marksInDoc(store.doc) });
   }
 
   const { enabled, x } = store.mirror;

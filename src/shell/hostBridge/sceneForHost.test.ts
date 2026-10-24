@@ -117,3 +117,56 @@ describe('resumeFromHash', () => {
     expect(resumeFromHash('#/drawing?host=acoustic&resumed')).toBe(false);
   });
 });
+
+const areaOf = (pts: [number, number][]) => Math.abs(pts.reduce((s, p, i) => { const q = pts[(i + 1) % pts.length]!; return s + p[0] * q[1] - q[0] * p[1]; }, 0) / 2);
+
+describe('sceneForHost — rooms three ways, and layer finishes', () => {
+  it('a captured plan whose walls overshoot at the corners is a room: its outline', () => {
+    const doc = new Doc();
+    // four walls, each running 0.5 past the corners, no shared joints at all
+    doc.addLine({ x: -0.5, y: 0 }, { x: 6.5, y: 0 });
+    doc.addLine({ x: 6, y: -0.5 }, { x: 6, y: 4.5 });
+    doc.addLine({ x: 6.5, y: 4 }, { x: -0.5, y: 4 });
+    doc.addLine({ x: 0, y: 4.5 }, { x: 0, y: -0.5 });
+    doc.addLine({ x: 3, y: 0 }, { x: 3, y: 2.5 }); // a partition ending on the wall, no joint
+    const g = sceneForHost(doc, 'm', layers());
+    expect(g.rooms).toHaveLength(1);
+    expect(g.rooms[0]!.kind).toBe('outline');
+    expect(areaOf(g.rooms[0]!.points)).toBeCloseTo(24, 6);
+    expect(g.rooms[0]!.id).toBeLessThan(0);
+  });
+
+  it('a clean loop is not outlined again', () => {
+    const doc = new Doc();
+    rectangle(doc, 5, 7);
+    const g = sceneForHost(doc, 'm', layers());
+    expect(g.rooms.map((r) => r.kind)).toEqual(['loop']);
+  });
+
+  it('a selection whose lines make a room is a room of its own', () => {
+    const doc = new Doc();
+    // two rooms side by side in one pile of overshooting lines
+    doc.addLine({ x: -0.5, y: 0 }, { x: 9.5, y: 0 });
+    doc.addLine({ x: -0.5, y: 4 }, { x: 9.5, y: 4 });
+    const a = doc.addLine({ x: 0, y: -0.5 }, { x: 0, y: 4.5 })!;
+    const b = doc.addLine({ x: 4, y: -0.5 }, { x: 4, y: 4.5 })!;
+    doc.addLine({ x: 9, y: -0.5 }, { x: 9, y: 4.5 });
+    const walls = [...doc.edges.values()];
+    const top = walls.find((e) => doc.endpointsOf(e)[0].y === 4)!.id;
+    const bottom = walls.find((e) => doc.endpointsOf(e)[0].y === 0)!.id;
+    const g = sceneForHost(doc, 'm', layers(), [[a, b, top, bottom]]);
+    const picked = g.rooms.filter((r) => r.kind === 'picked');
+    expect(picked).toHaveLength(1);
+    expect(areaOf(picked[0]!.points)).toBeCloseTo(16, 6);
+    // the whole pile's outline is there too: the two rooms together
+    expect(areaOf(g.rooms.find((r) => r.kind === 'outline')!.points)).toBeCloseTo(36, 6);
+  });
+
+  it('a layer’s finish travels with it', () => {
+    const doc = new Doc();
+    const l = new Map<string, Layer>([['0', { id: '0', name: '0', color: '#fff', visible: true, finish: 'absorber-100' }], ['A', { id: 'A', name: 'A', color: '#fff', visible: true }]]);
+    const g = sceneForHost(doc, 'm', l);
+    expect(g.layers.find((x) => x.id === '0')!.finish).toBe('absorber-100');
+    expect('finish' in g.layers.find((x) => x.id === 'A')!).toBe(false);
+  });
+});

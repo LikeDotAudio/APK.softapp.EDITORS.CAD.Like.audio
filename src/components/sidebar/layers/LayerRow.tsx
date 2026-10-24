@@ -2,6 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { Layer } from '../../../core/types';
 import { useStore } from '../../../state/useStore';
+import { useUi } from '../../../state/useUi';
 import { LayerColorSwatch } from './LayerColorSwatch';
 
 export interface LayerRowProps {
@@ -19,7 +20,7 @@ export interface LayerRowProps {
   onContextMenu: (e: React.MouseEvent) => void;
 }
 
-/** One layer in the list: active dot, visibility, name, colour. */
+/** One layer in the list: active dot, visibility, name, its host finish (when a host sent a palette), colour. */
 export function LayerRow({
   layer,
   isActive,
@@ -35,6 +36,11 @@ export function LayerRow({
   onContextMenu,
 }: LayerRowProps) {
   const store = useStore();
+  const { palette } = useUi();
+  // a host's finishes — the palette's area materials, not its sized products — grouped as its panel groups them
+  const finishes = (palette?.items ?? []).filter((i) => !i.size);
+  const groups = [...new Set(finishes.map((i) => i.category))];
+  const chosen = finishes.find((i) => i.id === layer.finish);
 
   return (
     <div
@@ -90,6 +96,30 @@ export function LayerRow({
           </span>
         )}
       </div>
+
+      {finishes.length > 0 && (
+        <select
+          value={layer.finish ?? ''}
+          onClick={(e) => e.stopPropagation()}
+          onChange={(e) => store.setLayerFinish(layer.id, e.target.value || null)}
+          title={chosen ? `Finish of everything on ${layer.name}: ${chosen.name}` : `Give ${layer.name} a finish: its walls, ceiling or floor are made of it unless a painted patch says otherwise`}
+          className="mr-1 w-[74px] flex-shrink-0 truncate rounded border border-[#3c3c3c] bg-[#1e1e1e] px-0.5 py-0 text-[10px] text-[#cccccc]"
+          style={chosen ? { borderColor: chosen.color } : undefined}
+        >
+          <option value="">— finish —</option>
+          {groups.map((g) => (
+            <optgroup key={g} label={g}>
+              {finishes
+                .filter((i) => i.category === g)
+                .map((i) => (
+                  <option key={i.id} value={i.id}>
+                    {i.name}
+                  </option>
+                ))}
+            </optgroup>
+          ))}
+        </select>
+      )}
 
       <LayerColorSwatch
         layerId={layer.id}

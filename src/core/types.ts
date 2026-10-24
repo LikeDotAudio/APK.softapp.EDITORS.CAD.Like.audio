@@ -37,6 +37,12 @@ export interface Layer {
   dxfColorIndex?: number; // AutoCAD Color Index (ACI 1-255)
   visible: boolean;
   locked?: boolean;
+  /**
+   * A host palette finish (its `id`) for everything on this layer: what a
+   * host such as the acoustic overlay should take the layer's walls, ceiling
+   * or floor to be made of, where no painted patch says otherwise.
+   */
+  finish?: string;
 }
 
 interface EdgeBase {
