@@ -65,6 +65,15 @@ describe('host marks', () => {
     expect(s.doc.texts.size).toBe(0);
   });
 
+  it('a drawing’s fills go in its block: the set is one thing on the sheet', () => {
+    const s = fakeStore();
+    const spot = { points: [[0, 0], [1, 0], [0, 1]], color: '#ff0000', opacity: 0.2, layer: 'Reflections' };
+    applyHostMarks(s as unknown as EditorStore, { key: 'cut', hash: 'h1', items: [{ ...cut, fills: [spot, { points: [[0, 0]] }] }] });
+    expect(s.doc.fills.size).toBe(0);
+    expect(s.doc.blockInstances.size).toBe(1);
+    expect(s.doc.blocks.get('HOST:cut:iso')?.fills).toEqual([{ points: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }], color: '#ff0000', opacity: 0.2, layerId: 'Reflections' }]);
+  });
+
   it('leaves other keys and the user’s own fills alone', () => {
     const s = fakeStore();
     s.doc.addFill([{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 1 }], 'solid', '0');

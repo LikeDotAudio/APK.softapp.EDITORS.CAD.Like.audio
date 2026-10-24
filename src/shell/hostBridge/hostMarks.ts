@@ -21,10 +21,14 @@ import type { EditorStore } from '../../state/EditorStore';
  *        a region; with a paletteId it is painted like a palette finish and
  *        comes back on `geometry` as a patch, so the host's panels count.
  *   { kind: 'text', layer, at: [x, y], text, height, color?, align?, vAlign? }
- *   { kind: 'drawing', layer, name, at: [x, y], lines, texts? }
+ *   { kind: 'drawing', layer, name, at: [x, y], lines, texts?, fills? }
  *        line work that must not become walls — `lines` [[x1, y1, x2, y2,
  *        layer?]] — kept as a block (`HOST:<key>:<name>`) so it never joins
  *        the edge graph that rooms are read from. A line's own layer colours it.
+ *        Its `fills` [{ points, color?, opacity?, layer? }] go in the same
+ *        block: a set the host drew together is one thing on the sheet, and
+ *        selecting or moving it takes everything in it. (A fill that must
+ *        count as a treatment stays a top-level `fill`: only those come back.)
  *
  * Each thing drawn carries `hostKey` and `hostHash`. A `marks` whose hash is
  * already on the sheet is ignored, so a host can resend freely; `geometry`
@@ -61,6 +65,7 @@ interface DrawingMark {
   at: XY;
   lines: [number, number, number, number, string?][];
   texts?: { text: string; x: number; y: number; height: number }[];
+  fills?: { points: XY[]; color?: string; opacity?: number; layer?: string }[];
 }
 type Mark = (FillMark | TextMark | DrawingMark) & { layerColor?: string };
 
@@ -145,6 +150,14 @@ export function applyHostMarks(store: EditorStore, msg: { key?: unknown; hash?: 
         arcs: [],
         circles: [],
         texts: (raw.texts ?? []).filter((t) => t && typeof t.text === 'string' && num(t.x) && num(t.y) && num(t.height)),
+        fills: (Array.isArray(raw.fills) ? raw.fills : [])
+          .filter((f) => f && Array.isArray(f.points) && f.points.length >= 3 && f.points.every(xy))
+          .map((f) => ({
+            points: f.points.map(([x, y]) => ({ x, y })),
+            ...(typeof f.color === 'string' ? { color: f.color } : {}),
+            ...(num(f.opacity) ? { opacity: f.opacity } : {}),
+            ...(typeof f.layer === 'string' ? { layerId: f.layer } : {}),
+          })),
       };
       doc.addBlockDefinition(def);
       doc.addBlockInstance(def.name, raw.at[0], raw.at[1], 1, 0, raw.layer, undefined, { hostKey: key, hostHash: hash });
