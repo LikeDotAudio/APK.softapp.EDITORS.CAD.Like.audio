@@ -81,6 +81,8 @@ export interface HostPatch {
   /** A placed product only: its centre and turn (degrees CCW) — what `move` sets. */
   at?: HostXY;
   rotation?: number;
+  /** The host's own marks key when the host drew it (`marks`: its auto panels, its glass) — not the user's. */
+  host?: string;
 }
 
 export interface HostGeometry {
@@ -197,6 +199,7 @@ export function sceneForHost(doc: Doc, units: Units, layers: ReadonlyMap<string,
       paletteId: f.paletteId,
       layerId: f.layerId,
       points: f.points.map((p) => [p.x, p.y]),
+      ...(f.hostKey ? { host: f.hostKey } : {}),
     });
   }
   for (const inst of doc.blockInstances.values()) {

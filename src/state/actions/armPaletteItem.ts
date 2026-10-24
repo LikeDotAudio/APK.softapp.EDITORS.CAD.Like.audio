@@ -21,9 +21,10 @@ export function armPaletteItem(store: EditorStore, id: string | null): void {
   if (item.size) {
     const w = formatField(metresToUnits(item.size[0], store.units), store.units);
     const h = formatField(metresToUnits(item.size[1], store.units), store.units);
-    store.showHint(`${item.name} (${w} × ${h} ${store.units}) — click to place on "${layer}" · Esc to stop`, 4000);
+    const how = store.paletteFit === 'fill' ? 'click a region to fill it with it' : store.paletteFit === 'tile' ? 'click a region to tile it' : 'click to place';
+    store.showHint(`${item.name} (${w} × ${h} ${store.units}) — ${how} on "${layer}" · Esc to stop`, 4000);
   } else {
-    store.showHint(`${item.name} — drag a region, or click inside a closed outline, on "${layer}" · Esc to stop`, 4000);
+    store.showHint(`${item.name} — click a region (between division lines), or drag a rectangle, on "${layer}" · Esc to stop`, 4000);
   }
   store.requestDraw();
   store.emit();

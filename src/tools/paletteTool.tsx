@@ -4,6 +4,8 @@ import type { Point } from '../core/types';
 import { pointInPolygon } from '../geometry/polygon/pointInPolygon';
 import { addPaletteFill } from '../model/palette/addPaletteFill';
 import { closedLoopAt } from '../model/palette/closedLoopAt';
+import { metresToUnits } from '../model/palette/metresToUnits';
+import { regionAt, tileCentres } from '../model/palette/regionAt';
 import { paletteBlockDefinition } from '../model/palette/paletteBlockDefinition';
 import { placePaletteBlock } from '../model/palette/placePaletteBlock';
 import { CANVAS } from '../render/palette';
@@ -16,10 +18,19 @@ import type { Tool, ToolApi } from './types';
  * One tool for both kinds of palette item, because the panel arms an ITEM and
  * the item decides the gesture:
  *
- *   a product (it has a size)  click → the block, true size, centred there
+ *   a product (it has a size)  click → by the panel's Fit: the block, true
+ *                              size, centred there (place); the region the
+ *                              click is in painted with it (fill); or blocks at
+ *                              true size across that region, as many as fit
+ *                              whole (tile)
  *   a finish                   drag a rectangle → that region painted;
- *                              click inside a closed outline → that outline
- *                              painted; click elsewhere → click-click rectangle
+ *                              click inside a region → that region painted;
+ *                              click elsewhere → click-click rectangle
+ *
+ * A REGION is the smallest face the layer's lines enclose (regionAt): a
+ * wall's outline cut by division lines is one region per bay, so a wall is
+ * finished by drawing its division lines and clicking each bay. A simple
+ * closed outline is a region too.
  *
  * Everything lands on the active layer — the elevation the host jumped the
  * sheet to — through `edit()`, so it is one undo step and Symmetrical Mode
@@ -34,6 +45,8 @@ interface PaletteState {
   /** True between the first click of a click-click rectangle and the second. */
   clicking: boolean;
   hover: Point | null;
+  /** The region a click would paint, outlined under the cursor; null when none or not wanted. */
+  hoverRegion: Point[] | null;
 }
 
 /** Screen pixels a press must travel to count as a drag rather than a click. */
@@ -64,6 +77,33 @@ function paintRegion(api: ToolApi, points: Point[]): void {
   api.showHint(`Painted ${item.name}.`, 1500);
 }
 
+/** The region a click at `p` is in: between the layer's lines, else inside a closed outline. */
+function regionUnder(api: ToolApi, p: Point): Point[] | null {
+  return regionAt(api.doc, p, api.activeLayerId) ?? closedLoopAt(api.doc, p, api.activeLayerId);
+}
+
+/** A product clicked with Fit set to fill or tile; false when there is no region there (it is placed instead). */
+function fitProduct(api: ToolApi, p: Point): boolean {
+  const item = api.paletteItem;
+  if (!item?.size || api.paletteFit === 'place') return false;
+  const region = regionUnder(api, p);
+  if (!region) return false;
+  if (api.paletteFit === 'fill') {
+    paintRegion(api, region);
+    return true;
+  }
+  const w = metresToUnits(item.size[0], api.units);
+  const h = metresToUnits(item.size[1], api.units);
+  const centres = tileCentres(region, w, h);
+  if (!centres.length) {
+    api.showHint(`${item.name} does not fit whole in that region — Fit: fill paints it instead.`, 2500);
+    return true;
+  }
+  api.edit(() => centres.map((c) => placePaletteBlock(api.doc, item, api.units, c, 0, api.activeLayerId)).some((id) => id !== null));
+  api.showHint(`Tiled ${centres.length} × ${item.name}.`, 1500);
+  return true;
+}
+
 function reset(state: PaletteState): void {
   state.start = null;
   state.startScreen = null;
@@ -80,7 +120,7 @@ export const paletteTool: Tool<PaletteState> = {
   cursor: 'crosshair',
   snaps: true,
 
-  createState: () => ({ start: null, startScreen: null, clicking: false, hover: null }),
+  createState: () => ({ start: null, startScreen: null, clicking: false, hover: null, hoverRegion: null }),
   isDrawing: (s) => s.start !== null,
   orthoRef: (s) => s.start,
   scaleState: (s, f) => {
@@ -94,6 +134,7 @@ export const paletteTool: Tool<PaletteState> = {
       return;
     }
     if (item.size) {
+      if (fitProduct(api, input.rawWorld)) return;
       api.edit(() => placePaletteBlock(api.doc, item, api.units, input.world, 0, api.activeLayerId) !== null);
       api.showHint(`Placed ${item.name}.`, 1500);
       return;
@@ -110,6 +151,9 @@ export const paletteTool: Tool<PaletteState> = {
 
   onPointerMove(state, input, api) {
     state.hover = input.world;
+    const item = api.paletteItem;
+    const wantsRegion = item && !state.start && (!item.size || api.paletteFit !== 'place');
+    state.hoverRegion = wantsRegion ? regionUnder(api, input.rawWorld) : null;
     api.redraw();
   },
 
@@ -123,7 +167,7 @@ export const paletteTool: Tool<PaletteState> = {
       return;
     }
     // A click, not a drag: fill the outline it landed in, or start a click-click rectangle.
-    const loop = closedLoopAt(api.doc, input.rawWorld, api.activeLayerId);
+    const loop = regionUnder(api, input.rawWorld);
     if (loop) {
       reset(state);
       paintRegion(api, loop);
@@ -158,7 +202,21 @@ export const paletteTool: Tool<PaletteState> = {
     if (!item) return;
     const { ctx, view, pointer } = scene;
     ctx.save();
-    if (item.size) {
+    if (state.hoverRegion) {
+      const scr = state.hoverRegion.map((p) => view.toScreen(p.x, p.y));
+      ctx.beginPath();
+      scr.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
+      ctx.closePath();
+      ctx.globalAlpha = 0.18;
+      ctx.fillStyle = item.color;
+      ctx.fill();
+      ctx.globalAlpha = 0.95;
+      ctx.strokeStyle = item.color;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+    if (item.size && (scene.paletteFit ?? 'place') === 'place') {
       const def = paletteBlockDefinition(item, scene.units);
       const pts = def?.fills?.[0]?.points;
       if (pts) {

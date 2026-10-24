@@ -47,7 +47,7 @@ import type { RecentFileEntry } from '../io/recentFiles/RecentFileEntry';
 import { DEFAULT_FLOW_DEFINITION } from '../flow/catalog';
 import { createSchematic } from '../flow/Schematic';
 import { Doc } from '../model/Doc';
-import type { Palette, PaletteItem } from '../model/palette/PaletteItem';
+import type { Palette, PaletteFit, PaletteItem } from '../model/palette/PaletteItem';
 import { History } from '../model/history';
 import { currentEntrance, resumeFromHash, type EntranceProfile } from '../shell/entrance';
 import { getTool } from '../tools/registry';
@@ -188,6 +188,12 @@ export class EditorStore {
   /** Which palette item the Palette tool paints or places next. */
   paletteItemId: string | null = null;
   /**
+   * What a product does when it is clicked: `place` one block at true size
+   * where the click is; `fill` paint the region the click is in with it;
+   * `tile` lay blocks at true size across that region, as many as fit whole.
+   */
+  paletteFit: PaletteFit = 'place';
+  /**
    * How this window stands with 06a's filed sheet — `APK:OS/system/big-picture.json`.
    * `digest` is what the last read or write saw on disk and is what the next
    * save has to quote back; a save that cannot quote it is refused rather than
@@ -299,6 +305,8 @@ export class EditorStore {
 
   constructor(entrance: EntranceProfile = currentEntrance()) {
     this.entrance = entrance;
+    // read live: `layers` is replaced when a session or a DXF is opened
+    this.doc.layerHidden = (layerId) => this.layers.get(layerId)?.visible === false;
     this.toolId = entrance.initialTool;
     this.tool = getTool(this.toolId);
     this.toolState = this.tool.createState();
@@ -326,6 +334,9 @@ export class EditorStore {
       editFlow: (mutate) => this.editFlow(mutate),
       get paletteItem() {
         return store.paletteItem();
+      },
+      get paletteFit() {
+        return store.paletteFit;
       },
       showHint: (msg, dur) => this.showHint(msg, dur),
       setHoverEdge: (id) => this.setHoverEdge(id),
@@ -443,6 +454,11 @@ export class EditorStore {
   /** Arm a palette item and switch to the Palette tool; null disarms. */
   armPaletteItem(id: string | null): void {
     armPaletteItem(this, id);
+  }
+
+  setPaletteFit(fit: PaletteFit): void {
+    this.paletteFit = fit;
+    this.emit();
   }
 
   paletteItem(): PaletteItem | null {

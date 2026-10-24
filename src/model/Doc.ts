@@ -62,6 +62,12 @@ export class Doc {
   blocks = new Map<string, CadBlockDefinition>(STANDARD_CAD_BLOCKS.map((b) => [b.name, b]));
   blockInstances = new Map<number, CadBlockInstance>();
 
+  /**
+   * Whether a layer is switched off. The store sets this; picking skips what
+   * is on a hidden layer, so hiding a layer is enough to click through it.
+   */
+  layerHidden: (layerId: string) => boolean = () => false;
+
   /** Spatial hash grid of vertices for fast O(1) coincidence queries. */
   vertexGrid = new Map<string, number[]>();
 

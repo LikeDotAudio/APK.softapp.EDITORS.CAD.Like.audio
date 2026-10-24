@@ -36,9 +36,17 @@ export interface Outline {
   area: number;
 }
 
-export function outlines(segs: readonly OutlineSeg[], tol = 1e-6): Outline[] {
+interface Traced {
+  pos: Point[];
+  edges: Map<string, { u: number; v: number; edgeId: number }>;
+  around: Map<number, { to: number; k: string; angle: number }[]>;
+  faces: { verts: number[]; ks: string[]; area: number }[];
+}
+
+/** Steps 1–3: the joints, the lines left between them, and every face they trace; null when nothing closes. */
+function trace(segs: readonly OutlineSeg[], tol: number): Traced | null {
   const n = segs.length;
-  if (n < 3) return [];
+  if (n < 3) return null;
   // 1. split parameters along each segment
   const cuts: number[][] = segs.map(() => [0, 1]);
   const cross = (ax: number, ay: number, bx: number, by: number) => ax * by - ay * bx;
@@ -127,7 +135,7 @@ export function outlines(segs: readonly OutlineSeg[], tol = 1e-6): Outline[] {
       }
     }
   }
-  if (edges.size < 3) return [];
+  if (edges.size < 3) return null;
   // 3. faces: each joint's lines by angle
   const around = new Map<number, { to: number; k: string; angle: number }[]>();
   for (const [k, e] of edges)
@@ -161,6 +169,13 @@ export function outlines(segs: readonly OutlineSeg[], tol = 1e-6): Outline[] {
       }
       faces.push({ verts, ks, area: area / 2 });
     }
+  return { pos, edges, around, faces };
+}
+
+export function outlines(segs: readonly OutlineSeg[], tol = 1e-6): Outline[] {
+  const traced = trace(segs, tol);
+  if (!traced) return [];
+  const { pos, edges, around, faces } = traced;
   // the unbounded face of each connected piece: clockwise, and the largest of its piece in size
   const out: Outline[] = [];
   const taken = new Set<number>();
@@ -180,4 +195,22 @@ export function outlines(segs: readonly OutlineSeg[], tol = 1e-6): Outline[] {
     out.push({ points, edgeIds: [...new Set(f.ks.map((k) => edges.get(k)!.edgeId))], area: -f.area });
   }
   return out;
+}
+
+/**
+ * THE REGIONS BETWEEN THE LINES
+ *
+ * Every bounded face, counter-clockwise: a wall's outline with division lines
+ * drawn across it comes back as one region per bay, the cells a painter
+ * clicks into. A face with a separate piece inside it (an island) is still
+ * its outer boundary alone — the island is a region of its own and, being
+ * smaller, is the one a click inside it finds.
+ */
+export function regions(segs: readonly OutlineSeg[], tol = 1e-6): Outline[] {
+  const traced = trace(segs, tol);
+  if (!traced) return [];
+  const { pos, edges } = traced;
+  return traced.faces
+    .filter((f) => f.area > tol)
+    .map((f) => ({ points: f.verts.map((v) => ({ x: pos[v]!.x, y: pos[v]!.y })), edgeIds: [...new Set(f.ks.map((k) => edges.get(k)!.edgeId))], area: f.area }));
 }

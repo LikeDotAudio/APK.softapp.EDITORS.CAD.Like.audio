@@ -11,7 +11,7 @@ import { hitEndpointGrip } from './select/hitEndpointGrip';
 import { hitMidpointGrip } from './select/hitMidpointGrip';
 import { netBounds } from './select/netBounds';
 import type { Point } from '../core/types';
-import type { Tool } from './types';
+import type { Tool, ToolApi } from './types';
 
 interface ScaleDrag {
   /** Corner the drag is anchored to — stays put while the opposite corner follows the cursor. */
@@ -55,6 +55,19 @@ const Icon = (
     <path d="M3 2l10 6-5 1.5L6 14 3 2z" />
   </svg>
 );
+
+/**
+ * The block under the cursor — unless it is a host's drawing (`HOST:…`, the
+ * acoustic overlay's layout, blow-up, cut-aways) lying over one of the
+ * user's own lines: the line wins, so a wall under the overlay's copy of it
+ * stays grippable without hiding or deleting anything.
+ */
+function blockUnder(api: ToolApi, at: Point): number | null {
+  const id = api.doc.hitBlockInstanceAt(at.x, at.y, api.view.zoom);
+  if (id === null) return null;
+  const host = api.doc.blockInstances.get(id)?.blockName.startsWith('HOST:');
+  return host && api.doc.hitEdgeAt(at.x, at.y, api.view.zoom) !== null ? null : id;
+}
 
 export const selectTool: Tool<SelectState> = {
   id: 'select',
@@ -194,7 +207,7 @@ export const selectTool: Tool<SelectState> = {
     }
 
     const textHit = api.doc.hitTextAt(input.rawWorld.x, input.rawWorld.y, api.view.zoom);
-    const blockHit = textHit !== null ? null : api.doc.hitBlockInstanceAt(input.rawWorld.x, input.rawWorld.y, api.view.zoom);
+    const blockHit = textHit !== null ? null : blockUnder(api, input.rawWorld);
     const hit = textHit !== null || blockHit !== null ? null : api.doc.hitEdgeAt(input.rawWorld.x, input.rawWorld.y, api.view.zoom);
     api.setHoverEdge(hit);
     api.setCursor(hit !== null || blockHit !== null || textHit !== null ? 'pointer' : 'default');
@@ -279,7 +292,7 @@ export const selectTool: Tool<SelectState> = {
       return;
     }
 
-    const blockHit = api.doc.hitBlockInstanceAt(input.rawWorld.x, input.rawWorld.y, api.view.zoom);
+    const blockHit = blockUnder(api, input.rawWorld);
     if (blockHit !== null) {
       if (!api.selection.has(blockHit) && !input.shiftKey) {
         api.selection.clear();

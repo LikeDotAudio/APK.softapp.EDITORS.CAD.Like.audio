@@ -36,3 +36,6 @@ export interface Palette {
 }
 
 export const DEFAULT_PALETTE_HATCH = 'ANSI31';
+
+/** What a product does when the Palette tool clicks: one block there, the region painted with it, or the region tiled with it. */
+export type PaletteFit = 'place' | 'fill' | 'tile';

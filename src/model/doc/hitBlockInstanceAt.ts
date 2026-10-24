@@ -28,6 +28,7 @@ export function hitBlockInstanceAt(
   let bestD = maxPx / zoom;
 
   for (const inst of doc.blockInstances.values()) {
+    if (doc.layerHidden(inst.layerId)) continue;
     const def = doc.blocks.get(inst.blockName);
     if (!def) continue;
 

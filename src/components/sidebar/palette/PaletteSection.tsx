@@ -1,13 +1,19 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { useMemo } from 'react';
-import type { PaletteItem } from '../../../model/palette/PaletteItem';
+import type { PaletteFit, PaletteItem } from '../../../model/palette/PaletteItem';
 import { useStore } from '../../../state/useStore';
 import { useUi } from '../../../state/useUi';
 import { PanelSectionTitle } from '../PanelSectionTitle';
 import { PaletteSwatch } from './PaletteSwatch';
 
 /** "0.6×1.2 m" — the host's nominal size, in the host's metres. */
+const FITS: { id: PaletteFit; label: string; title: string }[] = [
+  { id: 'place', label: 'Place', title: 'A product goes down as one block at its true size, where you click' },
+  { id: 'fill', label: 'Fill', title: 'A product paints the whole region you click in — the bay between division lines' },
+  { id: 'tile', label: 'Tile', title: 'A product is laid at its true size across the region you click in, as many as fit whole' },
+];
+
 function sizeLabel(item: PaletteItem): string | null {
   if (!item.size) return null;
   const n = (v: number) => String(parseFloat(v.toFixed(3)));
@@ -48,6 +54,21 @@ export function PaletteSection() {
           <div className="truncate bg-[#222225] px-2 py-0.5 text-[10px] text-[#888]" title="Patches land on the active layer">
             onto <span className="text-[#ccc]">{layerName}</span>
             {palette.armedId && <span className="text-[#777]"> · Esc to stop</span>}
+          </div>
+          <div className="flex items-center gap-0.5 bg-[#222225] px-2 pb-1 text-[10px] text-[#888]" role="group" aria-label="What a product does on a click">
+            <span className="mr-1">Products</span>
+            {FITS.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                title={f.title}
+                aria-pressed={palette.fit === f.id}
+                onClick={() => store.setPaletteFit(f.id)}
+                className={`rounded px-1.5 py-0.5 ${palette.fit === f.id ? 'bg-[#094771] text-white' : 'text-[#cccccc] hover:bg-[#2a2d2e]'}`}
+              >
+                {f.label}
+              </button>
+            ))}
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto pb-1">
             {groups.map(([category, items]) => (

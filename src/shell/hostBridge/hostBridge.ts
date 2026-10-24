@@ -8,9 +8,10 @@ import { applySavedSession } from '../../state/actions/restoreBrowserSession';
 import { currentHost } from '../entrance';
 import { applyHostMarks, marksInDoc } from './hostMarks';
 import { placeHostItems } from './hostPlace';
-import { moveHostItems } from './hostMove';
+import { moveHostItems, removeHostItems } from './hostMove';
 import { ensureHostLayer } from './hostLayer';
 import { showHostSheet } from './hostSheet';
+import { applyHostLayers, applyHostSelect, applyHostWalls, selectionForHost } from './hostWalls';
 import { pickedOutline, sceneForHost, wallsForHost } from './sceneForHost';
 
 /**
@@ -51,12 +52,20 @@ import { pickedOutline, sceneForHost, wallsForHost } from './sceneForHost';
  * — the furniture a library room comes with. `move` { items: [{ id, at,
  * rotation? }] } sets where one of those placed products sits (hostMove.ts),
  * off the undo stack: the acoustic overlay keeps the console at the mixer's nose.
+ * `remove` { ids } takes placed products out, one undo step (hostMove.ts).
  *
  * `layer` { name, color?, finish? } makes sure a layer exists (without making
  * it current) and sets its finish — a palette id, or null (hostLayer.ts).
  * Geometry carries each layer's finish, and the rooms found three ways —
  * one clean loop, a drawing's outline, or a selection that closed a loop,
  * remembered for the session as "these are walls" (sceneForHost).
+ *
+ * `walls` { op, … } reshapes the room from the host's plan — a corner or a
+ * whole wall dragged, a wall added (hostWalls.ts); `layers` { visible }
+ * switches layers on and off by name; `select` { edges, blocks } selects
+ * here what the host picked. Every change of selection here goes back as
+ * `selection` { edges, blocks } (selectionForHost), so the host can call out
+ * what the user picked on the sheet.
  *
  * `marks` { key, hash, items } is the host's own line work and panels, drawn
  * into the sheet and kept current (hostMarks.ts); `geometry` carries `marks`
@@ -133,6 +142,14 @@ function install(store: EditorStore): void {
       ensureHostLayer(store, msg as { name?: unknown; color?: unknown; finish?: unknown });
     } else if (msg.type === 'move') {
       moveHostItems(store, msg as { items?: unknown });
+    } else if (msg.type === 'remove') {
+      removeHostItems(store, msg as { ids?: unknown });
+    } else if (msg.type === 'walls') {
+      applyHostWalls(store, msg as Parameters<typeof applyHostWalls>[1]);
+    } else if (msg.type === 'layers') {
+      applyHostLayers(store, msg as { visible?: unknown });
+    } else if (msg.type === 'select') {
+      applyHostSelect(store, msg as { edges?: unknown; blocks?: unknown });
     } else if (msg.type === 'marks') {
       applyHostMarks(store, msg as { key?: unknown; hash?: unknown; items?: unknown });
     } else if (msg.type === 'session') {
@@ -173,6 +190,7 @@ export function publishToHost(store: EditorStore): void {
     const ids = [...store.selection].filter((id) => store.doc.edge(id));
     // only the selection's own lines, so the test is cheap: a pile of walls or a single outline
     if (ids.length >= 3 && pickedOutline(wallsForHost(store.doc, store.layers), ids)) picked.set(ids.sort((a, b) => a - b).join(), ids);
+    post('selection', selectionForHost(store));
   }
   const layerKey = [...store.layers.values()].map((l) => `${l.id}:${l.visible ? 1 : 0}:${l.color}:${l.finish ?? ''}`).join();
   const geometryKey = `${store.docVersion}|${store.units}|${layerKey}|${store.doc.edgeCount}|${[...picked.keys()].join(';')}`;

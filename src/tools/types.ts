@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import type { Point, SchematicModel, ToolId, Units } from '../core/types';
 import type { VirtualMirrorState, VirtualMirror } from '../core/mirror';
 import type { Doc } from '../model/Doc';
-import type { PaletteItem } from '../model/palette/PaletteItem';
+import type { PaletteFit, PaletteItem } from '../model/palette/PaletteItem';
 import type { Scene } from '../render/Scene';
 import type { Viewport } from '../viewport/Viewport';
 
@@ -52,6 +52,8 @@ export interface ToolApi {
   editFlow(mutate: () => boolean): boolean;
   /** The host palette item the Palette tool paints or places; null when none is armed. */
   readonly paletteItem: PaletteItem | null;
+  /** What a product does on a click (EditorStore.paletteFit). */
+  readonly paletteFit: PaletteFit;
   showHint(message: string, durationMs?: number): void;
   setHoverEdge(id: number | null): void;
   /** Status-bar measurement readout; null hides it. */

@@ -11,6 +11,7 @@ import { paletteFootprint } from './paletteFootprint';
 import { parsePalette } from './parsePalette';
 import { EditorStore } from '../../state/EditorStore';
 import { placePaletteBlock } from './placePaletteBlock';
+import { regionAt, tileCentres } from './regionAt';
 import type { PaletteItem } from './PaletteItem';
 
 const qrd: PaletteItem = { id: 'qrd-600', name: 'QRD diffuser', category: 'Diffuser', color: '#aa8833', hatch: 'GRID', size: [0.6, 0.6] };
@@ -126,6 +127,51 @@ describe('closedLoopAt', () => {
     expect(width(closedLoopAt(doc, { x: 3, y: 2 }, 'wall')!)).toBeCloseTo(2);
     expect(width(closedLoopAt(doc, { x: 8, y: 4 }, 'wall')!)).toBeCloseTo(10);
     expect(closedLoopAt(doc, { x: 25, y: 2 }, 'wall')).toBeNull();
+  });
+});
+
+describe('regionAt', () => {
+  // the front wall of the callouts sheet: 4200 × 3000, division lines at 600, 1500, 2700, 3600 and 900, 2100 high
+  const wall = () => {
+    const doc = new Doc();
+    const line = (x0: number, y0: number, x1: number, y1: number) => doc.addLine({ x: x0, y: y0 }, { x: x1, y: y1 }, 0, 'Elevation Front');
+    line(0, 0, 4200, 0);
+    line(4200, 0, 4200, 3000);
+    line(4200, 3000, 0, 3000);
+    line(0, 3000, 0, 0);
+    line(600, -50, 600, 3050); // overshooting both ends
+    line(3600, 0, 3600, 3000);
+    line(600, 900, 3600, 900); // stopping on the verticals: a T at each end
+    line(600, 2100, 3600, 2100);
+    line(1500, 900, 1500, 2100);
+    line(2700, 900, 2700, 2100);
+    line(1000, 300, 1100, 400); // a stray stub, ignored
+    return doc;
+  };
+  const box = (pts: { x: number; y: number }[]) => [Math.min(...pts.map((p) => p.x)), Math.min(...pts.map((p) => p.y)), Math.max(...pts.map((p) => p.x)), Math.max(...pts.map((p) => p.y))].map((v) => Math.round(v * 1000) / 1000);
+
+  it('finds the bay a click lands in, between division lines that cross, T and overshoot', () => {
+    const doc = wall();
+    expect(box(regionAt(doc, { x: 1000, y: 1500 }, 'Elevation Front')!)).toEqual([600, 900, 1500, 2100]);
+    expect(box(regionAt(doc, { x: 2100, y: 1500 }, 'Elevation Front')!)).toEqual([1500, 900, 2700, 2100]);
+    expect(box(regionAt(doc, { x: 300, y: 2900 }, 'Elevation Front')!)).toEqual([0, 0, 600, 3000]);
+    expect(box(regionAt(doc, { x: 2000, y: 300 }, 'Elevation Front')!)).toEqual([600, 0, 3600, 900]);
+  });
+
+  it('is nothing outside the wall or on another layer', () => {
+    const doc = wall();
+    expect(regionAt(doc, { x: 5000, y: 1500 }, 'Elevation Front')).toBeNull();
+    expect(regionAt(doc, { x: 1000, y: 1500 }, 'Elevation Back')).toBeNull();
+  });
+
+  it('tiles a region with whole tiles only, from its bottom-left', () => {
+    const bay = [{ x: 1500, y: 900 }, { x: 2700, y: 900 }, { x: 2700, y: 2100 }, { x: 1500, y: 2100 }];
+    const c = tileCentres(bay, 1200, 600);
+    expect(c).toHaveLength(2);
+    expect(c[0]!.x).toBeCloseTo(2100);
+    expect(c[0]!.y).toBeCloseTo(1200);
+    expect(c[1]!.y).toBeCloseTo(1800);
+    expect(tileCentres(bay, 1300, 600)).toHaveLength(0);
   });
 });
 

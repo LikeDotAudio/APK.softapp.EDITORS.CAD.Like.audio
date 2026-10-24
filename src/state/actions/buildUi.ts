@@ -107,6 +107,7 @@ export function buildUi(store: EditorStore): UiState {
           title: store.palette.title,
           items: store.palette.items,
           armedId: store.toolId === 'palette' ? store.paletteItemId : null,
+          fit: store.paletteFit,
         }
       : null,
   };

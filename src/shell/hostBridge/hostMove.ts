@@ -33,3 +33,29 @@ export function moveHostItems(store: EditorStore, msg: { items?: unknown }): num
   store.emit();
   return n;
 }
+
+/**
+ * A HOST TAKES A PIECE OF FURNITURE OUT
+ *
+ * `remove { ids: ['block:<n>', …] }` deletes placed palette products — the
+ * acoustic plan's right-click Remove on a couch or a console. Unlike `move`
+ * this is the user's own edit, so it is one step on the undo stack. Only
+ * blocks that carry a `paletteId` go; anything else is skipped. Returns how
+ * many went.
+ */
+export function removeHostItems(store: EditorStore, msg: { ids?: unknown }): number {
+  if (!Array.isArray(msg.ids)) return 0;
+  const doomed: number[] = [];
+  for (const id of msg.ids) {
+    const m = typeof id === 'string' ? /^block:(\d+)$/.exec(id) : null;
+    const inst = m ? store.doc.blockInstances.get(Number(m[1])) : undefined;
+    if (inst?.attributes?.paletteId) doomed.push(inst.id);
+  }
+  if (!doomed.length) return 0;
+  store.history.push(store.doc.snapshot());
+  for (const id of doomed) store.doc.removeBlockInstance(id);
+  store.markDocChanged();
+  store.requestDraw();
+  store.emit();
+  return doomed.length;
+}

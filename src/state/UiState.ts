@@ -18,7 +18,7 @@
  */
 import type { VirtualMirrorState } from '../core/mirror';
 import type { CadViewport, Layer, Point, ToolId, Units, GridMode, ValidationResult } from '../core/types';
-import type { PaletteItem } from '../model/palette/PaletteItem';
+import type { PaletteFit, PaletteItem } from '../model/palette/PaletteItem';
 
 export interface DynFieldUi {
   key: string;
@@ -83,6 +83,7 @@ export interface PaletteUi {
   items: readonly PaletteItem[];
   /** The item armed in the Palette tool, or null when that tool is not active. */
   armedId: string | null;
+  fit: PaletteFit;
 }
 
 export interface TracingUi {

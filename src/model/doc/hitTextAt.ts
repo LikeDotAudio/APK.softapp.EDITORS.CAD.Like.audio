@@ -20,6 +20,7 @@ export function hitTextAt(
   let bestD = maxPx / zoom;
 
   for (const t of doc.texts.values()) {
+    if (t.layerId && doc.layerHidden(t.layerId)) continue;
     const rot = t.rotation ?? 0;
     const rad = (-rot * Math.PI) / 180;
     const cos = Math.cos(rad);

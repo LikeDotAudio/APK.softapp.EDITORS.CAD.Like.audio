@@ -8,6 +8,7 @@ export function hitEdgeAt(doc: Doc, wx: number, wy: number, zoom: number, maxPx 
   let best: number | null = null;
   let bestD = maxPx / zoom;
   for (const e of doc.edges.values()) {
+    if (doc.layerHidden(e.layerId)) continue;
     const d = doc.distToEdge(wx, wy, e);
     if (d < bestD) {
       bestD = d;
