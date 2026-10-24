@@ -75,3 +75,19 @@ describe('host marks', () => {
     expect(marksInDoc(s.doc)).toEqual({ b: '1' });
   });
 });
+
+describe('host place', () => {
+  it('places products as the user’s own blocks in one undo step, skipping what is not a product', async () => {
+    const { placeHostItems } = await import('./hostPlace');
+    const s = fakeStore() as ReturnType<typeof fakeStore> & { history: { stack: unknown[]; push(x: unknown): void }; units: string };
+    s.units = 'm';
+    s.history = { stack: [], push(x) { this.stack.push(x); } };
+    const n = placeHostItems(s as unknown as EditorStore, { layer: 'Furniture', items: [{ paletteId: 'panel', at: [1, 2], rotation: 90 }, { paletteId: 'nope', at: [0, 0] }, { paletteId: 'panel', at: ['x', 0] }] });
+    expect(n).toBe(1);
+    expect(s.history.stack).toHaveLength(1);
+    const inst = [...s.doc.blockInstances.values()][0]!;
+    expect(inst.attributes?.paletteId).toBe('panel');
+    expect(inst.rotation).toBe(90);
+    expect(inst.attributes?.hostKey).toBeUndefined();
+  });
+});

@@ -7,6 +7,7 @@ import { buildSavedSession } from '../../state/actions/autoSaveSession';
 import { applySavedSession } from '../../state/actions/restoreBrowserSession';
 import { currentHost } from '../entrance';
 import { applyHostMarks, marksInDoc } from './hostMarks';
+import { placeHostItems } from './hostPlace';
 import { showHostSheet } from './hostSheet';
 import { sceneForHost } from './sceneForHost';
 
@@ -42,6 +43,10 @@ import { sceneForHost } from './sceneForHost';
  * replaces the last. `arm` { paletteId } picks one of those items for the
  * user to place next, as if they had clicked it in the panel (null disarms) —
  * the host's "＋ Desk" button is this.
+ *
+ * `place` { layer, items: [{ paletteId, at, rotation? }] } puts palette
+ * products on the sheet as the user's own blocks, one undo step (hostPlace.ts)
+ * — the furniture a library room comes with.
  *
  * `marks` { key, hash, items } is the host's own line work and panels, drawn
  * into the sheet and kept current (hostMarks.ts); `geometry` carries `marks`
@@ -109,6 +114,8 @@ function install(store: EditorStore): void {
     } else if (msg.type === 'arm') {
       const { paletteId } = msg as { paletteId?: unknown };
       store.armPaletteItem(typeof paletteId === 'string' ? paletteId : null);
+    } else if (msg.type === 'place') {
+      placeHostItems(store, msg as { layer?: unknown; items?: unknown });
     } else if (msg.type === 'marks') {
       applyHostMarks(store, msg as { key?: unknown; hash?: unknown; items?: unknown });
     } else if (msg.type === 'session') {
