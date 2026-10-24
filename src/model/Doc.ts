@@ -22,7 +22,7 @@ import { explodeSelected } from './doc/explodeSelected';
 import { findVertexNear } from './doc/findVertexNear';
 import { flipHorizontal } from './doc/flipHorizontal';
 import { flipVertical } from './doc/flipVertical';
-import { reflectAcrossMirror, type ReflectResult } from './doc/reflectAcrossMirror';
+import { reflectAcrossMirror, type MirrorTargets, type ReflectResult } from './doc/reflectAcrossMirror';
 import { groupSelected } from './doc/groupSelected';
 import { hitEdgeAt } from './doc/hitEdgeAt';
 import { hitBlockInstanceAt } from './doc/hitBlockInstanceAt';
@@ -252,7 +252,7 @@ export class Doc {
     return flipVertical(this, edgeIds);
   }
 
-  reflectAcrossMirror(selectedIds: Iterable<number>, mirrorX: number): ReflectResult {
+  reflectAcrossMirror(selectedIds: Iterable<number> | MirrorTargets, mirrorX: number): ReflectResult {
     return reflectAcrossMirror(this, selectedIds, mirrorX);
   }
 

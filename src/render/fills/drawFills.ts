@@ -2,6 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { Layer } from '../../core/types';
 import type { Scene } from '../Scene';
+import { strokeHatch } from './strokeHatch';
 
 export function drawFills(
   scene: Scene,
@@ -31,34 +32,19 @@ export function drawFills(
     ctx.closePath();
 
     if (fill.type === 'hatch') {
-      // Draw cross-hatch or diagonal lines inside the clipped boundary
-      ctx.save();
-      ctx.clip();
+      /* A palette patch is a material, and a material reads as a tint with a
+         pattern on it; a bare hatch over white paper reads as a sketch. */
+      if (fill.paletteId) {
+        ctx.globalAlpha = opacity * 0.5;
+        ctx.fillStyle = color;
+        ctx.fill();
+      }
       ctx.globalAlpha = Math.min(1, opacity + 0.2);
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 1;
-
-      // Find screen bounding box
-      let minX = Infinity;
-      let maxX = -Infinity;
-      let minY = Infinity;
-      let maxY = -Infinity;
-      for (const p of screenPts) {
-        if (p.x < minX) minX = p.x;
-        if (p.x > maxX) maxX = p.x;
-        if (p.y < minY) minY = p.y;
-        if (p.y > maxY) maxY = p.y;
-      }
-
-      const step = 10;
-      const diagonalDist = (maxX - minX) + (maxY - minY);
-      for (let offset = -diagonalDist; offset < diagonalDist; offset += step) {
-        ctx.beginPath();
-        ctx.moveTo(minX + offset, minY);
-        ctx.lineTo(minX + offset + (maxY - minY), maxY);
-        ctx.stroke();
-      }
-      ctx.restore();
+      strokeHatch(ctx, screenPts, fill.hatchPattern, color);
+      // The hatch laid its own strokes as the current path; trace the outline again for the border.
+      ctx.beginPath();
+      screenPts.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
+      ctx.closePath();
     } else {
       // Solid fill with opacity
       ctx.globalAlpha = opacity;

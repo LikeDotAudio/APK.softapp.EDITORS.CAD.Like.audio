@@ -20,5 +20,25 @@ export function scaleAll(doc: Doc, f: number): void {
     p.cy *= f;
     p.r *= f;
   }
+  /* Texts, fills and block instances live beside the vertex graph, and a unit
+     switch that left them at their old numbers would slide every label and
+     palette patch off the wall it was put on. A block instance scales by its
+     own factor so the definition — shared by every instance — stays as made. */
+  for (const t of doc.texts.values()) {
+    t.x *= f;
+    t.y *= f;
+    t.height *= f;
+  }
+  for (const fill of doc.fills.values()) {
+    for (const p of fill.points) {
+      p.x *= f;
+      p.y *= f;
+    }
+  }
+  for (const b of doc.blockInstances.values()) {
+    b.x *= f;
+    b.y *= f;
+    b.scale = (b.scale ?? 1) * f;
+  }
   doc.rebuildVertexGrid();
 }

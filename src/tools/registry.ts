@@ -24,6 +24,7 @@ import { blockTool } from './blockTool';
 import { tangentTool } from './tangentTool';
 import { wireTool } from './wireTool';
 import { symmetryTool } from './symmetryTool';
+import { paletteTool } from './paletteTool';
 import type { AnyTool } from './types';
 
 /** Toolbar order. */
@@ -53,7 +54,14 @@ export const TOOLS: AnyTool[] = [
   groupTool,
 ];
 
-const BY_ID = new Map<ToolId, AnyTool>(TOOLS.map((t) => [t.id, t]));
+/**
+ * Tools reached from a panel, never from the toolbar or a key: the Palette
+ * tool is armed by picking a host material, and without one it has nothing
+ * to do.
+ */
+const PANEL_TOOLS: AnyTool[] = [paletteTool];
+
+const BY_ID = new Map<ToolId, AnyTool>([...TOOLS, ...PANEL_TOOLS].map((t) => [t.id, t]));
 
 export function getTool(id: ToolId): AnyTool {
   const tool = BY_ID.get(id);

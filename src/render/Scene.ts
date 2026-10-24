@@ -2,6 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { Point, SchematicModel, Units, GridMode } from '../core/types';
 import type { Doc } from '../model/Doc';
+import type { PaletteItem } from '../model/palette/PaletteItem';
 import type { Viewport } from '../viewport/Viewport';
 
 /** Everything a render module needs. Passed to each drawing function. */
@@ -25,6 +26,8 @@ export interface Scene {
   schematic?: SchematicModel;
   /** Which catalogue symbol the Flow tool would place next. */
   flowDefinitionId?: string;
+  /** The host palette item the Palette tool would paint or place next. */
+  paletteItem?: PaletteItem | null;
   /** Whether text annotations and block text render at fixed readable screen size (no zoom scaling). */
   fixedTextSize?: boolean;
 }

@@ -18,6 +18,7 @@
  */
 import type { VirtualMirrorState } from '../core/mirror';
 import type { CadViewport, Layer, Point, ToolId, Units, GridMode, ValidationResult } from '../core/types';
+import type { PaletteItem } from '../model/palette/PaletteItem';
 
 export interface DynFieldUi {
   key: string;
@@ -75,6 +76,15 @@ export interface BigPictureUi {
   message: string | null;
 }
 
+/** The host's material palette, as the Palette panel shows it. */
+export interface PaletteUi {
+  title: string;
+  /** The host's rows, as sent — never mutated, so passing the array is safe. */
+  items: readonly PaletteItem[];
+  /** The item armed in the Palette tool, or null when that tool is not active. */
+  armedId: string | null;
+}
+
 export interface TracingUi {
   visible: boolean;
   opacity: number;
@@ -121,4 +131,6 @@ export interface UiState {
   viewports: CadViewport[];
   activeViewportId: string;
   mirror: VirtualMirrorState;
+  /** Null until a host sends a palette — and with it, no Palette panel. */
+  palette: PaletteUi | null;
 }

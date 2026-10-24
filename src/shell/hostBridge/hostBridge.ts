@@ -1,6 +1,7 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { EditorStore } from '../../state/EditorStore';
+import { parsePalette } from '../../model/palette/parsePalette';
 import { showHostSheet } from './hostSheet';
 import { sceneForHost } from './sceneForHost';
 
@@ -8,13 +9,16 @@ import { sceneForHost } from './sceneForHost';
  * THE DOOR FOR SOFTAPPS BUILT ON THIS ONE
  *
  * When this editor runs inside another softapp's iframe, it tells the parent
- * two things over `postMessage`, and nothing more:
+ * three things over `postMessage`, and nothing more:
  *
  *   `view`      the world→screen transform and where the canvas sits in this
  *               window — so the host can lay its own layer exactly over ours.
  *               Sent whenever pan, zoom or the canvas box moves.
- *   `geometry`  the visible sheet as walls and closed rooms (sceneForHost).
- *               Sent whenever the drawing, its units or its layers change.
+ *   `geometry`  the visible sheet as walls, closed rooms and palette patches
+ *               (sceneForHost). Sent whenever the drawing, its units or its
+ *               layers change. `patches` is every fill and block placed from
+ *               the host's palette: { id: 'fill:<n>' | 'block:<n>',
+ *               paletteId, layerId, points } in drawing units.
  *   `mirror`    the Virtual Mirror — whether Symmetrical Mode is on and every
  *               axis x. A host that places things in pairs (the acoustic
  *               overlay's L/R speakers) mirrors across THIS axis rather than
@@ -24,7 +28,13 @@ import { sceneForHost } from './sceneForHost';
  * The host may send `hello` (resend all three now), `fit` (zoom to the
  * drawing), `mirror` { x, enabled } (put the primary axis there) and `sheet`
  * { layer, color?, seed? } (jump to the drawing on that layer and make it
- * current, drawing `seed` there first if the layer is empty — hostSheet.ts).
+ * current, drawing `seed` there first if the layer is empty — hostSheet.ts)
+ * and `palette` { title, items } — the host's materials (model/palette):
+ * each item { id, name, category, color, hatch?, size?: [w, h] metres, note? }.
+ * The Palette panel appears with it; an item with a size is placed as a
+ * true-size block (`PAL:<id>`, base point at its centre, attribute paletteId),
+ * one without is painted as a region (a fill with paletteId). A new palette
+ * replaces the last.
  * Same-origin only, both ways: a softapp is served from the same OS as we are,
  * and a stranger's page has no business reading the sheet.
  *
@@ -65,6 +75,9 @@ function install(store: EditorStore): void {
     } else if (msg.type === 'sheet') {
       const { layer, color, seed } = msg as { layer?: unknown; color?: unknown; seed?: unknown };
       if (typeof layer === 'string' && layer.trim()) showHostSheet(store, layer.trim(), color, seed);
+    } else if (msg.type === 'palette') {
+      const palette = parsePalette(msg);
+      if (palette) store.setPalette(palette);
     }
   });
   post('ready', {});

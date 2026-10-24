@@ -4,9 +4,10 @@ import { useEntrance } from '../../shell/EntranceContext';
 import { FlowCatalogSection } from './flow/FlowCatalogSection';
 import { GroupTreeSection } from './groups/GroupTreeSection';
 import { LayerListSection } from './layers/LayerListSection';
+import { PaletteSection } from './palette/PaletteSection';
 import { PropertyEditorSection } from './properties/PropertyEditorSection';
 
-/** Right rail: the Flow set, the group tree, then layers, then properties. */
+/** Right rail: the Flow set, the group tree, a host's palette, then layers, then properties. */
 export function SidebarPanel() {
   const { showsFlowPanel } = useEntrance();
 
@@ -14,6 +15,7 @@ export function SidebarPanel() {
     <div className="flex h-full w-64 flex-shrink-0 select-none flex-col border-r border-[#333] bg-[#252526] font-sans text-[12px] text-[#cccccc]">
       {showsFlowPanel && <FlowCatalogSection />}
       {showsFlowPanel && <GroupTreeSection />}
+      <PaletteSection />
       <LayerListSection />
       <PropertyEditorSection />
     </div>

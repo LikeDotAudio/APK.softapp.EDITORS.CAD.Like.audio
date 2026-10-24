@@ -102,5 +102,12 @@ export function buildUi(store: EditorStore): UiState {
     viewports: store.viewports,
     activeViewportId: store.activeViewportId,
     mirror: { ...store.mirror },
+    palette: store.palette
+      ? {
+          title: store.palette.title,
+          items: store.palette.items,
+          armedId: store.toolId === 'palette' ? store.paletteItemId : null,
+        }
+      : null,
   };
 }

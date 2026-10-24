@@ -11,16 +11,40 @@ export interface ReflectResult {
 }
 
 /**
+ * Ids sorted by kind. Edges, texts, blocks and fills each count from 1, so a
+ * bare id set means "this id in every table" — right for a user's selection
+ * (which is built that way), wrong for "what an edit just added", where new
+ * block 3 must not drag old edge 3 across the axis with it.
+ */
+export interface MirrorTargets {
+  edges: Iterable<number>;
+  texts: Iterable<number>;
+  blocks: Iterable<number>;
+  fills: Iterable<number>;
+}
+
+function isTargets(v: Iterable<number> | MirrorTargets): v is MirrorTargets {
+  return !(Symbol.iterator in v);
+}
+
+/**
  * Duplicates selected entities (or all entities if selection is empty)
  * and reflects them horizontally across the vertical mirror axis at x = mirrorX.
  */
 export function reflectAcrossMirror(
   doc: Doc,
-  selectedIds: Iterable<number>,
+  selectedIds: Iterable<number> | MirrorTargets,
   mirrorX: number,
 ): ReflectResult {
-  const selSet = new Set(selectedIds);
-  const reflectAll = selSet.size === 0;
+  const typed = isTargets(selectedIds) ? selectedIds : null;
+  const selSet = new Set(typed ? [] : (selectedIds as Iterable<number>));
+  const edgeSet = typed ? new Set(typed.edges) : selSet;
+  const textSet = typed ? new Set(typed.texts) : selSet;
+  const blockSet = typed ? new Set(typed.blocks) : selSet;
+  const fillSet = typed ? new Set(typed.fills) : selSet;
+  const reflectAll = typed
+    ? edgeSet.size + textSet.size + blockSet.size + fillSet.size === 0
+    : selSet.size === 0;
 
   const result: ReflectResult = {
     edgeIds: [],
@@ -31,7 +55,7 @@ export function reflectAcrossMirror(
 
   // 1. Reflect Edges
   const edgesToReflect = Array.from(doc.edges.values()).filter(
-    (e) => reflectAll || selSet.has(e.id),
+    (e) => reflectAll || edgeSet.has(e.id),
   );
 
   for (const e of edgesToReflect) {
@@ -53,7 +77,7 @@ export function reflectAcrossMirror(
 
   // 2. Reflect Texts
   const textsToReflect = Array.from(doc.texts.values()).filter(
-    (t) => reflectAll || selSet.has(t.id),
+    (t) => reflectAll || textSet.has(t.id),
   );
   for (const t of textsToReflect) {
     const newX = 2 * mirrorX - t.x;
@@ -73,7 +97,7 @@ export function reflectAcrossMirror(
 
   // 3. Reflect Blocks
   const blocksToReflect = Array.from(doc.blockInstances.values()).filter(
-    (b) => reflectAll || selSet.has(b.id),
+    (b) => reflectAll || blockSet.has(b.id),
   );
   for (const b of blocksToReflect) {
     const newX = 2 * mirrorX - b.x;
@@ -92,7 +116,7 @@ export function reflectAcrossMirror(
 
   // 4. Reflect Fills
   const fillsToReflect = Array.from(doc.fills.values()).filter(
-    (f) => reflectAll || selSet.has(f.id),
+    (f) => reflectAll || fillSet.has(f.id),
   );
   for (const f of fillsToReflect) {
     const newPts = f.points.map((pt) => ({
@@ -100,6 +124,10 @@ export function reflectAcrossMirror(
       y: pt.y,
     }));
     const newId = doc.addFill(newPts, f.type, f.layerId, f.color, f.opacity);
+    // The reflection is the same material as the original: keep its pattern and palette tag.
+    const copy = doc.fills.get(newId)!;
+    if (f.hatchPattern !== undefined) copy.hatchPattern = f.hatchPattern;
+    if (f.paletteId !== undefined) copy.paletteId = f.paletteId;
     result.fillIds.push(newId);
   }
 

@@ -4,6 +4,7 @@ import { TAU } from '../../core/constants';
 import type { Layer, Units } from '../../core/types';
 import { arcToPolyline } from '../../geometry/arc/arcToPolyline';
 import type { Doc } from '../../model/Doc';
+import { paletteFootprint } from '../../model/palette/paletteFootprint';
 import { connectedComponents } from '../../model/topology/connectedComponents';
 import { cyclePoints } from '../../model/topology/cyclePoints';
 import { cycleWalk } from '../../model/topology/cycleWalk';
@@ -19,6 +20,11 @@ import { cycleWalk } from '../../model/topology/cycleWalk';
  *
  * Hidden layers are left out: what the host draws over must match what the
  * user can see under it.
+ *
+ * `patches` are the host's own palette materials, painted back onto the sheet:
+ * every fill and every block instance that carries a `paletteId`, as a polygon
+ * in the same drawing frame as the walls. The host knows what the id means;
+ * all this side owes it is where the thing is.
  */
 
 export type HostXY = [number, number];
@@ -44,11 +50,20 @@ export interface HostLayer {
   color: string;
 }
 
+export interface HostPatch {
+  /** `fill:<id>` for a painted finish, `block:<id>` for a placed product. */
+  id: string;
+  paletteId: string;
+  layerId: string;
+  points: HostXY[];
+}
+
 export interface HostGeometry {
   units: Units;
   walls: HostWall[];
   rooms: HostRoom[];
   layers: HostLayer[];
+  patches: HostPatch[];
 }
 
 export function sceneForHost(doc: Doc, units: Units, layers: ReadonlyMap<string, Layer>): HostGeometry {
@@ -86,10 +101,29 @@ export function sceneForHost(doc: Doc, units: Units, layers: ReadonlyMap<string,
     });
   }
 
+  const patches: HostPatch[] = [];
+  for (const f of doc.fills.values()) {
+    if (!f.paletteId || !visible(f.layerId) || f.points.length < 3) continue;
+    patches.push({
+      id: `fill:${f.id}`,
+      paletteId: f.paletteId,
+      layerId: f.layerId,
+      points: f.points.map((p) => [p.x, p.y]),
+    });
+  }
+  for (const inst of doc.blockInstances.values()) {
+    const paletteId = inst.attributes?.paletteId;
+    if (!paletteId || !visible(inst.layerId)) continue;
+    const pts = paletteFootprint(doc, inst);
+    if (!pts) continue;
+    patches.push({ id: `block:${inst.id}`, paletteId, layerId: inst.layerId, points: pts.map((p) => [p.x, p.y]) });
+  }
+
   return {
     units,
     walls,
     rooms,
+    patches,
     layers: [...layers.values()].map((l) => ({ id: l.id, name: l.name, color: l.color })),
   };
 }

@@ -104,7 +104,8 @@ export type ToolId =
   | 'text'
   | 'block'
   | 'fill'
-  | 'symmetry';
+  | 'symmetry'
+  | 'palette';
 
 export type TextHAlign = 'left' | 'center' | 'right';
 export type TextVAlign = 'top' | 'middle' | 'baseline' | 'bottom';
@@ -133,8 +134,14 @@ export interface FillEntity {
   layerId: string;
   color?: string;
   opacity?: number; // 0..1, default 0.35
-  hatchPattern?: string; // 'SOLID' | 'ANSI31' | 'GRID'
+  hatchPattern?: string; // 'SOLID' | 'ANSI31' | 'ANSI37' | 'GRID'
   protected?: boolean;
+  /**
+   * The host palette item this patch was painted with (model/palette). Kept on
+   * the fill rather than in a side table so undo, mirroring and the session
+   * file carry it for free; DXF has nowhere to put it and drops it.
+   */
+  paletteId?: string;
 }
 
 export interface CadBlockDefinition {
@@ -145,7 +152,7 @@ export interface CadBlockDefinition {
   arcs: Array<{ cx: number; cy: number; r: number; a1: number; a2: number; layerId?: string }>;
   circles: Array<{ cx: number; cy: number; r: number; layerId?: string }>;
   texts?: Array<{ text: string; x: number; y: number; height: number; rotation?: number; layerId?: string }>;
-  fills?: Array<{ points: Point[]; color?: string; opacity?: number; layerId?: string }>;
+  fills?: Array<{ points: Point[]; color?: string; opacity?: number; layerId?: string; hatchPattern?: string }>;
 }
 
 export interface CadBlockInstance {

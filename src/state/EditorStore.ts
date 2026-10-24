@@ -47,6 +47,7 @@ import type { RecentFileEntry } from '../io/recentFiles/RecentFileEntry';
 import { DEFAULT_FLOW_DEFINITION } from '../flow/catalog';
 import { createSchematic } from '../flow/Schematic';
 import { Doc } from '../model/Doc';
+import type { Palette, PaletteItem } from '../model/palette/PaletteItem';
 import { History } from '../model/history';
 import { currentEntrance, type EntranceProfile } from '../shell/entrance';
 import { getTool } from '../tools/registry';
@@ -58,6 +59,7 @@ import { Viewport } from '../viewport/Viewport';
 
 
 import { addLayer } from './actions/addLayer';
+import { armPaletteItem } from './actions/armPaletteItem';
 import { applyCalibration } from './actions/applyCalibration';
 import { applyLoadedImage } from './actions/applyLoadedImage';
 import { attach } from './actions/attach';
@@ -137,6 +139,7 @@ import { setImageOpacity } from './actions/setImageOpacity';
 import { setImageWorldWidth } from './actions/setImageWorldWidth';
 import { setLayerColor } from './actions/setLayerColor';
 import { setMeasurement } from './actions/setMeasurement';
+import { setPalette } from './actions/setPalette';
 import { setSelectionLayer } from './actions/setSelectionLayer';
 import { setSelectionProtected } from './actions/setSelectionProtected';
 import { setShapeMode } from './actions/setShapeMode';
@@ -175,6 +178,14 @@ export class EditorStore {
   readonly schematic: SchematicModel = createSchematic();
   /** Which catalogue symbol the Flow tool places next. */
   flowDefinitionId: string = DEFAULT_FLOW_DEFINITION;
+  /**
+   * The host's material palette (model/palette) — null until a softapp sends
+   * one over the bridge. Not part of the drawing: it is the host's catalogue,
+   * resent whenever the host likes, and only what was placed from it is saved.
+   */
+  palette: Palette | null = null;
+  /** Which palette item the Palette tool paints or places next. */
+  paletteItemId: string | null = null;
   /**
    * How this window stands with 06a's filed sheet — `APK:OS/system/big-picture.json`.
    * `digest` is what the last read or write saw on disk and is what the next
@@ -312,6 +323,9 @@ export class EditorStore {
         return store.flowDefinitionId;
       },
       editFlow: (mutate) => this.editFlow(mutate),
+      get paletteItem() {
+        return store.paletteItem();
+      },
       showHint: (msg, dur) => this.showHint(msg, dur),
       setHoverEdge: (id) => this.setHoverEdge(id),
       setMeasurement: (text) => this.setMeasurement(text),
@@ -416,6 +430,21 @@ export class EditorStore {
 
   setHoverEdge(id: number | null): void {
     setHoverEdge(this, id);
+  }
+
+  /** Replace the host's palette (a `palette` message over the bridge). */
+  setPalette(palette: Palette | null): void {
+    setPalette(this, palette);
+  }
+
+  /** Arm a palette item and switch to the Palette tool; null disarms. */
+  armPaletteItem(id: string | null): void {
+    armPaletteItem(this, id);
+  }
+
+  paletteItem(): PaletteItem | null {
+    if (!this.palette || this.paletteItemId === null) return null;
+    return this.palette.items.find((i) => i.id === this.paletteItemId) ?? null;
   }
 
   setMeasurement(text: string | null): void {

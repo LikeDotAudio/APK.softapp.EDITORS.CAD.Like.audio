@@ -18,6 +18,7 @@ export function render(store: EditorStore): void {
     selection: store.selection,
     schematic: store.schematic,
     flowDefinitionId: store.flowDefinitionId,
+    paletteItem: store.paletteItem(),
     fixedTextSize: store.fixedTextSize,
   };
   renderScene(scene, {

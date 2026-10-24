@@ -3,6 +3,7 @@
 import type { Layer, Point } from '../../core/types';
 import { isDarkColor } from '../edges/isDarkColor';
 import type { Scene } from '../Scene';
+import { strokeHatch } from '../fills/strokeHatch';
 
 export function drawBlockInstances(
   scene: Scene,
@@ -109,8 +110,16 @@ export function drawBlockInstances(
         ctx.beginPath();
         screenPts.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
         ctx.closePath();
-        ctx.globalAlpha = f.opacity ?? 0.35;
+        /* A fill that names its own colour (a palette product) keeps it; the
+           layer colour is only the fallback for a symbol drawn without one. */
+        const fillColor = isSelected ? color : (f.color ?? color);
+        ctx.fillStyle = fillColor;
+        ctx.globalAlpha = f.hatchPattern ? (f.opacity ?? 0.35) * 0.5 : (f.opacity ?? 0.35);
         ctx.fill();
+        if (f.hatchPattern && f.hatchPattern !== 'SOLID') {
+          ctx.globalAlpha = Math.min(1, (f.opacity ?? 0.35) + 0.2);
+          strokeHatch(ctx, screenPts, f.hatchPattern, fillColor);
+        }
         ctx.restore();
       }
     }
