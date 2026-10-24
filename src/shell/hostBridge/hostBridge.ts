@@ -2,7 +2,11 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { EditorStore } from '../../state/EditorStore';
 import { parsePalette } from '../../model/palette/parsePalette';
+import type { SavedSession } from '../../io/browserStorage/SavedSession';
+import { buildSavedSession } from '../../state/actions/autoSaveSession';
+import { applySavedSession } from '../../state/actions/restoreBrowserSession';
 import { currentHost } from '../entrance';
+import { applyHostMarks, marksInDoc } from './hostMarks';
 import { showHostSheet } from './hostSheet';
 import { sceneForHost } from './sceneForHost';
 
@@ -35,7 +39,19 @@ import { sceneForHost } from './sceneForHost';
  * The Palette panel appears with it; an item with a size is placed as a
  * true-size block (`PAL:<id>`, base point at its centre, attribute paletteId),
  * one without is painted as a region (a fill with paletteId). A new palette
- * replaces the last.
+ * replaces the last. `arm` { paletteId } picks one of those items for the
+ * user to place next, as if they had clicked it in the panel (null disarms) —
+ * the host's "＋ Desk" button is this.
+ *
+ * `marks` { key, hash, items } is the host's own line work and panels, drawn
+ * into the sheet and kept current (hostMarks.ts); `geometry` carries `marks`
+ * { key: hash } back, so the host knows what is on the sheet.
+ *
+ * SAVING A SESSION. `session` asks for the whole drawing — the same object
+ * the browser autosaves (SavedSession), without the user's sign-in — and
+ * gets `session` { session } back; `open` { session } puts one on the sheet,
+ * replacing what is there (one undo step). The host bundles it with its own
+ * state into a file that can be carried to another machine.
  * Same-origin only, both ways: a softapp is served from the same OS as we are,
  * and a stranger's page has no business reading the sheet.
  *
@@ -90,9 +106,26 @@ function install(store: EditorStore): void {
     } else if (msg.type === 'palette') {
       const palette = parsePalette(msg);
       if (palette) store.setPalette(palette);
+    } else if (msg.type === 'arm') {
+      const { paletteId } = msg as { paletteId?: unknown };
+      store.armPaletteItem(typeof paletteId === 'string' ? paletteId : null);
+    } else if (msg.type === 'marks') {
+      applyHostMarks(store, msg as { key?: unknown; hash?: unknown; items?: unknown });
+    } else if (msg.type === 'session') {
+      post('session', { session: { ...buildSavedSession(store), userAuth: undefined } });
+    } else if (msg.type === 'open') {
+      const { session } = msg as { session?: SavedSession };
+      if (session && Array.isArray(session.docSnapshot?.edges)) void openSession(store, session);
     }
   });
   post('ready', {});
+}
+
+async function openSession(store: EditorStore, session: SavedSession): Promise<void> {
+  store.history.push(store.doc.snapshot());
+  await applySavedSession(store, { ...session, userAuth: undefined });
+  await store.autoSaveSession(false);
+  store.showHint(`Opened ${session.currentFileName ?? 'the session'} from the host's file.`, 4000);
 }
 
 /** Called after every frame; sends only what changed since the last one. */
@@ -113,7 +146,7 @@ export function publishToHost(store: EditorStore): void {
   const geometryKey = `${store.docVersion}|${store.units}|${layerKey}|${store.doc.edgeCount}`;
   if (geometryKey !== lastGeometry) {
     lastGeometry = geometryKey;
-    post('geometry', { fileName: store.currentFileName, ...sceneForHost(store.doc, store.units, store.layers) });
+    post('geometry', { fileName: store.currentFileName, ...sceneForHost(store.doc, store.units, store.layers), marks: marksInDoc(store.doc) });
   }
 
   const { enabled, x } = store.mirror;

@@ -1,5 +1,6 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
+import { extent } from './doc/extent';
 import type { ArcEdge, BBox, CadBlockDefinition, CadBlockInstance, Edge, FillEntity, GroupPrimitive, Point, TextEntity, Vertex } from '../core/types';
 import type { ArcGeom } from '../geometry/arc/arcGeom';
 import { arcGeom } from '../geometry/arc/arcGeom';
@@ -184,6 +185,11 @@ export class Doc {
 
   bounds(): BBox | null {
     return bounds(this);
+  }
+
+  /** Everything drawn — edges, fills, texts, placed blocks; what zoom-to-fit frames. */
+  extent(): BBox | null {
+    return extent(this);
   }
 
   boundsOf(edgeIds: Iterable<number>): BBox | null {

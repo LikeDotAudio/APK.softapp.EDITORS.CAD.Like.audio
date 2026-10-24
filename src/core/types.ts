@@ -122,6 +122,9 @@ export interface TextEntity {
   align?: TextHAlign;
   vAlign?: TextVAlign;
   protected?: boolean;
+  /** Drawn by a host softapp and kept current by it (shell/hostBridge/hostMarks). */
+  hostKey?: string;
+  hostHash?: string;
 }
 
 export type FillType = 'solid' | 'hatch';
@@ -142,6 +145,9 @@ export interface FillEntity {
    * file carry it for free; DXF has nowhere to put it and drops it.
    */
   paletteId?: string;
+  /** Drawn by a host softapp and kept current by it (shell/hostBridge/hostMarks). */
+  hostKey?: string;
+  hostHash?: string;
 }
 
 export interface CadBlockDefinition {

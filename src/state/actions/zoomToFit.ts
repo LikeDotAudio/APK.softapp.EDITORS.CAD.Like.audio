@@ -3,7 +3,7 @@
 import type { EditorStore } from '../EditorStore';
 
 export function zoomToFit(store: EditorStore): void {
-  const bounds = store.doc.bounds();
+  const bounds = store.doc.extent();
   if (bounds) {
     store.view.zoomToFit(bounds);
     store.requestDraw();

@@ -47,6 +47,9 @@ export function drawBlockInstances(
     for (const l of def.lines) {
       const p1 = transform({ x: l.x1, y: l.y1 });
       const p2 = transform({ x: l.x2, y: l.y2 });
+      // A line on a layer of its own (a host's cut-away, coloured by face) takes that layer's colour.
+      const own = l.layerId && !isSelected ? options?.layers?.get(l.layerId)?.color : undefined;
+      ctx.strokeStyle = own ?? color;
       ctx.beginPath();
       ctx.moveTo(p1.x, p1.y);
       ctx.lineTo(p2.x, p2.y);

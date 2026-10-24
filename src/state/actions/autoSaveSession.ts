@@ -12,35 +12,39 @@ export async function autoSaveSession(store: EditorStore, forceLoadingScreen = f
     await store.showLoading('Opening drawings', 'Caching drawing session to browser storage...');
   }
   try {
-    const session: SavedSession = {
-      version: 1,
-      timestamp: Date.now(),
-      userAuth: store.currentUserAuth ?? undefined,
-      docSnapshot: store.doc.snapshot(),
-      currentFileName: store.currentFileName,
-      schematic: snapshotSchematic(store.schematic),
-      units: store.units,
-      gridSize: store.gridSize,
-      gridMode: store.gridMode,
-      snapToGrid: store.snapToGrid,
-      shapeMode: store.shapeMode,
-      activeLayerId: store.activeLayerId,
-      layers: Array.from(store.layers.values()),
-      tracing: store.tracing
-        ? {
-            dataUrl: store.tracing.img.src,
-            x: store.tracing.x,
-            y: store.tracing.y,
-            worldWidth: store.tracing.worldWidth,
-            opacity: store.tracing.opacity,
-            visible: store.tracing.visible,
-          }
-        : null,
-    };
-    await saveSessionToBrowser(session);
+    await saveSessionToBrowser(buildSavedSession(store));
   } finally {
     if (showLoading) {
       store.hideLoading();
     }
   }
+}
+
+/** The whole drawing session as one plain object — what the browser keeps, and what a host saves to a file. */
+export function buildSavedSession(store: EditorStore): SavedSession {
+  return {
+    version: 1,
+    timestamp: Date.now(),
+    userAuth: store.currentUserAuth ?? undefined,
+    docSnapshot: store.doc.snapshot(),
+    currentFileName: store.currentFileName,
+    schematic: snapshotSchematic(store.schematic),
+    units: store.units,
+    gridSize: store.gridSize,
+    gridMode: store.gridMode,
+    snapToGrid: store.snapToGrid,
+    shapeMode: store.shapeMode,
+    activeLayerId: store.activeLayerId,
+    layers: Array.from(store.layers.values()),
+    tracing: store.tracing
+      ? {
+          dataUrl: store.tracing.img.src,
+          x: store.tracing.x,
+          y: store.tracing.y,
+          worldWidth: store.tracing.worldWidth,
+          opacity: store.tracing.opacity,
+          visible: store.tracing.visible,
+        }
+      : null,
+  };
 }
