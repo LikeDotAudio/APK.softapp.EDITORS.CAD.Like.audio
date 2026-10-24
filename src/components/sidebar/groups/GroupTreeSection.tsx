@@ -25,7 +25,7 @@ export function GroupTreeSection() {
   const { groups, flow } = useUi();
 
   return (
-    <div className="flex flex-shrink-0 flex-col border-b border-[#333]">
+    <div className="flex h-full min-h-0 flex-col">
       <PanelSectionTitle label="Groups">
         <span className="font-mono text-[10px] text-[#777]">
           {flow.groups} group{flow.groups === 1 ? '' : 's'}
@@ -41,7 +41,7 @@ export function GroupTreeSection() {
           that is how a group of groups is drawn.
         </p>
       ) : (
-        <div className="flex max-h-56 flex-col overflow-y-auto py-1">
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto py-1">
           {groups.map((row) => (
             <div
               key={row.id}

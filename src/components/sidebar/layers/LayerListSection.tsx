@@ -1,6 +1,6 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { Layer } from '../../../core/types';
 import { useStore } from '../../../state/useStore';
 import { useUi } from '../../../state/useUi';
@@ -10,13 +10,17 @@ import { AddLayerForm } from './AddLayerForm';
 import { LayerRow } from './LayerRow';
 import { LayerVisibilityActions } from './LayerVisibilityActions';
 
-/** Top half of the sidebar: the layer list and everything that acts on it. */
+/** The layer list and everything that acts on it. */
 export function LayerListSection() {
   const store = useStore();
   const { layers, activeLayerId } = useUi();
   const [colorPickerFor, setColorPickerFor] = useState<string | null>(null);
   const [editingLayerId, setEditingLayerId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
+  const rootRef = useRef<HTMLDivElement>(null);
+  /* Ask in the window the list is in — it may be popped out, and a prompt in
+     the editor behind it would go unseen. */
+  const ask = (message: string) => (rootRef.current?.ownerDocument.defaultView ?? window).prompt(message);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; layer: Layer } | null>(null);
 
   const commitRename = (id: string) => {
@@ -30,12 +34,12 @@ export function LayerListSection() {
   };
 
   return (
-    <div className="flex max-h-[50%] min-h-[220px] flex-1 flex-col border-b border-[#333]">
+    <div ref={rootRef} className="flex h-full min-h-0 flex-col">
       <PanelSectionTitle label="Layer List">
         <button
           type="button"
           onClick={() => {
-            const name = prompt('New layer name:');
+            const name = ask('New layer name:');
             if (name) store.addLayer(name);
           }}
           className="rounded bg-[#3c3c3c] px-1.5 py-0.5 text-[11px] text-white hover:bg-[#4a4a4a]"
@@ -79,7 +83,7 @@ export function LayerListSection() {
           onClose={() => setContextMenu(null)}
           onEditLayer={startRename}
           onAddLayerPrompt={() => {
-            const name = window.prompt('Enter new layer name:');
+            const name = ask('Enter new layer name:');
             if (name && name.trim()) store.addLayer(name.trim());
           }}
         />

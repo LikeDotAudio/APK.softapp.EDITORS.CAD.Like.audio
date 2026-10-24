@@ -3,7 +3,9 @@
 import { useEntrance } from '../../shell/EntranceContext';
 import { TOOLS } from '../../tools/registry';
 import { DrawingToolButton } from './buttons/DrawingToolButton';
+import { ToolFamilyButton } from './buttons/ToolFamilyButton';
 import { PaletteGrid } from './PaletteGrid';
+import { TOOL_FAMILIES } from './toolFamilies';
 
 /**
  * The drawing tools, in registration order. The Flow, Wire and Group tools
@@ -13,6 +15,8 @@ import { PaletteGrid } from './PaletteGrid';
  * them for the same reason and one more: it groups PLACEMENTS, so on a sheet
  * with no placements every drag it accepts would report that the box held
  * nothing.
+ *
+ * A family (`toolFamilies.ts`) takes one cell, at its first member's place.
  */
 export function ToolPalette() {
   const { showsFlowPanel } = useEntrance();
@@ -22,9 +26,13 @@ export function ToolPalette() {
 
   return (
     <PaletteGrid label="Drawing tools">
-      {tools.map((tool) => (
-        <DrawingToolButton key={tool.id} tool={tool} />
-      ))}
+      {tools.map((tool) => {
+        const family = TOOL_FAMILIES.find((ids) => ids.includes(tool.id));
+        if (!family) return <DrawingToolButton key={tool.id} tool={tool} />;
+        const members = tools.filter((t) => family.includes(t.id));
+        if (members[0] !== tool) return null;
+        return <ToolFamilyButton key={tool.id} tools={members} />;
+      })}
     </PaletteGrid>
   );
 }

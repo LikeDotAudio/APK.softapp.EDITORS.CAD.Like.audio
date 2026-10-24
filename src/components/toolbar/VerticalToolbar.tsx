@@ -11,9 +11,9 @@ export function VerticalToolbar() {
       role="toolbar"
       aria-label="Drawing tools and view commands"
       aria-orientation="vertical"
-      className="z-10 flex h-full w-14 flex-shrink-0 select-none flex-col justify-between border-r border-[#333] bg-[#252526] py-0"
+      className="z-10 flex h-full w-7 flex-shrink-0 select-none flex-col justify-between border-r border-[#333] bg-[#252526] py-0"
     >
-      <div className="flex w-full flex-col items-center">
+      <div className="flex min-h-0 w-full flex-col items-center overflow-y-auto overflow-x-hidden [scrollbar-width:none]">
         <ToolPalette />
       </div>
 

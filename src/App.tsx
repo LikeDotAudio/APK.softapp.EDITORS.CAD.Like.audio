@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { DrawingCanvas } from './components/DrawingCanvas';
 import { ImagePanel } from './components/ImagePanel';
-import { SidebarPanel } from './components/sidebar/SidebarPanel';
+import { DockProvider } from './components/dock/DockProvider';
+import { DockRail } from './components/dock/DockRail';
 import { StatusBar } from './components/statusbar/StatusBar';
 import { MenuBar } from './components/menubar/MenuBar';
 import { VerticalToolbar } from './components/toolbar/VerticalToolbar';
@@ -79,15 +80,18 @@ export default function App() {
             onOpenConceptLibrary={() => setShowConceptLibrary(true)}
           />
 
-          {/* Main Work Area: Left Toolbar + Canvas + Right Sidebar */}
-          <div className="flex flex-1 overflow-hidden relative">
-            <VerticalToolbar />
-            <div className="flex flex-1 flex-col overflow-hidden relative">
-              <DrawingCanvas />
-              <ImagePanel />
+          {/* Main Work Area: Left Toolbar + docked panels either side of the Canvas */}
+          <DockProvider>
+            <div className="flex flex-1 overflow-hidden relative">
+              <VerticalToolbar />
+              <DockRail side="left" />
+              <div className="flex flex-1 flex-col overflow-hidden relative">
+                <DrawingCanvas />
+                <ImagePanel />
+              </div>
+              <DockRail side="right" />
             </div>
-            <SidebarPanel />
-          </div>
+          </DockProvider>
 
           {/* Connectors Bottom Dock Bar (Exact OneScope Palette) */}
           <ConnectorsDock

@@ -11,7 +11,7 @@ import { ProtectedProperty } from './ProtectedProperty';
 import { SelectionSummary } from './SelectionSummary';
 import { StyleProperties } from './StyleProperties';
 
-/** Bottom half of the sidebar: properties of whatever is selected. */
+/** Properties of whatever is selected. */
 export function PropertyEditorSection() {
   const store = useStore();
 
@@ -24,7 +24,7 @@ export function PropertyEditorSection() {
     .filter((b): b is NonNullable<typeof b> => b !== undefined);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col bg-[#252526]">
+    <div className="flex h-full min-h-0 flex-col bg-[#252526]">
       <PanelSectionTitle label="Property Editor" />
 
       <div className="flex-1 space-y-3 overflow-y-auto overflow-x-hidden p-3 text-[11px]">

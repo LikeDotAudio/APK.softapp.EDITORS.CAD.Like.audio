@@ -1,6 +1,6 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import type { PaletteItem } from '../../../model/palette/PaletteItem';
 import { useStore } from '../../../state/useStore';
 import { useUi } from '../../../state/useUi';
@@ -27,7 +27,6 @@ function sizeLabel(item: PaletteItem): string | null {
 export function PaletteSection() {
   const store = useStore();
   const { palette, activeLayerId, layers } = useUi();
-  const [open, setOpen] = useState(true);
 
   const groups = useMemo(() => {
     const byCat = new Map<string, PaletteItem[]>();
@@ -43,26 +42,14 @@ export function PaletteSection() {
   const layerName = layers.find((l) => l.id === activeLayerId)?.name ?? activeLayerId;
 
   return (
-    <div className="flex flex-shrink-0 flex-col border-b border-[#333]">
-      <PanelSectionTitle label={palette.title}>
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          className="rounded px-1 text-[11px] text-[#999] hover:text-white"
-          title={open ? 'Fold the palette' : 'Open the palette'}
-          aria-expanded={open}
-        >
-          {open ? '▾' : '▸'}
-        </button>
-      </PanelSectionTitle>
+    <div className="flex h-full min-h-0 flex-col">
+      <PanelSectionTitle label={palette.title} />
 
-      {open && (
-        <>
           <div className="truncate bg-[#222225] px-2 py-0.5 text-[10px] text-[#888]" title="Patches land on the active layer">
             onto <span className="text-[#ccc]">{layerName}</span>
             {palette.armedId && <span className="text-[#777]"> · Esc to stop</span>}
           </div>
-          <div className="max-h-56 overflow-y-auto pb-1">
+          <div className="min-h-0 flex-1 overflow-y-auto pb-1">
             {groups.map(([category, items]) => (
               <div key={category}>
                 <div className="px-2 pt-1 text-[9px] font-semibold uppercase tracking-wider text-[#777]">{category}</div>
@@ -93,8 +80,6 @@ export function PaletteSection() {
             ))}
             {groups.length === 0 && <div className="py-2 text-center text-[10px] text-[#666]">The host sent no materials</div>}
           </div>
-        </>
-      )}
     </div>
   );
 }

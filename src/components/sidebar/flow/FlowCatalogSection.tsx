@@ -34,7 +34,7 @@ export function FlowCatalogSection() {
   }, [category, search]);
 
   return (
-    <div className="flex flex-shrink-0 flex-col border-b border-[#333]">
+    <div className="flex h-full min-h-0 flex-col">
       <PanelSectionTitle label="Schematic & Flow Blocks">
         <div className="flex items-center gap-1.5">
           <span className="font-mono text-[10px] text-[#777]">
@@ -82,7 +82,7 @@ export function FlowCatalogSection() {
         />
       </div>
 
-      <div className="flex flex-col py-0.5 max-h-56 overflow-y-auto">
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto py-0.5">
         {filteredCatalog.map((def) => {
           const active = def.id === flow.definitionId;
           return (
