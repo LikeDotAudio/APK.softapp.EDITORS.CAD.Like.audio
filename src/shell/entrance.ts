@@ -77,6 +77,15 @@ export function hostFromHash(hash: string): string | null {
   return m ? m[1]! : null;
 }
 
+/**
+ * `#/drawing?host=acoustic&resume` — the host moved this editor between its
+ * iframe and a window of its own, and wants the drawing the other one was
+ * working on: the browser's autosaved session, restored without asking.
+ */
+export function resumeFromHash(hash: string): boolean {
+  return hostFromHash(hash) !== null && /[?&]resume(?=[&=]|$)/.test(hash);
+}
+
 export function currentHost(): string | null {
   return typeof window === 'undefined' ? null : hostFromHash(window.location.hash);
 }

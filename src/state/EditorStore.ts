@@ -49,7 +49,7 @@ import { createSchematic } from '../flow/Schematic';
 import { Doc } from '../model/Doc';
 import type { Palette, PaletteItem } from '../model/palette/PaletteItem';
 import { History } from '../model/history';
-import { currentEntrance, type EntranceProfile } from '../shell/entrance';
+import { currentEntrance, resumeFromHash, type EntranceProfile } from '../shell/entrance';
 import { getTool } from '../tools/registry';
 import type { AnyTool, PointerInput, ToolApi } from '../tools/types';
 import type { Snap } from '../viewport/snap/findSnap';
@@ -348,10 +348,12 @@ export class EditorStore {
     this.uiSnapshot = this.buildUi();
     /* The browser's working copy first, then the filed sheet on top of it.
        For Big Picture (the bench model), restore automatically.
-       For CAD / Drawing, the StartupModal prompts the user on startup. */
+       For CAD / Drawing, the StartupModal prompts the user on startup —
+       unless a host moved us between its iframe and a window (`&resume`). */
     if (this.entrance.entrance === 'big-picture') {
       void this.restoreBrowserSession().then(() => this.openBigPicture());
     }
+    if (typeof window !== 'undefined' && resumeFromHash(window.location.hash)) void this.restoreBrowserSession();
     this.showHint(entrance.hint, 8000);
   }
 

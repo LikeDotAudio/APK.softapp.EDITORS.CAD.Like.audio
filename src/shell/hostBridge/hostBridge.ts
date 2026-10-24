@@ -2,6 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { EditorStore } from '../../state/EditorStore';
 import { parsePalette } from '../../model/palette/parsePalette';
+import { currentHost } from '../entrance';
 import { showHostSheet } from './hostSheet';
 import { sceneForHost } from './sceneForHost';
 
@@ -38,7 +39,14 @@ import { sceneForHost } from './sceneForHost';
  * Same-origin only, both ways: a softapp is served from the same OS as we are,
  * and a stranger's page has no business reading the sheet.
  *
- * Standalone (no parent), every call here is a no-op.
+ * Popped out: a host may open this editor in a window of its own instead of
+ * its iframe (`window.open` of the same `#/drawing?host=…` address). Then
+ * the host is `window.opener`, and the same protocol runs over that — but
+ * only when the address names a host, so a window some page merely opened
+ * says nothing to it. `view` still describes this window's canvas; a host
+ * whose overlay is no longer over it ignores that.
+ *
+ * Standalone (no parent, no opening host), every call here is a no-op.
  */
 
 export const HOST_PROTOCOL = 'cad.like.audio/host@1';
@@ -48,18 +56,22 @@ let lastView = '';
 let lastGeometry = '';
 let lastMirror = '';
 
-function embedded(): boolean {
-  return typeof window !== 'undefined' && window.parent !== window;
+/** The window driving this one: the parent frame, else the softapp that popped us out. */
+function host(): Window | null {
+  if (typeof window === 'undefined') return null;
+  if (window.parent !== window) return window.parent;
+  const opener = window.opener as Window | null;
+  return opener && !opener.closed && currentHost() !== null ? opener : null;
 }
 
 function post(type: string, body: object): void {
-  window.parent.postMessage({ protocol: HOST_PROTOCOL, type, ...body }, window.location.origin);
+  host()?.postMessage({ protocol: HOST_PROTOCOL, type, ...body }, window.location.origin);
 }
 
 function install(store: EditorStore): void {
   installed = true;
   window.addEventListener('message', (e: MessageEvent) => {
-    if (e.source !== window.parent || e.origin !== window.location.origin) return;
+    if (e.source !== host() || e.origin !== window.location.origin) return;
     const msg = e.data as { protocol?: string; type?: string } | null;
     if (!msg || msg.protocol !== HOST_PROTOCOL) return;
     if (msg.type === 'hello') {
@@ -85,7 +97,7 @@ function install(store: EditorStore): void {
 
 /** Called after every frame; sends only what changed since the last one. */
 export function publishToHost(store: EditorStore): void {
-  if (!embedded() || !store.canvas) return;
+  if (!host() || !store.canvas) return;
   if (!installed) install(store);
 
   const r = store.canvas.getBoundingClientRect();

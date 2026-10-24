@@ -107,3 +107,13 @@ describe('hostFromHash', () => {
     expect(entranceFromHash('#/drawing?host=acoustic')).toBe('drawing');
   });
 });
+
+describe('resumeFromHash', () => {
+  it('resumes only a hosted window that asks to', async () => {
+    const { resumeFromHash } = await import('../entrance');
+    expect(resumeFromHash('#/drawing?host=acoustic&resume')).toBe(true);
+    expect(resumeFromHash('#/drawing?host=acoustic')).toBe(false);
+    expect(resumeFromHash('#/drawing?resume')).toBe(false);
+    expect(resumeFromHash('#/drawing?host=acoustic&resumed')).toBe(false);
+  });
+});
