@@ -1,6 +1,7 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { EditorStore } from '../../state/EditorStore';
+import { showHostSheet } from './hostSheet';
 import { sceneForHost } from './sceneForHost';
 
 /**
@@ -21,7 +22,9 @@ import { sceneForHost } from './sceneForHost';
  *               where the centre line is.
  *
  * The host may send `hello` (resend all three now), `fit` (zoom to the
- * drawing) and `mirror` { x, enabled } (put the primary axis there).
+ * drawing), `mirror` { x, enabled } (put the primary axis there) and `sheet`
+ * { layer, color?, seed? } (jump to the drawing on that layer and make it
+ * current, drawing `seed` there first if the layer is empty — hostSheet.ts).
  * Same-origin only, both ways: a softapp is served from the same OS as we are,
  * and a stranger's page has no business reading the sheet.
  *
@@ -59,6 +62,9 @@ function install(store: EditorStore): void {
     } else if (msg.type === 'mirror') {
       const { x, enabled } = msg as { x?: unknown; enabled?: unknown };
       if (typeof x === 'number' && Number.isFinite(x)) store.setVirtualMirror(x, enabled !== false, false);
+    } else if (msg.type === 'sheet') {
+      const { layer, color, seed } = msg as { layer?: unknown; color?: unknown; seed?: unknown };
+      if (typeof layer === 'string' && layer.trim()) showHostSheet(store, layer.trim(), color, seed);
     }
   });
   post('ready', {});
