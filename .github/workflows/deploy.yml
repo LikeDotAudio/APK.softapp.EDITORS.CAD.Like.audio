@@ -1,9 +1,12 @@
 name: Publish to cad.like.audio
 
-# Builds the Vite app and publishes dist/ to GitHub Pages, served at the
-# custom domain cad.like.audio (Settings → Pages → Custom domain).
+# Builds the Vite app and publishes dist/ to GitHub Pages. Live at
+# https://likedotaudio.github.io/APK.softapp.EDITORS.CAD.Like.audio/ until the
+# custom domain cad.like.audio is switched on (see README, Hosting).
 #
-# DNS: cad.like.audio is a CNAME to likedotaudio.github.io.
+# DNS: cad.like.audio must be a CNAME to likedotaudio.github.io BEFORE the
+# domain is set in Settings → Pages, or the github.io address redirects to a
+# host that is not serving this site.
 
 on:
   push:
