@@ -1,26 +1,27 @@
 name: Publish to cad.like.audio
 
-# Builds the Vite app and uploads dist/ to the web host over FTPS.
+# Builds the Vite app and publishes dist/ to GitHub Pages, served at the
+# custom domain cad.like.audio (Settings → Pages → Custom domain).
 #
-# Required repository secrets (Settings → Secrets and variables → Actions):
-#   FTP_SERVER    — FTP host
-#   FTP_USERNAME  — FTP account
-#   FTP_PASSWORD  — FTP password
-# Optional repository variable:
-#   FTP_SERVER_DIR — remote target directory (defaults to the account root)
+# DNS: cad.like.audio is a CNAME to likedotaudio.github.io.
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 concurrency:
-  group: ftps-deploy
+  group: pages
   cancel-in-progress: true
 
 jobs:
-  deploy:
-    name: Build & Deploy
+  build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - name: 🚚 Get latest code
@@ -38,19 +39,19 @@ jobs:
       - name: 🛠️ Build project
         run: npm run build
 
-      - name: 📂 Sync files via FTPS
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: 📂 Upload site
+        uses: actions/upload-pages-artifact@v3
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
-          port: 21
-          local-dir: ./dist/
-          server-dir: ${{ vars.FTP_SERVER_DIR || './' }}
-          state-name: .ftp-deploy-sync-state.json
-          dangerous-clean-slate: false
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
+          path: ./dist/
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 🚀 Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
