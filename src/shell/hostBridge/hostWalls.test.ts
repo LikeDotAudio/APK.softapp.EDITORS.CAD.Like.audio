@@ -86,4 +86,35 @@ describe('host layers and selection', () => {
     expect([...s.selection]).toEqual([2]);
     expect(selectionForHost(asStore(s)).edges).toEqual([2]);
   });
+  it('detaches one wall end from its corner, so only that wall moves, and joins corners dropped on each other', () => {
+    const s = room();
+    const w = asStore(s);
+    applyHostWalls(w, { op: 'begin' });
+    expect(applyHostWalls(w, { op: 'detach', edgeId: 1, end: 'b' })).toBe(true);
+    applyHostWalls(w, { op: 'vertex', edgeId: 1, end: 'b', to: [5, -1] });
+    applyHostWalls(w, { op: 'end' });
+    const [, b1] = s.doc.endpointsOf(s.doc.edge(1)!);
+    const [a2] = s.doc.endpointsOf(s.doc.edge(2)!);
+    expect([b1.x, b1.y]).toEqual([5, -1]);
+    expect([a2.x, a2.y]).toEqual([4, 0]);
+    expect(s.doc.vertices.size).toBe(5);
+    // dropped back on the corner it came from: one corner again
+    applyHostWalls(w, { op: 'begin' });
+    applyHostWalls(w, { op: 'vertex', edgeId: 1, end: 'b', to: [4, 0] });
+    applyHostWalls(w, { op: 'end' });
+    expect(s.doc.vertices.size).toBe(4);
+    expect(s.doc.edge(1)!.v2).toBe(s.doc.edge(2)!.v1);
+  });
+
+  it('will not detach an end that is joined to nothing, and deletes a wall on its own undo step', () => {
+    const s = room();
+    const w = asStore(s);
+    s.doc.addLine({ x: 10, y: 0 }, { x: 11, y: 0 }, 0, '0');
+    const loose = [...s.doc.edges.keys()].at(-1)!;
+    expect(applyHostWalls(w, { op: 'detach', edgeId: loose, end: 'a' })).toBe(false);
+    const before = s.history.pushed;
+    expect(applyHostWalls(w, { op: 'delete', edgeId: 3 })).toBe(true);
+    expect(s.doc.edge(3)).toBeUndefined();
+    expect(s.history.pushed).toBe(before + 1);
+  });
 });
