@@ -1,6 +1,8 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { EditorStore } from '../../state/EditorStore';
+import type { FillEntity } from '../../core/types';
+import { paletteFillStyle } from '../../model/palette/paletteFillStyle';
 
 /**
  * A HOST KEEPS A PIECE OF FURNITURE WHERE IT BELONGS
@@ -58,4 +60,40 @@ export function removeHostItems(store: EditorStore, msg: { ids?: unknown }): num
   store.requestDraw();
   store.emit();
   return doomed.length;
+}
+
+/**
+ * A HOST SAYS WHAT A REGION IS NOW
+ *
+ * `repaint { ids: ['fill:<n>', …], paletteId }` turns painted regions into
+ * another palette item where they lie — the acoustic wall builder's
+ * "Finish or product" for the selected region: an absorber bay made a QRD
+ * without redrawing it. The region keeps its outline and layer; its colour and
+ * hatch become the item's. The user's own edit, so one step on the undo
+ * stack. Only regions painted from the palette change, and only to an item
+ * the palette holds. Returns how many changed.
+ */
+export function repaintHostItems(store: EditorStore, msg: { ids?: unknown; paletteId?: unknown }): number {
+  if (!Array.isArray(msg.ids)) return 0;
+  const item = store.palette?.items.find((x) => x.id === msg.paletteId);
+  if (!item) return 0;
+  const fills: FillEntity[] = [];
+  for (const id of msg.ids) {
+    const m = typeof id === 'string' ? /^fill:(\d+)$/.exec(id) : null;
+    const fill = m ? store.doc.fills.get(Number(m[1])) : undefined;
+    if (fill?.paletteId && !fill.hostKey && fill.paletteId !== item.id) fills.push(fill);
+  }
+  if (!fills.length) return 0;
+  store.history.push(store.doc.snapshot());
+  const { type, hatchPattern } = paletteFillStyle(item);
+  for (const fill of fills) {
+    fill.paletteId = item.id;
+    fill.type = type;
+    fill.hatchPattern = hatchPattern;
+    fill.color = item.color;
+  }
+  store.markDocChanged();
+  store.requestDraw();
+  store.emit();
+  return fills.length;
 }

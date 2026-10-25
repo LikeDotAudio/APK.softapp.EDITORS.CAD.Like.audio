@@ -8,7 +8,7 @@ import { applySavedSession } from '../../state/actions/restoreBrowserSession';
 import { currentHost } from '../entrance';
 import { applyHostMarks, marksInDoc } from './hostMarks';
 import { placeHostItems } from './hostPlace';
-import { moveHostItems, removeHostItems } from './hostMove';
+import { moveHostItems, removeHostItems, repaintHostItems } from './hostMove';
 import { ensureHostLayer } from './hostLayer';
 import { showHostSheet } from './hostSheet';
 import { applyHostLayers, applyHostSelect, applyHostWalls, selectionForHost } from './hostWalls';
@@ -144,6 +144,8 @@ function install(store: EditorStore): void {
       moveHostItems(store, msg as { items?: unknown });
     } else if (msg.type === 'remove') {
       removeHostItems(store, msg as { ids?: unknown });
+    } else if (msg.type === 'repaint') {
+      repaintHostItems(store, msg as { ids?: unknown; paletteId?: unknown });
     } else if (msg.type === 'walls') {
       applyHostWalls(store, msg as Parameters<typeof applyHostWalls>[1]);
     } else if (msg.type === 'layers') {
