@@ -28,6 +28,18 @@ export interface PaletteItem {
   size?: [number, number];
   /** Tooltip text. */
   note?: string;
+  /**
+   * For the palette's preview (components/sidebar/palette/PalettePreview):
+   * the drafting symbol it is drawn with (an id in materialSymbols — batt,
+   * rigid, concrete, qrd …), that symbol's name in the standard and its
+   * acad.pat hatch, its absorption per octave 125 Hz … 4 kHz, and how thick
+   * it is, metres. All optional: an item without them previews as its swatch.
+   */
+  symbol?: string;
+  symbolName?: string;
+  acad?: string;
+  alpha?: number[];
+  depth?: number;
 }
 
 export interface Palette {

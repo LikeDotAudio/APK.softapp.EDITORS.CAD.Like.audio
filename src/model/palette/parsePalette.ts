@@ -35,6 +35,11 @@ export function parsePalette(msg: unknown): Palette | null {
       item.size = [r.size[0], r.size[1]];
     }
     if (str(r.note)) item.note = r.note;
+    if (str(r.symbol)) item.symbol = r.symbol.trim().toLowerCase();
+    if (str(r.symbolName)) item.symbolName = r.symbolName;
+    if (str(r.acad)) item.acad = r.acad.trim().toUpperCase();
+    if (Array.isArray(r.alpha) && r.alpha.length >= 1 && r.alpha.length <= 9 && r.alpha.every((a) => typeof a === 'number' && Number.isFinite(a) && a >= 0 && a <= 1.5)) item.alpha = r.alpha.slice();
+    if (pos(r.depth) && r.depth < 5) item.depth = r.depth;
     out.push(item);
   }
   return { title: str(title) ? title : 'Palette', items: out };

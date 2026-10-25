@@ -1,10 +1,11 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { PaletteFit, PaletteItem } from '../../../model/palette/PaletteItem';
 import { useStore } from '../../../state/useStore';
 import { useUi } from '../../../state/useUi';
 import { PanelSectionTitle } from '../PanelSectionTitle';
+import { PalettePreview } from './PalettePreview';
 import { PaletteSwatch } from './PaletteSwatch';
 
 /** "0.6×1.2 m" — the host's nominal size, in the host's metres. */
@@ -28,11 +29,14 @@ function sizeLabel(item: PaletteItem): string | null {
  * the order the host sent them; picking one arms the Palette tool with it,
  * picking it again puts the tool down. The sidebar is a quarter of a small
  * iframe tile, so this stays a dense two-column grid in a scrolled box, and
- * folds to its title strip when the user wants the room for layers.
+ * folds to its title strip when the user wants the room for layers. Its
+ * bottom 40 % draws the item under the pointer, else the armed one
+ * (PalettePreview): its section, its size, what it soaks up.
  */
 export function PaletteSection() {
   const store = useStore();
   const { palette, activeLayerId, layers } = useUi();
+  const [hoverId, setHoverId] = useState<string | null>(null);
 
   const groups = useMemo(() => {
     const byCat = new Map<string, PaletteItem[]>();
@@ -70,7 +74,7 @@ export function PaletteSection() {
               </button>
             ))}
           </div>
-          <div className="min-h-0 flex-1 overflow-y-auto pb-1">
+          <div className="min-h-0 flex-[3] overflow-y-auto pb-1" onMouseLeave={() => setHoverId(null)}>
             {groups.map(([category, items]) => (
               <div key={category}>
                 <div className="px-2 pt-1 text-[9px] font-semibold uppercase tracking-wider text-[#777]">{category}</div>
@@ -84,6 +88,8 @@ export function PaletteSection() {
                         type="button"
                         title={[item.name, size, item.note].filter(Boolean).join(' · ')}
                         onClick={() => store.armPaletteItem(armed ? null : item.id)}
+                        onMouseEnter={() => setHoverId(item.id)}
+                        onFocus={() => setHoverId(item.id)}
                         className={`flex min-w-0 items-center gap-1 rounded px-1 py-0.5 text-left text-[10px] leading-tight ${
                           armed ? 'bg-[#094771] text-white' : 'text-[#cccccc] hover:bg-[#2a2d2e]'
                         }`}
@@ -100,6 +106,9 @@ export function PaletteSection() {
               </div>
             ))}
             {groups.length === 0 && <div className="py-2 text-center text-[10px] text-[#666]">The host sent no materials</div>}
+          </div>
+          <div className="min-h-0 flex-[2] border-t border-[#3a3a3d] bg-[#1b1b1d]">
+            <PalettePreview item={palette.items.find((x) => x.id === (hoverId ?? palette.armedId)) ?? null} />
           </div>
     </div>
   );

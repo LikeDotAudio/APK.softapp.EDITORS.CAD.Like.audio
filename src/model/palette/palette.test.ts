@@ -48,6 +48,22 @@ describe('parsePalette', () => {
     ]);
     expect(parsePalette({ items: 'nope' })).toBeNull();
   });
+
+  it('keeps what the preview draws with — symbol, its name and hatch, α per octave, depth — and drops a bad one', () => {
+    const p = parsePalette({
+      items: [
+        { id: 'w', symbol: ' Batt ', symbolName: 'Batt insulation', acad: 'insul', alpha: [0.45, 0.9, 1, 1, 1, 1], depth: 0.1 },
+        { id: 'x', symbol: '', alpha: [0.5, 'a'], depth: -1 },
+        { id: 'y', alpha: [2], depth: 9 },
+      ],
+    })!;
+    expect(p.items[0]).toMatchObject({ symbol: 'batt', symbolName: 'Batt insulation', acad: 'INSUL', alpha: [0.45, 0.9, 1, 1, 1, 1], depth: 0.1 });
+    for (const it of p.items.slice(1)) {
+      expect(it.symbol).toBeUndefined();
+      expect(it.alpha).toBeUndefined();
+      expect(it.depth).toBeUndefined();
+    }
+  });
 });
 
 describe('paletteBlockDefinition', () => {
