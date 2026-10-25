@@ -24,7 +24,7 @@ export function clearAll(store: EditorStore): void {
   store.toolState = store.tool.createState();
   store.closeDynInput();
   store.currentFileName = null;
-  store.viewports = [];
+  store.forgetSheets();
   store.activeViewportId = 'ALL';
   store.markDocChanged();
   store.requestDraw();

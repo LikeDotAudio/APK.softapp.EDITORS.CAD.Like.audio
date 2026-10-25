@@ -248,6 +248,9 @@ export class EditorStore {
   ]);
   activeLayerId = '0';
   viewports: CadViewport[] = [];
+  /** The sheets found in the drawing (discoverViewports) and the spaces a host named (setHostSpaces); `viewports` is both, the host's first. */
+  private discovered: CadViewport[] = [];
+  private hostSpaces: CadViewport[] = [];
   activeViewportId = 'ALL';
 
   hoverId: number | null = null;
@@ -741,14 +744,48 @@ export class EditorStore {
       const vp = this.viewports.find((v) => v.id === id);
       if (vp) {
         this.view.zoomToFit(vp.bounds);
+        // a host's spaces share one scale — the one that fits the largest — so a metre is the same size in each
+        if (vp.host) {
+          const z = this.hostScale();
+          if (z) {
+            const cx = (vp.bounds.x1 + vp.bounds.x2) / 2;
+            const cy = (vp.bounds.y1 + vp.bounds.y2) / 2;
+            this.view.zoom = z;
+            this.view.panX = this.view.width / 2 - cx * z;
+            this.view.panY = this.view.height / 2 + cy * z;
+          }
+        }
         this.requestDraw();
         this.emit();
       }
     }
   }
 
+  /** The zoom every host space opens at: the largest fitted, so all of them fit. Null with none or no size yet. */
+  hostScale(): number | null {
+    const w = this.view.width;
+    const h = this.view.height;
+    if (!w || !h || !this.hostSpaces.length) return null;
+    return Math.min(...this.hostSpaces.map((v) => Math.min((w * 0.8) / Math.max(1e-9, v.bounds.x2 - v.bounds.x1), (h * 0.8) / Math.max(1e-9, v.bounds.y2 - v.bounds.y1))));
+  }
+
   discoverViewports(): void {
-    this.viewports = discoverViewports(this.doc);
+    this.discovered = discoverViewports(this.doc);
+    this.viewports = [...this.hostSpaces, ...this.discovered];
+    this.emit();
+  }
+
+  /** The drawing is gone (cleared, closed): its sheets go, the host's spaces stay until it names others. */
+  forgetSheets(): void {
+    this.discovered = [];
+    this.viewports = [...this.hostSpaces];
+  }
+
+  /** A host's drawings as model spaces of their own, in front of the sheets found in the drawing. */
+  setHostSpaces(spaces: CadViewport[]): void {
+    this.hostSpaces = spaces.map((v) => ({ ...v, host: true }));
+    this.viewports = [...this.hostSpaces, ...this.discovered];
+    if (this.activeViewportId !== 'ALL' && !this.viewports.some((v) => v.id === this.activeViewportId)) this.activeViewportId = 'ALL';
     this.emit();
   }
 

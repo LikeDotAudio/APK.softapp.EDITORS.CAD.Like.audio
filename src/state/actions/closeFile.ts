@@ -42,7 +42,7 @@ export async function closeFile(store: EditorStore): Promise<void> {
   store.hoverId = null;
   store.toolState = store.tool.createState();
   store.closeDynInput();
-  store.viewports = [];
+  store.forgetSheets();
   store.activeViewportId = 'ALL';
 
   store.currentFileName = null;

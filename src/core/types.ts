@@ -28,6 +28,12 @@ export interface CadViewport {
   name: string;
   subtitle?: string;
   bounds: BBox;
+  /**
+   * Named by a host (bridge `spaces`) rather than found in the drawing: one of
+   * its drawings — a plan, an elevation, a set of cut-aways — as a model
+   * space of its own. Host spaces all open at one scale.
+   */
+  host?: boolean;
 }
 
 export interface Layer {
