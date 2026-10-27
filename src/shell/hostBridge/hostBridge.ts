@@ -77,6 +77,12 @@ import { pickedOutline, sceneForHost, wallsForHost } from './sceneForHost';
  * gets `session` { session } back; `open` { session } puts one on the sheet,
  * replacing what is there (one undo step). The host bundles it with its own
  * state into a file that can be carried to another machine.
+ *
+ * `floorplan` { file } opens a floor plan the user picked in the host, as
+ * File → Open does here: a .dxf replaces the drawing (its own units, mm when
+ * it names none, brought to this sheet's), an image goes under a cleared sheet
+ * to trace, scaled by two points the user knows the distance between. Either way the drawing takes the file's name, so the host starts a
+ * fresh overlay for it.
  * Same-origin only, both ways: a softapp is served from the same OS as we are,
  * and a stranger's page has no business reading the sheet.
  *
@@ -162,6 +168,9 @@ function install(store: EditorStore): void {
     } else if (msg.type === 'open') {
       const { session } = msg as { session?: SavedSession };
       if (session && Array.isArray(session.docSnapshot?.edges)) void openSession(store, session);
+    } else if (msg.type === 'floorplan') {
+      const { file } = msg as { file?: unknown };
+      if (file instanceof File) void openFloorPlan(store, file);
     }
   });
   post('ready', {});
@@ -172,6 +181,16 @@ async function openSession(store: EditorStore, session: SavedSession): Promise<v
   await applySavedSession(store, { ...session, userAuth: undefined });
   await store.autoSaveSession(false);
   store.showHint(`Opened ${session.currentFileName ?? 'the session'} from the host's file.`, 4000);
+}
+
+async function openFloorPlan(store: EditorStore, file: File): Promise<void> {
+  if (/\.dxf$/i.test(file.name)) await store.loadDxfText(await file.text(), file.name);
+  else if (file.type.startsWith('image/')) {
+    // a new layout, not a tracing over the last room: the sheet is cleared first (one undo step)
+    store.clearAll();
+    await store.importImage(file);
+  }
+  else store.showHint(`${file.name} is not a floor plan this editor opens: a .dxf, or an image to trace.`, 4000);
 }
 
 /** Called after every frame; sends only what changed since the last one. */
