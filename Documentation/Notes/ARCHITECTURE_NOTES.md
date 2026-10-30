@@ -1,7 +1,7 @@
 # Architecture Notes & Technical Specs — CAD.Like.audio
 
 ## 🛠 Technical Specifications & Integration
-Uses 5-level relative path resolution (`../../../../../`) in `src/colorsStyle.ts` to dynamically fetch `brand.json` color definitions from `APK:BareMetal`. Built with Vite, TypeScript, and Canvas/SVG APIs.
+Built with Vite, React 19, TypeScript and Tailwind 4; the drawing is painted on a Canvas 2D context. `src/colorsStyle.ts` is the canvas palette; its accent and greys come from `src/tokens/brand.json`, a copy of `APK:BareMetal`'s `contracts/tokens/brand.json` imported at build time (no runtime fetch).
 
 ## DXF in and out (`src/io/exportDxf`, `src/io/importDxf`)
 

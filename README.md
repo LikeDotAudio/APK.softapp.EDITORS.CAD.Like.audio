@@ -1,6 +1,6 @@
 # EDITORS.CAD.Like.audio
 
-> ✏️ **Editors Cad Like Audio** — Design, CAD & Schematic Editors module for the  ecosystem.
+> 📐 **CAD.LIKE.AUDIO** — the 2D drawing board and Big Picture schematic of the APK.audio ecosystem: lines and true arcs, layers, blocks, typed Flow ports, and a strict DXF R2000 out and in.
 
 ---
 
@@ -19,14 +19,43 @@ Published by `.github/workflows/deploy.yml` on every push to `main`: to GitHub P
 ---
 
 ## 🧩 Architectural Role
-* **Family**: 
-* **Category**: 
-* **Pipeline Stage**: 
+* **Family**: EDITORS — the Design, CAD & Schematic editors, alongside EDITORS.Acoustic.Like.audio, which is built on this one.
+* **Category**: 2D CAD — a drawing board (`#/drawing`) and a schematic of the system (`#/big-picture`) in one bundle.
+* **Pipeline Stage**: Drawing — `07b · Drawing` in `display.json` (group *Pipeline*); the same bundle is the `06a · Big Picture` door through its `#/big-picture` fragment.
+
+---
+
+## 🧭 Philosophy
+
+What the code holds itself to, with where each one lives:
+
+* **Arcs stay arcs.** The drawing (`src/model/Doc.ts`) is a graph of vertices joined by line or *true-arc* edges, not a polyline approximation — an arc is an arc in the editor, in the snap, and in the DXF. A circle nobody has cut stays one `CIRCLE`.
+* **Define once, place by reference.** A block — a CAD symbol or a Flow block — is one `BLOCK` and every placement an `INSERT` (`src/io/exportDxf/buildDxf.ts`), so a sheet with twelve of them moves as twelve things and carries the strokes once.
+* **Ports are read, not coined.** A Flow block's typed ports are read out of `APK:OS`'s `Interfaces.json` `Terminals` table (`src/flow/catalog.ts`); the connector catalogue (`src/connectors`) draws a badge per connector the system names.
+* **A file a strict reader accepts.** The DXF writer is a port of the repository's one conformant emitter: handles, owners, AcDb subclasses, a BLOCK_RECORD table, and no dangling reference — every layer an entity names and every linetype a layer names is declared.
+* **One bundle, two doors.** `#/drawing` and `#/big-picture` (`src/shell/entrance.ts`) are one application doing two jobs; an unknown fragment lands on the drawing board so old bookmarks still work.
+* **Every failure is soft.** Served from apk.audio there is no `server.py`; the Big Picture file (`src/io/bigPicture`) is then simply unreachable and the IndexedDB session stays the working copy. A save quoting a stale digest is refused (409) rather than overwriting someone's drawing.
+* **A door for softapps built on it.** Inside another softapp's iframe it speaks `cad.like.audio/host@1` over `postMessage` (`src/shell/hostBridge`): it tells the host the view, the geometry and the Virtual Mirror, and takes palettes, layers and placements back. EDITORS.Acoustic.Like.audio is that host.
+* **Ratchets on every build.** `npm run build` runs `tsc`, `verifyFlow` (port geometry, neighbour graph, DXF BLOCK/INSERT resolution) and two gates (`check-mount-reach`, `check-effect-abort`) before Vite; their baselines only go down.
 
 ---
 
 ## ⚙️ Repository Overview
-This repository is a modular, standalone component of the  Softapps suite. It operates as an independent Git repository integrated as a submodule under .
+This repository is a modular, standalone component of the APK.audio Softapps suite. It operates as an independent Git repository ([`LikeDotAudio/APK.softapp.EDITORS.CAD.Like.audio`](https://github.com/LikeDotAudio/APK.softapp.EDITORS.CAD.Like.audio)), integrated as a submodule of APK.audio at `PODS/POD.THIN/Softapps/EDITORS/EDITORS.CAD.Like.audio`.
+
+| Path | Purpose |
+| --- | --- |
+| `src/model` | The drawing: `Doc` (vertices, line/arc edges, texts, fills, blocks), palette regions, validation. |
+| `src/tools` | One file per drawing tool — line, arc/circle variants, polyline, spline, fill, text, block, Flow, wire, measure, symmetry. |
+| `src/flow` | The Big Picture schematic: Flow block catalogue, placement, ports. |
+| `src/connectors` | The connector catalogue and its badges. |
+| `src/io` | DXF export (`exportDxf`) and import (`importDxf`), the browser session, recent files, the Big Picture file, images. |
+| `src/shell` | Which door the app came in by, and the host bridge for softapps that embed it. |
+| `src/state`, `src/components`, `src/render`, `src/viewport` | The store and its actions, the React chrome, the canvas renderer, pan/zoom. |
+| `scripts` | `verifyFlow.ts` and the build gates with their baselines. |
+| `Drawings` | The example Big Picture sheet as `.json` and `.dxf`. |
+| `dist` | The built app. **Tracked** — the portal serves it as-is, so rebuild and commit it with the source. |
+| `Documentation` | Architecture notes, known issues, roadmap. |
 
 ---
 
@@ -45,5 +74,7 @@ Linetypes and lineweights arrive on a layer from an opened DXF; the app does not
 ---
 
 ## 🚀 Usage & Integration
-* **Web Portal Entry**:  / 
-* **Remote Repository**: 
+* **Web Portal Entry**: `dist/index.html#/drawing` (the drawing board) and `dist/index.html#/big-picture` (the schematic), as named in `display.json`.
+* **Live**: https://likedotaudio.github.io/APK.softapp.EDITORS.CAD.Like.audio/ (see Hosting above).
+* **Remote Repository**: https://github.com/LikeDotAudio/APK.softapp.EDITORS.CAD.Like.audio
+* **Develop**: `npm run dev`; `npm test` (vitest); `npm run build` (typecheck, verify, gates, then `dist/`).
