@@ -19,11 +19,12 @@ interface StatusBarProps {
 /**
  * Bottom strip: cursor position, live measurement, validation and edge count on
  * the left; grid mode, zoom, build revision and repository link pinned to the
- * right.
+ * right. One line always: in a narrow host pane it scrolls sideways rather than
+ * wrapping.
  */
 export function StatusBar({ onToggleConnectors, isConnectorsOpen }: StatusBarProps) {
   return (
-    <div className="flex flex-shrink-0 items-center gap-[18px] border-t border-[#333] bg-[#252526] px-4 py-1.5 font-mono text-xs text-[#888]">
+    <div className="flex flex-shrink-0 items-center gap-[18px] overflow-x-auto whitespace-nowrap border-t border-[#333] bg-[#252526] px-4 py-1.5 font-mono text-xs text-[#888] [scrollbar-width:none] [&>*]:flex-shrink-0">
       <CursorReadout />
       <MeasurementReadout />
       <ValidationPill />
