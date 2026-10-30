@@ -163,6 +163,7 @@ import { updatePointer } from './actions/updatePointer';
 import { validation } from './actions/validation';
 import { zoomIn } from './actions/zoomIn';
 import { zoomOut } from './actions/zoomOut';
+import { setZoom } from './actions/setZoom';
 import { zoomToFit } from './actions/zoomToFit';
 
 export type { ClipboardItem } from './ClipboardItem';
@@ -795,6 +796,10 @@ export class EditorStore {
 
   zoomOut(): void {
     zoomOut(this);
+  }
+
+  setZoom(zoom: number): void {
+    setZoom(this, zoom);
   }
 
   // ------------------------------------------------------------------- layers

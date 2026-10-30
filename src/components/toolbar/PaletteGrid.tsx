@@ -10,9 +10,8 @@ export interface PaletteGridProps {
 
 /**
  * Single-file column the palette buttons sit in, and the only thing that tells a
- * screen reader where one palette ends and the next begins: the left rail is
- * three of these stacked, and without a name each is an unlabelled run of
- * icon buttons.
+ * screen reader what they are: without a name it is an unlabelled run of icon
+ * buttons.
  */
 export function PaletteGrid({ label, children }: PaletteGridProps) {
   return (

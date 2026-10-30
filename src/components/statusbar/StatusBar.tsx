@@ -5,9 +5,11 @@ import { BuildStamp } from './BuildStamp';
 import { CursorReadout } from './CursorReadout';
 import { EdgeCountReadout } from './EdgeCountReadout';
 import { FlowReadout } from './FlowReadout';
+import { GridPalette } from './GridPalette';
 import { MeasurementReadout } from './MeasurementReadout';
 import { RepositoryLink } from './RepositoryLink';
 import { SymmetryPill } from './SymmetryPill';
+import { ZoomPalette } from './ZoomPalette';
 
 interface StatusBarProps {
   onToggleConnectors?: () => void;
@@ -16,7 +18,8 @@ interface StatusBarProps {
 
 /**
  * Bottom strip: cursor position, live measurement, validation and edge count on
- * the left; build revision and repository link pinned to the right.
+ * the left; grid mode, zoom, build revision and repository link pinned to the
+ * right.
  */
 export function StatusBar({ onToggleConnectors, isConnectorsOpen }: StatusBarProps) {
   return (
@@ -44,6 +47,8 @@ export function StatusBar({ onToggleConnectors, isConnectorsOpen }: StatusBarPro
       )}
 
       <div className="ml-auto flex items-center gap-4">
+        <GridPalette />
+        <ZoomPalette />
         <BuildStamp />
         <RepositoryLink />
       </div>

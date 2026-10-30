@@ -102,6 +102,7 @@ export function buildUi(store: EditorStore): UiState {
     viewports: store.viewports,
     activeViewportId: store.activeViewportId,
     mirror: { ...store.mirror },
+    zoom: store.view.zoom,
     palette: store.palette
       ? {
           title: store.palette.title,

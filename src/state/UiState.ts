@@ -132,6 +132,8 @@ export interface UiState {
   viewports: CadViewport[];
   activeViewportId: string;
   mirror: VirtualMirrorState;
+  /** Screen pixels per world unit — the view's zoom, for the footer fader. */
+  zoom: number;
   /** Null until a host sends a palette — and with it, no Palette panel. */
   palette: PaletteUi | null;
 }
