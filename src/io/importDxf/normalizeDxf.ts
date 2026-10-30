@@ -14,6 +14,10 @@ import type { DxfBlock, DxfEntity } from './DxfParseResult';
  * - INSERT inside a BLOCK → that block's geometry, moved, scaled and rotated
  *   into the outer block, because a `CadBlockDefinition` holds geometry only.
  *   A model-space INSERT stays an INSERT (`keepInserts`).
+ * - Model-space INSERT scaled differently in x and y (group 41 ≠ 42, which
+ *   includes a mirror in one axis) → an INSERT of a derived block that holds
+ *   the stretched geometry, because a `CadBlockInstance` has one scale. The
+ *   placement still moves as one thing; only its scale is baked in.
  *
  * Curves become polylines only when nothing exact exists: a round ellipse is a
  * true arc, and a uniformly scaled block keeps its arcs true.
@@ -54,8 +58,9 @@ const norm360 = (d: number) => ((d % 360) + 360) % 360;
 
 /** An INSERT's placement: base point to the origin, scale, rotate, move to the insertion point. */
 function insertAffine(e: DxfEntity, block: DxfBlock): Affine {
+  // DXF defaults each of 41/42 to 1 on its own
   const sx = e.scaleX ?? 1;
-  const sy = e.scaleY ?? sx;
+  const sy = e.scaleY ?? 1;
   const r = rad(e.rotation ?? 0);
   const cos = Math.cos(r);
   const sin = Math.sin(r);
@@ -286,11 +291,35 @@ export function normalizeEntities(
   return out;
 }
 
-/** Blocks with their nested INSERTs, DIMENSIONs and curves resolved, and model-space entities likewise. */
+/** A number as a block-name fragment a strict DXF reader accepts: `-1`, `0P5`. */
+const nameNum = (n: number) => String(Math.round(n * 1e4) / 1e4).replace('.', 'P');
+
+/**
+ * Blocks with their nested INSERTs, DIMENSIONs and curves resolved, and
+ * model-space entities likewise. A model-space INSERT whose x and y scale
+ * differ points at a derived block (`<NAME>_X<sx>_Y<sy>`) with that scale
+ * baked in, and keeps its insertion point and rotation at scale 1.
+ */
 export function normalizeDxf(blocks: DxfBlock[], entities: DxfEntity[]): { blocks: DxfBlock[]; entities: DxfEntity[] } {
   const byName = new Map(blocks.map((b) => [b.name, b]));
+  const outBlocks = blocks.map((b) => ({ ...b, entities: normalizeEntities(b.entities, byName, false, IDENTITY, [b.name]) }));
+  const derived = new Map<string, DxfBlock>();
+  const sheet = entities.map((e) => {
+    if (e.type !== 'INSERT' || !e.blockName) return e;
+    const sx = e.scaleX ?? 1;
+    const sy = e.scaleY ?? 1;
+    const b = byName.get(e.blockName);
+    if (!b || Math.abs(sx - sy) < 1e-9 * (Math.abs(sx) + Math.abs(sy) + 1)) return { ...e, scaleX: sx, scaleY: sy };
+    const name = `${b.name}_X${nameNum(sx)}_Y${nameNum(sy)}`;
+    if (!derived.has(name)) {
+      // the base point to the origin, then the stretch: what insertAffine does before rotating
+      const stretch: Affine = { a: sx, b: 0, c: 0, d: sy, tx: -sx * b.baseX, ty: -sy * b.baseY };
+      derived.set(name, { name, baseX: 0, baseY: 0, entities: normalizeEntities(b.entities, byName, false, stretch, [b.name]) });
+    }
+    return { ...e, blockName: name, scaleX: 1, scaleY: 1 };
+  });
   return {
-    blocks: blocks.map((b) => ({ ...b, entities: normalizeEntities(b.entities, byName, false, IDENTITY, [b.name]) })),
-    entities: normalizeEntities(entities, byName, true),
+    blocks: [...outBlocks, ...derived.values()],
+    entities: normalizeEntities(sheet, byName, true),
   };
 }

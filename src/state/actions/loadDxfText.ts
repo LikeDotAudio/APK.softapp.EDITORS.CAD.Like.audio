@@ -18,7 +18,7 @@ export async function loadDxfText(store: EditorStore, text: string,
   try {
     const result = parseDxf(text);
     if (result.entities.length === 0) {
-      window.alert('No supported geometry (LINE, CIRCLE, ARC, LWPOLYLINE, TEXT, HATCH, INSERT) found in DXF file.');
+      window.alert('No supported geometry (LINE, CIRCLE, ARC, POLYLINE, ELLIPSE, SPLINE, TEXT, HATCH, INSERT, DIMENSION) found in DXF file.');
       return;
     }
 
@@ -148,7 +148,19 @@ function scaleDxfEntity(ent: DxfEntity, factor: number, fileBlocks: Set<string>)
     if (ent.x1 !== undefined) ent.x1 *= factor;
     if (ent.y1 !== undefined) ent.y1 *= factor;
     if (ent.blockName && fileBlocks.has(ent.blockName)) return;
-    if (ent.scaleX !== undefined) ent.scaleX *= factor;
-    if (ent.scaleY !== undefined) ent.scaleY *= factor;
+    // DXF defaults each scale to 1: an INSERT that wrote none still needs the factor
+    ent.scaleX = (ent.scaleX ?? 1) * factor;
+    ent.scaleY = (ent.scaleY ?? 1) * factor;
+  } else if (type === 'ELLIPSE') {
+    // the major-axis end is relative to the centre, so it scales like a length
+    if (ent.cx !== undefined) ent.cx *= factor;
+    if (ent.cy !== undefined) ent.cy *= factor;
+    if (ent.majorX !== undefined) ent.majorX *= factor;
+    if (ent.majorY !== undefined) ent.majorY *= factor;
+  } else if (type === 'SPLINE') {
+    for (const pt of [...(ent.controlPoints ?? []), ...(ent.fitPoints ?? [])]) {
+      pt.x *= factor;
+      pt.y *= factor;
+    }
   }
 }

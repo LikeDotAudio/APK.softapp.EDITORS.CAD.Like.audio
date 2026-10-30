@@ -7,6 +7,7 @@ import { parseLinetype } from './parseLinetype';
 
 /** The entity types the importer understands, in ENTITIES and inside a BLOCK alike. */
 const SUPPORTED = [
+  // An old-style POLYLINE is read with its VERTEX / SEQEND run into an LWPOLYLINE.
   'LINE', 'CIRCLE', 'ARC', 'LWPOLYLINE', 'POLYLINE', 'TEXT', 'MTEXT', 'SOLID', 'HATCH', 'INSERT',
   // Read, then turned into the kinds above by normalizeDxf before loading.
   'ELLIPSE', 'SPLINE', 'DIMENSION',
@@ -122,9 +123,41 @@ export function parseDxf(dxfText: string): DxfParseResult {
   function readEntity(entityType: string, into: DxfEntity[]): void {
     if (!SUPPORTED.includes(entityType)) return;
     const { entity, lastPair } = parseEntity(entityType, () => readPair());
+    if (entityType === 'POLYLINE') {
+      const line = readPolyline(entity, lastPair);
+      if (line) into.push(line);
+      return;
+    }
     if (entity) into.push(entity);
     // Process the line that stopped the entity parsing
     if (lastPair && lastPair.code === 0) idx -= 2;
+  }
+
+  /**
+   * An old-style POLYLINE: its header, then VERTEX entities up to SEQEND, read
+   * as the LWPOLYLINE it draws. A polygon or polyface mesh (flag 16 / 64) is a
+   * 3D surface, not an outline: its vertices are read past and it is dropped,
+   * as is a spline-fit polyline's frame (vertex flag 16) — the fitted vertices
+   * the file also carries are the curve.
+   */
+  function readPolyline(header: DxfEntity, stop: { code: number; value: string } | null): DxfEntity | null {
+    const points: { x: number; y: number; bulge?: number }[] = [];
+    let next = stop;
+    while (next && next.code === 0 && next.value.toUpperCase() === 'VERTEX') {
+      const { entity: v, lastPair } = parseEntity('VERTEX', () => readPair());
+      if (((v.vertexFlags ?? 0) & (16 | 128)) === 0) {
+        points.push({ x: v.x1 ?? 0, y: v.y1 ?? 0, ...(v.bulge ? { bulge: v.bulge } : {}) });
+      }
+      next = lastPair;
+    }
+    if (next && next.code === 0 && next.value.toUpperCase() === 'SEQEND') {
+      // SEQEND carries only its handle and layer; the 0 after it starts the next entity
+      next = parseEntity('SEQEND', () => readPair()).lastPair;
+    }
+    if (next && next.code === 0) idx -= 2;
+    if (((header.polylineFlags ?? 0) & (16 | 64)) !== 0) return null;
+    const { polylineFlags: _flags, ...rest } = header;
+    return { ...rest, type: 'LWPOLYLINE', points };
   }
 
   let units: 'in' | 'mm' | undefined;

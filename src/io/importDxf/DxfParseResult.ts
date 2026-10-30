@@ -19,6 +19,12 @@ export interface DxfEntity {
   // POLYLINE / LWPOLYLINE
   points?: { x: number; y: number; bulge?: number }[];
   isClosed?: boolean;
+  // Old-style POLYLINE header flags (70): 1 closed, 16 polygon mesh, 64 polyface mesh
+  polylineFlags?: number;
+  // VERTEX (of an old-style POLYLINE): position in x1/y1, bulge (42), flags (70):
+  // 16 spline frame control point, 128 polyface face record
+  bulge?: number;
+  vertexFlags?: number;
   // TEXT / MTEXT
   text?: string;
   textHeight?: number;

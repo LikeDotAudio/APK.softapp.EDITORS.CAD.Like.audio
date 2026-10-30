@@ -104,6 +104,18 @@ export function parseEntity(
       else if (code === 20 && entity.controlPoints?.length) entity.controlPoints[entity.controlPoints.length - 1]!.y = numVal;
       else if (code === 11) (entity.fitPoints ??= []).push({ x: numVal, y: 0 });
       else if (code === 21 && entity.fitPoints?.length) entity.fitPoints[entity.fitPoints.length - 1]!.y = numVal;
+    } else if (type === 'POLYLINE') {
+      // the header only: its vertices follow as VERTEX entities up to SEQEND
+      if (code === 70) {
+        const flag = parseInt(value, 10);
+        entity.isClosed = (flag & 1) === 1;
+        entity.polylineFlags = flag;
+      }
+    } else if (type === 'VERTEX') {
+      if (code === 10) entity.x1 = numVal;
+      else if (code === 20) entity.y1 = numVal;
+      else if (code === 42) entity.bulge = numVal;
+      else if (code === 70) entity.vertexFlags = parseInt(value, 10);
     } else if (type === 'DIMENSION') {
       if (code === 2) entity.blockName = value;
     } else if (type === 'INSERT') {

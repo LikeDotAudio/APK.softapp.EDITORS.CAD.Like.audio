@@ -143,4 +143,58 @@ describe('DXF import: nested INSERTs, DIMENSION, SPLINE, ELLIPSE', () => {
     const [pl] = splineToEntities({ type: 'SPLINE', fitPoints: [{ x: 0, y: 0 }, { x: 1, y: 1 }, { x: 2, y: 0 }] });
     expect(pl!.points).toEqual([{ x: 0, y: 0 }, { x: 1, y: 1 }, { x: 2, y: 0 }]);
   });
+
+  it('reads an old-style POLYLINE through its VERTEX run and SEQEND, bulges and closure kept', () => {
+    const dxf = file(
+      [],
+      [
+        '  0', 'POLYLINE', '  8', 'WALL', ' 66', '1', ' 10', '0', ' 20', '0', ' 70', '1',
+        '  0', 'VERTEX', '  8', 'WALL', ' 10', '0', ' 20', '0',
+        '  0', 'VERTEX', '  8', 'WALL', ' 10', '10', ' 20', '0', ' 42', '1',
+        '  0', 'VERTEX', '  8', 'WALL', ' 10', '10', ' 20', '10',
+        '  0', 'SEQEND', '  8', 'WALL',
+        '  0', 'LINE', '  8', '0', ' 10', '0', ' 20', '20', ' 11', '5', ' 21', '20',
+        // a polyface mesh is a 3D surface, not an outline
+        '  0', 'POLYLINE', '  8', '0', ' 66', '1', ' 70', '64',
+        '  0', 'VERTEX', '  8', '0', ' 10', '1', ' 20', '1', ' 70', '192',
+        '  0', 'VERTEX', '  8', '0', ' 70', '128', ' 71', '1',
+        '  0', 'SEQEND',
+      ],
+    );
+    const parsed = parseDxf(dxf);
+    expect(parsed.entities.map((e) => e.type)).toEqual(['LWPOLYLINE', 'LINE']);
+    const pl = parsed.entities[0]!;
+    expect(pl.layer).toBe('WALL');
+    expect(pl.isClosed).toBe(true);
+    expect(pl.points).toEqual([{ x: 0, y: 0 }, { x: 10, y: 0, bulge: 1 }, { x: 10, y: 10 }]);
+    const doc = new Doc();
+    loadDxfIntoDoc(doc, parsed);
+    // three closed segments (one an arc) and the line after the SEQEND
+    expect(doc.edges.size).toBe(4);
+    expect([...doc.edges.values()].filter((e) => e.type === 'arc')).toHaveLength(1);
+  });
+
+  it("keeps a model-space INSERT's own y-scale and mirror: a derived block holds the stretch", () => {
+    const dxf = file(
+      [
+        '  0', 'BLOCK', '  2', 'BAR', ' 10', '1', ' 20', '0',
+        '  0', 'LINE', '  8', '0', ' 10', '1', ' 20', '0', ' 11', '2', ' 21', '1',
+        '  0', 'ENDBLK',
+      ],
+      [
+        '  0', 'INSERT', '  8', '0', '  2', 'BAR', ' 10', '10', ' 20', '10', ' 41', '2', ' 42', '-3', ' 50', '0',
+        '  0', 'INSERT', '  8', '0', '  2', 'BAR', ' 10', '0', ' 20', '0', ' 41', '2', ' 42', '2',
+        // group 42 omitted: DXF's default is 1, not the x-scale
+        '  0', 'INSERT', '  8', '0', '  2', 'BAR', ' 10', '0', ' 20', '0', ' 41', '2',
+      ],
+    );
+    const doc = new Doc();
+    loadDxfIntoDoc(doc, parseDxf(dxf));
+    const placed = [...doc.blockInstances.values()];
+    expect(placed.map((i) => [i.blockName, i.scale])).toEqual([['BAR_X2_Y-3', 1], ['BAR', 2], ['BAR_X2_Y1', 1]]);
+    const line = doc.blocks.get('BAR_X2_Y-3')!.lines[0]!;
+    // BAR's 1,0→2,1 less its base 1,0 is 0,0→1,1; stretched ×2 in x, ×-3 in y
+    expect([line.x1, line.y1, line.x2, line.y2].map((v) => v + 0)).toEqual([0, 0, 2, -3]);
+    expect(doc.blocks.get('BAR')!.lines[0]).toMatchObject({ x1: 0, y1: 0, x2: 1, y2: 1 });
+  });
 });
