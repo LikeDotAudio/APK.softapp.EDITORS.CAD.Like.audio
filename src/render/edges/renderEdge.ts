@@ -3,8 +3,11 @@
 import type { Edge } from '../../core/types';
 import type { Scene } from '../Scene';
 
-/** Stroke a single edge. Arcs are drawn as real canvas arcs, never tessellated. */
-export function renderEdge(scene: Scene, e: Edge, stroke: string, lineWidth: number): void {
+/**
+ * Stroke a single edge. Arcs are drawn as real canvas arcs, never tessellated.
+ * `dash` is the layer's linetype in screen px (see layerStroke); empty is solid.
+ */
+export function renderEdge(scene: Scene, e: Edge, stroke: string, lineWidth: number, dash: number[] = []): void {
   const { ctx, doc, view } = scene;
   const [a, b] = doc.endpointsOf(e);
   if (e.type === 'line') {
@@ -21,11 +24,12 @@ export function renderEdge(scene: Scene, e: Edge, stroke: string, lineWidth: num
 
     ctx.strokeStyle = stroke;
     ctx.lineWidth = lineWidth;
-    ctx.setLineDash([]);
+    ctx.setLineDash(dash);
     ctx.beginPath();
     ctx.moveTo(sa.x, sa.y);
     ctx.lineTo(sb.x, sb.y);
     ctx.stroke();
+    ctx.setLineDash([]);
     return;
   }
 
@@ -37,11 +41,12 @@ export function renderEdge(scene: Scene, e: Edge, stroke: string, lineWidth: num
 
   ctx.strokeStyle = stroke;
   ctx.lineWidth = lineWidth;
-  ctx.setLineDash([]);
+  ctx.setLineDash(dash);
   const a1 = Math.atan2(a.y - e.cy, a.x - e.cx);
   const a2 = Math.atan2(b.y - e.cy, b.x - e.cx);
   // Screen Y is flipped, so a world-CCW arc is drawn clockwise-negated here.
   ctx.beginPath();
   ctx.arc(sc.x, sc.y, sr, -a1, -a2, true);
   ctx.stroke();
+  ctx.setLineDash([]);
 }
