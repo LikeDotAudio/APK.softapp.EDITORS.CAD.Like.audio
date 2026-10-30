@@ -6,7 +6,7 @@
 
 ## Hosting
 
-Published on GitHub Pages by `.github/workflows/deploy.yml` on every push to `main`.
+Published by `.github/workflows/deploy.yml` on every push to `main`: to GitHub Pages, and over FTPS to the Varial host that serves https://cad.like.audio/ today.
 
 **Live now:** https://likedotaudio.github.io/APK.softapp.EDITORS.CAD.Like.audio/
 
