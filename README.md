@@ -69,7 +69,7 @@ This repository is a modular, standalone component of the APK.audio Softapps sui
 
 **Open** reads the same things back: layers with colour, linetype, lineweight and off/frozen/locked state, and the entities on them. A file written by Export opens to the same layers — `npm test` checks that round trip.
 
-Linetypes and lineweights arrive on a layer from an opened DXF; the app does not yet draw them on the canvas or offer a picker for them. See [Documentation/Notes/ARCHITECTURE_NOTES.md](Documentation/Notes/ARCHITECTURE_NOTES.md#dxf-in-and-out-srcioexportdxf-srcioimportdxf).
+Linetypes and lineweights arrive on a layer from an opened DXF; the app does not yet draw them on the canvas or offer a picker for them. See [Documentation/🧩Manual and Artifacts/ARCHITECTURE_NOTES.md](Documentation/🧩Manual and Artifacts/ARCHITECTURE_NOTES.md#dxf-in-and-out-srcioexportdxf-srcioimportdxf).
 
 ---
 
