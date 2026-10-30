@@ -9,7 +9,7 @@ AC1015
   9
 $HANDSEED
   5
-188
+18A
   9
 $INSUNITS
  70
@@ -39,11 +39,55 @@ LTYPE
 100
 AcDbSymbolTable
  70
-1
+3
   0
 LTYPE
   5
 15D
+330
+15C
+100
+AcDbSymbolTableRecord
+100
+AcDbLinetypeTableRecord
+  2
+ByBlock
+ 70
+0
+  3
+
+ 72
+65
+ 73
+0
+ 40
+0.000000
+  0
+LTYPE
+  5
+15E
+330
+15C
+100
+AcDbSymbolTableRecord
+100
+AcDbLinetypeTableRecord
+  2
+ByLayer
+ 70
+0
+  3
+
+ 72
+65
+ 73
+0
+ 40
+0.000000
+  0
+LTYPE
+  5
+15F
 330
 15C
 100
@@ -61,7 +105,7 @@ Solid line
  73
 0
  40
-0.0
+0.000000
   0
 ENDTAB
   0
@@ -69,7 +113,7 @@ TABLE
   2
 LAYER
   5
-15E
+160
 330
 0
 100
@@ -79,9 +123,9 @@ AcDbSymbolTable
   0
 LAYER
   5
-15F
+161
 330
-15E
+160
 100
 AcDbSymbolTableRecord
 100
@@ -95,9 +139,7 @@ AcDbLayerTableRecord
   6
 CONTINUOUS
 370
-25
-390
-F
+-3
   0
 ENDTAB
   0
@@ -105,7 +147,7 @@ TABLE
   2
 BLOCK_RECORD
   5
-160
+162
 330
 0
 100
@@ -117,7 +159,7 @@ BLOCK_RECORD
   5
 101
 330
-160
+162
 100
 AcDbSymbolTableRecord
 100
@@ -133,7 +175,7 @@ BLOCK_RECORD
   5
 102
 330
-160
+162
 100
 AcDbSymbolTableRecord
 100
@@ -149,7 +191,7 @@ BLOCK_RECORD
   5
 103
 330
-160
+162
 100
 AcDbSymbolTableRecord
 100
@@ -165,7 +207,7 @@ BLOCK_RECORD
   5
 10D
 330
-160
+162
 100
 AcDbSymbolTableRecord
 100
@@ -181,7 +223,7 @@ BLOCK_RECORD
   5
 113
 330
-160
+162
 100
 AcDbSymbolTableRecord
 100
@@ -197,7 +239,7 @@ BLOCK_RECORD
   5
 118
 330
-160
+162
 100
 AcDbSymbolTableRecord
 100
@@ -213,7 +255,7 @@ BLOCK_RECORD
   5
 11F
 330
-160
+162
 100
 AcDbSymbolTableRecord
 100
@@ -229,7 +271,7 @@ BLOCK_RECORD
   5
 128
 330
-160
+162
 100
 AcDbSymbolTableRecord
 100
@@ -245,7 +287,7 @@ BLOCK_RECORD
   5
 132
 330
-160
+162
 100
 AcDbSymbolTableRecord
 100
@@ -261,7 +303,7 @@ BLOCK_RECORD
   5
 138
 330
-160
+162
 100
 AcDbSymbolTableRecord
 100
@@ -277,7 +319,7 @@ BLOCK_RECORD
   5
 141
 330
-160
+162
 100
 AcDbSymbolTableRecord
 100
@@ -293,7 +335,7 @@ BLOCK_RECORD
   5
 14A
 330
-160
+162
 100
 AcDbSymbolTableRecord
 100
@@ -315,47 +357,9 @@ BLOCKS
   0
 BLOCK
   5
-161
-330
-101
-100
-AcDbEntity
-  8
-0
-100
-AcDbBlockBegin
-  2
-*Model_Space
- 70
-0
- 10
-0.0
- 20
-0.0
- 30
-0.0
-  3
-*Model_Space
-  1
-
-  0
-ENDBLK
-  5
-162
-330
-101
-100
-AcDbEntity
-  8
-0
-100
-AcDbBlockEnd
-  0
-BLOCK
-  5
 163
 330
-102
+101
 100
 AcDbEntity
   8
@@ -363,7 +367,7 @@ AcDbEntity
 100
 AcDbBlockBegin
   2
-*Paper_Space
+*Model_Space
  70
 0
  10
@@ -373,7 +377,7 @@ AcDbBlockBegin
  30
 0.0
   3
-*Paper_Space
+*Model_Space
   1
 
   0
@@ -381,7 +385,7 @@ ENDBLK
   5
 164
 330
-102
+101
 100
 AcDbEntity
   8
@@ -392,6 +396,44 @@ AcDbBlockEnd
 BLOCK
   5
 165
+330
+102
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockBegin
+  2
+*Paper_Space
+ 70
+0
+ 10
+0.0
+ 20
+0.0
+ 30
+0.0
+  3
+*Paper_Space
+  1
+
+  0
+ENDBLK
+  5
+166
+330
+102
+100
+AcDbEntity
+  8
+0
+100
+AcDbBlockEnd
+  0
+BLOCK
+  5
+167
 330
 103
 100
@@ -635,7 +677,7 @@ AcDbText
   0
 ENDBLK
   5
-166
+168
 330
 103
 100
@@ -647,7 +689,7 @@ AcDbBlockEnd
   0
 BLOCK
   5
-167
+169
 330
 10D
 100
@@ -795,7 +837,7 @@ AcDbText
   0
 ENDBLK
   5
-168
+16A
 330
 10D
 100
@@ -807,7 +849,7 @@ AcDbBlockEnd
   0
 BLOCK
   5
-169
+16B
 330
 113
 100
@@ -929,7 +971,7 @@ AcDbLine
   0
 ENDBLK
   5
-16A
+16C
 330
 113
 100
@@ -941,7 +983,7 @@ AcDbBlockEnd
   0
 BLOCK
   5
-16B
+16D
 330
 118
 100
@@ -1111,7 +1153,7 @@ AcDbLine
   0
 ENDBLK
   5
-16C
+16E
 330
 118
 100
@@ -1123,7 +1165,7 @@ AcDbBlockEnd
   0
 BLOCK
   5
-16D
+16F
 330
 11F
 100
@@ -1345,7 +1387,7 @@ AcDbText
   0
 ENDBLK
   5
-16E
+170
 330
 11F
 100
@@ -1357,7 +1399,7 @@ AcDbBlockEnd
   0
 BLOCK
   5
-16F
+171
 330
 128
 100
@@ -1605,7 +1647,7 @@ AcDbText
   0
 ENDBLK
   5
-170
+172
 330
 128
 100
@@ -1617,7 +1659,7 @@ AcDbBlockEnd
   0
 BLOCK
   5
-171
+173
 330
 132
 100
@@ -1779,7 +1821,7 @@ AcDbPolyline
   0
 ENDBLK
   5
-172
+174
 330
 132
 100
@@ -1791,7 +1833,7 @@ AcDbBlockEnd
   0
 BLOCK
   5
-173
+175
 330
 138
 100
@@ -2029,7 +2071,7 @@ AcDbPolyline
   0
 ENDBLK
   5
-174
+176
 330
 138
 100
@@ -2041,7 +2083,7 @@ AcDbBlockEnd
   0
 BLOCK
   5
-175
+177
 330
 141
 100
@@ -2271,7 +2313,7 @@ AcDbPolyline
   0
 ENDBLK
   5
-176
+178
 330
 141
 100
@@ -2283,7 +2325,7 @@ AcDbBlockEnd
   0
 BLOCK
   5
-177
+179
 330
 14A
 100
@@ -2509,7 +2551,7 @@ AcDbPolyline
   0
 ENDBLK
   5
-178
+17A
 330
 14A
 100
