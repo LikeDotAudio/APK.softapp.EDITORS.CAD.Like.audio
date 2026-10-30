@@ -179,8 +179,10 @@ export class DxfDocument implements HandleSource {
         pair(' 70', layer.locked ? 4 : 0) +
         pair(' 62', layer.off ? -aci : aci) +
         pair('  6', layerLinetype(layer)) +
-        pair('370', dxfLineweight(layer.lineweight)) +
-        pair('390', 'F');
+        // No 390 (plot-style handle): it must point at an ACDBPLACEHOLDER in
+        // an OBJECTS section this writer does not emit, and an optional
+        // pointer left out is valid where a dangling one is not.
+        pair('370', dxfLineweight(layer.lineweight));
     }
     out += pair('  0', 'ENDTAB');
 
