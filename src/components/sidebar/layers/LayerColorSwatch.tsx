@@ -39,7 +39,7 @@ export function LayerColorSwatch({ layerId, color, title, open, onToggle, onPick
               key={c.aci}
               type="button"
               onClick={() => {
-                store.setLayerColor(layerId, c.hex);
+                store.setLayerColor(layerId, c.hex, c.aci);
                 onPicked();
               }}
               className="h-5 w-5 rounded border border-[#444] transition-transform hover:scale-110"

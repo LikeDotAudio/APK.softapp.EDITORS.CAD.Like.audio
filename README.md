@@ -30,6 +30,20 @@ This repository is a modular, standalone component of the  Softapps suite. It op
 
 ---
 
+## 📤 DXF export & import
+
+**File → Download DXF** writes an AutoCAD R2000 (`AC1015`) file that strict readers accept:
+
+* **Every layer** in the LAYER table with its **name**, **colour** (ACI — a colour picked in the app goes out as the nearest index), **linetype**, **lineweight**, and whether it is **off** (hidden) or **locked**.
+* **Every entity on its own layer** — lines, true arcs, circles, text, fills (HATCH), CAD block placements (INSERT) and the schematic's flow blocks and connectors.
+* **Every linetype** a layer names is declared with its dash pattern — `DASHED`, `HIDDEN`, `CENTER`, `DASHDOT`, `PHANTOM`, `DOT`, `DIVIDE`, `BORDER` at acad.lin sizes (×25.4 on a mm sheet), and any other linetype that came in on an opened DXF with the pattern it came with.
+
+**Open** reads the same things back: layers with colour, linetype, lineweight and off/frozen/locked state, and the entities on them. A file written by Export opens to the same layers — `npm test` checks that round trip.
+
+Linetypes and lineweights arrive on a layer from an opened DXF; the app does not yet draw them on the canvas or offer a picker for them. See [Documentation/Notes/ARCHITECTURE_NOTES.md](Documentation/Notes/ARCHITECTURE_NOTES.md#dxf-in-and-out-srcioexportdxf-srcioimportdxf).
+
+---
+
 ## 🚀 Usage & Integration
 * **Web Portal Entry**:  / 
 * **Remote Repository**: 

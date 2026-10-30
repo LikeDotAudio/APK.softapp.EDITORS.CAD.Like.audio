@@ -1,8 +1,9 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
-import type { DxfEntity, DxfLayer, DxfParseResult } from './DxfParseResult';
+import type { DxfEntity, DxfLayer, DxfLinetypeDef, DxfParseResult } from './DxfParseResult';
 import { parseEntity } from './parseEntity';
 import { parseLayer } from './parseLayer';
+import { parseLinetype } from './parseLinetype';
 
 /**
  * Parses ASCII DXF string content into structured entities and layers.
@@ -11,6 +12,7 @@ export function parseDxf(dxfText: string): DxfParseResult {
   const lines = dxfText.split(/\r?\n/);
   let insunits: number | null = null;
   const layers: DxfLayer[] = [];
+  const linetypes: DxfLinetypeDef[] = [];
   const entities: DxfEntity[] = [];
 
   let inHeader = false;
@@ -79,6 +81,12 @@ export function parseDxf(dxfText: string): DxfParseResult {
         if (lastPair && lastPair.code === 0) {
           idx -= 2;
         }
+      } else if (code === 0 && value.toUpperCase() === 'LTYPE') {
+        const { linetype, lastPair } = parseLinetype(() => readPair());
+        if (linetype) linetypes.push(linetype);
+        if (lastPair && lastPair.code === 0) {
+          idx -= 2;
+        }
       }
     } else if (inEntities) {
       if (code === 0) {
@@ -101,5 +109,5 @@ export function parseDxf(dxfText: string): DxfParseResult {
   if (insunits === 1 || insunits === 2) units = 'in'; // 1 = Inches, 2 = Feet
   else if (insunits === 4 || insunits === 5 || insunits === 6) units = 'mm'; // 4 = mm, 5 = cm, 6 = m
 
-  return { units, layers, entities };
+  return { units, layers, linetypes, entities };
 }

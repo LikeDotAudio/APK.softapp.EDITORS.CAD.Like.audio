@@ -3,9 +3,14 @@
 import type { Point } from '../../core/types';
 import { pair } from './pair';
 
-/** Issues the handles. `DxfDocument` implements it; a block only needs this much. */
+/**
+ * Issues the handles and resolves the layers. `DxfDocument` implements it; a
+ * block only needs this much.
+ */
 export interface HandleSource {
   handle(): string;
+  /** The DXF name of the layer an entity is on, declared if it was not yet. */
+  layer(ref: string): string;
 }
 
 /**
@@ -35,7 +40,7 @@ export class DxfGeometry {
       pair('  5', this.doc.handle()) +
       pair('330', this.owner) +
       pair('100', 'AcDbEntity') +
-      pair('  8', layer || '0') +
+      pair('  8', this.doc.layer(layer || '0')) +
       pair('100', subclass)
     );
   }

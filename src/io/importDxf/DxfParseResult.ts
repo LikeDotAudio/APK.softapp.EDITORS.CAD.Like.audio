@@ -34,16 +34,33 @@ export interface DxfEntity {
   blockName?: string;
   scaleX?: number;
   scaleY?: number;
+  // HATCH pattern name (SOLID for a solid fill)
+  hatchPattern?: string;
 }
 
 export interface DxfLayer {
   name: string;
   colorIndex?: number;
   isFrozen?: boolean;
+  /** Switched off — DXF writes that as a negative colour. */
+  isOff?: boolean;
+  isLocked?: boolean;
+  /** Linetype name (group 6). */
+  linetype?: string;
+  /** Lineweight in hundredths of a mm (group 370); negative = default/by-block/by-layer. */
+  lineweight?: number;
+}
+
+/** One LTYPE record: a name and its dash pattern (group 49 lengths, file units). */
+export interface DxfLinetypeDef {
+  name: string;
+  description?: string;
+  pattern: number[];
 }
 
 export interface DxfParseResult {
   units?: 'in' | 'mm';
   layers: DxfLayer[];
+  linetypes: DxfLinetypeDef[];
   entities: DxfEntity[];
 }

@@ -44,6 +44,22 @@ export interface Layer {
   visible: boolean;
   locked?: boolean;
   /**
+   * The DXF linetype every entity on this layer is drawn with, by name
+   * (`CONTINUOUS`, `DASHED`, `HIDDEN`, `CENTER`, …). Absent means CONTINUOUS.
+   */
+  linetype?: string;
+  /**
+   * The dash pattern of a linetype this app does not know by name, as read
+   * from the file it came in on — DXF group 49 lengths in drawing units, a
+   * dash positive, a gap negative, a dot 0 — so it goes back out unchanged.
+   */
+  linetypePattern?: number[];
+  /**
+   * DXF lineweight in hundredths of a millimetre (25 = 0.25 mm), one of the
+   * standard DXF steps. Absent means the reader's default.
+   */
+  lineweight?: number;
+  /**
    * A host palette finish (its `id`) for everything on this layer: what a
    * host such as the acoustic overlay should take the layer's walls, ceiling
    * or floor to be made of, where no painted patch says otherwise.

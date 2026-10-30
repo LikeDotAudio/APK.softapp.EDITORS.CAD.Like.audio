@@ -10,6 +10,10 @@ export function parseEntity(
   const lwPoints: { x: number; y: number; bulge?: number }[] = [];
   let currentLwPoint: { x: number; y: number; bulge?: number } | null = null;
   let lastPair: { code: number; value: string } | null = null;
+  // A HATCH opens with its elevation point (10/20) and closes with its seed
+  // points (10/20 after 98): only the vertices between the first boundary's
+  // vertex count (93) and its source-object count (97) are the outline.
+  let inBoundary = type !== 'HATCH';
 
   while (true) {
     const pair = getNextPair();
@@ -44,6 +48,14 @@ export function parseEntity(
       else if (code === 40) entity.r = numVal;
       else if (code === 50) entity.startAngle = numVal;
       else if (code === 51) entity.endAngle = numVal;
+    } else if (type === 'HATCH' && !inBoundary) {
+      if (code === 2) entity.hatchPattern = value;
+      else if (code === 93 && lwPoints.length === 0 && !currentLwPoint) inBoundary = true;
+    } else if (type === 'HATCH' && code === 97) {
+      // end of the first boundary — later loops and seed points are not outline
+      if (currentLwPoint) lwPoints.push(currentLwPoint);
+      currentLwPoint = null;
+      inBoundary = false;
     } else if (type === 'LWPOLYLINE' || type === 'HATCH') {
       if (code === 70) {
         const flag = parseInt(value, 10);

@@ -13,16 +13,21 @@ import type {
 import { portLocalPoint } from '../../flow/portLocalPoint';
 import { definitionOf, portWorldPoint } from '../../flow/Schematic';
 import type { Doc } from '../../model/Doc';
-import { DxfDocument } from './DxfDocument';
+import { hexToAci } from '../../core/dxfColors/hexToAci';
+import { DxfDocument, type DxfLayerSpec } from './DxfDocument';
 import { dxfBlockName } from './dxfBlockName';
 
 /**
  * Serialise the sheet as conformant DXF R2000 text.
  *
- * Two things are written, and they are written differently on purpose:
+ * Three things are written, each the way DXF means it to be:
  *
  *   · GEOMETRY goes into the ENTITIES section as LINE, ARC and CIRCLE. A group
  *     that is still an untouched circle stays one CIRCLE rather than two ARCs.
+ *
+ *   · LAYERS go into the LAYER table, every one the sheet has, each with its
+ *     name, colour, linetype, lineweight, and whether it is off or locked —
+ *     and every entity is written on its own layer, by that layer's name.
  *
  *   · FLOW BLOCKS go into the BLOCKS section as one real DXF `BLOCK` per
  *     DEFINITION, placed by one `INSERT` per placement. That is the point of
@@ -39,9 +44,7 @@ export function buildDxf(
   layers: Iterable<Layer> = [],
   schematic?: SchematicModel,
 ): string {
-  const dxf = new DxfDocument(
-    Array.from(layers).map((l) => ({ name: l.name, color: l.dxfColorIndex ?? 7 })),
-  );
+  const dxf = new DxfDocument(Array.from(layers, dxfLayerSpec));
 
   // ---------------------------------------------------------------- geometry
   const byGroup = new Map<number, Edge[]>();
@@ -198,6 +201,24 @@ export function buildDxf(
 }
 
 /* -- helpers, kept below the entry point so the shape of the file reads first */
+
+/**
+ * A layer as the LAYER table wants it. The colour index is the one the layer
+ * carries, or — for a layer made in the app, which has only a CSS colour —
+ * the nearest one to what it shows.
+ */
+function dxfLayerSpec(l: Layer): DxfLayerSpec {
+  return {
+    id: l.id,
+    name: l.name,
+    color: l.dxfColorIndex ?? hexToAci(l.color),
+    linetype: l.linetype,
+    linetypePattern: l.linetypePattern,
+    lineweight: l.lineweight,
+    off: !l.visible,
+    locked: l.locked,
+  };
+}
 
 /** A short tick on the outline, pointing out of the side the port is on. */
 function portMark(size: BlockSize, ports: Port[], port: Port): Point[] {

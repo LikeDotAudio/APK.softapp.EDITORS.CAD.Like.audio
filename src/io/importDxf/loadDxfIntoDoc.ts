@@ -125,9 +125,10 @@ function processEntity(doc: Doc, entity: DxfParseResult['entities'][number]): vo
         : [p1, p2, p3];
     doc.addFill(points, 'solid', layerId);
   } else if (entity.type === 'HATCH' && entity.points && entity.points.length >= 3) {
+    const solid = !entity.hatchPattern || entity.hatchPattern.toUpperCase() === 'SOLID';
     doc.addFill(
       entity.points.map((p) => ({ x: p.x, y: p.y })),
-      'solid',
+      solid ? 'solid' : 'hatch',
       layerId,
     );
   } else if (entity.type === 'INSERT' && entity.blockName) {

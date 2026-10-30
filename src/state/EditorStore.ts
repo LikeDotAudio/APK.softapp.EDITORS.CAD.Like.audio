@@ -852,8 +852,8 @@ export class EditorStore {
     deselectLayerEntities(this, id);
   }
 
-  setLayerColor(id: string, color: string): void {
-    setLayerColor(this, id, color);
+  setLayerColor(id: string, color: string, aci?: number): void {
+    setLayerColor(this, id, color, aci);
   }
 
   setLayerFinish(id: string, finish: string | null): void {

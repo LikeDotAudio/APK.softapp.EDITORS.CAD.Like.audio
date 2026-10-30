@@ -2,9 +2,9 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { EditorStore } from '../EditorStore';
 import type { Units } from '../../core/types';
-import { aciToHex } from '../../core/dxfColors/aciToHex';
 import { addRecentFile } from '../../io/recentFiles/addRecentFile';
 import { clearSchematic } from '../../flow/Schematic';
+import { layersFromDxf } from '../../io/importDxf/layersFromDxf';
 import { loadDxfIntoDoc } from '../../io/importDxf/loadDxfIntoDoc';
 import { parseDxf } from '../../io/importDxf/parseDxf';
 import { unitFactor } from '../../model/units/unitFactor';
@@ -105,18 +105,9 @@ export async function loadDxfText(store: EditorStore, text: string,
     }
   }
 
-  // Populate DXF layers into layer store
-  if (result.layers && result.layers.length > 0) {
-    for (const dxfLayer of result.layers) {
-      const hexColor = aciToHex(dxfLayer.colorIndex);
-      store.layers.set(dxfLayer.name, {
-        id: dxfLayer.name,
-        name: dxfLayer.name,
-        color: hexColor,
-        dxfColorIndex: dxfLayer.colorIndex || 7,
-        visible: !dxfLayer.isFrozen,
-      });
-    }
+  // Populate DXF layers into layer store — colour, linetype, lineweight, off/frozen/locked
+  for (const layer of layersFromDxf(result, factor)) {
+    store.layers.set(layer.id, layer);
   }
 
   await store.showLoading('Opening drawings', `Importing ${result.entities.length.toLocaleString()} entities...`);
