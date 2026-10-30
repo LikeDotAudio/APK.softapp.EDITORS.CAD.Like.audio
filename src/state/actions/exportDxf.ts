@@ -22,5 +22,5 @@ export async function exportDxf(store: EditorStore): Promise<void> {
       return;
     }
   }
-  await saveDxf(store.doc, store.units, store.layers.values(), store.schematic);
+  await saveDxf(store.doc, store.units, store.layers.values(), store.schematic, store.currentFileName);
 }

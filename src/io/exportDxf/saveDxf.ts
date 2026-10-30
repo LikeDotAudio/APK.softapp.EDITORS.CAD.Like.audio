@@ -21,9 +21,10 @@ export async function saveDxf(
   units: Units,
   layers: Iterable<Layer> = [],
   schematic?: SchematicModel,
+  currentFileName?: string | null,
 ): Promise<void> {
   const blob = new Blob([buildDxf(doc, units, layers, schematic)], { type: 'application/dxf' });
-  const name = dxfFileName(units);
+  const name = dxfFileName(units, currentFileName);
   const picker = (window as unknown as SaveFilePickerWindow).showSaveFilePicker;
 
   if (picker) {
