@@ -101,10 +101,35 @@ export function blockFromDxf(block: DxfBlock): CadBlockDefinition {
               ...(e.x4 !== undefined ? [{ x: e.x4 - ox, y: (e.y4 ?? 0) - oy }] : []),
               { x: e.x3! - ox, y: (e.y3 ?? 0) - oy },
             ];
-      def.fills!.push({ points, color: entityColor(e), layerId, hatchPattern: e.hatchPattern });
+      def.fills!.push({ points, color: e.hexColor ?? entityColor(e), layerId, hatchPattern: e.hatchPattern });
     }
   }
   return def;
+}
+
+/**
+ * A session block definition as the DxfBlock it would have been in a file —
+ * the inverse of `blockFromDxf` — so `normalizeDxf` can stretch a block the
+ * file INSERTs but does not define. Lines, arcs, circles, texts and fills
+ * carry over; a fill's opacity does not (a DXF fill has none).
+ */
+export function dxfBlockFromDef(def: CadBlockDefinition): DxfBlock {
+  const entities: DxfEntity[] = [];
+  for (const l of def.lines) entities.push({ type: 'LINE', layer: l.layerId, x1: l.x1, y1: l.y1, x2: l.x2, y2: l.y2 });
+  for (const c of def.circles) entities.push({ type: 'CIRCLE', layer: c.layerId, cx: c.cx, cy: c.cy, r: c.r });
+  for (const a of def.arcs) {
+    entities.push({ type: 'ARC', layer: a.layerId, cx: a.cx, cy: a.cy, r: a.r, startAngle: a.a1, endAngle: a.a2 });
+  }
+  for (const t of def.texts ?? []) {
+    entities.push({ type: 'TEXT', layer: t.layerId, text: t.text, x1: t.x, y1: t.y, textHeight: t.height, rotation: t.rotation ?? 0 });
+  }
+  for (const f of def.fills ?? []) {
+    entities.push({
+      type: 'HATCH', layer: f.layerId, points: f.points.map((p) => ({ x: p.x, y: p.y })),
+      isClosed: true, hatchPattern: f.hatchPattern ?? 'SOLID', hexColor: f.color,
+    });
+  }
+  return { name: def.name, baseX: def.basePoint.x, baseY: def.basePoint.y, entities };
 }
 
 /**
@@ -239,7 +264,12 @@ export function loadDxfIntoDoc(
   // the geometry the file carries. A file's definition replaces a same-named
   // one the session already had: the drawing being opened is the authority.
   // Nested INSERTs, DIMENSIONs, ELLIPSEs and SPLINEs become geometry the model holds.
-  const { blocks, entities } = normalizeDxf(parseResult.blocks ?? [], parseResult.entities);
+  // A model-space INSERT stretched in one axis of a block only the session
+  // knows gets a derived, stretched block from the session's definition.
+  const { blocks, entities } = normalizeDxf(parseResult.blocks ?? [], parseResult.entities, (name) => {
+    const def = doc.blocks.get(name);
+    return def ? dxfBlockFromDef(def) : undefined;
+  });
   for (const block of blocks) {
     doc.addBlockDefinition(blockFromDxf(block));
   }

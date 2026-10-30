@@ -56,8 +56,8 @@ export async function createFromClipboard(store: EditorStore): Promise<boolean> 
       try {
         const result = parseDxf(trimmed);
         if (result.entities.length > 0) {
+          // loadDxfText's own hint counts what loaded and names what did not
           await store.loadDxfText(trimmed, 'Clipboard.dxf');
-          store.showHint(`Loaded ${result.entities.length} entities from clipboard DXF.`, 3500);
           return true;
         }
       } catch (e) {

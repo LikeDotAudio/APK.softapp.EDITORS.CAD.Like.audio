@@ -5,6 +5,7 @@ import { Doc } from '../../model/Doc';
 import { loadDxfIntoDoc } from './loadDxfIntoDoc';
 import { ellipseToEntities, splineToEntities } from './normalizeDxf';
 import { parseDxf } from './parseDxf';
+import { skippedSummary } from './skippedSummary';
 
 const file = (blocks: string[], entities: string[]) =>
   [
@@ -196,5 +197,47 @@ describe('DXF import: nested INSERTs, DIMENSION, SPLINE, ELLIPSE', () => {
     // BAR's 1,0→2,1 less its base 1,0 is 0,0→1,1; stretched ×2 in x, ×-3 in y
     expect([line.x1, line.y1, line.x2, line.y2].map((v) => v + 0)).toEqual([0, 0, 2, -3]);
     expect(doc.blocks.get('BAR')!.lines[0]).toMatchObject({ x1: 0, y1: 0, x2: 1, y2: 1 });
+  });
+
+  it("stretches a block only the session knows into a derived block, the session's own untouched", () => {
+    const doc = new Doc();
+    doc.addBlockDefinition({
+      name: 'PEG', basePoint: { x: 0, y: 0 },
+      lines: [{ x1: 0, y1: 0, x2: 1, y2: 1, layerId: '0' }],
+      arcs: [],
+      circles: [{ cx: 0, cy: 0, r: 1, layerId: '0' }],
+      fills: [{ points: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 1, y: 1 }], color: '#ff0000', layerId: '0' }],
+    });
+    loadDxfIntoDoc(doc, parseDxf(file([], ['  0', 'INSERT', '  8', '0', '  2', 'PEG', ' 10', '5', ' 20', '5', ' 41', '2', ' 42', '3'])));
+    expect([...doc.blockInstances.values()].map((i) => [i.blockName, i.scale, i.x, i.y])).toEqual([['PEG_X2_Y3', 1, 5, 5]]);
+    const peg = doc.blocks.get('PEG_X2_Y3')!;
+    expect(peg.lines[0]).toMatchObject({ x1: 0, y1: 0, x2: 2, y2: 3 });
+    // a circle stretched into an ellipse is no circle any more: an outline of lines
+    expect(peg.circles).toHaveLength(0);
+    expect(Math.max(...peg.lines.map((l) => l.y1))).toBeCloseTo(3);
+    expect(peg.fills![0]).toMatchObject({ color: '#ff0000', points: [{ x: 0, y: 0 }, { x: 2, y: 0 }, { x: 2, y: 3 }] });
+    expect(doc.blocks.get('PEG')!.lines[0]).toMatchObject({ x2: 1, y2: 1 });
+  });
+
+  it('names what it reads past: unsupported types and mesh POLYLINEs, not the SEQEND of an INSERT', () => {
+    const dxf = file(
+      ['  0', 'BLOCK', '  2', 'TAG', ' 10', '0', ' 20', '0', '  0', 'ATTDEF', '  8', '0', '  0', 'ENDBLK'],
+      [
+        '  0', '3DFACE', '  8', '0', ' 10', '0', ' 20', '0',
+        '  0', '3DFACE', '  8', '0', ' 10', '0', ' 20', '0',
+        '  0', 'LEADER', '  8', '0',
+        '  0', 'INSERT', '  8', '0', '  2', 'TAG', ' 66', '1',
+        '  0', 'SEQEND',
+        '  0', 'POLYLINE', '  8', '0', ' 66', '1', ' 70', '16',
+        '  0', 'VERTEX', '  8', '0', ' 10', '1', ' 20', '1', ' 70', '64',
+        '  0', 'SEQEND',
+        '  0', 'LINE', '  8', '0', ' 10', '0', ' 20', '0', ' 11', '1', ' 21', '0',
+      ],
+    );
+    const parsed = parseDxf(dxf);
+    expect(parsed.skipped).toEqual({ '3DFACE': 2, LEADER: 1, ATTDEF: 1, 'POLYLINE (mesh)': 1 });
+    expect(parsed.entities.map((e) => e.type)).toEqual(['INSERT', 'LINE']);
+    expect(skippedSummary(parsed.skipped)).toBe('Not imported: 3DFACE ×2, ATTDEF ×1, LEADER ×1, POLYLINE (mesh) ×1.');
+    expect(skippedSummary({})).toBe('');
   });
 });

@@ -42,6 +42,9 @@ export interface DxfEntity {
   scaleY?: number;
   // HATCH pattern name (SOLID for a solid fill)
   hatchPattern?: string;
+  // A fill colour as #rrggbb: only on a HATCH made from a session block's fill
+  // (`dxfBlockFromDef`), which holds a colour, not an ACI index
+  hexColor?: string;
   // ELLIPSE: centre is cx/cy; major axis end relative to the centre (11/21),
   // minor/major ratio (40), start and end parameter in radians (41/42)
   majorX?: number;
@@ -100,4 +103,10 @@ export interface DxfParseResult {
   /** User-defined block definitions the file carries; an INSERT names one of these. */
   blocks: DxfBlock[];
   entities: DxfEntity[];
+  /**
+   * What the file holds that the importer reads past, by entity type, counted
+   * in ENTITIES and BLOCKS alike: `3DFACE`, `LEADER`, `IMAGE`, … and
+   * `POLYLINE (mesh)` for a polygon or polyface mesh. Empty when nothing was.
+   */
+  skipped: Record<string, number>;
 }

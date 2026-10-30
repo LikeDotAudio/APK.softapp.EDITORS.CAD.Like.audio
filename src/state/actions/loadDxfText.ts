@@ -7,6 +7,7 @@ import { clearSchematic } from '../../flow/Schematic';
 import { layersFromDxf } from '../../io/importDxf/layersFromDxf';
 import { loadDxfIntoDoc } from '../../io/importDxf/loadDxfIntoDoc';
 import { parseDxf } from '../../io/importDxf/parseDxf';
+import { skippedSummary } from '../../io/importDxf/skippedSummary';
 import type { DxfEntity } from '../../io/importDxf/DxfParseResult';
 import { unitFactor } from '../../model/units/unitFactor';
 
@@ -17,8 +18,13 @@ export async function loadDxfText(store: EditorStore, text: string,
   await store.showLoading('Opening drawings', `Parsing entities in ${filename}...`);
   try {
     const result = parseDxf(text);
+    // what the file holds that the importer reads past (3DFACE, LEADER, a mesh POLYLINE, …)
+    const notImported = skippedSummary(result.skipped);
     if (result.entities.length === 0) {
-      window.alert('No supported geometry (LINE, CIRCLE, ARC, POLYLINE, ELLIPSE, SPLINE, TEXT, HATCH, INSERT, DIMENSION) found in DXF file.');
+      window.alert(
+        'No supported geometry (LINE, CIRCLE, ARC, POLYLINE, ELLIPSE, SPLINE, TEXT, HATCH, INSERT, DIMENSION) found in DXF file.' +
+          (notImported ? `\n\n${notImported}` : ''),
+      );
       return;
     }
 
@@ -95,7 +101,12 @@ export async function loadDxfText(store: EditorStore, text: string,
   store.requestDraw();
   store.emit();
   const sheetMsg = store.viewports.length > 0 ? ` (${store.viewports.length} sheets discovered)` : '';
-  store.showHint(`Opened DXF: imported ${result.entities.length} entities across ${store.layers.size} layers${sheetMsg}.`, 5000);
+  store.showHint(
+    `Opened DXF: imported ${result.entities.length} entities across ${store.layers.size} layers${sheetMsg}.` +
+      (notImported ? ` ${notImported}` : ''),
+    notImported ? 12000 : 5000,
+  );
+  if (notImported) console.warn(`DXF ${filename}: ${notImported}`);
   } finally {
     store.hideLoading();
   }

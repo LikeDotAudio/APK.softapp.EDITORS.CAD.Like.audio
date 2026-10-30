@@ -26,6 +26,10 @@ export function parseDxf(dxfText: string): DxfParseResult {
   const linetypes: DxfLinetypeDef[] = [];
   const entities: DxfEntity[] = [];
   const blocks: DxfBlock[] = [];
+  const skipped: Record<string, number> = {};
+  const skip = (what: string) => {
+    skipped[what] = (skipped[what] ?? 0) + 1;
+  };
 
   let inHeader = false;
   let inTables = false;
@@ -121,7 +125,11 @@ export function parseDxf(dxfText: string): DxfParseResult {
   }
 
   function readEntity(entityType: string, into: DxfEntity[]): void {
-    if (!SUPPORTED.includes(entityType)) return;
+    if (!SUPPORTED.includes(entityType)) {
+      // SEQEND only closes an INSERT's ATTRIB run; it draws nothing of its own
+      if (entityType !== 'SEQEND') skip(entityType);
+      return;
+    }
     const { entity, lastPair } = parseEntity(entityType, () => readPair());
     if (entityType === 'POLYLINE') {
       const line = readPolyline(entity, lastPair);
@@ -155,7 +163,10 @@ export function parseDxf(dxfText: string): DxfParseResult {
       next = parseEntity('SEQEND', () => readPair()).lastPair;
     }
     if (next && next.code === 0) idx -= 2;
-    if (((header.polylineFlags ?? 0) & (16 | 64)) !== 0) return null;
+    if (((header.polylineFlags ?? 0) & (16 | 64)) !== 0) {
+      skip('POLYLINE (mesh)');
+      return null;
+    }
     const { polylineFlags: _flags, ...rest } = header;
     return { ...rest, type: 'LWPOLYLINE', points };
   }
@@ -164,5 +175,5 @@ export function parseDxf(dxfText: string): DxfParseResult {
   if (insunits === 1 || insunits === 2) units = 'in'; // 1 = Inches, 2 = Feet
   else if (insunits === 4 || insunits === 5 || insunits === 6) units = 'mm'; // 4 = mm, 5 = cm, 6 = m
 
-  return { units, layers, linetypes, blocks, entities };
+  return { units, layers, linetypes, blocks, entities, skipped };
 }

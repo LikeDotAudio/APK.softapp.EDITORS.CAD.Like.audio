@@ -17,7 +17,8 @@ import type { DxfBlock, DxfEntity } from './DxfParseResult';
  * - Model-space INSERT scaled differently in x and y (group 41 ≠ 42, which
  *   includes a mirror in one axis) → an INSERT of a derived block that holds
  *   the stretched geometry, because a `CadBlockInstance` has one scale. The
- *   placement still moves as one thing; only its scale is baked in.
+ *   placement still moves as one thing; only its scale is baked in. A block
+ *   only the session knows is stretched the same way (`known`).
  *
  * Curves become polylines only when nothing exact exists: a round ellipse is a
  * true arc, and a uniformly scaled block keeps its arcs true.
@@ -298,9 +299,15 @@ const nameNum = (n: number) => String(Math.round(n * 1e4) / 1e4).replace('.', 'P
  * Blocks with their nested INSERTs, DIMENSIONs and curves resolved, and
  * model-space entities likewise. A model-space INSERT whose x and y scale
  * differ points at a derived block (`<NAME>_X<sx>_Y<sy>`) with that scale
- * baked in, and keeps its insertion point and rotation at scale 1.
+ * baked in, and keeps its insertion point and rotation at scale 1 — whether
+ * the file defines that block or only the session does (`known`).
  */
-export function normalizeDxf(blocks: DxfBlock[], entities: DxfEntity[]): { blocks: DxfBlock[]; entities: DxfEntity[] } {
+export function normalizeDxf(
+  blocks: DxfBlock[],
+  entities: DxfEntity[],
+  /** A block the file does not define but the session does, as a DxfBlock; for deriving a stretch of it. */
+  known: (name: string) => DxfBlock | undefined = () => undefined,
+): { blocks: DxfBlock[]; entities: DxfEntity[] } {
   const byName = new Map(blocks.map((b) => [b.name, b]));
   const outBlocks = blocks.map((b) => ({ ...b, entities: normalizeEntities(b.entities, byName, false, IDENTITY, [b.name]) }));
   const derived = new Map<string, DxfBlock>();
@@ -308,7 +315,8 @@ export function normalizeDxf(blocks: DxfBlock[], entities: DxfEntity[]): { block
     if (e.type !== 'INSERT' || !e.blockName) return e;
     const sx = e.scaleX ?? 1;
     const sy = e.scaleY ?? 1;
-    const b = byName.get(e.blockName);
+    // the file's own definition wins; else one only the session knows
+    const b = byName.get(e.blockName) ?? known(e.blockName);
     if (!b || Math.abs(sx - sy) < 1e-9 * (Math.abs(sx) + Math.abs(sy) + 1)) return { ...e, scaleX: sx, scaleY: sy };
     const name = `${b.name}_X${nameNum(sx)}_Y${nameNum(sy)}`;
     if (!derived.has(name)) {
