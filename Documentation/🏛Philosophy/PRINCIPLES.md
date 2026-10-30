@@ -17,5 +17,5 @@ What this editor holds itself to, each pointed at the code that keeps it. The ec
 
 ## Broken, said plainly
 
-* **Colours are not tokens** (Soft Apps law 6). `src/components/` carries ~540 inline hex literals (`grep -rn '#[0-9a-fA-F]\{6\}' src/components | wc -l`); only the canvas palette (`src/colorsStyle.ts`) and its accent are tokenised, and the accent is a *vendored copy* (`src/tokens/brand.json`) of the monorepo's `contracts/tokens/brand.json` that must be re-copied by hand.
+* **Colours are not tokens** (Soft Apps law 6). `src/components/` carries ~540 inline hex literals (`grep -rn '#[0-9a-fA-F]\{6\}' src/components | wc -l`); only the canvas palette (`src/colorsStyle.ts`) and its accent are tokenised, and the accent is a *vendored copy* (`src/tokens/brand.json`) of the monorepo's `contracts/tokens/brand.json` that must be re-copied by hand (the `check-brand-tokens` build gate catches a stale copy inside the monorepo).
 * **The bus is not its door out** (Soft Apps law 2). It talks to `server.py` over HTTP (`bigPictureApi.ts`) and to a host softapp over `postMessage` (`src/shell/hostBridge/hostBridge.ts:99`, `cad.like.audio/host@1`), not over MQTT; `display.json`'s `topic` is declared but nothing in `src/` publishes on it.

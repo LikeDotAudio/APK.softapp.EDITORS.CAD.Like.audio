@@ -36,7 +36,7 @@ What the code holds itself to, with where each one lives:
 * **One bundle, two doors.** `#/drawing` and `#/big-picture` (`src/shell/entrance.ts`) are one application doing two jobs; an unknown fragment lands on the drawing board so old bookmarks still work.
 * **Every failure is soft.** Served from apk.audio there is no `server.py`; the Big Picture file (`src/io/bigPicture`) is then simply unreachable and the IndexedDB session stays the working copy. A save quoting a stale digest is refused (409) rather than overwriting someone's drawing.
 * **A door for softapps built on it.** Inside another softapp's iframe it speaks `cad.like.audio/host@1` over `postMessage` (`src/shell/hostBridge`): it tells the host the view, the geometry and the Virtual Mirror, and takes palettes, layers and placements back. EDITORS.Acoustic.Like.audio is that host.
-* **Ratchets on every build.** `npm run build` runs `tsc`, `verifyFlow` (port geometry, neighbour graph, DXF BLOCK/INSERT resolution) and two gates (`check-mount-reach`, `check-effect-abort`) before Vite; their baselines only go down.
+* **Ratchets on every build.** `npm run build` runs `tsc`, `verifyFlow` (port geometry, neighbour graph, DXF BLOCK/INSERT resolution) and three gates (`check-mount-reach`, `check-effect-abort`, `check-brand-tokens`) before Vite; the two baselines only go down, and the vendored brand tokens must match the monorepo's.
 
 ---
 

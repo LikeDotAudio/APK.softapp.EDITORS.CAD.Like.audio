@@ -58,5 +58,5 @@ main.tsx → App.tsx → EditorStore (src/state)  ← pointer/keys via state/act
 | `src/io/` | DXF out/in, IndexedDB session, recent files, Big Picture file, images. |
 | `src/flow/`, `src/connectors/` | The schematic and the connector catalogue (ports read from `Interfaces.json`'s `Terminals`; `scripts/fixtures/Interfaces.json` for the build check). |
 | `src/shell/` | Entrance and host bridge. |
-| `scripts/` | `verifyFlow.ts`, the two gates and their baselines, `emitExampleDrawing.ts` (`npm run example` → `Drawings/`). |
+| `scripts/` | `verifyFlow.ts`, the three gates (two with baselines), `emitExampleDrawing.ts` (`npm run example` → `Drawings/`). |
 | `dist/` | The built app, **tracked**: rebuild and commit it with the source. |
