@@ -45,7 +45,7 @@ const MagnifyPopup = ({ type, anchorRect }: { type: string; anchorRect: DOMRect 
         style={{
           width: MAGNIFY_PX,
           height: MAGNIFY_PX,
-          background: '#161922',
+          background: '#1e1e1e',
           border: '2px solid #F4902C',
           borderRadius: 8,
           boxShadow: '0 8px 30px rgba(0,0,0,0.9), 0 0 0 1px rgba(244, 144, 44, 0.3)',
@@ -61,8 +61,8 @@ const MagnifyPopup = ({ type, anchorRect }: { type: string; anchorRect: DOMRect 
       </div>
       <div
         style={{
-          background: '#1c212e',
-          border: '1px solid #333d4d',
+          background: '#252526',
+          border: '1px solid #3c3c3c',
           borderRadius: 4,
           padding: '4px 10px',
           maxWidth: MAGNIFY_PX + 60,

@@ -49,7 +49,7 @@ export function ConnectorPalette({
         flexDirection: 'column',
         width: '100%',
         height: '100%',
-        background: '#0e121b',
+        background: '#252526',
         color: '#cccccc',
         fontFamily: 'sans-serif',
         userSelect: 'none',
@@ -64,8 +64,8 @@ export function ConnectorPalette({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderBottom: '1px solid #1f2937',
-          background: '#090d16',
+          borderBottom: '1px solid #3b3b3b',
+          background: '#2d2d2d',
           padding: '4px 10px',
           gap: 8,
           flexShrink: 0,
@@ -88,8 +88,8 @@ export function ConnectorPalette({
                 width: '100%',
                 padding: '3px 6px 3px 22px',
                 fontSize: '11px',
-                background: '#151b28',
-                border: `1px solid ${isSearching ? '#F4902C' : '#2d3748'}`,
+                background: '#1e1e1e',
+                border: `1px solid ${isSearching ? '#F4902C' : '#3c3c3c'}`,
                 borderRadius: 4,
                 color: '#fff',
                 outline: 'none',
@@ -179,7 +179,7 @@ export function ConnectorPalette({
                 onClick={() => setCurrentSize(s.size)}
                 style={{
                   background: currentSize === s.size ? 'rgba(244, 144, 44, 0.3)' : 'transparent',
-                  border: `1px solid ${currentSize === s.size ? '#F4902C' : '#374151'}`,
+                  border: `1px solid ${currentSize === s.size ? '#F4902C' : '#3c3c3c'}`,
                   borderRadius: 3,
                   padding: '1px 4px',
                   fontSize: '9px',
@@ -254,7 +254,7 @@ export function ConnectorPalette({
                   lineHeight: 1.1,
                   textAlign: 'right',
                   paddingRight: 6,
-                  borderRight: '1px solid #1f2937',
+                  borderRight: '1px solid #3b3b3b',
                   flexShrink: 0,
                 }}
               >

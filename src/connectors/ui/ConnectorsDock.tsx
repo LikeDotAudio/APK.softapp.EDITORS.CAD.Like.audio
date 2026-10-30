@@ -57,7 +57,7 @@ export function ConnectorsDock({ isOpen, onClose }: ConnectorsDockProps) {
         flexDirection: 'column',
         position: 'relative',
         zIndex: 25,
-        borderTop: '2px solid #2d3748',
+        borderTop: '2px solid #3b3b3b',
         boxShadow: '0 -4px 16px rgba(0,0,0,0.5)',
         flexShrink: 0,
       }}
