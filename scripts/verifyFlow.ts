@@ -3,7 +3,8 @@
 /**
  * WHAT THIS PROVES, AND WHY IT RUNS ON EVERY BUILD
  *
- * `check.sh kad` runs `npm run build`, which is `tsc --noEmit && vite build`.
+ * `npm run build` is `tsc --noEmit && vite build` (the old `check.sh kad` lane
+ * ran exactly that; it was retired with the old orchestrator in 2240c51e5).
  * Both of those prove the app COMPILES. Neither of them can tell you that a
  * port on the left edge of a rotated block is still an input, that two blocks
  * wired together answer `neighboursOf`, or that the exporter writes a BLOCK a
@@ -222,8 +223,8 @@ interface TerminalRow {
 function readTerminals(): TerminalRow[] {
   /* Walk up from this bundle until the repository root is under us. The
      verifier is bundled into `node_modules/.cache/kad/`, so neither cwd nor a
-     fixed number of `..` is dependable — `check.sh` runs it from the repo root
-     and `npm run build` runs it from the app. */
+     fixed number of `..` is dependable — a caller may run it from the repo root
+     (the old `check.sh` did) and `npm run build` runs it from the app. */
   let dir = resolve(dirname(fileURLToPath(import.meta.url)));
   for (let hop = 0; hop < 12; hop += 1) {
     for (const rel of INTERFACES_PATHS) {

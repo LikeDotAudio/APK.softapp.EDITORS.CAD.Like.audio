@@ -13,7 +13,7 @@ import tailwindcss from '@tailwindcss/vite';
  * It used to be the wall clock, `YYYYMMDD.HH.MM` at compile time, and `dist/`
  * is TRACKED here (.gitignore says why: APK:OS iframes it, so it has to be in
  * the checkout). So the stamp changed the bundle's bytes on every build, which
- * changed its content hash, which changed its FILENAME -- `check.sh kad` left
+ * changed its content hash, which changed its FILENAME -- the old `check.sh kad` lane left
  * three tracked files dirty on every single run, and no two machines ever
  * produced the same output.
  *
