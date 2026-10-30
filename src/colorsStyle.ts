@@ -24,12 +24,13 @@
  *
  * THE ACCENT IS NO LONGER SPELLED IN THIS FILE, and that part is closed.
  * `accent`, `accentHover`, `accentTint`, `onAccent` and the three canvas greys
- * below all read `APK:PODS/APK:BareMetal/SRC/contracts/tokens/brand.json`, which is where the
- * value is now stated once — it is also `SAMPLE and PLAY`'s manifest
- * `theme_color`, and was written out 914 times across 404 files before anything
- * named it. `./.apk.scripts/check.sh brand` holds the count down and asserts the
- * consumers that cannot import still agree. PLAN-162.01; the decision is
- * `002_🏛⚖📜 Philosophy/Styles/where a design token lives.md`.
+ * below all read `src/tokens/brand.json` — a vendored, byte-identical copy of the
+ * APK.audio monorepo's `contracts/tokens/brand.json`, where the value is stated
+ * once. It is copied, not imported across the repo boundary, because this app is
+ * its own git repository and builds standalone (CI checks out only this repo).
+ * When the monorepo's brand.json changes, copy it here again:
+ *   cp <APK.audio>/contracts/tokens/brand.json src/tokens/brand.json
+ * PLAN-162.01.
  *
  * The 46 components carrying Tailwind arbitrary values are still the backlog
  * that ratchet counts.
@@ -50,11 +51,10 @@ export const COLORS = {
   borderLight: '#454545',       // Dropdown menu borders & popover outlines
 
   // Interactive States & Accents — the whole UI is built around this orange.
-  // NOT SPELLED HERE. These four are the repository's brand, shared with four other
-  // top-level directories, and `APK:PODS/APK:BareMetal/SRC/contracts/tokens/brand.json` is where
-  // they are stated. Imported by relative path rather than as `@apkaudio/contracts`
-  // because every path in this repository contains a `:` and npm's own resolution
-  // splits on it. Vite and tsc read JSON natively; no build step, no copied file.
+  // NOT SPELLED HERE. These four are the ecosystem's brand, stated once in the
+  // monorepo's `contracts/tokens/brand.json`; this app reads its vendored copy at
+  // `src/tokens/brand.json` (see the docblock above). Vite and tsc read JSON
+  // natively, so there is no build step — but there IS a copied file to keep in step.
   accent: brand.accent.hex,
   accentHover: brand.accentHover.hex,
   accentTint: brand.accentTint.rgba,
