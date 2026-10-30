@@ -87,6 +87,25 @@ export function parseEntity(
       else if (code === 22) entity.y3 = numVal;
       else if (code === 13) entity.x4 = numVal;
       else if (code === 23) entity.y4 = numVal;
+    } else if (type === 'ELLIPSE') {
+      if (code === 10) entity.cx = numVal;
+      else if (code === 20) entity.cy = numVal;
+      else if (code === 11) entity.majorX = numVal;
+      else if (code === 21) entity.majorY = numVal;
+      else if (code === 40) entity.ratio = numVal;
+      else if (code === 41) entity.startParam = numVal;
+      else if (code === 42) entity.endParam = numVal;
+    } else if (type === 'SPLINE') {
+      if (code === 70) entity.isClosed = (parseInt(value, 10) & 1) === 1;
+      else if (code === 71) entity.degree = parseInt(value, 10);
+      else if (code === 40) (entity.knots ??= []).push(numVal);
+      else if (code === 41) (entity.weights ??= []).push(numVal);
+      else if (code === 10) (entity.controlPoints ??= []).push({ x: numVal, y: 0 });
+      else if (code === 20 && entity.controlPoints?.length) entity.controlPoints[entity.controlPoints.length - 1]!.y = numVal;
+      else if (code === 11) (entity.fitPoints ??= []).push({ x: numVal, y: 0 });
+      else if (code === 21 && entity.fitPoints?.length) entity.fitPoints[entity.fitPoints.length - 1]!.y = numVal;
+    } else if (type === 'DIMENSION') {
+      if (code === 2) entity.blockName = value;
     } else if (type === 'INSERT') {
       if (code === 2) entity.blockName = value;
       else if (code === 10) entity.x1 = numVal;

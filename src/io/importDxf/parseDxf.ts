@@ -6,7 +6,11 @@ import { parseLayer } from './parseLayer';
 import { parseLinetype } from './parseLinetype';
 
 /** The entity types the importer understands, in ENTITIES and inside a BLOCK alike. */
-const SUPPORTED = ['LINE', 'CIRCLE', 'ARC', 'LWPOLYLINE', 'POLYLINE', 'TEXT', 'MTEXT', 'SOLID', 'HATCH', 'INSERT'];
+const SUPPORTED = [
+  'LINE', 'CIRCLE', 'ARC', 'LWPOLYLINE', 'POLYLINE', 'TEXT', 'MTEXT', 'SOLID', 'HATCH', 'INSERT',
+  // Read, then turned into the kinds above by normalizeDxf before loading.
+  'ELLIPSE', 'SPLINE', 'DIMENSION',
+];
 
 /**
  * Parses ASCII DXF string content into structured entities, layers and the

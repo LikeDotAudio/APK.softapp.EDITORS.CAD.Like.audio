@@ -4,6 +4,7 @@ import { aciToHex } from '../../core/dxfColors/aciToHex';
 import type { CadBlockDefinition } from '../../core/types';
 import type { Doc } from '../../model/Doc';
 import type { DxfBlock, DxfEntity, DxfParseResult } from './DxfParseResult';
+import { normalizeDxf } from './normalizeDxf';
 
 /**
  * The circle a bulged LWPOLYLINE segment lies on. A positive bulge runs
@@ -41,8 +42,10 @@ function entityColor(entity: DxfEntity): string | undefined {
 /**
  * A BLOCK from the file as a block definition, its geometry moved so the
  * block's base point is the origin — the convention every definition in this
- * app keeps (`basePoint` 0,0; an INSERT places the origin). Nested INSERTs
- * inside a block have no place in a `CadBlockDefinition` and are dropped.
+ * app keeps (`basePoint` 0,0; an INSERT places the origin). Expects the block
+ * already normalized (`normalizeDxf`): nested INSERTs, DIMENSIONs, ELLIPSEs and
+ * SPLINEs inside it have been turned into the lines, arcs, text and fills a
+ * `CadBlockDefinition` holds.
  */
 export function blockFromDxf(block: DxfBlock): CadBlockDefinition {
   const ox = block.baseX;
@@ -235,15 +238,17 @@ export function loadDxfIntoDoc(
   // The file's own block definitions first, so every INSERT below resolves to
   // the geometry the file carries. A file's definition replaces a same-named
   // one the session already had: the drawing being opened is the authority.
-  for (const block of parseResult.blocks ?? []) {
+  // Nested INSERTs, DIMENSIONs, ELLIPSEs and SPLINEs become geometry the model holds.
+  const { blocks, entities } = normalizeDxf(parseResult.blocks ?? [], parseResult.entities);
+  for (const block of blocks) {
     doc.addBlockDefinition(blockFromDxf(block));
   }
 
-  const total = parseResult.entities.length;
+  const total = entities.length;
   if (onProgress) {
     return (async () => {
       for (let i = 0; i < total; i++) {
-        processEntity(doc, parseResult.entities[i]!);
+        processEntity(doc, entities[i]!);
         if (i % 5000 === 0 || i === total - 1) {
           await onProgress(i + 1, total);
         }
@@ -252,6 +257,6 @@ export function loadDxfIntoDoc(
   }
 
   for (let i = 0; i < total; i++) {
-    processEntity(doc, parseResult.entities[i]!);
+    processEntity(doc, entities[i]!);
   }
 }

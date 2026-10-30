@@ -36,6 +36,22 @@ export interface DxfEntity {
   scaleY?: number;
   // HATCH pattern name (SOLID for a solid fill)
   hatchPattern?: string;
+  // ELLIPSE: centre is cx/cy; major axis end relative to the centre (11/21),
+  // minor/major ratio (40), start and end parameter in radians (41/42)
+  majorX?: number;
+  majorY?: number;
+  ratio?: number;
+  startParam?: number;
+  endParam?: number;
+  // SPLINE: degree (71), knot vector (40), weights (41), control points
+  // (10/20), fit points (11/21); isClosed from flag bit 1 (70)
+  degree?: number;
+  knots?: number[];
+  weights?: number[];
+  controlPoints?: { x: number; y: number }[];
+  fitPoints?: { x: number; y: number }[];
+  // DIMENSION: blockName (2) names the anonymous block holding its drawn
+  // geometry (lines, arrows, text) in world coordinates
 }
 
 export interface DxfLayer {

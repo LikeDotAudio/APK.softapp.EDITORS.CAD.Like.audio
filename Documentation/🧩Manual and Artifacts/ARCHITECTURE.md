@@ -44,7 +44,7 @@ main.tsx → App.tsx → EditorStore (src/state)  ← pointer/keys via state/act
 
 **Round trip** — `src/io/exportDxf/buildDxf.test.ts` writes a sheet, parses it back and checks layers, linetypes, lineweights, state, the layer of every entity, entity colour, the BLOCKS section and a session block's round trip. `scripts/verifyFlow.ts` checks port geometry, the neighbour graph and BLOCK/INSERT resolution on every build.
 
-**Not carried** — no picker for linetype or lineweight on the layer row (they arrive from an opened DXF); edges have no colour of their own, so they are always BYLAYER; nested INSERTs inside a file's BLOCK are dropped (a `CadBlockDefinition` has no place for them); DIMENSION, SPLINE and ELLIPSE entities are not read.
+**Not carried** — no picker for linetype or lineweight on the layer row (they arrive from an opened DXF); edges have no colour of their own, so they are always BYLAYER; a DIMENSION is read as the lines, arrows and text of its anonymous block (the measurement is no longer live); a SPLINE and an oval ELLIPSE arrive as polylines (a round ELLIPSE as a true arc); a nested INSERT inside a file's BLOCK is flattened into that block's geometry (`src/io/importDxf/normalizeDxf.ts`), so the inner block is no longer its own symbol there. Old-style POLYLINE/VERTEX is still not read.
 
 ## Files
 
