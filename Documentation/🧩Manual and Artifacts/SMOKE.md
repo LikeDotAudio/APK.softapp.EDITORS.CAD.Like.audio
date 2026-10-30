@@ -13,4 +13,4 @@ Is `EDITORS.CAD.Like.audio` deployed? Written by `.apk.scripts/smoke.py` from th
 
 Re-run: `python3 .apk.scripts/smoke.py PODS/POD.THIN/Softapps/EDITORS/EDITORS.CAD.Like.audio`
 
-<!-- smoke:sig 912e2141480a since 2026-10-30 12:51 EDT -->
+<!-- smoke:sig 4366230b8cff since 2026-10-30 12:51 EDT -->
