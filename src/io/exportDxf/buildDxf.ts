@@ -28,6 +28,8 @@ import { dxfBlockName } from './dxfBlockName';
  *   · LAYERS go into the LAYER table, every one the sheet has, each with its
  *     name, colour, linetype, lineweight, and whether it is off or locked —
  *     and every entity is written on its own layer, by that layer's name.
+ *     A text or fill with a colour of its own also writes that colour (62);
+ *     everything else is BYLAYER.
  *
  *   · FLOW BLOCKS go into the BLOCKS section as one real DXF `BLOCK` per
  *     DEFINITION, placed by one `INSERT` per placement. That is the point of
@@ -94,13 +96,14 @@ export function buildDxf(
       t.rotation ?? 0,
       hAlign,
       vAlign,
+      overrideAci(t.color),
     );
   }
 
   // ------------------------------------------------------------- fills
   for (const f of doc.fills.values()) {
     if (f.points.length >= 3) {
-      dxf.sheet.hatch(f.points, f.layerId, f.type === 'solid');
+      dxf.sheet.hatch(f.points, f.layerId, f.type === 'solid', overrideAci(f.color), hatchName(f.hatchPattern));
     }
   }
 
@@ -125,7 +128,8 @@ export function buildDxf(
     }
     if (blockDef.fills) {
       for (const f of blockDef.fills) {
-        geom.hatch(f.points, f.layerId || '0', true);
+        const solid = !f.hatchPattern || f.hatchPattern.toUpperCase() === 'SOLID';
+        geom.hatch(f.points, f.layerId || '0', solid, overrideAci(f.color), hatchName(f.hatchPattern));
       }
     }
   }
@@ -201,6 +205,23 @@ export function buildDxf(
 }
 
 /* -- helpers, kept below the entry point so the shape of the file reads first */
+
+/**
+ * An entity's own colour as an ACI override (group 62), or undefined for
+ * BYLAYER. Only texts and fills carry a colour of their own in this app;
+ * edges always draw in their layer's colour, so they stay BYLAYER.
+ */
+function overrideAci(color: string | undefined): number | undefined {
+  return color ? hexToAci(color) : undefined;
+}
+
+/** A DXF hatch pattern name from the app's, or undefined for the default. 'GRID' has no ACAD pattern; NET is its look-alike. */
+function hatchName(pattern: string | undefined): string | undefined {
+  if (!pattern) return undefined;
+  const p = pattern.toUpperCase();
+  if (p === 'SOLID') return undefined;
+  return p === 'GRID' ? 'NET' : p;
+}
 
 /**
  * A layer as the LAYER table wants it. The colour index is the one the layer

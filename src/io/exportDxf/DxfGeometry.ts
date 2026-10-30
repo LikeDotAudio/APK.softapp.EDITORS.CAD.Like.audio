@@ -34,13 +34,18 @@ export class DxfGeometry {
     private readonly owner: string,
   ) {}
 
-  private head(kind: string, layer: string, subclass: string): string {
+  /**
+   * `color` is the entity's own ACI colour (group 62, part of AcDbEntity).
+   * Absent means BYLAYER, which is DXF's default, so nothing is written.
+   */
+  private head(kind: string, layer: string, subclass: string, color?: number): string {
     return (
       pair('  0', kind) +
       pair('  5', this.doc.handle()) +
       pair('330', this.owner) +
       pair('100', 'AcDbEntity') +
       pair('  8', this.doc.layer(layer || '0')) +
+      (color !== undefined ? pair(' 62', color) : '') +
       pair('100', subclass)
     );
   }
@@ -123,10 +128,11 @@ export class DxfGeometry {
     rotationDeg = 0,
     hAlign = 0,
     vAlign = 0,
+    color?: number,
   ): void {
     const hasAlign = hAlign !== 0 || vAlign !== 0;
     this.entities +=
-      this.head('TEXT', layer, 'AcDbText') +
+      this.head('TEXT', layer, 'AcDbText', color) +
       pair(' 10', x.toFixed(6)) +
       pair(' 20', y.toFixed(6)) +
       pair(' 30', '0.0') +
@@ -158,17 +164,18 @@ export class DxfGeometry {
       pair(' 33', '0.0');
   }
 
-  hatch(points: Point[], layer: string, isSolid = true): void {
+  /** `pattern` names a pattern hatch (ANSI31 when absent); a solid one is always SOLID. */
+  hatch(points: Point[], layer: string, isSolid = true, color?: number, pattern?: string): void {
     if (points.length < 3) return;
     this.entities +=
-      this.head('HATCH', layer, 'AcDbHatch') +
+      this.head('HATCH', layer, 'AcDbHatch', color) +
       pair(' 10', '0.0') +
       pair(' 20', '0.0') +
       pair(' 30', '0.0') +
       pair('210', '0.0') +
       pair('220', '0.0') +
       pair('230', '1.0') +
-      pair('  2', isSolid ? 'SOLID' : 'ANSI31') +
+      pair('  2', isSolid ? 'SOLID' : (pattern || 'ANSI31')) +
       pair(' 70', isSolid ? 1 : 0) +
       pair(' 71', 0) +
       pair(' 91', 1) +

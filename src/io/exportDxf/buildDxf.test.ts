@@ -202,4 +202,63 @@ describe('DXF round trip', () => {
       '  0', 'ENDSEC', '  0', 'EOF'].join('\n');
     expect(layersFromDxf(parseDxf(bare)).map((l) => l.name)).toEqual(['Loose']);
   });
+
+  it('writes no dangling plot-style pointer (390) on a LAYER', () => {
+    const { doc, layers } = sheet();
+    expect(buildDxf(doc, 'mm', layers)).not.toMatch(/^390\n/m);
+  });
+
+  it("writes a text's and a fill's own colour as an override, and reads it back", () => {
+    const doc = new Doc();
+    doc.addText('RED', 0, 0, 2.5, 0, '0', '#ff0000');
+    doc.addText('PLAIN', 0, 5, 2.5, 0, '0');
+    doc.addFill([{ x: 0, y: 0 }, { x: 5, y: 0 }, { x: 5, y: 5 }], 'solid', '0', '#0000ff');
+    const parsed = parseDxf(buildDxf(doc, 'mm', []));
+    const red = parsed.entities.find((e) => e.text === 'RED');
+    const plain = parsed.entities.find((e) => e.text === 'PLAIN');
+    expect(red?.colorIndex).toBe(1);
+    expect(plain?.colorIndex).toBeUndefined();
+    expect(parsed.entities.find((e) => e.type === 'HATCH')?.colorIndex).toBe(5);
+    const doc2 = new Doc();
+    loadDxfIntoDoc(doc2, parsed);
+    expect([...doc2.fills.values()][0]?.color).toBeDefined();
+  });
+
+  it("reads a file's own BLOCKS, so an INSERT of an unknown block brings its geometry", () => {
+    const dxf = [
+      '  0', 'SECTION', '  2', 'BLOCKS',
+      '  0', 'BLOCK', '  8', '0', '  2', 'MY_PART', ' 70', '0', ' 10', '10', ' 20', '20', ' 30', '0',
+      '  0', 'LINE', '  8', '0', ' 10', '10', ' 20', '20', ' 11', '15', ' 21', '20',
+      '  0', 'CIRCLE', '  8', '0', ' 10', '12', ' 20', '22', ' 40', '1',
+      '  0', 'ENDBLK', '  8', '0',
+      '  0', 'BLOCK', '  2', '*Model_Space', ' 10', '0', ' 20', '0',
+      '  0', 'ENDBLK',
+      '  0', 'ENDSEC',
+      '  0', 'SECTION', '  2', 'ENTITIES',
+      '  0', 'INSERT', '  8', '0', '  2', 'MY_PART', ' 10', '100', ' 20', '100',
+      '  0', 'ENDSEC', '  0', 'EOF',
+    ].join('\n');
+    const parsed = parseDxf(dxf);
+    expect(parsed.blocks.map((b) => b.name)).toEqual(['MY_PART']);
+    expect(parsed.entities.map((e) => e.type)).toEqual(['INSERT']);
+    const doc = new Doc();
+    loadDxfIntoDoc(doc, parsed);
+    const def = doc.blocks.get('MY_PART');
+    expect(def?.lines).toEqual([{ x1: 0, y1: 0, x2: 5, y2: 0, layerId: '0' }]);
+    expect(def?.circles).toEqual([{ cx: 2, cy: 2, r: 1, layerId: '0' }]);
+    expect([...doc.blockInstances.values()][0]?.blockName).toBe('MY_PART');
+  });
+
+  it('round-trips a session block through export and import', () => {
+    const doc = new Doc();
+    doc.addBlockDefinition({
+      name: 'BRACKET', basePoint: { x: 0, y: 0 },
+      lines: [{ x1: 0, y1: 0, x2: 3, y2: 0, layerId: '0' }], arcs: [], circles: [],
+    });
+    doc.addBlockInstance('BRACKET', 1, 1, 1, 0, '0');
+    const doc2 = new Doc();
+    doc2.blocks.clear();
+    loadDxfIntoDoc(doc2, parseDxf(buildDxf(doc, 'mm', [])));
+    expect(doc2.blocks.get('BRACKET')?.lines).toEqual([{ x1: 0, y1: 0, x2: 3, y2: 0, layerId: '0' }]);
+  });
 });
