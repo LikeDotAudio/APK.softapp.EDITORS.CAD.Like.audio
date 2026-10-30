@@ -1,8 +1,108 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { aciToHex } from '../../core/dxfColors/aciToHex';
+import type { CadBlockDefinition } from '../../core/types';
 import type { Doc } from '../../model/Doc';
-import type { DxfParseResult } from './DxfParseResult';
+import type { DxfBlock, DxfEntity, DxfParseResult } from './DxfParseResult';
+
+/**
+ * The circle a bulged LWPOLYLINE segment lies on. A positive bulge runs
+ * counter-clockwise from p1 to p2, a negative one clockwise.
+ */
+function bulgeArc(
+  p1: { x: number; y: number },
+  p2: { x: number; y: number },
+  bulge: number,
+): { cx: number; cy: number; r: number } {
+  const theta = 4 * Math.atan(bulge);
+  const dx = p2.x - p1.x;
+  const dy = p2.y - p1.y;
+  const d = Math.hypot(dx, dy);
+  const r = Math.abs(d / (2 * Math.sin(theta / 2)));
+  const s = (bulge * d) / 2;
+  const mx = (p1.x + p2.x) / 2;
+  const my = (p1.y + p2.y) / 2;
+  const nx = -dy / d;
+  const ny = dx / d;
+  const h = r - Math.abs(s);
+  const signH = theta > 0 ? 1 : -1;
+  return { cx: mx + nx * h * signH, cy: my + ny * h * signH, r };
+}
+
+/**
+ * An entity's own colour (group 62). 0 is BYBLOCK and 256 BYLAYER — both mean
+ * "no colour of its own", so neither becomes an override.
+ */
+function entityColor(entity: DxfEntity): string | undefined {
+  const aci = entity.colorIndex;
+  return aci && aci > 0 && aci < 256 ? aciToHex(aci) : undefined;
+}
+
+/**
+ * A BLOCK from the file as a block definition, its geometry moved so the
+ * block's base point is the origin — the convention every definition in this
+ * app keeps (`basePoint` 0,0; an INSERT places the origin). Nested INSERTs
+ * inside a block have no place in a `CadBlockDefinition` and are dropped.
+ */
+export function blockFromDxf(block: DxfBlock): CadBlockDefinition {
+  const ox = block.baseX;
+  const oy = block.baseY;
+  const def: CadBlockDefinition = {
+    name: block.name,
+    basePoint: { x: 0, y: 0 },
+    lines: [],
+    arcs: [],
+    circles: [],
+    texts: [],
+    fills: [],
+  };
+  const deg = (cx: number, cy: number, p: { x: number; y: number }) =>
+    ((Math.atan2(p.y - cy, p.x - cx) * 180) / Math.PI + 360) % 360;
+  for (const e of block.entities) {
+    const layerId = e.layer || '0';
+    if (e.type === 'LINE' && e.x1 !== undefined && e.y1 !== undefined && e.x2 !== undefined && e.y2 !== undefined) {
+      def.lines.push({ x1: e.x1 - ox, y1: e.y1 - oy, x2: e.x2 - ox, y2: e.y2 - oy, layerId });
+    } else if (e.type === 'CIRCLE' && e.cx !== undefined && e.cy !== undefined && e.r !== undefined) {
+      def.circles.push({ cx: e.cx - ox, cy: e.cy - oy, r: e.r, layerId });
+    } else if (
+      e.type === 'ARC' && e.cx !== undefined && e.cy !== undefined && e.r !== undefined &&
+      e.startAngle !== undefined && e.endAngle !== undefined
+    ) {
+      def.arcs.push({ cx: e.cx - ox, cy: e.cy - oy, r: e.r, a1: e.startAngle, a2: e.endAngle, layerId });
+    } else if (e.type === 'LWPOLYLINE' && e.points && e.points.length > 1) {
+      const pts = e.points.map((p) => ({ x: p.x - ox, y: p.y - oy, bulge: p.bulge }));
+      const segments = e.isClosed ? pts.length : pts.length - 1;
+      for (let i = 0; i < segments; i++) {
+        const p1 = pts[i]!;
+        const p2 = pts[(i + 1) % pts.length]!;
+        if (p1.bulge && Math.abs(p1.bulge) > 1e-6) {
+          const { cx, cy, r } = bulgeArc(p1, p2, p1.bulge);
+          const [from, to] = p1.bulge > 0 ? [p1, p2] : [p2, p1];
+          def.arcs.push({ cx, cy, r, a1: deg(cx, cy, from), a2: deg(cx, cy, to), layerId });
+        } else {
+          def.lines.push({ x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y, layerId });
+        }
+      }
+    } else if ((e.type === 'TEXT' || e.type === 'MTEXT') && e.text) {
+      const aligned = (e.hAlign ?? 0) !== 0 || (e.vAlign ?? 0) !== 0;
+      const x = (aligned && e.x2 !== undefined ? e.x2 : (e.x1 ?? 0)) - ox;
+      const y = (aligned && e.y2 !== undefined ? e.y2 : (e.y1 ?? 0)) - oy;
+      def.texts!.push({ text: e.text, x, y, height: e.textHeight ?? 0.5, rotation: e.rotation ?? 0, layerId });
+    } else if ((e.type === 'HATCH' && e.points && e.points.length >= 3) || (e.type === 'SOLID' && e.x3 !== undefined)) {
+      const points =
+        e.type === 'HATCH'
+          ? e.points!.map((p) => ({ x: p.x - ox, y: p.y - oy }))
+          : [
+              { x: (e.x1 ?? 0) - ox, y: (e.y1 ?? 0) - oy },
+              { x: (e.x2 ?? 0) - ox, y: (e.y2 ?? 0) - oy },
+              ...(e.x4 !== undefined ? [{ x: e.x4 - ox, y: (e.y4 ?? 0) - oy }] : []),
+              { x: e.x3! - ox, y: (e.y3 ?? 0) - oy },
+            ];
+      def.fills!.push({ points, color: entityColor(e), layerId, hatchPattern: e.hatchPattern });
+    }
+  }
+  return def;
+}
 
 /**
  * Loads parsed DXF entities into the Doc instance.
@@ -64,23 +164,7 @@ function processEntity(doc: Doc, entity: DxfParseResult['entities'][number]): vo
       const v2 = doc.addVertex(p2.x, p2.y);
 
       if (p1.bulge && Math.abs(p1.bulge) > 1e-6) {
-        const theta = 4 * Math.atan(p1.bulge);
-        const dx = p2.x - p1.x;
-        const dy = p2.y - p1.y;
-        const d = Math.hypot(dx, dy);
-        const r = Math.abs(d / (2 * Math.sin(theta / 2)));
-
-        const s = (p1.bulge * d) / 2;
-        const mx = (p1.x + p2.x) / 2;
-        const my = (p1.y + p2.y) / 2;
-
-        const nx = -dy / d;
-        const ny = dx / d;
-
-        const h = r - Math.abs(s);
-        const signH = theta > 0 ? 1 : -1;
-        const cx = mx + nx * h * signH;
-        const cy = my + ny * h * signH;
+        const { cx, cy, r } = bulgeArc(p1, p2, p1.bulge);
 
         if (p1.bulge > 0) {
           doc.addArcEdge(v1, v2, cx, cy, r, groupId, layerId);
@@ -108,8 +192,7 @@ function processEntity(doc: Doc, entity: DxfParseResult['entities'][number]): vo
     else if (entity.vAlign === 1) vAlign = 'bottom';
     else if (entity.vAlign === 0) vAlign = 'baseline';
 
-    const textColor = entity.colorIndex ? aciToHex(entity.colorIndex) : undefined;
-    doc.addText(entity.text, x, y, height, rot, layerId, textColor, align, vAlign);
+    doc.addText(entity.text, x, y, height, rot, layerId, entityColor(entity), align, vAlign);
   } else if (
     entity.type === 'SOLID' &&
     entity.x1 !== undefined &&
@@ -123,13 +206,14 @@ function processEntity(doc: Doc, entity: DxfParseResult['entities'][number]): vo
       entity.x4 !== undefined
         ? [p1, p2, { x: entity.x4, y: entity.y4 ?? 0 }, p3]
         : [p1, p2, p3];
-    doc.addFill(points, 'solid', layerId);
+    doc.addFill(points, 'solid', layerId, entityColor(entity));
   } else if (entity.type === 'HATCH' && entity.points && entity.points.length >= 3) {
     const solid = !entity.hatchPattern || entity.hatchPattern.toUpperCase() === 'SOLID';
     doc.addFill(
       entity.points.map((p) => ({ x: p.x, y: p.y })),
       solid ? 'solid' : 'hatch',
       layerId,
+      entityColor(entity),
     );
   } else if (entity.type === 'INSERT' && entity.blockName) {
     const x = entity.x1 ?? 0;
@@ -148,6 +232,13 @@ export function loadDxfIntoDoc(
   parseResult: DxfParseResult,
   onProgress?: (loaded: number, total: number) => Promise<void> | void,
 ): Promise<void> | void {
+  // The file's own block definitions first, so every INSERT below resolves to
+  // the geometry the file carries. A file's definition replaces a same-named
+  // one the session already had: the drawing being opened is the authority.
+  for (const block of parseResult.blocks ?? []) {
+    doc.addBlockDefinition(blockFromDxf(block));
+  }
+
   const total = parseResult.entities.length;
   if (onProgress) {
     return (async () => {

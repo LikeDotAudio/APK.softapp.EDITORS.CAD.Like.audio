@@ -1,12 +1,18 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
-import type { DxfEntity, DxfLayer, DxfLinetypeDef, DxfParseResult } from './DxfParseResult';
+import type { DxfBlock, DxfEntity, DxfLayer, DxfLinetypeDef, DxfParseResult } from './DxfParseResult';
 import { parseEntity } from './parseEntity';
 import { parseLayer } from './parseLayer';
 import { parseLinetype } from './parseLinetype';
 
+/** The entity types the importer understands, in ENTITIES and inside a BLOCK alike. */
+const SUPPORTED = ['LINE', 'CIRCLE', 'ARC', 'LWPOLYLINE', 'POLYLINE', 'TEXT', 'MTEXT', 'SOLID', 'HATCH', 'INSERT'];
+
 /**
- * Parses ASCII DXF string content into structured entities and layers.
+ * Parses ASCII DXF string content into structured entities, layers and the
+ * block definitions of the BLOCKS section — so an INSERT of a block the file
+ * defines resolves to the file's own geometry, not only to blocks the session
+ * already knows.
  */
 export function parseDxf(dxfText: string): DxfParseResult {
   const lines = dxfText.split(/\r?\n/);
@@ -14,10 +20,14 @@ export function parseDxf(dxfText: string): DxfParseResult {
   const layers: DxfLayer[] = [];
   const linetypes: DxfLinetypeDef[] = [];
   const entities: DxfEntity[] = [];
+  const blocks: DxfBlock[] = [];
 
   let inHeader = false;
   let inTables = false;
   let inEntities = false;
+  let inBlocks = false;
+  /** The BLOCK being read; null between blocks and inside *Model_Space / *Paper_Space. */
+  let block: DxfBlock | null = null;
   let currentHeaderVar = '';
 
   let idx = 0;
@@ -40,30 +50,19 @@ export function parseDxf(dxfText: string): DxfParseResult {
     if (code === 0) {
       if (value === 'SECTION') {
         const next = readPair();
-        if (next && next.code === 2) {
-          if (next.value === 'HEADER') {
-            inHeader = true;
-            inTables = false;
-            inEntities = false;
-          } else if (next.value === 'TABLES') {
-            inHeader = false;
-            inTables = true;
-            inEntities = false;
-          } else if (next.value === 'ENTITIES') {
-            inHeader = false;
-            inTables = false;
-            inEntities = true;
-          } else {
-            inHeader = false;
-            inTables = false;
-            inEntities = false;
-          }
-        }
+        const section = next && next.code === 2 ? next.value : '';
+        inHeader = section === 'HEADER';
+        inTables = section === 'TABLES';
+        inEntities = section === 'ENTITIES';
+        inBlocks = section === 'BLOCKS';
+        block = null;
         continue;
       } else if (value === 'ENDSEC') {
         inHeader = false;
         inTables = false;
         inEntities = false;
+        inBlocks = false;
+        block = null;
         continue;
       }
     }
@@ -88,26 +87,45 @@ export function parseDxf(dxfText: string): DxfParseResult {
           idx -= 2;
         }
       }
-    } else if (inEntities) {
-      if (code === 0) {
-        const entityType = value.toUpperCase();
-        if (['LINE', 'CIRCLE', 'ARC', 'LWPOLYLINE', 'POLYLINE', 'TEXT', 'MTEXT', 'SOLID', 'HATCH', 'INSERT'].includes(entityType)) {
-          const { entity, lastPair } = parseEntity(entityType, () => readPair());
-          if (entity) {
-            entities.push(entity);
-          }
-          if (lastPair && lastPair.code === 0) {
-            // Process the line that stopped the entity parsing
+    } else if (inBlocks) {
+      if (code === 0 && value.toUpperCase() === 'BLOCK') {
+        // The BLOCK record: name (2) and base point (10/20), up to the next 0.
+        let name = '';
+        let baseX = 0;
+        let baseY = 0;
+        for (let p = readPair(); p; p = readPair()) {
+          if (p.code === 0) {
             idx -= 2;
+            break;
           }
+          if (p.code === 2) name = p.value;
+          else if (p.code === 10) baseX = parseFloat(p.value) || 0;
+          else if (p.code === 20) baseY = parseFloat(p.value) || 0;
         }
+        // Model and paper space are layouts, not symbols anything INSERTs.
+        block = name && !/^\*(model|paper)_space/i.test(name) ? { name, baseX, baseY, entities: [] } : null;
+        if (block) blocks.push(block);
+      } else if (code === 0 && value.toUpperCase() === 'ENDBLK') {
+        block = null;
+      } else if (code === 0 && block) {
+        readEntity(value.toUpperCase(), block.entities);
       }
+    } else if (inEntities) {
+      if (code === 0) readEntity(value.toUpperCase(), entities);
     }
+  }
+
+  function readEntity(entityType: string, into: DxfEntity[]): void {
+    if (!SUPPORTED.includes(entityType)) return;
+    const { entity, lastPair } = parseEntity(entityType, () => readPair());
+    if (entity) into.push(entity);
+    // Process the line that stopped the entity parsing
+    if (lastPair && lastPair.code === 0) idx -= 2;
   }
 
   let units: 'in' | 'mm' | undefined;
   if (insunits === 1 || insunits === 2) units = 'in'; // 1 = Inches, 2 = Feet
   else if (insunits === 4 || insunits === 5 || insunits === 6) units = 'mm'; // 4 = mm, 5 = cm, 6 = m
 
-  return { units, layers, linetypes, entities };
+  return { units, layers, linetypes, blocks, entities };
 }

@@ -7,6 +7,7 @@ import { clearSchematic } from '../../flow/Schematic';
 import { layersFromDxf } from '../../io/importDxf/layersFromDxf';
 import { loadDxfIntoDoc } from '../../io/importDxf/loadDxfIntoDoc';
 import { parseDxf } from '../../io/importDxf/parseDxf';
+import type { DxfEntity } from '../../io/importDxf/DxfParseResult';
 import { unitFactor } from '../../model/units/unitFactor';
 
 export async function loadDxfText(store: EditorStore, text: string,
@@ -52,56 +53,18 @@ export async function loadDxfText(store: EditorStore, text: string,
     store.setUnits(toUnit);
   }
 
-  // Scale geometry entities if source unit != base workspace unit
+  // Scale geometry entities if source unit != base workspace unit — the
+  // sheet's and every block definition's alike, base points included.
   if (factor !== 1) {
-    for (const ent of result.entities) {
-      const type = ent.type.toUpperCase();
-      if (
-        type === 'LINE' &&
-        ent.x1 !== undefined &&
-        ent.y1 !== undefined &&
-        ent.x2 !== undefined &&
-        ent.y2 !== undefined
-      ) {
-        ent.x1 *= factor;
-        ent.y1 *= factor;
-        ent.x2 *= factor;
-        ent.y2 *= factor;
-      } else if (
-        (type === 'CIRCLE' || type === 'ARC') &&
-        ent.cx !== undefined &&
-        ent.cy !== undefined &&
-        ent.r !== undefined
-      ) {
-        ent.cx *= factor;
-        ent.cy *= factor;
-        ent.r *= factor;
-      } else if (ent.points) {
-        for (const pt of ent.points) {
-          pt.x *= factor;
-          pt.y *= factor;
-        }
-      } else if (type === 'TEXT' || type === 'MTEXT') {
-        if (ent.x1 !== undefined) ent.x1 *= factor;
-        if (ent.y1 !== undefined) ent.y1 *= factor;
-        if (ent.x2 !== undefined) ent.x2 *= factor;
-        if (ent.y2 !== undefined) ent.y2 *= factor;
-        if (ent.textHeight !== undefined) ent.textHeight *= factor;
-      } else if (type === 'SOLID') {
-        if (ent.x1 !== undefined) ent.x1 *= factor;
-        if (ent.y1 !== undefined) ent.y1 *= factor;
-        if (ent.x2 !== undefined) ent.x2 *= factor;
-        if (ent.y2 !== undefined) ent.y2 *= factor;
-        if (ent.x3 !== undefined) ent.x3 *= factor;
-        if (ent.y3 !== undefined) ent.y3 *= factor;
-        if (ent.x4 !== undefined) ent.x4 *= factor;
-        if (ent.y4 !== undefined) ent.y4 *= factor;
-      } else if (type === 'INSERT') {
-        if (ent.x1 !== undefined) ent.x1 *= factor;
-        if (ent.y1 !== undefined) ent.y1 *= factor;
-        if (ent.scaleX !== undefined) ent.scaleX *= factor;
-        if (ent.scaleY !== undefined) ent.scaleY *= factor;
-      }
+    // A block the file defines is scaled once, in its definition; an INSERT
+    // of it keeps its own scale. A block only the session knows is in session
+    // units already, so its INSERT carries the factor instead.
+    const fileBlocks = new Set(result.blocks.map((b) => b.name));
+    for (const ent of result.entities) scaleDxfEntity(ent, factor, fileBlocks);
+    for (const block of result.blocks) {
+      block.baseX *= factor;
+      block.baseY *= factor;
+      for (const ent of block.entities) scaleDxfEntity(ent, factor, fileBlocks);
     }
   }
 
@@ -135,5 +98,57 @@ export async function loadDxfText(store: EditorStore, text: string,
   store.showHint(`Opened DXF: imported ${result.entities.length} entities across ${store.layers.size} layers${sheetMsg}.`, 5000);
   } finally {
     store.hideLoading();
+  }
+}
+
+/** Scale one parsed entity's coordinates and sizes in place. */
+function scaleDxfEntity(ent: DxfEntity, factor: number, fileBlocks: Set<string>): void {
+  const type = ent.type.toUpperCase();
+  if (
+    type === 'LINE' &&
+    ent.x1 !== undefined &&
+    ent.y1 !== undefined &&
+    ent.x2 !== undefined &&
+    ent.y2 !== undefined
+  ) {
+    ent.x1 *= factor;
+    ent.y1 *= factor;
+    ent.x2 *= factor;
+    ent.y2 *= factor;
+  } else if (
+    (type === 'CIRCLE' || type === 'ARC') &&
+    ent.cx !== undefined &&
+    ent.cy !== undefined &&
+    ent.r !== undefined
+  ) {
+    ent.cx *= factor;
+    ent.cy *= factor;
+    ent.r *= factor;
+  } else if (ent.points) {
+    for (const pt of ent.points) {
+      pt.x *= factor;
+      pt.y *= factor;
+    }
+  } else if (type === 'TEXT' || type === 'MTEXT') {
+    if (ent.x1 !== undefined) ent.x1 *= factor;
+    if (ent.y1 !== undefined) ent.y1 *= factor;
+    if (ent.x2 !== undefined) ent.x2 *= factor;
+    if (ent.y2 !== undefined) ent.y2 *= factor;
+    if (ent.textHeight !== undefined) ent.textHeight *= factor;
+  } else if (type === 'SOLID') {
+    if (ent.x1 !== undefined) ent.x1 *= factor;
+    if (ent.y1 !== undefined) ent.y1 *= factor;
+    if (ent.x2 !== undefined) ent.x2 *= factor;
+    if (ent.y2 !== undefined) ent.y2 *= factor;
+    if (ent.x3 !== undefined) ent.x3 *= factor;
+    if (ent.y3 !== undefined) ent.y3 *= factor;
+    if (ent.x4 !== undefined) ent.x4 *= factor;
+    if (ent.y4 !== undefined) ent.y4 *= factor;
+  } else if (type === 'INSERT') {
+    if (ent.x1 !== undefined) ent.x1 *= factor;
+    if (ent.y1 !== undefined) ent.y1 *= factor;
+    if (ent.blockName && fileBlocks.has(ent.blockName)) return;
+    if (ent.scaleX !== undefined) ent.scaleX *= factor;
+    if (ent.scaleY !== undefined) ent.scaleY *= factor;
   }
 }

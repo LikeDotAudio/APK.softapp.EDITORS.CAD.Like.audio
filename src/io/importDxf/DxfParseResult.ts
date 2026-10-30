@@ -58,9 +58,24 @@ export interface DxfLinetypeDef {
   pattern: number[];
 }
 
+/**
+ * One BLOCK from the BLOCKS section: its name, its base point (group 10/20 of
+ * the BLOCK record) and the entities between BLOCK and ENDBLK, in block
+ * coordinates. *Model_Space and *Paper_Space are not blocks in this sense and
+ * are not listed.
+ */
+export interface DxfBlock {
+  name: string;
+  baseX: number;
+  baseY: number;
+  entities: DxfEntity[];
+}
+
 export interface DxfParseResult {
   units?: 'in' | 'mm';
   layers: DxfLayer[];
   linetypes: DxfLinetypeDef[];
+  /** User-defined block definitions the file carries; an INSERT names one of these. */
+  blocks: DxfBlock[];
   entities: DxfEntity[];
 }
