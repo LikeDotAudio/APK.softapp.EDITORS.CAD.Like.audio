@@ -78,3 +78,7 @@ Linetypes and lineweights arrive on a layer from an opened DXF; the app does not
 * **Live**: https://likedotaudio.github.io/APK.softapp.EDITORS.CAD.Like.audio/ (see Hosting above).
 * **Remote Repository**: https://github.com/LikeDotAudio/APK.softapp.EDITORS.CAD.Like.audio
 * **Develop**: `npm run dev`; `npm test` (vitest); `npm run build` (typecheck, verify, gates, then `dist/`).
+
+<!-- wiki:smoke -->
+**Smoke test** — ✅ PASS 2/2 since 2026-10-30 12:51 EDT — [results](Documentation/%F0%9F%A7%A9Manual%20and%20Artifacts/SMOKE.md)
+<!-- /wiki:smoke -->
