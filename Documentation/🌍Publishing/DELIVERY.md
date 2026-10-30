@@ -1,0 +1,29 @@
+# Delivery — CAD.Like.audio
+
+How the editor is built, tested and shipped, and where it lands.
+
+## Build and test
+
+| Command | What it does |
+| --- | --- |
+| `npm ci` | Install (React 19, Vite 7, Tailwind 4, TypeScript 5.9, vitest 2). |
+| `npm test` | `vitest run` — DXF round trip (`src/io/exportDxf/buildDxf.test.ts`), file name, layer stroke, connectors, host bridge, palette. |
+| `npm run build` | `tsc --noEmit` → `npm run verify` (`scripts/verifyFlow.ts`, bundled by esbuild into `node_modules/.cache/kad/`) → `npm run gates` (`check-mount-reach`, `check-effect-abort`) → `vite build` into `dist/`. Any failure stops the build. |
+| `npm run example` | Regenerates `Drawings/big-picture-flow.{json,dxf}`. |
+
+`dist/` is **tracked**: the APK.audio portal serves the checkout as-is, so every source change is committed with its rebuilt `dist/`. The build stamp is a hash of the sources (`vite.config.ts` `buildStamp`), so rebuilding unchanged sources leaves `dist/` untouched.
+
+## Where it lands
+
+1. **GitHub Pages** — `.github/workflows/deploy.yml`, on every push to `main` (and by hand, `workflow_dispatch`): checkout, Node 22, `npm ci`, `npm run build`, upload `dist/`, deploy. Live: https://likedotaudio.github.io/APK.softapp.EDITORS.CAD.Like.audio/
+2. **cad.like.audio over FTPS** — same workflow, `ftps` job: syncs `dist/` with `SamKirkland/FTP-Deploy-Action` using the repo secrets `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD` (and optional `FTP_SERVER_DIR`). The custom domain on Pages stays off until the CNAME is in place (see the repo README, Hosting).
+3. **Inside APK.audio** — the repo is the submodule `PODS/POD.THIN/Softapps/EDITORS/EDITORS.CAD.Like.audio`. The web-static image (stack `WEB.Frontend-Assets`, `COPY PODS/POD.THIN/Softapps /srv/www/Softapps`) bakes the checkout, so the portal opens `dist/index.html` per `display.json`. A local edit shows on the local servers only after `K8/up-stack.sh WEB.Frontend-Assets`.
+4. **As a foundation** — EDITORS.Acoustic.Like.audio iframes this bundle and drives it over `cad.like.audio/host@1`; it picks up a new build when its own copy of the CAD is refreshed.
+
+## Not automated
+
+* CI runs `npm run build` (which runs `verify` and the gates) but **not `npm test`** — vitest runs only by hand.
+* The monorepo push and FTPS deploy of every site is `.apk.scripts/deploy_all.py`, run by hand.
+* Rebuilding the web-static image after a change is manual (`up-stack.sh`).
+* `src/tokens/brand.json` is re-copied from the monorepo's `contracts/tokens/brand.json` by hand; nothing checks they agree.
+* DNS for `cad.like.audio` → GitHub Pages and the Pages custom domain are manual steps.

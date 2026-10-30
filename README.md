@@ -55,7 +55,7 @@ This repository is a modular, standalone component of the APK.audio Softapps sui
 | `scripts` | `verifyFlow.ts` and the build gates with their baselines. |
 | `Drawings` | The example Big Picture sheet as `.json` and `.dxf`. |
 | `dist` | The built app. **Tracked** — the portal serves it as-is, so rebuild and commit it with the source. |
-| `Documentation` | Architecture notes, known issues, roadmap. |
+| `Documentation` | The wiki — [Documentation/README.md](Documentation/README.md): principles, architecture, delivery, audits. |
 
 ---
 
@@ -69,7 +69,7 @@ This repository is a modular, standalone component of the APK.audio Softapps sui
 
 **Open** reads the same things back: layers with colour, linetype, lineweight and off/frozen/locked state, and the entities on them. A file written by Export opens to the same layers — `npm test` checks that round trip.
 
-Linetypes and lineweights arrive on a layer from an opened DXF; the app does not yet draw them on the canvas or offer a picker for them. See [Documentation/🧩Manual and Artifacts/ARCHITECTURE_NOTES.md](Documentation/🧩Manual and Artifacts/ARCHITECTURE_NOTES.md#dxf-in-and-out-srcioexportdxf-srcioimportdxf).
+The canvas draws each layer's linetype and lineweight; a text's or fill's own colour goes out as an entity override, and a file's own BLOCKS come back on Open. Linetypes and lineweights still arrive on a layer only from an opened DXF — there is no picker for them yet. See [Documentation/🧩Manual and Artifacts/ARCHITECTURE.md](Documentation/🧩Manual%20and%20Artifacts/ARCHITECTURE.md#dxf-in-and-out-srcioexportdxf-srcioimportdxf).
 
 ---
 
@@ -77,6 +77,7 @@ Linetypes and lineweights arrive on a layer from an opened DXF; the app does not
 * **Web Portal Entry**: `dist/index.html#/drawing` (the drawing board) and `dist/index.html#/big-picture` (the schematic), as named in `display.json`.
 * **Live**: https://likedotaudio.github.io/APK.softapp.EDITORS.CAD.Like.audio/ (see Hosting above).
 * **Remote Repository**: https://github.com/LikeDotAudio/APK.softapp.EDITORS.CAD.Like.audio
+* **Wiki**: [Documentation/README.md](Documentation/README.md) — [principles](Documentation/🏛Philosophy/PRINCIPLES.md), [architecture](Documentation/🧩Manual%20and%20Artifacts/ARCHITECTURE.md), [delivery](Documentation/🌍Publishing/DELIVERY.md).
 * **Develop**: `npm run dev`; `npm test` (vitest); `npm run build` (typecheck, verify, gates, then `dist/`).
 
 <!-- wiki:smoke -->

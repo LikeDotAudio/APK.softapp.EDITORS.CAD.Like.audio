@@ -7,5 +7,6 @@ How to use it and how it is built.
 <!-- wiki:index -->
 | Page | What |
 |---|---|
-| [ARCHITECTURE_NOTES.md](ARCHITECTURE_NOTES.md) | Architecture Notes & Technical Specs — CAD.Like.audio |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | Architecture — CAD.Like.audio |
+| [SMOKE.md](SMOKE.md) | Smoke test — EDITORS.CAD.Like.audio |
 <!-- /wiki:index -->
