@@ -239,7 +239,7 @@ export function BlockProperties({ instance }: BlockPropertiesProps) {
       <div className="flex items-center gap-2 border-t border-[#333] pt-2">
         <button
           onClick={() => store.triggerOpenBlockEditor(instance.blockName)}
-          className="flex-1 rounded bg-[#2ea043] py-1 text-center font-semibold text-white hover:bg-[#3fb950] transition-colors"
+          className="flex-1 rounded bg-go py-1 text-center font-semibold text-white hover:bg-go-hover transition-colors"
         >
           🧱 Edit Definition
         </button>

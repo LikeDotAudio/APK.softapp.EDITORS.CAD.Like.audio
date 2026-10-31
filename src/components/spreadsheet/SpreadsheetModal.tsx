@@ -1145,7 +1145,7 @@ export function SpreadsheetModal({ onClose, initialTab = 'placements' }: Spreads
                           className={`inline-block rounded px-1.5 py-0.5 text-[10px] font-semibold ${
                             item.kind === 'flow'
                               ? 'bg-[#0e639c]/30 text-[#38bdf8] border border-[#0e639c]/50'
-                              : 'bg-[#2ea043]/30 text-[#4ade80] border border-[#2ea043]/50'
+                              : 'bg-go/30 text-[#4ade80] border border-go/50'
                           }`}
                         >
                           {item.kind === 'flow' ? '⚡ Flow Block' : '🧱 CAD Block'}

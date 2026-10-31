@@ -23,7 +23,7 @@ export function LoadingOverlay() {
           {/* Outer rotating dashed ring */}
           <div className="absolute inset-0 rounded-full border-2 border-dashed border-[#388bfd]/80 animate-spin [animation-duration:8s]" />
           {/* Middle pulsing ring */}
-          <div className="absolute inset-2 rounded-full border border-[#2ea043]/50 animate-ping [animation-duration:2.5s]" />
+          <div className="absolute inset-2 rounded-full border border-go/50 animate-ping [animation-duration:2.5s]" />
           {/* Inner precision circle */}
           <div className="relative w-12 h-12 rounded-full border border-[#58a6ff] bg-[#58a6ff]/10 flex items-center justify-center shadow-inner shadow-[#58a6ff]/20">
             {/* Crosshair lines */}
@@ -45,12 +45,12 @@ export function LoadingOverlay() {
 
         {/* CAD Animated Progress Bar */}
         <div className="w-full bg-[#2a2a2a] rounded-full h-1.5 mt-5 overflow-hidden border border-[#333]">
-          <div className="h-full bg-gradient-to-r from-[#238636] via-[#388bfd] to-[#2ea043] rounded-full animate-pulse w-full" />
+          <div className="h-full bg-gradient-to-r from-go-deep via-[#388bfd] to-go rounded-full animate-pulse w-full" />
         </div>
 
         {/* Caching Status Pill */}
         <div className="mt-4 flex items-center gap-2 text-[11px] text-[#888]">
-          <span className="inline-block w-2 h-2 rounded-full bg-[#2ea043] animate-ping" />
+          <span className="inline-block w-2 h-2 rounded-full bg-go animate-ping" />
           <span>Caching session to browser memory</span>
         </div>
       </div>

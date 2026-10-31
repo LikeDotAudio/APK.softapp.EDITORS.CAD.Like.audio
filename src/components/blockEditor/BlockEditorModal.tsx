@@ -1197,7 +1197,7 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-bold text-white tracking-wide">CAD Block Editor</h2>
-                <span className="rounded bg-[#2ea043]/30 px-2 py-0.5 text-[11px] font-mono font-semibold text-[#3fb950] border border-[#2ea043]/40">
+                <span className="rounded bg-go/30 px-2 py-0.5 text-[11px] font-mono font-semibold text-go-hover border border-go/40">
                   BEDIT
                 </span>
                 <span className="text-xs text-[#888]">Editing definition:</span>
@@ -1221,7 +1221,7 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
                 </button>
                 <button
                   onClick={handleSaveAsNewBlock}
-                  className="rounded bg-[#238636] px-3 py-1 text-xs font-semibold text-white hover:bg-[#2ea043] transition-colors shadow-sm"
+                  className="rounded bg-go-deep px-3 py-1 text-xs font-semibold text-white hover:bg-go transition-colors shadow-sm"
                   title="Package current drawing into a reusable block definition"
                 >
                   Save as Block...
@@ -1239,7 +1239,7 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
             )}
             <button
               onClick={handleNewBlock}
-              className="rounded bg-[#238636] px-3 py-1 text-xs font-semibold text-white hover:bg-[#2ea043] transition-colors"
+              className="rounded bg-go-deep px-3 py-1 text-xs font-semibold text-white hover:bg-go transition-colors"
             >
               + New Block
             </button>
@@ -2712,7 +2712,7 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
               </button>
               <button
                 onClick={handleSaveBlock}
-                className="rounded bg-[#2ea043] px-4 py-1.5 text-xs font-bold text-white hover:bg-[#3fb950] transition-colors shadow-sm"
+                className="rounded bg-go px-4 py-1.5 text-xs font-bold text-white hover:bg-go-hover transition-colors shadow-sm"
               >
                 💾 Save Block Definition
               </button>

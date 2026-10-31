@@ -531,7 +531,7 @@ export function ElementsEditorModal({ onClose, onOpenBlockEditor }: ElementsEdit
                         onClose();
                         onOpenBlockEditor?.();
                       }}
-                      className="rounded bg-[#2ea043] px-2.5 py-0.5 text-xs font-semibold text-white hover:bg-[#3fb950] transition-colors"
+                      className="rounded bg-go px-2.5 py-0.5 text-xs font-semibold text-white hover:bg-go-hover transition-colors"
                     >
                       🧱 Open Block Editor (BEDIT)
                     </button>
@@ -577,7 +577,7 @@ export function ElementsEditorModal({ onClose, onOpenBlockEditor }: ElementsEdit
                             onClose();
                             onOpenBlockEditor?.(b.name);
                           }}
-                          className="rounded bg-[#2ea043]/80 px-2 py-1 text-xs text-white hover:bg-[#2ea043]"
+                          className="rounded bg-go/80 px-2 py-1 text-xs text-white hover:bg-go"
                           title="Open in CAD Block Editor"
                         >
                           ✏️ Edit

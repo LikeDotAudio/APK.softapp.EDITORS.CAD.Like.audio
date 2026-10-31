@@ -56,7 +56,7 @@ export function MenuBar({ onOpenSpreadsheet, onOpenBom, onOpenElementsEditor, on
         </button>
         <button
           onClick={onOpenBlockEditor}
-          className="flex items-center gap-1.5 rounded bg-[#2ea043] px-2.5 py-1 text-xs font-semibold text-white hover:bg-[#3fb950] transition-colors font-mono tracking-wide"
+          className="flex items-center gap-1.5 rounded bg-go px-2.5 py-1 text-xs font-semibold text-white hover:bg-go-hover transition-colors font-mono tracking-wide"
           title="Open CAD Block Editor (BEDIT) to design and edit reusable component symbols"
         >
           <span>🧱</span>

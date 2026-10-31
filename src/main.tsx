@@ -6,9 +6,14 @@ import App from './App';
 import { currentEntrance } from './shell/entrance';
 import './index.css';
 import brand from './tokens/brand.json';
+import state from './tokens/state.json';
 
 // The accent every `*-accent` class and `var(--color-accent)` paints with, from the vendored brand token.
 document.documentElement.style.setProperty('--brand-accent', brand.accent.hex);
+// The three state tones every `*-state-good|dead|kinda` class paints with, from the vendored state token.
+for (const tone of ['good', 'dead', 'kinda'] as const) {
+  document.documentElement.style.setProperty(`--brand-state-${tone}`, state.tones[tone].hex);
+}
 
 const host = document.getElementById('root');
 if (!host) throw new Error('#root not found');

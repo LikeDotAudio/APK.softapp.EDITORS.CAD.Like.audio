@@ -92,7 +92,7 @@ export function StartupModal({ onClose }: StartupModalProps) {
                 <h2 className="text-base font-bold text-white tracking-wide">
                   Welcome to CAD.LIKE.AUDIO
                 </h2>
-                <span className="rounded bg-[#2ea043]/30 px-2 py-0.5 text-[11px] font-mono font-semibold text-[#3fb950] border border-[#2ea043]/40">
+                <span className="rounded bg-go/30 px-2 py-0.5 text-[11px] font-mono font-semibold text-go-hover border border-go/40">
                   STARTUP
                 </span>
               </div>
@@ -117,7 +117,7 @@ export function StartupModal({ onClose }: StartupModalProps) {
           <div
             className={`rounded-lg border p-4 transition-all ${
               hasCachedSession
-                ? 'border-[#2ea043]/60 bg-[#252a26] hover:border-[#3fb950] hover:bg-[#28322a]'
+                ? 'border-go/60 bg-[#252a26] hover:border-go-hover hover:bg-[#28322a]'
                 : 'border-[#333] bg-[#232323] opacity-60'
             }`}
           >
@@ -128,7 +128,7 @@ export function StartupModal({ onClose }: StartupModalProps) {
                   <div className="flex items-center gap-2">
                     <h3 className="text-sm font-bold text-white">Open Cached File</h3>
                     {hasCachedSession && (
-                      <span className="rounded bg-[#2ea043]/20 px-1.5 py-0.2 text-[10px] font-mono font-semibold text-[#3fb950] border border-[#2ea043]/30">
+                      <span className="rounded bg-go/20 px-1.5 py-0.2 text-[10px] font-mono font-semibold text-go-hover border border-go/30">
                         RECOVERABLE SESSION
                       </span>
                     )}
@@ -180,7 +180,7 @@ export function StartupModal({ onClose }: StartupModalProps) {
                 onClick={() => void handleOpenCached()}
                 className={`shrink-0 rounded px-3.5 py-2 text-xs font-semibold transition-all ${
                   hasCachedSession
-                    ? 'bg-[#238636] text-white hover:bg-[#2ea043] shadow-md shadow-green-950/40 cursor-pointer'
+                    ? 'bg-go-deep text-white hover:bg-go shadow-md shadow-green-950/40 cursor-pointer'
                     : 'bg-[#333] text-[#777] cursor-not-allowed'
                 }`}
               >

@@ -380,7 +380,7 @@ export function ConceptLibraryModal({ isOpen, onClose, onSelectBlock }: ConceptL
                         </div>
                         <button
                           onClick={() => handlePlaceBlock(selectedItem.blockDef!.id)}
-                          className="mt-3 w-full rounded bg-[#2ea043] py-1 text-xs font-semibold text-white hover:bg-[#3fb950] transition-colors"
+                          className="mt-3 w-full rounded bg-go py-1 text-xs font-semibold text-white hover:bg-go-hover transition-colors"
                         >
                           Select Block for Placement
                         </button>
@@ -436,10 +436,10 @@ export function ConceptLibraryModal({ isOpen, onClose, onSelectBlock }: ConceptL
                 <div
                   className={`mt-3 rounded border p-2.5 text-xs ${
                     compatibilityReport.compatible
-                      ? 'border-[#2ea043] bg-[#1b2f1e] text-[#b4f0b9]'
+                      ? 'border-state-good bg-[#1b2f1e] text-[#b4f0b9]'
                       : compatibilityReport.status === 'adapter_needed'
-                      ? 'border-[#e9a03b] bg-[#322718] text-[#fdd663]'
-                      : 'border-[#f28b82] bg-[#331c1c] text-[#fca5a5]'
+                      ? 'border-state-kinda bg-[#322718] text-[#fdd663]'
+                      : 'border-state-dead bg-[#331c1c] text-[#fca5a5]'
                   }`}
                 >
                   <div className="font-bold flex items-center gap-1">

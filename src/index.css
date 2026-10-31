@@ -25,6 +25,18 @@
   --color-bad-bg: #fdeeea;
   --color-bad-line: #f3c8b8;
 
+  /* the three state tones (something answered / nothing was there / neither): set from
+     src/tokens/state.json at startup (main.tsx), never spelled here. Only for a STATE. */
+  --color-state-good: var(--brand-state-good);
+  --color-state-dead: var(--brand-state-dead);
+  --color-state-kinda: var(--brand-state-kinda);
+
+  /* the primary-action / Block Editor green (bg-go, text-go-hover, bg-go-deep). It is NOT a
+     state: a button that opens BEDIT says nothing about whether anything answered. */
+  --color-go: #2ea043;
+  --color-go-hover: #3fb950;
+  --color-go-deep: #238636;
+
   --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Helvetica, Arial,
     sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
