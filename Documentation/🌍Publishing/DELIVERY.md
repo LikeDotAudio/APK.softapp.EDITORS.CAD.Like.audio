@@ -8,7 +8,7 @@ How the editor is built, tested and shipped, and where it lands.
 | --- | --- |
 | `npm ci` | Install (React 19, Vite 7, Tailwind 4, TypeScript 5.9, vitest 2). |
 | `npm test` | `vitest run` — DXF round trip (`src/io/exportDxf/buildDxf.test.ts`), file name, layer stroke, connectors, host bridge, palette, and the two contract tests (`hostContract.test.ts`, `bigPictureContract.test.ts`) over `contract/`. |
-| `npm run build` | `tsc --noEmit` → `npm run verify` (`scripts/verifyFlow.ts`, bundled by esbuild into `node_modules/.cache/kad/`) → `npm run gates` (`check-mount-reach`, `check-effect-abort`, `check-brand-tokens`, `check-interfaces`) → `vite build` into `dist/`. Any failure stops the build. |
+| `npm run build` | `tsc --noEmit` → `npm run verify` (`scripts/verifyFlow.ts`, bundled by esbuild into `node_modules/.cache/kad/`) → `npm run gates` (`check-mount-reach`, `check-effect-abort`, `check-brand-tokens`, `check-interfaces`, `check-brand-literals`) → `vite build` into `dist/`. Any failure stops the build. |
 | `npm run example` | Regenerates `Drawings/big-picture-flow.{json,dxf}`. |
 
 `dist/` is **tracked**: the APK.audio portal serves the checkout as-is, so every source change is committed with its rebuilt `dist/`. The build stamp is a hash of the sources (`vite.config.ts` `buildStamp`), so rebuilding unchanged sources leaves `dist/` untouched.
@@ -41,3 +41,4 @@ How the editor is built, tested and shipped, and where it lands.
 - **Vendored can-cut.ca pages** — Kept by design: provenance for the first screens, outside the Vite root, never loaded; the token in `cad.htm` is that site's own public verification meta, not ours (PRINCIPLES.md, `reference/can-cut.ca/README.md`).
 
 Part of a bigger app: this bundle is the `07b · Drawing` and `06a · Big Picture` tiles in APK:OS (baked by WEB.Frontend-Assets) and the CAD inside EDITORS.Acoustic.Like.audio.
+- **WS-07 brand accent from the tokens** (from the SDK/contracts audit) — the 94 accent literals in 38 `src/` files are gone: Tailwind classes say `*-accent` / `*-accent/<n>` (`--color-accent` in `index.css` is `var(--brand-accent)`, set at startup in `main.tsx` from `src/tokens/brand.json`), code reads `COLORS.accent` / the new `ACCENT_RGB` from `colorsStyle.ts`. New gate `scripts/check-brand-literals.mjs` (in `npm run gates`, ceiling zero) fails the build when a literal comes back. Verified: `tsc`, `npm test` 175/175, `npm run build` (the generated CSS carries `color-mix(… var(--color-accent) 18% …)` for `hover:bg-accent/18`), `.apk.scripts/vendor_contract_web.py --check` holds `src/tokens/brand.json`; dist/ rebuilt.

@@ -1,6 +1,7 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { PortSide } from '../../core/types';
+import { COLORS, ACCENT_RGB } from '../../colorsStyle';
 
 /**
  * One colour per side, so the convention is readable without labels: signal
@@ -19,7 +20,7 @@ export const FLOW = {
   outline: '#9ca3af',
   outlineFill: 'rgba(148,163,184,0.08)',
   glyph: '#e5e7eb',
-  refdes: '#f4902c',
+  refdes: COLORS.accent,
   connector: '#22d3ee',
   connectorPending: '#facc15',
   portLabel: '#9ca3af',
@@ -34,10 +35,10 @@ export const FLOW = {
  * `pending` is the drag in progress; it is the one that is allowed to be loud.
  */
 export const GROUP = {
-  border: '#f4902c',
-  fill: 'rgba(244,144,44,0.05)',
-  label: '#f4902c',
-  collapsedFill: 'rgba(244,144,44,0.14)',
+  border: COLORS.accent,
+  fill: `rgba(${ACCENT_RGB}, 0.05)`,
+  label: COLORS.accent,
+  collapsedFill: `rgba(${ACCENT_RGB}, 0.14)`,
   count: '#9ca3af',
   pending: '#facc15',
   pendingFill: 'rgba(250,204,21,0.08)',

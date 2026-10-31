@@ -64,7 +64,7 @@ export function MenuBar({ onOpenSpreadsheet, onOpenBom, onOpenElementsEditor, on
         </button>
         <button
           onClick={onOpenElementsEditor}
-          className="flex items-center gap-1.5 rounded bg-[#f4902c] px-2.5 py-1 text-xs font-semibold text-black hover:bg-[#ffa552] transition-colors font-mono tracking-wide"
+          className="flex items-center gap-1.5 rounded bg-accent px-2.5 py-1 text-xs font-semibold text-black hover:bg-[#ffa552] transition-colors font-mono tracking-wide"
           title="Open CAD Elements Editor for text annotations, block symbols, and fill patterns"
         >
           <span>🔲</span>

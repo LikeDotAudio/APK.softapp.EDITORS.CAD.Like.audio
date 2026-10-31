@@ -480,7 +480,7 @@ export function SpreadsheetModal({ onClose, initialTab = 'placements' }: Spreads
           <div className="flex items-center gap-3">
             <span className="text-xl">🔥</span>
             <div>
-              <h2 className="font-mono text-sm font-bold text-[#f4902c] uppercase tracking-wider">
+              <h2 className="font-mono text-sm font-bold text-accent uppercase tracking-wider">
                 CellHell Matrix Editor
               </h2>
               <p className="text-[11px] text-[#888]">
@@ -509,7 +509,7 @@ export function SpreadsheetModal({ onClose, initialTab = 'placements' }: Spreads
               onClick={() => { setActiveTab('placements'); setSelectedIds(new Set()); }}
               className={`rounded px-3 py-1.5 font-mono text-xs font-semibold transition-colors ${
                 activeTab === 'placements'
-                  ? 'bg-[#f4902c] text-white shadow-sm'
+                  ? 'bg-accent text-white shadow-sm'
                   : 'bg-[#1e1e1e] text-[#aaa] hover:bg-[#333] hover:text-white'
               }`}
             >
@@ -520,7 +520,7 @@ export function SpreadsheetModal({ onClose, initialTab = 'placements' }: Spreads
               onClick={() => { setActiveTab('connectors'); setSelectedIds(new Set()); }}
               className={`rounded px-3 py-1.5 font-mono text-xs font-semibold transition-colors ${
                 activeTab === 'connectors'
-                  ? 'bg-[#f4902c] text-white shadow-sm'
+                  ? 'bg-accent text-white shadow-sm'
                   : 'bg-[#1e1e1e] text-[#aaa] hover:bg-[#333] hover:text-white'
               }`}
             >
@@ -531,7 +531,7 @@ export function SpreadsheetModal({ onClose, initialTab = 'placements' }: Spreads
               onClick={() => { setActiveTab('groups'); setSelectedIds(new Set()); }}
               className={`rounded px-3 py-1.5 font-mono text-xs font-semibold transition-colors ${
                 activeTab === 'groups'
-                  ? 'bg-[#f4902c] text-white shadow-sm'
+                  ? 'bg-accent text-white shadow-sm'
                   : 'bg-[#1e1e1e] text-[#aaa] hover:bg-[#333] hover:text-white'
               }`}
             >
@@ -557,7 +557,7 @@ export function SpreadsheetModal({ onClose, initialTab = 'placements' }: Spreads
               placeholder="🔍 Search table..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="rounded border border-[#444] bg-[#1e1e1e] px-2.5 py-1 text-xs text-white placeholder-[#666] focus:border-[#f4902c] focus:outline-none w-44"
+              className="rounded border border-[#444] bg-[#1e1e1e] px-2.5 py-1 text-xs text-white placeholder-[#666] focus:border-accent focus:outline-none w-44"
             />
 
             {activeTab === 'placements' && (
@@ -657,7 +657,7 @@ export function SpreadsheetModal({ onClose, initialTab = 'placements' }: Spreads
                   return (
                     <tr
                       key={p.id}
-                      className={`hover:bg-[#2a2d2e] ${selectedIds.has(p.id) ? 'bg-[#f4902c]/15' : ''}`}
+                      className={`hover:bg-[#2a2d2e] ${selectedIds.has(p.id) ? 'bg-accent/15' : ''}`}
                     >
                       <td className="border border-[#262626] p-1.5 text-center">
                         <input
@@ -682,7 +682,7 @@ export function SpreadsheetModal({ onClose, initialTab = 'placements' }: Spreads
                               return true;
                             });
                           }}
-                          className="w-full bg-transparent px-1 font-bold text-white focus:bg-[#111] focus:outline-none focus:ring-1 focus:ring-[#f4902c]"
+                          className="w-full bg-transparent px-1 font-bold text-white focus:bg-[#111] focus:outline-none focus:ring-1 focus:ring-accent"
                         />
                       </td>
 
@@ -728,7 +728,7 @@ export function SpreadsheetModal({ onClose, initialTab = 'placements' }: Spreads
                               return true;
                             });
                           }}
-                          className="w-full bg-transparent px-1 text-[#f4902c] focus:bg-[#111] focus:outline-none"
+                          className="w-full bg-transparent px-1 text-accent focus:bg-[#111] focus:outline-none"
                         >
                           <option value="" className="bg-[#222] text-[#888]">(None)</option>
                           {schematic.groups.map((g) => (
@@ -825,7 +825,7 @@ export function SpreadsheetModal({ onClose, initialTab = 'placements' }: Spreads
                 {filteredConnectors.map((c) => (
                   <tr
                     key={c.id}
-                    className={`hover:bg-[#2a2d2e] ${selectedIds.has(c.id) ? 'bg-[#f4902c]/15' : ''}`}
+                    className={`hover:bg-[#2a2d2e] ${selectedIds.has(c.id) ? 'bg-accent/15' : ''}`}
                   >
                     <td className="border border-[#262626] p-1.5 text-center">
                       <input
@@ -981,7 +981,7 @@ export function SpreadsheetModal({ onClose, initialTab = 'placements' }: Spreads
                   return (
                     <tr
                       key={g.id}
-                      className={`hover:bg-[#2a2d2e] ${selectedIds.has(g.id) ? 'bg-[#f4902c]/15' : ''}`}
+                      className={`hover:bg-[#2a2d2e] ${selectedIds.has(g.id) ? 'bg-accent/15' : ''}`}
                     >
                       <td className="border border-[#262626] p-1.5 text-center">
                         <input
@@ -1008,7 +1008,7 @@ export function SpreadsheetModal({ onClose, initialTab = 'placements' }: Spreads
                               return true;
                             });
                           }}
-                          className="w-full bg-transparent px-1 font-bold text-[#f4902c] focus:bg-[#111] focus:outline-none"
+                          className="w-full bg-transparent px-1 font-bold text-accent focus:bg-[#111] focus:outline-none"
                         />
                       </td>
 
@@ -1186,7 +1186,7 @@ export function SpreadsheetModal({ onClose, initialTab = 'placements' }: Spreads
                             Object.entries(item.attributesSummary).map(([k, v]) => (
                               <span
                                 key={k}
-                                className="rounded bg-[#333]/60 border border-[#555] px-1.5 py-0.5 text-[10px] text-[#f4902c]"
+                                className="rounded bg-[#333]/60 border border-[#555] px-1.5 py-0.5 text-[10px] text-accent"
                               >
                                 <b>{k}:</b> {v}
                               </span>
@@ -1210,7 +1210,7 @@ export function SpreadsheetModal({ onClose, initialTab = 'placements' }: Spreads
                             <button
                               type="button"
                               onClick={() => handleEditAttributes(item)}
-                              className="rounded bg-[#f4902c]/20 border border-[#f4902c]/50 px-2 py-1 text-[11px] font-semibold text-[#f4902c] hover:bg-[#f4902c]/30 transition-colors"
+                              className="rounded bg-accent/20 border border-accent/50 px-2 py-1 text-[11px] font-semibold text-accent hover:bg-accent/30 transition-colors"
                               title="Set or update attributes (e.g. Value, Part#, Vendor) on all instances"
                             >
                               ✏️ Attr

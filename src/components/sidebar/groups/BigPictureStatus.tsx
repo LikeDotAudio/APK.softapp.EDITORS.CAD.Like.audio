@@ -37,7 +37,7 @@ export function BigPictureStatus() {
           disabled={!bigPicture.reachable}
           onClick={() => void store.fileBigPicture()}
           title="Write this sheet to APK:OS/system/big-picture.json — 06a's document of record"
-          className="flex-shrink-0 rounded-sm border border-[#4a4a4a] px-1.5 py-0.5 font-mono text-[10px] text-[#cccccc] hover:border-[#f4902c] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+          className="flex-shrink-0 rounded-sm border border-[#4a4a4a] px-1.5 py-0.5 font-mono text-[10px] text-[#cccccc] hover:border-accent hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
         >
           file
         </button>

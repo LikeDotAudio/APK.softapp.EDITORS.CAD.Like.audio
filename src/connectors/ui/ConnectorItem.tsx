@@ -4,6 +4,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { ConnectorVisual } from './ConnectorVisual';
 import { lookupConnector } from '../ConnectorLookup';
+import { COLORS, ACCENT_RGB } from '../../colorsStyle';
 
 interface ConnectorItemProps {
   type: string;
@@ -46,9 +47,9 @@ const MagnifyPopup = ({ type, anchorRect }: { type: string; anchorRect: DOMRect 
           width: MAGNIFY_PX,
           height: MAGNIFY_PX,
           background: '#1e1e1e',
-          border: '2px solid #F4902C',
+          border: `2px solid ${COLORS.accent}`,
           borderRadius: 8,
-          boxShadow: '0 8px 30px rgba(0,0,0,0.9), 0 0 0 1px rgba(244, 144, 44, 0.3)',
+          boxShadow: `0 8px 30px rgba(0,0,0,0.9), 0 0 0 1px rgba(${ACCENT_RGB}, 0.3)`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -74,7 +75,7 @@ const MagnifyPopup = ({ type, anchorRect }: { type: string; anchorRect: DOMRect 
           style={{
             fontSize: '12px',
             fontWeight: 'bold',
-            color: '#F4902C',
+            color: COLORS.accent,
             fontFamily: 'monospace',
             letterSpacing: '0.5px',
           }}
@@ -151,8 +152,8 @@ export const ConnectorItem = React.memo(function ConnectorItem({
           padding: '4px 2px',
           cursor: 'grab',
           borderRadius: 4,
-          background: selected ? 'rgba(244, 144, 44, 0.18)' : 'transparent',
-          border: selected ? '1px solid #F4902C' : '1px solid transparent',
+          background: selected ? `rgba(${ACCENT_RGB}, 0.18)` : 'transparent',
+          border: selected ? `1px solid ${COLORS.accent}` : '1px solid transparent',
           transition: 'background 0.15s, border-color 0.15s',
           userSelect: 'none',
         }}
@@ -166,7 +167,7 @@ export const ConnectorItem = React.memo(function ConnectorItem({
             style={{
               fontSize: labelFontSize,
               fontFamily: 'monospace',
-              color: selected ? '#F4902C' : '#9ca3af',
+              color: selected ? COLORS.accent : '#9ca3af',
               marginTop: 3,
               maxWidth: size + 14,
               overflow: 'hidden',

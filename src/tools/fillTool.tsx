@@ -2,6 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { Point } from '../core/types';
 import type { Tool } from './types';
+import { COLORS } from '../colorsStyle';
 
 interface FillState {
   points: Point[];
@@ -80,11 +81,11 @@ export const fillTool: Tool<FillState> = {
     screenPts.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
     ctx.closePath();
 
-    ctx.fillStyle = '#f4902c';
+    ctx.fillStyle = COLORS.accent;
     ctx.globalAlpha = 0.25;
     ctx.fill();
 
-    ctx.strokeStyle = '#f4902c';
+    ctx.strokeStyle = COLORS.accent;
     ctx.lineWidth = 1.5;
     ctx.setLineDash([3, 3]);
     ctx.globalAlpha = 0.9;

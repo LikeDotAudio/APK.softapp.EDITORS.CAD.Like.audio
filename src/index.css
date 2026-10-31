@@ -15,7 +15,8 @@
   --color-ink-3: #707680;
   --color-rule: #d9d6cd;
   --color-rule-2: #c7c3b8;
-  --color-accent: #f4902c;
+  /* the brand accent: set from src/tokens/brand.json at startup (main.tsx), never spelled here */
+  --color-accent: var(--brand-accent);
   --color-accent-ink: #c86a12;
 
   --color-ok-bg: #eaf3ec;

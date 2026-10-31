@@ -5,6 +5,10 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import { currentEntrance } from './shell/entrance';
 import './index.css';
+import brand from './tokens/brand.json';
+
+// The accent every `*-accent` class and `var(--color-accent)` paints with, from the vendored brand token.
+document.documentElement.style.setProperty('--brand-accent', brand.accent.hex);
 
 const host = document.getElementById('root');
 if (!host) throw new Error('#root not found');

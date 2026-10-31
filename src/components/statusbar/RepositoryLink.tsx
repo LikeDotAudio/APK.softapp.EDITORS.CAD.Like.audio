@@ -9,7 +9,7 @@ export function RepositoryLink() {
       href={REPO_URL}
       target="_blank"
       rel="noreferrer noopener"
-      className="text-[11px] text-[#f4902c] transition-colors hover:text-[#ffa552] hover:underline"
+      className="text-[11px] text-accent transition-colors hover:text-[#ffa552] hover:underline"
       title={REPO_URL}
     >
       Repository ↗

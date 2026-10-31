@@ -5,12 +5,13 @@
 // arrow pair; a portal has no authored direction, so neither does its icon.
 
 import React from 'react';
+import { COLORS } from '../../colorsStyle';
 
 const Portal: React.FC = () => (
     <svg viewBox="0 0 20 20" style={{ width: '100%', height: '100%' }}>
         <rect x="1" y="4" width="18" height="12" rx="6" ry="6"
-            fill="#1a1a1a" stroke="#f4902c" strokeWidth="1.5" />
-        <circle cx="10" cy="10" r="2.5" fill="#f4902c" opacity="0.8" />
+            fill="#1a1a1a" stroke={COLORS.accent} strokeWidth="1.5" />
+        <circle cx="10" cy="10" r="2.5" fill={COLORS.accent} opacity="0.8" />
     </svg>
 );
 

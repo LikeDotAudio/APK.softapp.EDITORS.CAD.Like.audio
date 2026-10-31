@@ -37,7 +37,7 @@ export function StatusBar({ onToggleConnectors, isConnectorsOpen }: StatusBarPro
           onClick={onToggleConnectors}
           className={`flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-sans font-medium transition-colors ${
             isConnectorsOpen
-              ? 'bg-[#F4902C] text-black font-semibold'
+              ? 'bg-accent text-black font-semibold'
               : 'bg-[#333] text-[#ccc] hover:bg-[#444]'
           }`}
           title="Toggle Connectors Dock"

@@ -1201,7 +1201,7 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
                   BEDIT
                 </span>
                 <span className="text-xs text-[#888]">Editing definition:</span>
-                <span className="font-mono text-sm font-bold text-[#f4902c]">{currentBlock.name}</span>
+                <span className="font-mono text-sm font-bold text-accent">{currentBlock.name}</span>
               </div>
               <p className="text-[11px] text-[#888]">
                 Design symbols, port terminals, insertion base points, and reusable CAD block definitions.
@@ -1357,7 +1357,7 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
                 >
                   ‹ Prev
                 </button>
-                <span className="font-mono text-[10px] text-[#f4902c]">
+                <span className="font-mono text-[10px] text-accent">
                   Page {currentSidebarPage} / {totalSidebarPages}
                 </span>
                 <button
@@ -1460,7 +1460,7 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
                   type="text"
                   value={currentBlock.name}
                   onChange={(e) => setCurrentBlock({ ...currentBlock, name: e.target.value.toUpperCase() })}
-                  className="mt-0.5 w-full rounded border border-[#3c3c3c] bg-[#141414] px-2 py-1 font-mono text-sm text-[#f4902c] font-bold"
+                  className="mt-0.5 w-full rounded border border-[#3c3c3c] bg-[#141414] px-2 py-1 font-mono text-sm text-accent font-bold"
                 />
               </div>
 
@@ -1521,7 +1521,7 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
                 onClick={() => setActiveTab('quickAdd')}
                 className={`flex-1 py-1.5 font-medium border-b-2 transition-colors ${
                   activeTab === 'quickAdd'
-                    ? 'border-[#f4902c] text-white bg-[#252526]'
+                    ? 'border-accent text-white bg-[#252526]'
                     : 'border-transparent text-[#888] hover:text-[#ccc]'
                 }`}
               >
@@ -1531,7 +1531,7 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
                 onClick={() => setActiveTab('lines')}
                 className={`flex-1 py-1.5 font-medium border-b-2 transition-colors ${
                   activeTab === 'lines'
-                    ? 'border-[#f4902c] text-white bg-[#252526]'
+                    ? 'border-accent text-white bg-[#252526]'
                     : 'border-transparent text-[#888] hover:text-[#ccc]'
                 }`}
               >
@@ -1541,7 +1541,7 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
                 onClick={() => setActiveTab('circles')}
                 className={`flex-1 py-1.5 font-medium border-b-2 transition-colors ${
                   activeTab === 'circles'
-                    ? 'border-[#f4902c] text-white bg-[#252526]'
+                    ? 'border-accent text-white bg-[#252526]'
                     : 'border-transparent text-[#888] hover:text-[#ccc]'
                 }`}
               >
@@ -1551,7 +1551,7 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
                 onClick={() => setActiveTab('arcs')}
                 className={`flex-1 py-1.5 font-medium border-b-2 transition-colors ${
                   activeTab === 'arcs'
-                    ? 'border-[#f4902c] text-white bg-[#252526]'
+                    ? 'border-accent text-white bg-[#252526]'
                     : 'border-transparent text-[#888] hover:text-[#ccc]'
                 }`}
               >
@@ -1561,7 +1561,7 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
                 onClick={() => setActiveTab('texts')}
                 className={`flex-1 py-1.5 font-medium border-b-2 transition-colors ${
                   activeTab === 'texts'
-                    ? 'border-[#f4902c] text-white bg-[#252526]'
+                    ? 'border-accent text-white bg-[#252526]'
                     : 'border-transparent text-[#888] hover:text-[#ccc]'
                 }`}
               >
@@ -1571,7 +1571,7 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
                 onClick={() => setActiveTab('attributes')}
                 className={`flex-1 py-1.5 font-medium border-b-2 transition-colors ${
                   activeTab === 'attributes'
-                    ? 'border-[#f4902c] text-white bg-[#252526]'
+                    ? 'border-accent text-white bg-[#252526]'
                     : 'border-transparent text-[#888] hover:text-[#ccc]'
                 }`}
                 title="UUID and Key-Value Attributes"
@@ -2026,7 +2026,7 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
                         >
                           ‹ Prev
                         </button>
-                        <span className="font-mono text-[10px] text-[#f4902c]">
+                        <span className="font-mono text-[10px] text-accent">
                           Lines {(currentLinesPage - 1) * LINES_PAGE_SIZE + 1}–{Math.min(currentLinesPage * LINES_PAGE_SIZE, currentBlock.lines.length)} of {currentBlock.lines.length}
                         </span>
                         <button
@@ -2144,7 +2144,7 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
                         >
                           ‹ Prev
                         </button>
-                        <span className="font-mono text-[10px] text-[#f4902c]">
+                        <span className="font-mono text-[10px] text-accent">
                           Circles {(currentCirclesPage - 1) * CIRCLES_PAGE_SIZE + 1}–{Math.min(currentCirclesPage * CIRCLES_PAGE_SIZE, currentBlock.circles.length)} of {currentBlock.circles.length}
                         </span>
                         <button
@@ -2248,7 +2248,7 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
                         >
                           ‹ Prev
                         </button>
-                        <span className="font-mono text-[10px] text-[#f4902c]">
+                        <span className="font-mono text-[10px] text-accent">
                           Arcs {(currentArcsPage - 1) * ARCS_PAGE_SIZE + 1}–{Math.min(currentArcsPage * ARCS_PAGE_SIZE, currentBlock.arcs.length)} of {currentBlock.arcs.length}
                         </span>
                         <button
@@ -2381,7 +2381,7 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
                         >
                           ‹ Prev
                         </button>
-                        <span className="font-mono text-[10px] text-[#f4902c]">
+                        <span className="font-mono text-[10px] text-accent">
                           Texts {(currentTextsPage - 1) * TEXTS_PAGE_SIZE + 1}–{Math.min(currentTextsPage * TEXTS_PAGE_SIZE, allTexts.length)} of {allTexts.length}
                         </span>
                         <button
@@ -2493,7 +2493,7 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
                           </span>
                         </div>
                         <div className="text-xs text-[#aaa]">
-                          Block: <span className="font-mono font-bold text-[#f4902c]">{selectedInstance.blockName}</span>
+                          Block: <span className="font-mono font-bold text-accent">{selectedInstance.blockName}</span>
                         </div>
                         <div className="text-xs text-[#aaa]">
                           Layer: <span className="font-mono text-white">{selectedInstance.layerId}</span>
@@ -2608,7 +2608,7 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
                                 key={key}
                                 className="flex items-center gap-2 rounded bg-[#141414] border border-[#333] px-2 py-1 text-xs"
                               >
-                                <span className="font-mono text-[#f4902c] font-semibold truncate w-1/3" title={key}>
+                                <span className="font-mono text-accent font-semibold truncate w-1/3" title={key}>
                                   {key}:
                                 </span>
                                 <input
@@ -2685,7 +2685,7 @@ export function BlockEditorModal({ initialBlockName, onClose }: BlockEditorModal
                         Select a placed instance from the left sidebar ("Instances" tab) to inspect and edit its unique UUID and custom key-value attributes.
                       </p>
                       <p className="text-[11px] text-[#888] leading-relaxed">
-                        Currently viewing definition <span className="font-mono text-[#f4902c] font-bold">{currentBlock.name}</span>.
+                        Currently viewing definition <span className="font-mono text-accent font-bold">{currentBlock.name}</span>.
                       </p>
                       <div className="pt-2">
                         <button

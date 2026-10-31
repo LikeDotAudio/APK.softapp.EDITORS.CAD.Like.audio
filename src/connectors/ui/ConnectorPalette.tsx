@@ -6,6 +6,7 @@ import { ConnectorItem } from './ConnectorItem';
 import { CONNECTOR_FAMILIES_FULL } from '../ConnectorLookup';
 import { CONNECTOR_SUPER_CATEGORIES, type ConnectorGroupSpec } from './connectorGroups';
 import { searchConnectorTypes } from './searchConnectorTypes';
+import { COLORS, ACCENT_RGB } from '../../colorsStyle';
 
 interface ConnectorPaletteProps {
   groups?: readonly ConnectorGroupSpec[];
@@ -89,7 +90,7 @@ export function ConnectorPalette({
                 padding: '3px 6px 3px 22px',
                 fontSize: '11px',
                 background: '#1e1e1e',
-                border: `1px solid ${isSearching ? '#F4902C' : '#3c3c3c'}`,
+                border: `1px solid ${isSearching ? COLORS.accent : '#3c3c3c'}`,
                 borderRadius: 4,
                 color: '#fff',
                 outline: 'none',
@@ -144,10 +145,10 @@ export function ConnectorPalette({
                   display: 'flex',
                   alignItems: 'center',
                   gap: 4,
-                  background: isActive ? 'rgba(244, 144, 44, 0.15)' : 'transparent',
+                  background: isActive ? `rgba(${ACCENT_RGB}, 0.15)` : 'transparent',
                   border: 'none',
-                  borderBottom: isActive ? '2px solid #F4902C' : '2px solid transparent',
-                  color: isActive ? '#F4902C' : '#9ca3af',
+                  borderBottom: isActive ? `2px solid ${COLORS.accent}` : '2px solid transparent',
+                  color: isActive ? COLORS.accent : '#9ca3af',
                   fontSize: '11px',
                   fontWeight: isActive ? 600 : 400,
                   padding: '3px 8px',
@@ -178,12 +179,12 @@ export function ConnectorPalette({
                 key={s.label}
                 onClick={() => setCurrentSize(s.size)}
                 style={{
-                  background: currentSize === s.size ? 'rgba(244, 144, 44, 0.3)' : 'transparent',
-                  border: `1px solid ${currentSize === s.size ? '#F4902C' : '#3c3c3c'}`,
+                  background: currentSize === s.size ? `rgba(${ACCENT_RGB}, 0.3)` : 'transparent',
+                  border: `1px solid ${currentSize === s.size ? COLORS.accent : '#3c3c3c'}`,
                   borderRadius: 3,
                   padding: '1px 4px',
                   fontSize: '9px',
-                  color: currentSize === s.size ? '#F4902C' : '#9ca3af',
+                  color: currentSize === s.size ? COLORS.accent : '#9ca3af',
                   cursor: 'pointer',
                   fontWeight: currentSize === s.size ? 'bold' : 'normal',
                 }}

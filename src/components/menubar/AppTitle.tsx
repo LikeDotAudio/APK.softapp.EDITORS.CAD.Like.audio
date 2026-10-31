@@ -31,7 +31,7 @@ export function AppTitle() {
     <div className="flex items-center gap-2">
       <h1 className="font-mono text-[11px] uppercase tracking-[0.14em]">
         <span className="font-bold text-white">{title}</span>
-        <span className="font-normal text-[#f4902c]">{subtitle}</span>
+        <span className="font-normal text-accent">{subtitle}</span>
       </h1>
       {currentFileName && (
         <span className="flex items-center gap-1.5 rounded bg-[#1e1e1e] border border-[#3e3e42] px-2 py-0.5 text-[11px] text-[#e0e0e0] font-mono normal-case tracking-normal">

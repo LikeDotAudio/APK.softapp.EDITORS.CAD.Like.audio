@@ -188,7 +188,7 @@ export function TextProperties({ textEntity }: TextPropertiesProps) {
 
       {/* Alignment Section (Horizontal & Vertical / Centering / Bottom Alignment) */}
       <div className="rounded border border-[#2d2d2d] bg-[#181818] p-2 space-y-2">
-        <div className="text-[10px] font-semibold uppercase tracking-wider text-[#f4902c]">
+        <div className="text-[10px] font-semibold uppercase tracking-wider text-accent">
           Text Alignment & Centering
         </div>
 
@@ -216,7 +216,7 @@ export function TextProperties({ textEntity }: TextPropertiesProps) {
                   title={`${v} ${h} (${label === 'MC' ? 'Full Center' : label === 'BC' ? 'Bottom Center' : label})`}
                   className={`w-6 h-5 rounded text-[9px] font-mono font-bold transition-colors ${
                     active
-                      ? 'bg-[#f4902c] text-black shadow-sm'
+                      ? 'bg-accent text-black shadow-sm'
                       : 'bg-[#252526] text-[#888] hover:bg-[#333] hover:text-white'
                   }`}
                 >

@@ -13,7 +13,7 @@ export function RecentFileRow({ entry, onOpen }: RecentFileRowProps) {
     <button
       type="button"
       onClick={() => onOpen(entry)}
-      className="flex items-center justify-between rounded px-2.5 py-1.5 text-left text-[11px] transition-colors hover:bg-[rgba(244,144,44,0.18)] hover:text-white"
+      className="flex items-center justify-between rounded px-2.5 py-1.5 text-left text-[11px] transition-colors hover:bg-accent/18 hover:text-white"
     >
       <span className="flex min-w-0 items-center gap-1.5 truncate">
         <span>{entry.type === 'dxf' ? '📂' : '🖼️'}</span>

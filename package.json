@@ -15,7 +15,7 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "verify": "esbuild scripts/verifyFlow.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/kad/verifyFlow.mjs --log-level=warning && node node_modules/.cache/kad/verifyFlow.mjs",
-    "gates": "node scripts/check-mount-reach.mjs && node scripts/check-effect-abort.mjs && node scripts/check-brand-tokens.mjs && node scripts/check-interfaces.mjs",
+    "gates": "node scripts/check-mount-reach.mjs && node scripts/check-effect-abort.mjs && node scripts/check-brand-tokens.mjs && node scripts/check-interfaces.mjs && node scripts/check-brand-literals.mjs",
     "example": "esbuild scripts/emitExampleDrawing.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/kad/emitExampleDrawing.mjs --log-level=warning && node node_modules/.cache/kad/emitExampleDrawing.mjs",
     "test": "vitest run"
   },

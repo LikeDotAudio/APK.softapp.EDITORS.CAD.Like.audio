@@ -2,6 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { Point } from '../core/types';
 import type { Tool } from './types';
+import { COLORS } from '../colorsStyle';
 
 interface BlockState {
   currentBlockName: string;
@@ -80,8 +81,8 @@ export const blockTool: Tool<BlockState> = {
     };
 
     ctx.save();
-    ctx.strokeStyle = '#f4902c';
-    ctx.fillStyle = '#f4902c';
+    ctx.strokeStyle = COLORS.accent;
+    ctx.fillStyle = COLORS.accent;
     ctx.lineWidth = 1.5;
     ctx.globalAlpha = 0.8;
 

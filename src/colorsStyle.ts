@@ -7,8 +7,11 @@
  * window, panel, sidebar, menu, button, and canvas colors". Measured:
  * exactly ONE file imports it — `src/render/palette.ts`, the
  * canvas renderer. 46 files in `components/` carry a Tailwind arbitrary value
- * instead (`bg-[#1e1e1e]`, `text-[#cccccc]`, `bg-[#f4902c]`), 74 distinct
- * hexes across `src/`, `#f4902c` alone in 28 places.
+ * instead (`bg-[#1e1e1e]`, `text-[#cccccc]`, `bg-[<accent>]`), 74 distinct
+ * hexes across `src/`, the accent alone in 28 places. Since 2026-10-30 the
+ * accent is never spelled in `src/`: Tailwind classes say `*-accent`, code says
+ * `COLORS.accent` / `ACCENT_RGB`, and `scripts/check-brand-literals.mjs` fails
+ * the build when a literal comes back.
  *
  * So there are two palettes in this app and they govern different regions:
  *
@@ -37,6 +40,9 @@
  */
 
 import brand from './tokens/brand.json';
+
+/** The accent as an `r, g, b` triple, for `rgba(${ACCENT_RGB}, a)`. */
+export const ACCENT_RGB = brand.accent.rgb.join(', ');
 
 export const COLORS = {
   // Window & Panel Backgrounds

@@ -27,7 +27,7 @@ export function PaletteButton({ title, active = false, onSelect, children }: Pal
       className={
         'flex h-7 w-full cursor-pointer items-center justify-center rounded-none border-0 p-0 transition-colors ' +
         (active
-          ? 'bg-[#f4902c] text-[#1e1e1e]'
+          ? 'bg-accent text-[#1e1e1e]'
           : 'bg-[#2d2d2d] text-[#cccccc] hover:bg-[#383838] hover:text-white')
       }
     >

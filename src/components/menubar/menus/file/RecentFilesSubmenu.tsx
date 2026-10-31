@@ -22,7 +22,7 @@ export function RecentFilesSubmenu({ entries, onOpen, onClearAll }: RecentFilesS
     >
       <button
         type="button"
-        className="flex w-full items-center justify-between rounded px-3 py-1.5 text-left text-[12px] transition-colors hover:bg-[rgba(244,144,44,0.18)] hover:text-white"
+        className="flex w-full items-center justify-between rounded px-3 py-1.5 text-left text-[12px] transition-colors hover:bg-accent/18 hover:text-white"
       >
         <span className="flex items-center gap-2">
           <span>🕒</span> Recent Files

@@ -58,7 +58,7 @@ function PaginationBar({
         >
           ‹ Prev
         </button>
-        <span className="px-2 font-mono text-[11px] text-[#f4902c]">
+        <span className="px-2 font-mono text-[11px] text-accent">
           Page {currentPage} of {totalPages}
         </span>
         <button
@@ -259,7 +259,7 @@ export function ElementsEditorModal({ onClose, onOpenBlockEditor }: ElementsEdit
               placeholder="Search items..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-48 rounded border border-[#3c3c3c] bg-[#141414] px-2.5 py-1 text-xs text-white placeholder-[#666] focus:border-[#f4902c] focus:outline-none"
+              className="w-48 rounded border border-[#3c3c3c] bg-[#141414] px-2.5 py-1 text-xs text-white placeholder-[#666] focus:border-accent focus:outline-none"
             />
             <button
               onClick={onClose}
@@ -276,7 +276,7 @@ export function ElementsEditorModal({ onClose, onOpenBlockEditor }: ElementsEdit
             onClick={() => setActiveTab('texts')}
             className={`flex items-center gap-2 border-b-2 px-4 py-2.5 font-medium transition-colors ${
               activeTab === 'texts'
-                ? 'border-[#f4902c] text-white'
+                ? 'border-accent text-white'
                 : 'border-transparent text-[#888] hover:text-[#ccc]'
             }`}
           >
@@ -290,7 +290,7 @@ export function ElementsEditorModal({ onClose, onOpenBlockEditor }: ElementsEdit
             onClick={() => setActiveTab('blocks')}
             className={`flex items-center gap-2 border-b-2 px-4 py-2.5 font-medium transition-colors ${
               activeTab === 'blocks'
-                ? 'border-[#f4902c] text-white'
+                ? 'border-accent text-white'
                 : 'border-transparent text-[#888] hover:text-[#ccc]'
             }`}
           >
@@ -304,7 +304,7 @@ export function ElementsEditorModal({ onClose, onOpenBlockEditor }: ElementsEdit
             onClick={() => setActiveTab('fills')}
             className={`flex items-center gap-2 border-b-2 px-4 py-2.5 font-medium transition-colors ${
               activeTab === 'fills'
-                ? 'border-[#f4902c] text-white'
+                ? 'border-accent text-white'
                 : 'border-transparent text-[#888] hover:text-[#ccc]'
             }`}
           >
@@ -547,7 +547,7 @@ export function ElementsEditorModal({ onClose, onOpenBlockEditor }: ElementsEdit
                     <button
                       onClick={handleCreateBlockFromSelection}
                       disabled={selectionSize === 0}
-                      className="rounded bg-[#f4902c] px-3 py-1 font-semibold text-black hover:bg-[#ffa552] disabled:opacity-40 text-xs"
+                      className="rounded bg-accent px-3 py-1 font-semibold text-black hover:bg-[#ffa552] disabled:opacity-40 text-xs"
                     >
                       Create From Selection ({selectionSize})
                     </button>
@@ -562,7 +562,7 @@ export function ElementsEditorModal({ onClose, onOpenBlockEditor }: ElementsEdit
                     >
                       <div>
                         <div className="flex items-center justify-between">
-                          <span className="font-mono text-sm font-bold text-[#f4902c]">{b.name}</span>
+                          <span className="font-mono text-sm font-bold text-accent">{b.name}</span>
                           <span className="text-[10px] text-[#888]">
                             {b.lines.length} lines, {b.circles.length} circles, {b.arcs.length} arcs
                           </span>
@@ -645,7 +645,7 @@ export function ElementsEditorModal({ onClose, onOpenBlockEditor }: ElementsEdit
                         pagedInstances.map((inst) => (
                           <tr key={inst.id} className="hover:bg-[#252526]">
                             <td className="p-2.5 text-[#888]">#{inst.id}</td>
-                            <td className="p-2.5 font-mono text-[#f4902c]">{inst.blockName}</td>
+                            <td className="p-2.5 font-mono text-accent">{inst.blockName}</td>
                             <td className="p-2.5">
                               <input
                                 type="number"
@@ -878,7 +878,7 @@ export function ElementsEditorModal({ onClose, onOpenBlockEditor }: ElementsEdit
                                   return true;
                                 });
                               }}
-                              className="w-24 accent-[#f4902c]"
+                              className="w-24 accent-accent"
                             />
                             <span className="ml-2 text-[#888]">
                               {Math.round((fill.opacity ?? 0.35) * 100)}%

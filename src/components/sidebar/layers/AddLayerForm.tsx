@@ -23,12 +23,12 @@ export function AddLayerForm() {
         placeholder="Layer name..."
         value={name}
         onChange={(e) => setName(e.target.value)}
-        className="flex-1 rounded border border-[#3c3c3c] bg-[#1e1e1e] px-2 py-0.5 text-[11px] text-white focus:border-[#f4902c] focus:outline-none"
+        className="flex-1 rounded border border-[#3c3c3c] bg-[#1e1e1e] px-2 py-0.5 text-[11px] text-white focus:border-accent focus:outline-none"
       />
       <button
         type="submit"
         disabled={!name.trim()}
-        className="rounded bg-[#f4902c] px-2 py-0.5 text-[11px] text-white hover:bg-[#ffa552] disabled:opacity-40"
+        className="rounded bg-accent px-2 py-0.5 text-[11px] text-white hover:bg-[#ffa552] disabled:opacity-40"
       >
         +
       </button>

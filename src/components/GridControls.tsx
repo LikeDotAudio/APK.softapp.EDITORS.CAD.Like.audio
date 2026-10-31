@@ -28,7 +28,7 @@ export function GridControls() {
           onClick={() => store.setGridMode('lines')}
           className={
             'px-2 py-0.5 rounded transition-colors ' +
-            (gridMode === 'lines' ? 'bg-[#f4902c] text-[#1e1e1e]' : 'text-[#888] hover:text-white')
+            (gridMode === 'lines' ? 'bg-accent text-[#1e1e1e]' : 'text-[#888] hover:text-white')
           }
         >
           Lines
@@ -38,7 +38,7 @@ export function GridControls() {
           onClick={() => store.setGridMode('dots')}
           className={
             'px-2 py-0.5 rounded transition-colors ' +
-            (gridMode === 'dots' ? 'bg-[#f4902c] text-[#1e1e1e]' : 'text-[#888] hover:text-white')
+            (gridMode === 'dots' ? 'bg-accent text-[#1e1e1e]' : 'text-[#888] hover:text-white')
           }
         >
           Dots

@@ -1,6 +1,7 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { Tool } from './types';
+import { COLORS } from '../colorsStyle';
 
 interface TextState {
   currentText: string;
@@ -64,13 +65,13 @@ export const textTool: Tool<TextState> = {
     ctx.font = `${Math.round(pxHeight)}px "JetBrains Mono", monospace, sans-serif`;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'bottom';
-    ctx.fillStyle = '#f4902c';
+    ctx.fillStyle = COLORS.accent;
     ctx.globalAlpha = 0.75;
     ctx.fillText(state.currentText || 'TEXT', 0, 0);
 
     // Dotted bounding box
     const metrics = ctx.measureText(state.currentText || 'TEXT');
-    ctx.strokeStyle = '#f4902c';
+    ctx.strokeStyle = COLORS.accent;
     ctx.lineWidth = 1;
     ctx.setLineDash([2, 2]);
     ctx.strokeRect(0, -pxHeight, metrics.width, pxHeight);

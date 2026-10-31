@@ -4,6 +4,7 @@ import type { Layer, Point } from '../../core/types';
 import { isDarkColor } from '../edges/isDarkColor';
 import type { Scene } from '../Scene';
 import { strokeHatch } from '../fills/strokeHatch';
+import { COLORS } from '../../colorsStyle';
 
 export function drawBlockInstances(
   scene: Scene,
@@ -130,7 +131,7 @@ export function drawBlockInstances(
     // Selection box around block insertion point
     if (isSelected) {
       const origin = view.toScreen(inst.x, inst.y);
-      ctx.strokeStyle = '#f4902c';
+      ctx.strokeStyle = COLORS.accent;
       ctx.setLineDash([2, 2]);
       ctx.strokeRect(origin.x - 6, origin.y - 6, 12, 12);
     }

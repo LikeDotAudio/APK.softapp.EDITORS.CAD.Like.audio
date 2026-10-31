@@ -15,7 +15,7 @@ export function FixedTextToggleRow() {
         type="checkbox"
         checked={fixedTextSize}
         onChange={() => store.toggleFixedTextSize()}
-        className="h-4 w-4 rounded border-[#3c3c3c] bg-[#1e1e1e] accent-[#f4902c]"
+        className="h-4 w-4 rounded border-[#3c3c3c] bg-[#1e1e1e] accent-accent"
       />
     </label>
   );

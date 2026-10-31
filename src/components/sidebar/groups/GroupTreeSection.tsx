@@ -36,7 +36,7 @@ export function GroupTreeSection() {
 
       {groups.length === 0 ? (
         <p className="px-2.5 py-2 text-[11px] leading-relaxed text-[#777]">
-          Nothing is grouped. Take the <span className="text-[#f4902c]">Group</span> tool (G) and
+          Nothing is grouped. Take the <span className="text-accent">Group</span> tool (G) and
           drag a box round the blocks that belong together. Enclose a whole group and it nests —
           that is how a group of groups is drawn.
         </p>
@@ -65,7 +65,7 @@ export function GroupTreeSection() {
                   if (next === null) return;
                   store.editFlow(() => renameGroup(store.schematic, row.id, next));
                 }}
-                className="flex-1 truncate text-left font-mono text-[11px] text-[#f4902c]"
+                className="flex-1 truncate text-left font-mono text-[11px] text-accent"
               >
                 {row.name}
               </button>

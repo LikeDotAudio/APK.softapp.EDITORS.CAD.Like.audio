@@ -14,7 +14,7 @@ export function SegmentedButton({ label, active, onSelect }: SegmentedButtonProp
       onClick={onSelect}
       className={
         'rounded px-2 py-0.5 text-[11px] font-semibold transition-colors ' +
-        (active ? 'bg-[#f4902c] text-[#1e1e1e]' : 'text-[#888] hover:text-white')
+        (active ? 'bg-accent text-[#1e1e1e]' : 'text-[#888] hover:text-white')
       }
     >
       {label}

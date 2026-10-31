@@ -73,7 +73,7 @@ export function BlockProperties({ instance }: BlockPropertiesProps) {
           <span className="text-sm">🧱</span>
           <span className="font-semibold text-white">CAD Block Instance</span>
         </div>
-        <span className="font-mono text-[11px] font-bold text-[#f4902c]">{instance.blockName}</span>
+        <span className="font-mono text-[11px] font-bold text-accent">{instance.blockName}</span>
       </div>
 
       {/* UUID */}

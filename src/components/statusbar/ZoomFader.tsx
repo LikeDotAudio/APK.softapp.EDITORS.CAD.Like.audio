@@ -40,7 +40,7 @@ export function ZoomFader() {
         onDoubleClick={() => store.setZoom(HOME_ZOOM)}
         aria-label="Zoom level"
         title="Zoom — drag to zoom about the centre, double-click for 100%"
-        className="h-1 w-32 cursor-pointer accent-[#f4902c]"
+        className="h-1 w-32 cursor-pointer accent-accent"
       />
       <span className="w-14 text-right tabular-nums text-[#aaa]">{percent(zoom)}</span>
     </div>

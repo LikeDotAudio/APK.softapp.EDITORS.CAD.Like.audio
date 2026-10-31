@@ -36,7 +36,7 @@ What the code holds itself to, with where each one lives:
 * **One bundle, two doors.** `#/drawing` and `#/big-picture` (`src/shell/entrance.ts`) are one application doing two jobs; an unknown fragment lands on the drawing board so old bookmarks still work.
 * **Every failure is soft.** Served from apk.audio there is no `server.py`; the Big Picture file (`src/io/bigPicture`) is then simply unreachable and the IndexedDB session stays the working copy. A save quoting a stale digest is refused (409) rather than overwriting someone's drawing.
 * **A door for softapps built on it.** Inside another softapp's iframe it speaks `cad.like.audio/host@1` over `postMessage` (`src/shell/hostBridge`): it tells the host the view, the geometry and the Virtual Mirror, and takes palettes, layers and placements back. EDITORS.Acoustic.Like.audio is that host. The protocol is published as a schema with samples in `contract/host@1/`.
-* **Ratchets on every build.** `npm run build` runs `tsc`, `verifyFlow` (port geometry, neighbour graph, DXF BLOCK/INSERT resolution) and four gates (`check-mount-reach`, `check-effect-abort`, `check-brand-tokens`, `check-interfaces`) before Vite; the two baselines only go down, and the vendored brand tokens and Interfaces table must match the monorepo's.
+* **Ratchets on every build.** `npm run build` runs `tsc`, `verifyFlow` (port geometry, neighbour graph, DXF BLOCK/INSERT resolution) and five gates (`check-mount-reach`, `check-effect-abort`, `check-brand-tokens`, `check-interfaces`, `check-brand-literals`) before Vite; the two baselines only go down, and the vendored brand tokens and Interfaces table must match the monorepo's.
 
 ---
 

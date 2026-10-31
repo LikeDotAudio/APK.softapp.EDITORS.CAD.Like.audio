@@ -14,7 +14,7 @@ export function MenuBarButton({ label, open, onToggle }: MenuBarButtonProps) {
       onClick={onToggle}
       className={
         'rounded px-2.5 py-1 text-[12px] font-medium transition-colors ' +
-        (open ? 'bg-[#f4902c] text-[#1e1e1e]' : 'text-[#ddd] hover:bg-[#333]')
+        (open ? 'bg-accent text-[#1e1e1e]' : 'text-[#ddd] hover:bg-[#333]')
       }
     >
       {label} ▾
