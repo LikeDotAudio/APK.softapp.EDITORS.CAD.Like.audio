@@ -123,6 +123,7 @@ import { requestDraw } from './actions/requestDraw';
 import { resize } from './actions/resize';
 import { resolveDyn } from './actions/resolveDyn';
 import { restoreBrowserSession } from './actions/restoreBrowserSession';
+import { resumeFromHost } from '../shell/hostBridge/hostBridge';
 import { rotateSelectionPrompt } from './actions/rotateSelectionPrompt';
 import { scaleSelectionPrompt } from './actions/scaleSelectionPrompt';
 import { selectAll } from './actions/selectAll';
@@ -369,7 +370,7 @@ export class EditorStore {
     if (this.entrance.entrance === 'big-picture') {
       void this.restoreBrowserSession().then(() => this.openBigPicture());
     }
-    if (typeof window !== 'undefined' && resumeFromHash(window.location.hash)) void this.restoreBrowserSession();
+    if (typeof window !== 'undefined' && resumeFromHash(window.location.hash)) void resumeFromHost(this, window.location.hash);
     this.showHint(entrance.hint, 8000);
   }
 

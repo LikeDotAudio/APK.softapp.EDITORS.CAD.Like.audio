@@ -6,6 +6,7 @@ import type { SavedSession } from '@io/browserStorage/SavedSession';
 import { buildSavedSession } from '@state/actions/autoSaveSession';
 import { applySavedSession } from '@state/actions/restoreBrowserSession';
 import { currentHost } from '../entrance';
+import { handoverFromHash, offerHandover, receiveHandover } from './hostHandover';
 import { applyHostMarks, marksInDoc } from './hostMarks';
 import { placeHostItems } from './hostPlace';
 import { moveHostItems, removeHostItems, repaintHostItems } from './hostMove';
@@ -93,6 +94,14 @@ import { pickedOutline, sceneForHost, wallsForHost } from './sceneForHost';
  * says nothing to it. `view` still describes this window's canvas; a host
  * whose overlay is no longer over it ignores that.
  *
+ * MOVING THE DRAWING to that window is CAD to CAD (hostHandover.ts): the host
+ * opens it at `…&resume&handover=<token>` and sends the docked CAD `handover`
+ * { token }; the two pass the session over a BroadcastChannel and the host
+ * never holds it. The new window says `ready` only once it has the drawing
+ * (or, with nobody answering, the browser's autosave) — so a host blanks its
+ * iframe after the move, not before. `session` above is for the host's own
+ * file, not for this.
+ *
  * Standalone (no parent, no opening host), every call here is a no-op.
  */
 
@@ -171,6 +180,9 @@ export const HOST_HANDLERS: Record<string, (store: EditorStore, msg: HostMessage
   select: (store, msg) => applyHostSelect(store, msg),
   marks: (store, msg) => applyHostMarks(store, msg),
   session: (store) => post('session', { session: { ...buildSavedSession(store), userAuth: undefined } }),
+  handover: (store, { token }) => {
+    if (typeof token === 'string' && /^[\w-]{1,64}$/.test(token)) offerHandover(token, () => buildSavedSession(store));
+  },
   open: (store, { session }) => {
     const s = session as SavedSession | undefined;
     if (s && Array.isArray(s.docSnapshot?.edges)) void openSession(store, s);
@@ -188,7 +200,28 @@ function install(store: EditorStore): void {
     if (!msg || msg.protocol !== HOST_PROTOCOL || typeof msg.type !== 'string') return;
     if (Object.hasOwn(HOST_HANDLERS, msg.type)) HOST_HANDLERS[msg.type]!(store, msg);
   });
-  post('ready', {});
+  // a window the drawing is being handed to is not ready until it has it
+  void arrived.then(() => post('ready', {}));
+}
+
+/** Settles once a resumed editor has its drawing; until then it does not tell its host `ready`. */
+let arrived: Promise<void> = Promise.resolve();
+
+/**
+ * `&resume`: the host moved this editor between its iframe and a window. With
+ * `&handover=<token>` the drawing comes straight from the other CAD; without,
+ * or when it does not answer, from the browser's autosave.
+ */
+export function resumeFromHost(store: EditorStore, hash: string): Promise<void> {
+  const token = handoverFromHash(hash);
+  arrived = (async () => {
+    const session = token ? await receiveHandover(token) : null;
+    if (!session) return store.restoreBrowserSession();
+    await applySavedSession(store, { ...session, userAuth: undefined });
+    await store.autoSaveSession(false);
+    store.showHint(`${session.currentFileName ?? 'The drawing'} came over from the docked editor.`, 4000);
+  })().catch(() => undefined);
+  return arrived;
 }
 
 async function openSession(store: EditorStore, session: SavedSession): Promise<void> {

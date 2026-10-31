@@ -1,7 +1,7 @@
 {
   "name": "cad-like-audio",
   "private": true,
-  "version": "1.1.0",
+  "version": "1.2.0",
   "type": "module",
   "description": "CAD.LIKE.AUDIO \u2014 2D CAD sketcher with true-arc geometry and DXF export.",
   "license": "MIT",
