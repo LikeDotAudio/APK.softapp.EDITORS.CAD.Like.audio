@@ -7,8 +7,8 @@ How the editor is built, tested and shipped, and where it lands.
 | Command | What it does |
 | --- | --- |
 | `npm ci` | Install (React 19, Vite 7, Tailwind 4, TypeScript 5.9, vitest 2). |
-| `npm test` | `vitest run` — DXF round trip (`src/io/exportDxf/buildDxf.test.ts`), file name, layer stroke, connectors, host bridge, palette. |
-| `npm run build` | `tsc --noEmit` → `npm run verify` (`scripts/verifyFlow.ts`, bundled by esbuild into `node_modules/.cache/kad/`) → `npm run gates` (`check-mount-reach`, `check-effect-abort`, `check-brand-tokens`) → `vite build` into `dist/`. Any failure stops the build. |
+| `npm test` | `vitest run` — DXF round trip (`src/io/exportDxf/buildDxf.test.ts`), file name, layer stroke, connectors, host bridge, palette, and the two contract tests (`hostContract.test.ts`, `bigPictureContract.test.ts`) over `contract/`. |
+| `npm run build` | `tsc --noEmit` → `npm run verify` (`scripts/verifyFlow.ts`, bundled by esbuild into `node_modules/.cache/kad/`) → `npm run gates` (`check-mount-reach`, `check-effect-abort`, `check-brand-tokens`, `check-interfaces`) → `vite build` into `dist/`. Any failure stops the build. |
 | `npm run example` | Regenerates `Drawings/big-picture-flow.{json,dxf}`. |
 
 `dist/` is **tracked**: the APK.audio portal serves the checkout as-is, so every source change is committed with its rebuilt `dist/`. The build stamp is a hash of the sources (`vite.config.ts` `buildStamp`), so rebuilding unchanged sources leaves `dist/` untouched.
@@ -27,3 +27,16 @@ How the editor is built, tested and shipped, and where it lands.
 * Rebuilding the web-static image after a change is manual (`up-stack.sh`).
 * `src/tokens/brand.json` is re-copied from the monorepo's `contracts/tokens/brand.json` by hand; the `check-brand-tokens` gate fails the build when the two differ inside an APK.audio checkout (a standalone checkout, such as CI, has nothing to compare and passes).
 * DNS for `cad.like.audio` → GitHub Pages and the Pages custom domain are manual steps.
+
+## Delivered from the 2026-10-30 audit
+
+- **`cad.like.audio/host@1` published as a schema** — `contract/host@1/host.schema.json` (JSON Schema, a `$defs` entry per message, `toCad.*` / `toHost.*`) and `contract/host@1/samples.json` (one sample of every message both ways, mm), checked by the dependency-free `contract/validate.mjs`. `hostBridge.ts` now dispatches through `HOST_HANDLERS` and types `post` with `HOST_OUTBOUND_TYPES`; `src/shell/hostBridge/hostContract.test.ts` proves the schema lists exactly those types, every sample validates, the real emitters (`geometryForHost`, `viewForHost`, `mirrorForHost`, `selectionForHost`) validate, and the samples parse here. EDITORS.Acoustic.Like.audio vendors the directory and runs the same samples against `cadLink.js`. Verified: `npm test`.
+- **`verifyFlow` reads only its own copy** — `scripts/verifyFlow.ts` reads `scripts/fixtures/Interfaces.json` from this repo's root (no 12-level walk); new gate `scripts/check-interfaces.mjs` (in `npm run gates`) fails a monorepo build when it drifts from `PODS/POD.THIN/OS/Interfaces/APK-Shop/Interfaces.json`, passes standalone. Verified: `npm run verify` 94/94, gate reports a match.
+- **Big Picture route versioned, shape-checked, contract-tested (client side)** — `bigPictureApi.ts` asks `/api/v1/big-picture`, falls back to `/api/big-picture` on 404 for one release, sends `schema: 'cad.like.audio/big-picture@1'`, and checks reads with `isBigPictureRead`. `contract/big-picture@1/` holds the schema and read/write/saved/refused samples; `src/io/bigPicture/bigPictureContract.test.ts` tests the client against them. The server side (serve `/api/v1/`, test against the samples) is a handoff to WEB.OsApi. Verified: `npm test`.
+- **Versioning rule written and version bumped** — the `@1` → `@2` rule (new optional field stays `@1`; rename/removal is `@2`, both answered for one release; every `contract/` change bumps `version`) is in `hostBridge.ts` and ARCHITECTURE.md; `package.json` 1.0.0 → 1.1.0 for the published contracts. Git tags are not pushed (owner's call).
+- **DXF provenance corrected** — `DxfDocument.ts`, `DxfGeometry.ts`, `buildDxf.ts`, `core/types.ts` and ARCHITECTURE.md now say the Python `.apk.scripts/dxf_writer.py` is gone and the TS port is the suite's only conformant emitter.
+- **KNOWN_ISSUES is real** — `Documentation/🔍Audits/KNOWN_ISSUES.md` lists four checked issues (single 889 kB chunk, two unmounted components, the Big Picture legacy fallback, the smoke page), each with how it was checked.
+- **Declared `@state` / `@io` surfaces** — tsconfig `paths` + `vite.config.ts` `resolve.alias`; 136 deep relative imports in 87 files outside `state/` and `io/` rewritten to `@state/…` / `@io/…`. Verified: `tsc --noEmit`, `npm test`, `npm run build`.
+- **Vendored can-cut.ca pages** — Kept by design: provenance for the first screens, outside the Vite root, never loaded; the token in `cad.htm` is that site's own public verification meta, not ours (PRINCIPLES.md, `reference/can-cut.ca/README.md`).
+
+Part of a bigger app: this bundle is the `07b · Drawing` and `06a · Big Picture` tiles in APK:OS (baked by WEB.Frontend-Assets) and the CAD inside EDITORS.Acoustic.Like.audio.

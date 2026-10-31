@@ -207,11 +207,13 @@ for (const def of [...FLOW_CATALOG, ...SHOP_CATALOG]) {
    matching no packages and exiting 0). If the shop's termination list is not
    where it is committed, this check has proved nothing and says so. */
 
-const INTERFACES_PATHS = [
-  'PODS/POD.THIN/OS/Interfaces/APK-Shop/Interfaces.json',
-  'APK:OS/Interfaces/APK-Shop/Interfaces.json',
-  'scripts/fixtures/Interfaces.json',
-];
+/* The table read is THIS repository's vendored copy, always — the same file
+   in a monorepo checkout, in CI and in a fork, so the gate tests one thing
+   wherever it runs. The OS owns the original
+   (PODS/POD.THIN/OS/Interfaces/APK-Shop/Interfaces.json); the copy is kept
+   byte-identical to it by scripts/check-interfaces.mjs, the same drift gate
+   check-brand-tokens.mjs is for the brand tokens. */
+const INTERFACES_FIXTURE = 'scripts/fixtures/Interfaces.json';
 
 interface TerminalRow {
   interface: string;
@@ -220,25 +222,24 @@ interface TerminalRow {
   domain?: string;
 }
 
-function readTerminals(): TerminalRow[] {
-  /* Walk up from this bundle until the repository root is under us. The
-     verifier is bundled into `node_modules/.cache/kad/`, so neither cwd nor a
-     fixed number of `..` is dependable — a caller may run it from the repo root
-     (the old `check.sh` did) and `npm run build` runs it from the app. */
+/** This repository's root: the nearest folder above the bundle with a package.json (the bundle sits in node_modules/.cache/kad/, which has none). */
+function repoRoot(): string {
   let dir = resolve(dirname(fileURLToPath(import.meta.url)));
-  for (let hop = 0; hop < 12; hop += 1) {
-    for (const rel of INTERFACES_PATHS) {
-      const candidate = join(dir, rel);
-      if (existsSync(candidate)) {
-        const doc = JSON.parse(readFileSync(candidate, 'utf8'));
-        return doc['Interface Map'].blocks.Terminals.data as TerminalRow[];
-      }
-    }
+  while (!existsSync(join(dir, 'package.json'))) {
     const up = dirname(dir);
-    if (up === dir) break;
+    if (up === dir) throw new Error(`no package.json above ${dirname(fileURLToPath(import.meta.url))} — run this from the repository`);
     dir = up;
   }
-  throw new Error(`${INTERFACES_PATHS.join(' or ')} was not found above ${dirname(fileURLToPath(import.meta.url))} — the join could not be checked, which is a failure and not a skip`);
+  return dir;
+}
+
+function readTerminals(): TerminalRow[] {
+  const file = join(repoRoot(), INTERFACES_FIXTURE);
+  if (!existsSync(file)) {
+    throw new Error(`${file} is missing — the join could not be checked, which is a failure and not a skip`);
+  }
+  const doc = JSON.parse(readFileSync(file, 'utf8'));
+  return doc['Interface Map'].blocks.Terminals.data as TerminalRow[];
 }
 
 const terminals = readTerminals();

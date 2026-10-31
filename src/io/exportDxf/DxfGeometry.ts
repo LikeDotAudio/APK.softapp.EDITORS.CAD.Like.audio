@@ -21,10 +21,10 @@ export interface HandleSource {
  * viewers and is REFUSED outright by strict ones, which is the same as not
  * having a drawing, only harder to notice.
  *
- * This is `.apk.scripts/dxf_writer.py`'s `Geometry` class in TypeScript, group
- * code for group code. That module is this repository's one conformant writer
- * (PLAN-36.03); a second convention here would be a third dialect of DXF in a
- * tree that has just finished getting down to one.
+ * This began as the old `.apk.scripts/dxf_writer.py`'s `Geometry` class in
+ * TypeScript, group code for group code (PLAN-36.03). That Python module is
+ * gone; this port is now the one conformant writer, and a second convention
+ * anywhere would be a second dialect of DXF in a tree that got down to one.
  */
 export class DxfGeometry {
   entities = '';

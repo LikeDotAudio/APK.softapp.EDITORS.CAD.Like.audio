@@ -1,8 +1,8 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { MAX_ZOOM, MIN_ZOOM } from '../../core/constants';
-import { useStore } from '../../state/useStore';
-import { useUi } from '../../state/useUi';
+import { useStore } from '@state/useStore';
+import { useUi } from '@state/useUi';
 
 /** The view's starting zoom (Viewport.zoom), shown as 100 %. */
 const HOME_ZOOM = 80;

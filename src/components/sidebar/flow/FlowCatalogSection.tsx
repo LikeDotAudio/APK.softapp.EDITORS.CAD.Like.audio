@@ -4,8 +4,8 @@ import { useState, useMemo } from 'react';
 import { CATALOG } from '../../../flow/catalog';
 import { PORT_SIDES } from '../../../core/types';
 import { SIDE_COLOR } from '../../../render/flow/flowColors';
-import { useStore } from '../../../state/useStore';
-import { useUi } from '../../../state/useUi';
+import { useStore } from '@state/useStore';
+import { useUi } from '@state/useUi';
 import { PanelSectionTitle } from '../PanelSectionTitle';
 
 type FlowCategory = 'ALL' | 'FLOW' | 'MATH_LOGIC' | 'ADAPTERS' | 'SYMBOLS';

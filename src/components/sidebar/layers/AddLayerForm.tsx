@@ -1,7 +1,7 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { useState } from 'react';
-import { useStore } from '../../../state/useStore';
+import { useStore } from '@state/useStore';
 
 /** Inline "new layer" field under the layer toolbar. */
 export function AddLayerForm() {

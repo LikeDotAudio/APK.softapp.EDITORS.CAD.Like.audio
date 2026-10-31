@@ -1,7 +1,7 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { placePaletteBlock } from '../../model/palette/placePaletteBlock';
-import type { EditorStore } from '../../state/EditorStore';
+import type { EditorStore } from '@state/EditorStore';
 
 /**
  * A HOST FURNISHES THE SHEET

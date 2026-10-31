@@ -51,6 +51,13 @@ export default defineConfig({
   // "/assets/..." only ever resolves in the last of those.
   base: './',
   plugins: [react(), tailwindcss()],
+  // The same two surfaces tsconfig.json `paths` declares (vitest reads this file too).
+  resolve: {
+    alias: {
+      '@state': path.resolve(__dirname, 'src/state'),
+      '@io': path.resolve(__dirname, 'src/io'),
+    },
+  },
   server: { port: 5173, open: false },
   define: {
     // Baked in by the build, so the running app can show which revision it is.

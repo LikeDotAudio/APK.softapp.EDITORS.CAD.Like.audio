@@ -3,7 +3,7 @@
 
 import React, { useState, useCallback, useRef } from 'react';
 import { ConnectorPalette } from './ConnectorPalette';
-import { useStore } from '../../state/useStore';
+import { useStore } from '@state/useStore';
 
 interface ConnectorsDockProps {
   isOpen: boolean;

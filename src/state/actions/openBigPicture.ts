@@ -2,7 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { EditorStore } from '../EditorStore';
 import { restoreSchematic } from '../../flow/Schematic';
-import { fetchBigPicture } from '../../io/bigPicture/bigPictureApi';
+import { fetchBigPicture } from '@io/bigPicture/bigPictureApi';
 
 /**
  * Read 06a's filed sheet and make it the one on screen.

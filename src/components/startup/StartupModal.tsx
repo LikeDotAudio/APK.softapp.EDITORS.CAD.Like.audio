@@ -1,9 +1,9 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { useEffect, useState } from 'react';
-import { loadSessionFromBrowser } from '../../io/browserStorage/loadSessionFromBrowser';
-import type { SavedSession } from '../../io/browserStorage/SavedSession';
-import { useStore } from '../../state/useStore';
+import { loadSessionFromBrowser } from '@io/browserStorage/loadSessionFromBrowser';
+import type { SavedSession } from '@io/browserStorage/SavedSession';
+import { useStore } from '@state/useStore';
 
 interface StartupModalProps {
   onClose: () => void;

@@ -1,7 +1,7 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { Layer, Units } from '../../core/types';
-import { standardLinetype } from '../../io/exportDxf/dxfLinetypes';
+import { standardLinetype } from '@io/exportDxf/dxfLinetypes';
 
 /** How a layer's edges are stroked on screen: a width in px and a canvas dash array. */
 export interface LayerStroke {

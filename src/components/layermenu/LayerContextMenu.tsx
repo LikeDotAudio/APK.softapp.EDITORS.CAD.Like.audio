@@ -1,7 +1,7 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { Layer } from '../../core/types';
-import { useStore } from '../../state/useStore';
+import { useStore } from '@state/useStore';
 import { MenuDivider } from '../menubar/MenuDivider';
 import { MenuItem } from '../menubar/MenuItem';
 import { LayerMenuHeader } from './LayerMenuHeader';

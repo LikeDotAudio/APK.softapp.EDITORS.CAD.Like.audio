@@ -2,8 +2,8 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { useMemo, useState } from 'react';
 import type { PaletteFit, PaletteItem } from '../../../model/palette/PaletteItem';
-import { useStore } from '../../../state/useStore';
-import { useUi } from '../../../state/useUi';
+import { useStore } from '@state/useStore';
+import { useUi } from '@state/useUi';
 import { PanelSectionTitle } from '../PanelSectionTitle';
 import { PalettePreview } from './PalettePreview';
 import { PaletteSwatch } from './PaletteSwatch';

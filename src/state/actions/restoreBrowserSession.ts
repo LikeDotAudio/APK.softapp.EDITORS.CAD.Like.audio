@@ -1,9 +1,9 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { EditorStore } from '../EditorStore';
-import type { SavedSession } from '../../io/browserStorage/SavedSession';
+import type { SavedSession } from '@io/browserStorage/SavedSession';
 import { restoreSchematic } from '../../flow/Schematic';
-import { loadSessionFromBrowser } from '../../io/browserStorage/loadSessionFromBrowser';
+import { loadSessionFromBrowser } from '@io/browserStorage/loadSessionFromBrowser';
 
 export async function restoreBrowserSession(store: EditorStore): Promise<void> {
   await store.showLoading('Opening drawings', 'Restoring cached drawing from browser memory...');

@@ -2,8 +2,8 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { useEffect } from 'react';
 import { useEntrance } from '../../shell/EntranceContext';
-import { useStore } from '../../state/useStore';
-import { useUi } from '../../state/useUi';
+import { useStore } from '@state/useStore';
+import { useUi } from '@state/useUi';
 
 /**
  * Wordmark at the left edge of the header. It says which ENTRANCE this window

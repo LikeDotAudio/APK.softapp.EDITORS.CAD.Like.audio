@@ -2,7 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { describe, expect, it } from 'vitest';
 import type { FillEntity } from '../../core/types';
-import type { EditorStore } from '../../state/EditorStore';
+import type { EditorStore } from '@state/EditorStore';
 import { repaintHostItems } from './hostMove';
 
 function fakeStore() {

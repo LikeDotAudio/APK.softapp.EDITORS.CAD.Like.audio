@@ -1,9 +1,9 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { EditorStore } from '../EditorStore';
-import type { SavedSession } from '../../io/browserStorage/SavedSession';
+import type { SavedSession } from '@io/browserStorage/SavedSession';
 import { snapshotSchematic } from '../../flow/Schematic';
-import { saveSessionToBrowser } from '../../io/browserStorage/saveSessionToBrowser';
+import { saveSessionToBrowser } from '@io/browserStorage/saveSessionToBrowser';
 
 export async function autoSaveSession(store: EditorStore, forceLoadingScreen = false): Promise<void> {
   const showLoading = forceLoadingScreen && !store.loading;

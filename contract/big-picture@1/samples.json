@@ -1,0 +1,145 @@
+{
+  "$comment": "One of each cad.like.audio/big-picture@1 body. Coordinates in mm. EDITORS.CAD.Like.audio tests its client against these (bigPictureContract.test.ts); WEB.OsApi should run validate_big_picture over sheet and answer saved/refused in these shapes.",
+  "read": {
+    "sheet": {
+      "placements": [
+        {
+          "id": 1,
+          "definitionId": "SHOP_NIC",
+          "at": {
+            "x": 0,
+            "y": 0
+          },
+          "layerId": "0",
+          "refdes": "enp12s0"
+        },
+        {
+          "id": 2,
+          "definitionId": "SHOP_NIC",
+          "at": {
+            "x": 4000,
+            "y": 0
+          },
+          "rotation": 180,
+          "layerId": "0",
+          "refdes": "enp5s0f0"
+        }
+      ],
+      "connectors": [
+        {
+          "id": 1,
+          "from": {
+            "placementId": 1,
+            "portId": "ETH"
+          },
+          "to": {
+            "placementId": 2,
+            "portId": "ETH"
+          },
+          "layerId": "0"
+        }
+      ],
+      "groups": [
+        {
+          "id": 1,
+          "name": "Rack A",
+          "children": [],
+          "members": [
+            1,
+            2
+          ],
+          "layerId": "0"
+        }
+      ],
+      "nextPlacementId": 3,
+      "nextConnectorId": 2,
+      "nextGroupId": 2,
+      "saved_at": "2026-10-30T09:00:00",
+      "saved_by": "CAD.LIKE.AUDIO · 06a",
+      "exists": true
+    },
+    "digest": "3f2a9c"
+  },
+  "readEmpty": {
+    "sheet": {
+      "placements": [],
+      "connectors": [],
+      "groups": [],
+      "nextPlacementId": 1,
+      "nextConnectorId": 1,
+      "nextGroupId": 1,
+      "saved_at": null,
+      "exists": false
+    },
+    "digest": null
+  },
+  "write": {
+    "schema": "cad.like.audio/big-picture@1",
+    "sheet": {
+      "placements": [
+        {
+          "id": 1,
+          "definitionId": "SHOP_NIC",
+          "at": {
+            "x": 0,
+            "y": 0
+          },
+          "layerId": "0",
+          "refdes": "enp12s0"
+        },
+        {
+          "id": 2,
+          "definitionId": "SHOP_NIC",
+          "at": {
+            "x": 4000,
+            "y": 0
+          },
+          "rotation": 180,
+          "layerId": "0",
+          "refdes": "enp5s0f0"
+        }
+      ],
+      "connectors": [
+        {
+          "id": 1,
+          "from": {
+            "placementId": 1,
+            "portId": "ETH"
+          },
+          "to": {
+            "placementId": 2,
+            "portId": "ETH"
+          },
+          "layerId": "0"
+        }
+      ],
+      "groups": [
+        {
+          "id": 1,
+          "name": "Rack A",
+          "children": [],
+          "members": [
+            1,
+            2
+          ],
+          "layerId": "0"
+        }
+      ],
+      "nextPlacementId": 3,
+      "nextConnectorId": 2,
+      "nextGroupId": 2
+    },
+    "base": "3f2a9c"
+  },
+  "saved": {
+    "saved": true,
+    "digest": "7b1d04",
+    "saved_at": "2026-10-30T09:05:00",
+    "placements": 2,
+    "groups": 1
+  },
+  "conflict": {
+    "error": "big-picture.json changed while this sheet was being edited — another window saved first.",
+    "digest": "7b1d04"
+  }
+}

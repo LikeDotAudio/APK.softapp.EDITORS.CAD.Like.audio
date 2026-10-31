@@ -2,8 +2,8 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { useState } from 'react';
 import type { CadBlockInstance } from '../../../core/types';
-import { useStore } from '../../../state/useStore';
-import { useUi } from '../../../state/useUi';
+import { useStore } from '@state/useStore';
+import { useUi } from '@state/useUi';
 
 interface BlockPropertiesProps {
   instance: CadBlockInstance;

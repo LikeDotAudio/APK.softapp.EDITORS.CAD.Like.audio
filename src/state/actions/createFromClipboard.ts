@@ -2,7 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { EditorStore } from '../EditorStore';
 import { restoreSchematic } from '../../flow/Schematic';
-import { parseDxf } from '../../io/importDxf/parseDxf';
+import { parseDxf } from '@io/importDxf/parseDxf';
 
 /**
  * Inspects system clipboard (image blob, DXF text, JSON snapshot, or plain text)

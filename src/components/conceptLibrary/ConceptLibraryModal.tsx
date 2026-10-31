@@ -6,7 +6,7 @@ import { CONNECTOR_GROUPS } from '../../connectors/ConnectorLookup';
 import { ICONS, GenericIcon } from '../../connectors/index';
 import { evaluatePortCompatibility, getEssenceCategory } from '../../connectors/adapterRules';
 import { CATALOG } from '../../flow/catalog';
-import { useStore } from '../../state/useStore';
+import { useStore } from '@state/useStore';
 import type { BlockDefinition } from '../../core/types';
 
 interface ConceptLibraryModalProps {

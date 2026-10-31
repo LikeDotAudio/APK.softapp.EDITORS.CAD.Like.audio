@@ -1,0 +1,271 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cad.like.audio/contract/big-picture@1/big-picture.schema.json",
+  "title": "cad.like.audio/big-picture@1",
+  "description": "The Big Picture route between CAD.Like.audio (customer) and WEB.OsApi server.py (supplier): GET /api/v1/big-picture answers 'read'; POST /api/v1/big-picture takes 'write' and answers 'saved' (200) or 'refused' (400/409/413/500). The legacy unversioned /api/big-picture carries the same shapes and is read by the CAD as a fallback for one release. Validate with ../validate.mjs; samples.json has one of each.",
+  "x-protocol": "cad.like.audio/big-picture@1",
+  "$defs": {
+    "point": {
+      "type": "object",
+      "required": [
+        "x",
+        "y"
+      ],
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      }
+    },
+    "portRef": {
+      "type": "object",
+      "required": [
+        "placementId",
+        "portId"
+      ],
+      "properties": {
+        "placementId": {
+          "type": "integer"
+        },
+        "portId": {
+          "type": "string"
+        }
+      }
+    },
+    "sheet": {
+      "type": "object",
+      "required": [
+        "placements",
+        "connectors",
+        "groups"
+      ],
+      "properties": {
+        "placements": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "definitionId",
+              "at",
+              "layerId"
+            ],
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "definitionId": {
+                "type": "string"
+              },
+              "at": {
+                "$ref": "#/$defs/point"
+              },
+              "rotation": {
+                "type": "number"
+              },
+              "scale": {
+                "type": "number"
+              },
+              "layerId": {
+                "type": "string"
+              },
+              "refdes": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "connectors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "from",
+              "to",
+              "layerId"
+            ],
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "from": {
+                "$ref": "#/$defs/portRef"
+              },
+              "to": {
+                "$ref": "#/$defs/portRef"
+              },
+              "layerId": {
+                "type": "string"
+              },
+              "route": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/point"
+                }
+              },
+              "label": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "children",
+              "members",
+              "layerId"
+            ],
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "name": {
+                "type": "string"
+              },
+              "children": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              },
+              "members": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              },
+              "layerId": {
+                "type": "string"
+              },
+              "pad": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "nextPlacementId": {
+          "type": "integer"
+        },
+        "nextConnectorId": {
+          "type": "integer"
+        },
+        "nextGroupId": {
+          "type": "integer"
+        },
+        "saved_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "saved_by": {
+          "type": "string"
+        },
+        "exists": {
+          "type": "boolean"
+        }
+      }
+    },
+    "read": {
+      "type": "object",
+      "required": [
+        "sheet",
+        "digest"
+      ],
+      "properties": {
+        "sheet": {
+          "$ref": "#/$defs/sheet"
+        },
+        "digest": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "write": {
+      "type": "object",
+      "required": [
+        "schema",
+        "sheet",
+        "base"
+      ],
+      "properties": {
+        "schema": {
+          "const": "cad.like.audio/big-picture@1"
+        },
+        "sheet": {
+          "$ref": "#/$defs/sheet"
+        },
+        "base": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "by": {
+          "type": "string"
+        }
+      }
+    },
+    "saved": {
+      "type": "object",
+      "required": [
+        "saved",
+        "digest",
+        "saved_at",
+        "placements"
+      ],
+      "properties": {
+        "saved": {
+          "const": true
+        },
+        "digest": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "saved_at": {
+          "type": "string"
+        },
+        "placements": {
+          "type": "integer"
+        },
+        "groups": {
+          "type": "integer"
+        }
+      }
+    },
+    "refused": {
+      "type": "object",
+      "required": [
+        "error"
+      ],
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "problems": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "digest": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

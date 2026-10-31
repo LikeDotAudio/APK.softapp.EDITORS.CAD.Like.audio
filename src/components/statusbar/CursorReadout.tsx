@@ -1,7 +1,7 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { formatLength } from '../../model/units/formatLength';
-import { useUi } from '../../state/useUi';
+import { useUi } from '@state/useUi';
 
 /** Live cursor position in document units. */
 export function CursorReadout() {

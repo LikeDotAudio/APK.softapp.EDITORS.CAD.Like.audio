@@ -1,10 +1,10 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
-import type { EditorStore } from '../../state/EditorStore';
+import type { EditorStore } from '@state/EditorStore';
 import { parsePalette } from '../../model/palette/parsePalette';
-import type { SavedSession } from '../../io/browserStorage/SavedSession';
-import { buildSavedSession } from '../../state/actions/autoSaveSession';
-import { applySavedSession } from '../../state/actions/restoreBrowserSession';
+import type { SavedSession } from '@io/browserStorage/SavedSession';
+import { buildSavedSession } from '@state/actions/autoSaveSession';
+import { applySavedSession } from '@state/actions/restoreBrowserSession';
 import { currentHost } from '../entrance';
 import { applyHostMarks, marksInDoc } from './hostMarks';
 import { placeHostItems } from './hostPlace';
@@ -98,6 +98,26 @@ import { pickedOutline, sceneForHost, wallsForHost } from './sceneForHost';
 
 export const HOST_PROTOCOL = 'cad.like.audio/host@1';
 
+/*
+ * THE PUBLISHED SHAPE. The protocol above is written down as a JSON Schema with
+ * sample messages in `contract/host@1/` at the root of this repository — that,
+ * not this comment, is what a host builds against. `hostContract.test.ts`
+ * holds this file to it both ways: every type `HOST_HANDLERS` answers and every
+ * type `post` sends is in the schema, and what sceneForHost / selectionForHost
+ * actually emit validates. A host (EDITORS.Acoustic.Like.audio) vendors the same
+ * directory and runs the same samples against its own side.
+ *
+ * CHANGING IT. A new optional field or a new message type is still `@1`: a
+ * host that does not know it ignores it. Renaming or removing a field, or
+ * changing what one means, is `@2` — and for one release this bridge answers
+ * BOTH `@1` and `@2` (the hosts move over in that window), then drops `@1`.
+ * Every change to `contract/` bumps `version` in package.json.
+ */
+
+/** What this side sends a host. */
+export const HOST_OUTBOUND_TYPES = ['ready', 'view', 'selection', 'geometry', 'mirror', 'session'] as const;
+export type HostOutboundType = (typeof HOST_OUTBOUND_TYPES)[number];
+
 let installed = false;
 let lastView = '';
 let lastGeometry = '';
@@ -114,64 +134,59 @@ function host(): Window | null {
   return opener && !opener.closed && currentHost() !== null ? opener : null;
 }
 
-function post(type: string, body: object): void {
+function post(type: HostOutboundType, body: object): void {
   host()?.postMessage({ protocol: HOST_PROTOCOL, type, ...body }, window.location.origin);
 }
+
+type HostMessage = Record<string, unknown>;
+
+/** Every message a host may send, and what it does here. The keys are the protocol's inbound vocabulary. */
+export const HOST_HANDLERS: Record<string, (store: EditorStore, msg: HostMessage) => void> = {
+  hello: (store) => {
+    lastView = '';
+    lastGeometry = '';
+    lastMirror = '';
+    publishToHost(store);
+  },
+  fit: (store) => store.zoomToFit(),
+  mirror: (store, { x, enabled }) => {
+    if (typeof x === 'number' && Number.isFinite(x)) store.setVirtualMirror(x, enabled !== false, false);
+  },
+  sheet: (store, { layer, color, seed }) => {
+    if (typeof layer === 'string' && layer.trim()) showHostSheet(store, layer.trim(), color, seed);
+  },
+  palette: (store, msg) => {
+    const palette = parsePalette(msg);
+    if (palette) store.setPalette(palette);
+  },
+  arm: (store, { paletteId }) => store.armPaletteItem(typeof paletteId === 'string' ? paletteId : null),
+  place: (store, msg) => void placeHostItems(store, msg),
+  layer: (store, msg) => void ensureHostLayer(store, msg),
+  move: (store, msg) => void moveHostItems(store, msg),
+  remove: (store, msg) => void removeHostItems(store, msg),
+  spaces: (store, msg) => void applyHostSpaces(store, msg),
+  repaint: (store, msg) => void repaintHostItems(store, msg),
+  walls: (store, msg) => void applyHostWalls(store, msg),
+  layers: (store, msg) => void applyHostLayers(store, msg),
+  select: (store, msg) => applyHostSelect(store, msg),
+  marks: (store, msg) => applyHostMarks(store, msg),
+  session: (store) => post('session', { session: { ...buildSavedSession(store), userAuth: undefined } }),
+  open: (store, { session }) => {
+    const s = session as SavedSession | undefined;
+    if (s && Array.isArray(s.docSnapshot?.edges)) void openSession(store, s);
+  },
+  floorplan: (store, { file }) => {
+    if (file instanceof File) void openFloorPlan(store, file);
+  },
+};
 
 function install(store: EditorStore): void {
   installed = true;
   window.addEventListener('message', (e: MessageEvent) => {
     if (e.source !== host() || e.origin !== window.location.origin) return;
-    const msg = e.data as { protocol?: string; type?: string } | null;
-    if (!msg || msg.protocol !== HOST_PROTOCOL) return;
-    if (msg.type === 'hello') {
-      lastView = '';
-      lastGeometry = '';
-      lastMirror = '';
-      publishToHost(store);
-    } else if (msg.type === 'fit') {
-      store.zoomToFit();
-    } else if (msg.type === 'mirror') {
-      const { x, enabled } = msg as { x?: unknown; enabled?: unknown };
-      if (typeof x === 'number' && Number.isFinite(x)) store.setVirtualMirror(x, enabled !== false, false);
-    } else if (msg.type === 'sheet') {
-      const { layer, color, seed } = msg as { layer?: unknown; color?: unknown; seed?: unknown };
-      if (typeof layer === 'string' && layer.trim()) showHostSheet(store, layer.trim(), color, seed);
-    } else if (msg.type === 'palette') {
-      const palette = parsePalette(msg);
-      if (palette) store.setPalette(palette);
-    } else if (msg.type === 'arm') {
-      const { paletteId } = msg as { paletteId?: unknown };
-      store.armPaletteItem(typeof paletteId === 'string' ? paletteId : null);
-    } else if (msg.type === 'place') {
-      placeHostItems(store, msg as { layer?: unknown; items?: unknown });
-    } else if (msg.type === 'layer') {
-      ensureHostLayer(store, msg as { name?: unknown; color?: unknown; finish?: unknown });
-    } else if (msg.type === 'move') {
-      moveHostItems(store, msg as { items?: unknown });
-    } else if (msg.type === 'remove') {
-      removeHostItems(store, msg as { ids?: unknown });
-    } else if (msg.type === 'spaces') {
-      applyHostSpaces(store, msg as { items?: unknown });
-    } else if (msg.type === 'repaint') {
-      repaintHostItems(store, msg as { ids?: unknown; paletteId?: unknown });
-    } else if (msg.type === 'walls') {
-      applyHostWalls(store, msg as Parameters<typeof applyHostWalls>[1]);
-    } else if (msg.type === 'layers') {
-      applyHostLayers(store, msg as { visible?: unknown });
-    } else if (msg.type === 'select') {
-      applyHostSelect(store, msg as { edges?: unknown; blocks?: unknown });
-    } else if (msg.type === 'marks') {
-      applyHostMarks(store, msg as { key?: unknown; hash?: unknown; items?: unknown });
-    } else if (msg.type === 'session') {
-      post('session', { session: { ...buildSavedSession(store), userAuth: undefined } });
-    } else if (msg.type === 'open') {
-      const { session } = msg as { session?: SavedSession };
-      if (session && Array.isArray(session.docSnapshot?.edges)) void openSession(store, session);
-    } else if (msg.type === 'floorplan') {
-      const { file } = msg as { file?: unknown };
-      if (file instanceof File) void openFloorPlan(store, file);
-    }
+    const msg = e.data as HostMessage | null;
+    if (!msg || msg.protocol !== HOST_PROTOCOL || typeof msg.type !== 'string') return;
+    if (Object.hasOwn(HOST_HANDLERS, msg.type)) HOST_HANDLERS[msg.type]!(store, msg);
   });
   post('ready', {});
 }
@@ -193,18 +208,34 @@ async function openFloorPlan(store: EditorStore, file: File): Promise<void> {
   else store.showHint(`${file.name} is not a floor plan this editor opens: a .dxf, or an image to trace.`, 4000);
 }
 
+/** The `view` body: the world→screen transform and the canvas box in this window. */
+export function viewForHost(store: Pick<EditorStore, 'view' | 'units'>, rect: { left: number; top: number; width: number; height: number }) {
+  const { zoom, panX, panY } = store.view;
+  return { zoom, panX, panY, rect, units: store.units };
+}
+
+/** The `geometry` body: the visible sheet (sceneForHost), its file name, and the marks hash per key. */
+export function geometryForHost(store: Pick<EditorStore, 'doc' | 'units' | 'layers' | 'currentFileName'>, pickedLoops: readonly (readonly number[])[]) {
+  return { fileName: store.currentFileName, ...sceneForHost(store.doc, store.units, store.layers, pickedLoops), marks: marksInDoc(store.doc) };
+}
+
+/** The `mirror` body: whether Symmetrical Mode is on, its primary axis and every axis x. */
+export function mirrorForHost(store: Pick<EditorStore, 'mirror'>) {
+  const { enabled, x } = store.mirror;
+  return { enabled, x, axes: (store.mirror.mirrors ?? []).map((m) => m.x) };
+}
+
 /** Called after every frame; sends only what changed since the last one. */
 export function publishToHost(store: EditorStore): void {
   if (!host() || !store.canvas) return;
   if (!installed) install(store);
 
   const r = store.canvas.getBoundingClientRect();
-  const { zoom, panX, panY } = store.view;
-  const rect = { left: r.left, top: r.top, width: r.width, height: r.height };
-  const viewKey = [zoom, panX, panY, rect.left, rect.top, rect.width, rect.height].join();
+  const view = viewForHost(store, { left: r.left, top: r.top, width: r.width, height: r.height });
+  const viewKey = [view.zoom, view.panX, view.panY, view.rect.left, view.rect.top, view.rect.width, view.rect.height].join();
   if (viewKey !== lastView) {
     lastView = viewKey;
-    post('view', { zoom, panX, panY, rect, units: store.units });
+    post('view', view);
   }
 
   // a selection that closes a loop is remembered as walls
@@ -220,14 +251,13 @@ export function publishToHost(store: EditorStore): void {
   const geometryKey = `${store.docVersion}|${store.units}|${layerKey}|${store.doc.edgeCount}|${[...picked.keys()].join(';')}`;
   if (geometryKey !== lastGeometry) {
     lastGeometry = geometryKey;
-    post('geometry', { fileName: store.currentFileName, ...sceneForHost(store.doc, store.units, store.layers, [...picked.values()]), marks: marksInDoc(store.doc) });
+    post('geometry', geometryForHost(store, [...picked.values()]));
   }
 
-  const { enabled, x } = store.mirror;
-  const axes = (store.mirror.mirrors ?? []).map((m) => m.x);
-  const mirrorKey = `${enabled}|${x}|${axes.join()}`;
+  const mirror = mirrorForHost(store);
+  const mirrorKey = `${mirror.enabled}|${mirror.x}|${mirror.axes.join()}`;
   if (mirrorKey !== lastMirror) {
     lastMirror = mirrorKey;
-    post('mirror', { enabled, x, axes });
+    post('mirror', mirror);
   }
 }

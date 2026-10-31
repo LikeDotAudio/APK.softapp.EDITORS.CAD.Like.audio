@@ -3,7 +3,7 @@
 import type { CadBlockDefinition, Point } from '../../core/types';
 import type { Doc } from '../../model/Doc';
 import { addPaletteFill } from '../../model/palette/addPaletteFill';
-import type { EditorStore } from '../../state/EditorStore';
+import type { EditorStore } from '@state/EditorStore';
 
 /**
  * WHAT A HOST DRAWS ON THE SHEET, AND KEEPS CURRENT

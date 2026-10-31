@@ -311,8 +311,8 @@ export interface BlockSize {
 /**
  * A reusable symbol: an outline, the strokes drawn inside it, and the ports
  * that make it a thing rather than a picture. Exports as a DXF `BLOCK` placed
- * by one `INSERT` - the convention `.apk.scripts/dxf_writer.py` already writes,
- * matched rather than reinvented.
+ * by one `INSERT` - the convention the old `.apk.scripts/dxf_writer.py` wrote,
+ * kept when it was ported to `io/exportDxf/` (now the only emitter).
  *
  * The glyph is polylines in block-local coordinates rather than a `Doc`-style
  * vertex graph: a definition is authored, not drawn edge by edge, and the

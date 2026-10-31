@@ -7,5 +7,6 @@ Plans are not kept here: every plan is a card in the APK.audio monorepo's `Docum
 <!-- wiki:index -->
 | Page | What |
 |---|---|
+| [IMPROVEMENTS.md](IMPROVEMENTS.md) | 🛣 Improvements — EDITORS.CAD.Like.audio (from the 2026-10-30 architecture audit) |
 | [ROADMAP.md](ROADMAP.md) | Roadmap & Development Plans — CAD.Like.audio |
 <!-- /wiki:index -->

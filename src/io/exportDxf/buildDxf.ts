@@ -37,8 +37,8 @@ import { dxfBlockName } from './dxfBlockName';
  *     of it as a reference, so a block moves as one thing and a sheet with
  *     twelve of them is not twelve copies of the same strokes.
  *
- * The writer underneath is `DxfDocument`, the TypeScript port of
- * `.apk.scripts/dxf_writer.py` — this repository's one conformant emitter.
+ * The writer underneath is `DxfDocument` — first ported from the since-removed
+ * `.apk.scripts/dxf_writer.py`, now the suite's one conformant DXF emitter.
  */
 export function buildDxf(
   doc: Doc,

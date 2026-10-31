@@ -1,8 +1,8 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { EditorStore } from '../EditorStore';
-import type { RecentFileEntry } from '../../io/recentFiles/RecentFileEntry';
-import { loadRecentFileData } from '../../io/recentFiles/recentFileDataStore';
+import type { RecentFileEntry } from '@io/recentFiles/RecentFileEntry';
+import { loadRecentFileData } from '@io/recentFiles/recentFileDataStore';
 
 export async function loadRecentFile(store: EditorStore, entry: RecentFileEntry): Promise<void> {
   let data = entry.data;

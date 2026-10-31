@@ -1,7 +1,7 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
-import { useStore } from '../../../../state/useStore';
-import { useUi } from '../../../../state/useUi';
+import { useStore } from '@state/useStore';
+import { useUi } from '@state/useUi';
 
 /** SHPE mode flags loose ends and crossings so a shape can actually be cut. */
 export function ShapeModeRow() {

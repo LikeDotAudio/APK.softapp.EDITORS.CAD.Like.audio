@@ -1,7 +1,7 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { useState } from 'react';
-import { useUi } from '../../../state/useUi';
+import { useUi } from '@state/useUi';
 import { LayerColorSwatch } from '../layers/LayerColorSwatch';
 import { PropertyRow } from './PropertyRow';
 

@@ -1,10 +1,10 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { useEffect, useRef, useState } from 'react';
-import type { RecentFileEntry } from '../../../io/recentFiles/RecentFileEntry';
+import type { RecentFileEntry } from '@io/recentFiles/RecentFileEntry';
 import { useEntrance } from '../../../shell/EntranceContext';
-import { useStore } from '../../../state/useStore';
-import { useUi } from '../../../state/useUi';
+import { useStore } from '@state/useStore';
+import { useUi } from '@state/useUi';
 import { ImportUnitModal } from '../../ImportUnitModal';
 import { MenuBarButton } from '../MenuBarButton';
 import { MenuDivider } from '../MenuDivider';
@@ -17,7 +17,7 @@ import { ImageFileInput } from './file/ImageFileInput';
 import type { PendingDxfImport } from './file/PendingDxfImport';
 import { RecentFilesSubmenu } from './file/RecentFilesSubmenu';
 import { useRecentFiles } from './file/useRecentFiles';
-import { loadRecentFileData } from '../../../io/recentFiles/recentFileDataStore';
+import { loadRecentFileData } from '@io/recentFiles/recentFileDataStore';
 
 /**
  * File ▾ — open, import, recent files, DXF export, and 06a's filed sheet.

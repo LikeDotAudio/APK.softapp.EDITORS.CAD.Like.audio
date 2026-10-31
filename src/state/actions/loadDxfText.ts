@@ -2,13 +2,13 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { EditorStore } from '../EditorStore';
 import type { Units } from '../../core/types';
-import { addRecentFile } from '../../io/recentFiles/addRecentFile';
+import { addRecentFile } from '@io/recentFiles/addRecentFile';
 import { clearSchematic } from '../../flow/Schematic';
-import { layersFromDxf } from '../../io/importDxf/layersFromDxf';
-import { loadDxfIntoDoc } from '../../io/importDxf/loadDxfIntoDoc';
-import { parseDxf } from '../../io/importDxf/parseDxf';
-import { skippedSummary } from '../../io/importDxf/skippedSummary';
-import type { DxfEntity } from '../../io/importDxf/DxfParseResult';
+import { layersFromDxf } from '@io/importDxf/layersFromDxf';
+import { loadDxfIntoDoc } from '@io/importDxf/loadDxfIntoDoc';
+import { parseDxf } from '@io/importDxf/parseDxf';
+import { skippedSummary } from '@io/importDxf/skippedSummary';
+import type { DxfEntity } from '@io/importDxf/DxfParseResult';
 import { unitFactor } from '../../model/units/unitFactor';
 
 export async function loadDxfText(store: EditorStore, text: string,

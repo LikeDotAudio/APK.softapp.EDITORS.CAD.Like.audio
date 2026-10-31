@@ -1,8 +1,8 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { useState } from 'react';
-import { useStore } from '../../state/useStore';
-import { useUi } from '../../state/useUi';
+import { useStore } from '@state/useStore';
+import { useUi } from '@state/useUi';
 
 export interface SendToLayerSubmenuProps {
   onDone: () => void;

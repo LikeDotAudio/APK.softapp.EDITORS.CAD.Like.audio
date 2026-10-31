@@ -35,8 +35,8 @@ What the code holds itself to, with where each one lives:
 * **A file a strict reader accepts.** The DXF writer is a port of the repository's one conformant emitter: handles, owners, AcDb subclasses, a BLOCK_RECORD table, and no dangling reference — every layer an entity names and every linetype a layer names is declared.
 * **One bundle, two doors.** `#/drawing` and `#/big-picture` (`src/shell/entrance.ts`) are one application doing two jobs; an unknown fragment lands on the drawing board so old bookmarks still work.
 * **Every failure is soft.** Served from apk.audio there is no `server.py`; the Big Picture file (`src/io/bigPicture`) is then simply unreachable and the IndexedDB session stays the working copy. A save quoting a stale digest is refused (409) rather than overwriting someone's drawing.
-* **A door for softapps built on it.** Inside another softapp's iframe it speaks `cad.like.audio/host@1` over `postMessage` (`src/shell/hostBridge`): it tells the host the view, the geometry and the Virtual Mirror, and takes palettes, layers and placements back. EDITORS.Acoustic.Like.audio is that host.
-* **Ratchets on every build.** `npm run build` runs `tsc`, `verifyFlow` (port geometry, neighbour graph, DXF BLOCK/INSERT resolution) and three gates (`check-mount-reach`, `check-effect-abort`, `check-brand-tokens`) before Vite; the two baselines only go down, and the vendored brand tokens must match the monorepo's.
+* **A door for softapps built on it.** Inside another softapp's iframe it speaks `cad.like.audio/host@1` over `postMessage` (`src/shell/hostBridge`): it tells the host the view, the geometry and the Virtual Mirror, and takes palettes, layers and placements back. EDITORS.Acoustic.Like.audio is that host. The protocol is published as a schema with samples in `contract/host@1/`.
+* **Ratchets on every build.** `npm run build` runs `tsc`, `verifyFlow` (port geometry, neighbour graph, DXF BLOCK/INSERT resolution) and four gates (`check-mount-reach`, `check-effect-abort`, `check-brand-tokens`, `check-interfaces`) before Vite; the two baselines only go down, and the vendored brand tokens and Interfaces table must match the monorepo's.
 
 ---
 
@@ -52,6 +52,7 @@ This repository is a modular, standalone component of the APK.audio Softapps sui
 | `src/io` | DXF export (`exportDxf`) and import (`importDxf`), the browser session, recent files, the Big Picture file, images. |
 | `src/shell` | Which door the app came in by, and the host bridge for softapps that embed it. |
 | `src/state`, `src/components`, `src/render`, `src/viewport` | The store and its actions, the React chrome, the canvas renderer, pan/zoom. |
+| `contract` | Published contracts (`host@1`, `big-picture@1`) — JSON Schema, samples, `validate.mjs`. |
 | `scripts` | `verifyFlow.ts` and the build gates with their baselines. |
 | `Drawings` | The example Big Picture sheet as `.json` and `.dxf`. |
 | `dist` | The built app. **Tracked** — the portal serves it as-is, so rebuild and commit it with the source. |

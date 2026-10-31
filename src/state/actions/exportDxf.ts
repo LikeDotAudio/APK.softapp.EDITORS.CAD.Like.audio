@@ -2,7 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { EditorStore } from '../EditorStore';
 import { canUserSave } from '../../core/userAuth';
-import { saveDxf } from '../../io/exportDxf/saveDxf';
+import { saveDxf } from '@io/exportDxf/saveDxf';
 
 export async function exportDxf(store: EditorStore): Promise<void> {
   if (store.currentUserAuth) {

@@ -9,7 +9,7 @@ import { metresToUnits } from './metresToUnits';
 import { paletteBlockDefinition } from './paletteBlockDefinition';
 import { paletteFootprint } from './paletteFootprint';
 import { parsePalette } from './parsePalette';
-import { EditorStore } from '../../state/EditorStore';
+import { EditorStore } from '@state/EditorStore';
 import { placePaletteBlock } from './placePaletteBlock';
 import { regionAt, tileCentres } from './regionAt';
 import type { PaletteItem } from './PaletteItem';

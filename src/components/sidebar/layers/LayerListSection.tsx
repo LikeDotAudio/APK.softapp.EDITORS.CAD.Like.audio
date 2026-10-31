@@ -2,8 +2,8 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { useRef, useState } from 'react';
 import type { Layer } from '../../../core/types';
-import { useStore } from '../../../state/useStore';
-import { useUi } from '../../../state/useUi';
+import { useStore } from '@state/useStore';
+import { useUi } from '@state/useUi';
 import { LayerContextMenu } from '../../layermenu/LayerContextMenu';
 import { PanelSectionTitle } from '../PanelSectionTitle';
 import { AddLayerForm } from './AddLayerForm';

@@ -19,7 +19,15 @@
     "isolatedModules": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "noEmit": true
+    "noEmit": true,
+
+    /* Declared surfaces: components/, shell/, tools/ … reach the store and the
+       I/O adapters through these, not through a ../../../ climb. */
+    "baseUrl": ".",
+    "paths": {
+      "@state/*": ["src/state/*"],
+      "@io/*": ["src/io/*"]
+    }
   },
   /* `scripts/` is named file by file rather than as a folder: it is a place
      people drop one-off emitters, and a typecheck that silently widens to

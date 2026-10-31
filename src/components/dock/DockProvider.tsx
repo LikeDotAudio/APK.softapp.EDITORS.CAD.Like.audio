@@ -2,7 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useEntrance } from '../../shell/EntranceContext';
-import { useUi } from '../../state/useUi';
+import { useUi } from '@state/useUi';
 import { DockContext, type DockApi } from './DockContext';
 import {
   loadDockLayout,

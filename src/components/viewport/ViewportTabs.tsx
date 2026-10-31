@@ -2,8 +2,8 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { useId, useMemo, useRef, useState } from 'react';
 import type { CadViewport } from '../../core/types';
-import { useStore } from '../../state/useStore';
-import { useUi } from '../../state/useUi';
+import { useStore } from '@state/useStore';
+import { useUi } from '@state/useUi';
 
 /**
  * Bottom tabs strip (AutoCAD Model / Layout Tabs style).

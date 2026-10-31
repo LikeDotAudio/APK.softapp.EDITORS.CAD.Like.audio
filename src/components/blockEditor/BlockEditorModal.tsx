@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { BlockPlacement, CadBlockDefinition, CadBlockInstance, FillEntity, Point, TextEntity } from '../../core/types';
 import { generateUuid } from '../../core/generateUuid';
-import { useStore } from '../../state/useStore';
-import { useUi } from '../../state/useUi';
+import { useStore } from '@state/useStore';
+import { useUi } from '@state/useUi';
 
 interface BlockEditorModalProps {
   initialBlockName?: string;

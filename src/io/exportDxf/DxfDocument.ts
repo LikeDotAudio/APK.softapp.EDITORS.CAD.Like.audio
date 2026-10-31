@@ -30,9 +30,11 @@ export interface DxfLayerSpec {
  * thing in whatever package opens the file, which is the difference between a
  * drawing somebody can work with and a picture of one.
  *
- * Ported from `.apk.scripts/dxf_writer.py` (PLAN-36.03), which was itself lifted
- * out of `build_interfaces_drawing.py` — the sheet that audits at 0 errors and
- * round-trips. Conformance is three separate things and all three are here:
+ * Originally ported from the monorepo's `.apk.scripts/dxf_writer.py`
+ * (PLAN-36.03, itself lifted out of `build_interfaces_drawing.py`, the sheet
+ * that audited at 0 errors and round-tripped). That Python writer has since
+ * been removed, so this TypeScript port is now the suite's only conformant
+ * DXF emitter — the reference, not a copy of one. Conformance is three separate things and all three are here:
  * every entity carries a handle (5) and an owner (330); every entity declares
  * AcDbEntity and then its own subclass; and the TABLES section carries a
  * BLOCK_RECORD table naming *Model_Space, *Paper_Space and every block, which

@@ -1,8 +1,8 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { EditorStore } from '../EditorStore';
-import { addRecentFile } from '../../io/recentFiles/addRecentFile';
-import { loadImageFile } from '../../io/loadImageFile';
+import { addRecentFile } from '@io/recentFiles/addRecentFile';
+import { loadImageFile } from '@io/loadImageFile';
 
 export async function importImage(store: EditorStore, file: File): Promise<void> {
   await store.showLoading('Opening drawings', `Importing & caching ${file.name}...`);
