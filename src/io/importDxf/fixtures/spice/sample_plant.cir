@@ -1,0 +1,54 @@
+* io test
+*------------------------------------------------------------------------
+* WORK ORDER   WO-2026-0418
+* DUT          30x30 video matrix
+* DUT SERIAL   MTX-30-0007
+* OPERATOR     A. Kuzub
+*   CP-140     v(mon2_in)  monitor input
+*------------------------------------------------------------------------
+
+* --- models ---
+.model MatrixSW SW(Ron=0.5 Roff=1G Vt=2.5 Vh=0.5)
+
+
+* === path: cam1_to_mon2 (CAM1 -> MON2) ===
+V_CAM1 cam1_out__drv 0 SINE(0 0.7 6Meg) ; source CAM1
+R_CAM1z cam1_out__drv cam1_out 75 ; source impedance
+* -- cable: run_truck [cam1_out -> cam1_to_mon2_n1]
+R_run_truck cam1_out run_truck_t 7.23586 ; 0.80 dB over 40.0 m
+T_run_truck run_truck_t 0 cam1_to_mon2_n1 0 Z0=75 TD=1.627e-07 ; 40.0 m, VF=0.82, 162.7 ns
+* -- patch: pp_in_07 [cam1_to_mon2_n1 -> cam1_to_mon2_n2]
+R_pp_in_07 cam1_to_mon2_n1 cam1_to_mon2_n2 30m ; normalled through
+C_pp_in_07 cam1_to_mon2_n1 cam1_to_mon2_n2 12p ; jack stray capacitance
+* -- crosspoint: xpt_s1_1_1 [cam1_to_mon2_n2 -> cam1_to_mon2_n3]
+S_xpt_s1_1_1 cam1_to_mon2_n2 cam1_to_mon2_n3 v1_ctrl 0 MatrixSW ; CLOSED
+* -- filter: dut_aa [cam1_to_mon2_n3 -> mon2_in]
+R_dut_aa cam1_to_mon2_n3 mon2_in 1k ; f-3dB = 5e+06 Hz
+C_dut_aa mon2_in 0 31.831p
+R_MON2L mon2_in 0 75 ; MON2 termination
+C_MON2L mon2_in 0 15p ; MON2 input C
+
+* === path: cam2_to_mon1 (CAM2 -> MON1) ===
+V_CAM2 cam2_out__drv 0 SINE(0 0.7 6Meg) ; source CAM2
+R_CAM2z cam2_out__drv cam2_out 75 ; source impedance
+* -- cable: run_b [cam2_out -> cam2_to_mon1_n1]
+R_run_b cam2_out run_b_t 3.53464 ; 0.40 dB over 20.0 m
+T_run_b run_b_t 0 cam2_to_mon1_n1 0 Z0=75 TD=8.136e-08 ; 20.0 m, VF=0.82, 81.4 ns
+* -- crosspoint: xpt_s1_2_2 [cam2_to_mon1_n1 -> mon1_in]
+S_xpt_s1_2_2 cam2_to_mon1_n1 mon1_in v2_ctrl 0 MatrixSW ; OPEN
+R_MON1L mon1_in 0 75 ; MON1 termination
+C_MON1L mon1_in 0 15p ; MON1 input C
+V_CTRL1 v1_ctrl 0 DC 5.0 ; v1_ctrl CLOSED
+V_CTRL2 v2_ctrl 0 DC 0.0 ; v2_ctrl open
+
+.tran 2n 500n
+
+.control
+set wr_vecnames
+set wr_singlescale
+run
+wrdata sim.csv v(mon2_in)
+quit
+.endc
+
+.end
