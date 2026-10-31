@@ -10,7 +10,7 @@ The documentation for `EDITORS.CAD.Like.audio`, in the same lanes as the APK.aud
 | [🌍Publishing](%F0%9F%8C%8DPublishing/INDEX.md) | 1 | How it is built, shipped, and where it lands — its delivery. |
 | [🔍Audits](%F0%9F%94%8DAudits/INDEX.md) | 2 | Findings against the built thing; known issues, measured. |
 | [🛣Roadmap](%F0%9F%9B%A3Roadmap/INDEX.md) | 2 | Nothing to do is kept here: every roadmap item lives in the APK.audio monorepo's `Documentation/🛣Roadmap/roadmap.htm`. |
-| [💡Notes and Ideas](%F0%9F%92%A1Notes%20and%20Ideas/INDEX.md) | 0 | Loose notes and ideas not yet filed. |
+| [💡Notes and Ideas](%F0%9F%92%A1Notes%20and%20Ideas/INDEX.md) | 1 | Loose notes and ideas not yet filed. |
 <!-- /wiki:lanes -->
 
 <!-- wiki:smoke -->

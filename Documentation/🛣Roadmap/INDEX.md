@@ -8,5 +8,5 @@ Nothing to do is kept here: every roadmap item lives in the APK.audio monorepo's
 | Page | What |
 |---|---|
 | [IMPROVEMENTS.md](IMPROVEMENTS.md) | 🛣 Improvements — EDITORS.CAD.Like.audio (from the 2026-10-30 architecture audit) |
-| [ROADMAP.md](ROADMAP.md) | Roadmap — CAD.Like.audio |
+| [ROADMAP.md](ROADMAP.md) | 🛣 Roadmap — EDITORS.CAD.Like.audio |
 <!-- /wiki:index -->
