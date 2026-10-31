@@ -7,7 +7,8 @@ import { layersFromDxf } from '../importDxf/layersFromDxf';
 import { loadDxfIntoDoc } from '../importDxf/loadDxfIntoDoc';
 import { parseDxf } from '../importDxf/parseDxf';
 import { buildDxf } from './buildDxf';
-import { dxfLineweight } from './dxfLinetypes';
+import { DXF_LINEWEIGHTS, STANDARD_LINETYPES, dxfLineweight } from './dxfLinetypes';
+import { applyLayerStyle } from '../../state/actions/setLayerStyle';
 
 /** A sheet with something of every kind on four layers. */
 function sheet(): { doc: Doc; layers: Layer[] } {
@@ -141,6 +142,35 @@ describe('DXF round trip', () => {
     expect(layerOf((d) => d.edges.values())).toEqual([...layerOf(() => doc.edges.values())]);
     expect(layerOf((d) => d.texts.values())).toEqual(['Axes']);
     expect(layerOf((d) => d.fills.values())).toEqual(['Walls']);
+  });
+
+  it('round-trips a layer styled in the app — every declared linetype and every DXF lineweight step', () => {
+    const doc = new Doc();
+    const layers: Layer[] = [];
+    STANDARD_LINETYPES.forEach((linetype, i) => {
+      const layer: Layer = { id: `L${i}`, name: `L${i}`, color: '#ffffff', visible: true };
+      const lineweight = DXF_LINEWEIGHTS[i % DXF_LINEWEIGHTS.length]!;
+      applyLayerStyle(layer, { linetype: linetype.toLowerCase(), lineweight });
+      layers.push(layer);
+      doc.addLine({ x: 0, y: i }, { x: 10, y: i }, doc.newGroupId(), layer.id);
+    });
+    // the steps the linetypes did not reach, on layers of their own
+    DXF_LINEWEIGHTS.slice(STANDARD_LINETYPES.length).forEach((lineweight) => {
+      const layer: Layer = { id: `W${lineweight}`, name: `W${lineweight}`, color: '#ffffff', visible: true };
+      applyLayerStyle(layer, { lineweight });
+      layers.push(layer);
+    });
+
+    const parsed = parseDxf(buildDxf(doc, 'mm', layers));
+    const back = layersFromDxf(parsed);
+    for (const set of layers) {
+      const l = back.find((b) => b.name === set.name)!;
+      expect(l.linetype).toBe(set.linetype);
+      expect(l.lineweight).toBe(set.lineweight);
+    }
+    // a styled layer's linetype is declared in the file at its mm pattern
+    expect(parsed.linetypes.find((l) => l.name === 'DASHED')?.pattern).toEqual([12.7, -6.35]);
+    expect(back.find((l) => l.name === 'L0')?.linetype).toBeUndefined(); // CONTINUOUS is the default
   });
 
   it('brings a fill back with its outline only, not the hatch elevation point', () => {

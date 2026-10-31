@@ -4,6 +4,7 @@ import type { Layer } from '../../../core/types';
 import { useStore } from '@state/useStore';
 import { useUi } from '@state/useUi';
 import { LayerColorSwatch } from './LayerColorSwatch';
+import { LinetypeSelect, LineweightSelect } from './LayerStyleSelects';
 
 export interface LayerRowProps {
   layer: Layer;
@@ -20,7 +21,7 @@ export interface LayerRowProps {
   onContextMenu: (e: React.MouseEvent) => void;
 }
 
-/** One layer in the list: active dot, visibility, name, its host finish (when a host sent a palette), colour. */
+/** One layer in the list: active dot, visibility, name, linetype, lineweight, its host finish (when a host sent a palette), colour. */
 export function LayerRow({
   layer,
   isActive,
@@ -41,6 +42,8 @@ export function LayerRow({
   const finishes = (palette?.items ?? []).filter((i) => !i.size);
   const groups = [...new Set(finishes.map((i) => i.category))];
   const chosen = finishes.find((i) => i.id === layer.finish);
+  const pickerClass =
+    'mr-1 flex-shrink-0 truncate rounded border border-[#3c3c3c] bg-[#1e1e1e] px-0.5 py-0 text-[10px] text-[#cccccc]';
 
   return (
     <div
@@ -97,13 +100,16 @@ export function LayerRow({
         )}
       </div>
 
+      <LinetypeSelect layer={layer} className={pickerClass + ' w-[64px]'} />
+      <LineweightSelect layer={layer} className={pickerClass + ' w-[58px]'} />
+
       {finishes.length > 0 && (
         <select
           value={layer.finish ?? ''}
           onClick={(e) => e.stopPropagation()}
           onChange={(e) => store.setLayerFinish(layer.id, e.target.value || null)}
           title={chosen ? `Finish of everything on ${layer.name}: ${chosen.name}` : `Give ${layer.name} a finish: its walls, ceiling or floor are made of it unless a painted patch says otherwise`}
-          className="mr-1 w-[74px] flex-shrink-0 truncate rounded border border-[#3c3c3c] bg-[#1e1e1e] px-0.5 py-0 text-[10px] text-[#cccccc]"
+          className={pickerClass + ' w-[74px]'}
           style={chosen ? { borderColor: chosen.color } : undefined}
         >
           <option value="">— finish —</option>

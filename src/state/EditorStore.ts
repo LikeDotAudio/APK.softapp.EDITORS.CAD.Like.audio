@@ -140,6 +140,7 @@ import { setImageOpacity } from './actions/setImageOpacity';
 import { setImageWorldWidth } from './actions/setImageWorldWidth';
 import { setLayerColor } from './actions/setLayerColor';
 import { setLayerFinish } from './actions/setLayerFinish';
+import { setLayerStyle, type LayerStyle } from './actions/setLayerStyle';
 import { setMeasurement } from './actions/setMeasurement';
 import { setPalette } from './actions/setPalette';
 import { setSelectionLayer } from './actions/setSelectionLayer';
@@ -859,6 +860,10 @@ export class EditorStore {
 
   setLayerFinish(id: string, finish: string | null): void {
     setLayerFinish(this, id, finish);
+  }
+
+  setLayerStyle(id: string, style: LayerStyle): void {
+    setLayerStyle(this, id, style);
   }
 
   renameLayer(id: string, newName: string): void {
