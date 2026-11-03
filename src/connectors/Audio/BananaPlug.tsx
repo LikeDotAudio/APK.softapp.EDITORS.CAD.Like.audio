@@ -1,4 +1,4 @@
-// Copyright (c) 2026 oneDiversified.
+// Copyright (c) 2026 APK.audio.
 
 /**
  * Banana Plug connectors — single (BAN1) and dual (BAN2).

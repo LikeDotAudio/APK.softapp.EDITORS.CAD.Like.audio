@@ -1,4 +1,4 @@
-// Copyright (c) 2026 oneDiversified.
+// Copyright (c) 2026 APK.audio.
 
 /**
  * RJ45 connector — metallic shell housing with 8 gold contact pins,

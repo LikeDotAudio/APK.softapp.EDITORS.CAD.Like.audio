@@ -1,4 +1,4 @@
-// Copyright (c) 2026 oneDiversified.
+// Copyright (c) 2026 APK.audio.
 
 // Changelog:
 //   2026-10-03 - created: one distinct pictogram per NMOS spec / role.

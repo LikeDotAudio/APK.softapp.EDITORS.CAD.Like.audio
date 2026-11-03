@@ -1,4 +1,4 @@
-// Copyright (c) 2026 oneDiversified.
+// Copyright (c) 2026 APK.audio.
 
 /**
  * Speakon connector family — parameterized by pole count (2, 4, 8).

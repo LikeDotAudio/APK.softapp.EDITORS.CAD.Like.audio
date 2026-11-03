@@ -1,4 +1,4 @@
-// Copyright (c) 2026 oneDiversified.
+// Copyright (c) 2026 APK.audio.
 
 /**
  * BNC connector — bayonet latch design with metallic shell,

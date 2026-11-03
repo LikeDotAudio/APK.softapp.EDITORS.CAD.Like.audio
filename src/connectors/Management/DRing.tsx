@@ -1,4 +1,4 @@
-// Copyright (c) 2026 oneDiversified.
+// Copyright (c) 2026 APK.audio.
 
 // Changelog:
 //   2026-08-14 11:30 - created: D-ring management feature (FEATURE-202608132265)

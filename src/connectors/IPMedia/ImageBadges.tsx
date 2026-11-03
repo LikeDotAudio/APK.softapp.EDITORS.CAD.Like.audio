@@ -1,4 +1,4 @@
-// Copyright (c) 2026 APK.audio & oneDiversified
+// Copyright (c) 2026 APK.audio & APK.audio
 // MIT License.
 
 import React from 'react';

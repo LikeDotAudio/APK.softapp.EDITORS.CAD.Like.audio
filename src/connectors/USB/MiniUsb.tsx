@@ -1,4 +1,4 @@
-// Copyright (c) 2026 oneDiversified.
+// Copyright (c) 2026 APK.audio.
 
 /**
  * Mini USB connector icon — small trapezoidal shape, wider at top,

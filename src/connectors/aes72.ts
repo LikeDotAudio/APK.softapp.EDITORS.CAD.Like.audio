@@ -1,4 +1,4 @@
-// Copyright (c) 2026 oneDiversified.
+// Copyright (c) 2026 APK.audio.
 
 // Changelog:
 //   2026-10-14 - Table 1 re-checked row by row against the AES72-2019 text: all nine match. Descriptions

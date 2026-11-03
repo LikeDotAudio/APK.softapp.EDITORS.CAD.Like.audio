@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2026 oneDiversified.
+# Copyright (c) 2026 APK.audio.
 #
 # Changelog:
 #   2026-10-10 - created (owner: "every icon we create... and use needs a full colour and a mono chrome").

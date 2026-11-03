@@ -1,7 +1,7 @@
-// Copyright (c) 2026 oneDiversified.
+// Copyright (c) 2026 APK.audio.
 //
 // This software, its source code, and all associated functions, scripts, and
-// documentation are the proprietary and confidential property of oneDiversified.
+// documentation are the proprietary and confidential property of APK.audio.
 // Unauthorized copying, distribution, modification, or disclosure is prohibited.
 
 // Changelog:

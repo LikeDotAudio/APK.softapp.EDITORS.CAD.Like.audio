@@ -1,7 +1,7 @@
-// Copyright (c) 2026 oneDiversified.
+// Copyright (c) 2026 APK.audio.
 //
 // This software, its source code, and all associated functions, scripts, and
-// documentation are the proprietary and confidential property of oneDiversified.
+// documentation are the proprietary and confidential property of APK.audio.
 
 // Changelog:
 //   2026-08-15 - created: lock AES72 Type 4E as a real 4-channel multipin, the

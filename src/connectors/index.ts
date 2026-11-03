@@ -1,4 +1,4 @@
-// Copyright (c) 2026 oneDiversified.
+// Copyright (c) 2026 APK.audio.
 
 // Changelog:
 //   2026-10-14 - Idea / Result / Logic / Arithmetic badges (IPMedia/LogicBadges.tsx), one per port in logicConnectors.ts.

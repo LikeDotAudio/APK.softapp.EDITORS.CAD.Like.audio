@@ -1,4 +1,4 @@
-// Copyright (c) 2026 oneDiversified.
+// Copyright (c) 2026 APK.audio.
 
 // Changelog:
 //   2026-07-22 15:55 - created: Robo rugged-multipin connector icon (roadmap §5). Heavy

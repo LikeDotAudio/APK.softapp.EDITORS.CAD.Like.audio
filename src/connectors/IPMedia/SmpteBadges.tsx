@@ -1,4 +1,4 @@
-// Copyright (c) 2026 oneDiversified.
+// Copyright (c) 2026 APK.audio.
 
 // Changelog:
 //   2026-10-14 - created: one badge per SMPTE-Audio and MXL connector (smpteMediaConnectors.ts),

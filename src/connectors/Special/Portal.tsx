@@ -1,4 +1,4 @@
-// Copyright (c) 2026 oneDiversified.
+// Copyright (c) 2026 APK.audio.
 
 // The one neutral portal glyph (portals.md D1/D2): a directionless capsule —
 // hollow outline with a centred lug dot. Replaces the PortalIn/PortalOut

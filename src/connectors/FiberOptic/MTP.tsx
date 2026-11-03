@@ -1,4 +1,4 @@
-// Copyright (c) 2026 oneDiversified.
+// Copyright (c) 2026 APK.audio.
 
 /**
  * MTP/MPO multi-fiber push-on connector — parameterized for 8, 12, and 24 strand variants.

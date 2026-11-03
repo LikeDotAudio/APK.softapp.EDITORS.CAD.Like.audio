@@ -1,8 +1,10 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { SchematicModel } from '../../core/types';
+import { routeWaterfallWire } from '../../flow/autoWire';
+import { groupBounds } from '../../flow/groups';
 import { outlineCorners } from '../../flow/placement';
-import { definitionFor, portsOf, portWorldPoint } from '../../flow/Schematic';
+import { definitionFor, portOf, portsOf, portWorldPoint } from '../../flow/Schematic';
 import { FONT } from '../palette';
 import type { Scene } from '../Scene';
 import { FLOW, SIDE_COLOR } from './flowColors';
@@ -10,31 +12,86 @@ import { FLOW, SIDE_COLOR } from './flowColors';
 const PORT_PX = 4;
 
 /**
- * Paint the schematic layer: block outlines, their glyphs, their ports coloured
- * by side, and the connectors between them.
- *
- * Connectors are drawn from the ports' DERIVED positions, so a block that moves
- * or turns takes its wires with it and no stored endpoint can go stale.
+ * Paint the schematic layer: group containment cards, auto-routed chamfered
+ * Manhattan waterfall wires, block outlines, glyphs, ports, and refdes badges.
  */
 export function drawSchematic(scene: Scene, model: SchematicModel | undefined): void {
-  if (!model || (model.placements.length === 0 && model.connectors.length === 0)) return;
+  if (!model || (model.placements.length === 0 && model.connectors.length === 0 && model.groups.length === 0)) return;
   const { ctx, view } = scene;
 
   ctx.save();
 
-  // Connectors first, so a wire passes behind the blocks it lands on.
+  // 1. Group Containment Boundaries (drawn behind everything)
+  for (const group of model.groups) {
+    if (group.collapsed) continue;
+    const box = groupBounds(model, group.id);
+    if (!box) continue;
+
+    const p1 = view.toScreen(box.x1, box.y1);
+    const p2 = view.toScreen(box.x2, box.y2);
+    const w = p2.x - p1.x;
+    const h = p2.y - p1.y;
+
+    // Soft containment fill
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.025)';
+    ctx.fillRect(p1.x, p1.y, w, h);
+
+    // Group boundary border
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+    ctx.lineWidth = 1.0;
+    ctx.setLineDash([4, 4]);
+    ctx.strokeRect(p1.x, p1.y, w, h);
+    ctx.setLineDash([]);
+
+    // Group Title Header Tag
+    ctx.font = '10px monospace';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(`⊞ ${group.name}`, p1.x + 6, p1.y - 4);
+  }
+
+  // 2. Connectors: Auto-routed chamfered waterfall paths
   ctx.strokeStyle = FLOW.connector;
   ctx.lineWidth = 1.6;
-  for (const connector of model.connectors) {
+
+  model.connectors.forEach((connector, connIdx) => {
     const a = portWorldPoint(model, connector.from);
     const b = portWorldPoint(model, connector.to);
-    if (!a || !b) continue;
-    const points = [a, ...(connector.route ?? []), b].map((p) => view.toScreen(p.x, p.y));
+    if (!a || !b) return;
+
+    const fromPort = portOf(model, connector.from);
+    const toPort = portOf(model, connector.to);
+
+    // If no manual route is specified, use auto-routed chamfered waterfall
+    const worldRoute =
+      connector.route && connector.route.length > 0
+        ? [a, ...connector.route, b]
+        : routeWaterfallWire(a, b, {
+            sourceSide: fromPort?.side ?? 'output',
+            targetSide: toPort?.side ?? 'input',
+            laneIndex: connIdx % 4,
+          });
+
+    const points = worldRoute.map((p) => view.toScreen(p.x, p.y));
+
     ctx.beginPath();
     points.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
     ctx.stroke();
-  }
 
+    // Wire label (if specified)
+    if (connector.label && points.length >= 2) {
+      const midIdx = Math.floor(points.length / 2);
+      const mid = points[midIdx];
+      ctx.font = '9px monospace';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText(connector.label, mid.x, mid.y - 2);
+    }
+  });
+
+  // 3. Block Placements
   for (const placement of model.placements) {
     const def = definitionFor(model, placement);
     if (!def) continue;

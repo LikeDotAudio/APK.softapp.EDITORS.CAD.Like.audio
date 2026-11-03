@@ -1,4 +1,4 @@
-// Copyright (c) 2026 oneDiversified.
+// Copyright (c) 2026 APK.audio.
 
 // Changelog:
 //   2026-08-14 11:30 - created: mustache pass-through management feature (FEATURE-202608132265)

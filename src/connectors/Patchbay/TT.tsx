@@ -1,4 +1,4 @@
-// Copyright (c) 2026 oneDiversified.
+// Copyright (c) 2026 APK.audio.
 
 // Changelog:
 //   2026-06-06 15:36 - new Patchbay family: TT (Tiny Telephone / Bantam) 4.4mm jack symbol

@@ -1,4 +1,4 @@
-// Copyright (c) 2026 oneDiversified.
+// Copyright (c) 2026 APK.audio.
 
 // Changelog:
 //   2026-06-06 23:10 - add `square` face frame (used by the A59 audio multipin; data D-subs stay round)

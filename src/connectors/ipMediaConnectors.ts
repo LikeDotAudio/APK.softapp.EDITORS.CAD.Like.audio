@@ -1,4 +1,4 @@
-// Copyright (c) 2026 oneDiversified.
+// Copyright (c) 2026 APK.audio.
 
 // Changelog:
 //   2026-10-14 - ST 2110-10 / -20 / -21 / -30 and ST 2022-7 descriptions now carry the standards' numbers (read from the

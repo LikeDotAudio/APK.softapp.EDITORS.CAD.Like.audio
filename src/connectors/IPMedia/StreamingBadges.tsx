@@ -1,4 +1,4 @@
-// Copyright (c) 2026 oneDiversified.
+// Copyright (c) 2026 APK.audio.
 
 // Changelog:
 //   2026-10-09 - created (owner: "be sure to make icons"): one badge per streaming, AV-over-IP,

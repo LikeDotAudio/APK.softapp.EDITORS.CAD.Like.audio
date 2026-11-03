@@ -1,4 +1,4 @@
-// Copyright (c) 2026 oneDiversified.
+// Copyright (c) 2026 APK.audio.
 
 // Changelog:
 //   2026-07-19 22:50 - PIN_POSITIONS was declared Record<number, number[]> then cast to allow the '4n' key; declared string|number-keyed directly so the lookup and positions.map params type cleanly

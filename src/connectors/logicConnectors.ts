@@ -1,4 +1,4 @@
-// Copyright (c) 2026 oneDiversified.
+// Copyright (c) 2026 APK.audio.
 
 // Changelog:
 //   2026-10-14 - created (owner: "make the connector meue includes some new categories.... like "IDEA" or RESULT"

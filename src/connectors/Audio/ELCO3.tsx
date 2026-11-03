@@ -1,7 +1,7 @@
-// Copyright (c) 2026 oneDiversified.
+// Copyright (c) 2026 APK.audio.
 //
 // This software, its source code, and all associated functions, scripts, and
-// documentation are the proprietary and confidential property of oneDiversified.
+// documentation are the proprietary and confidential property of APK.audio.
 
 // Changelog:
 //   2026-06-06 22:00 - square (not round) chrome frame — E3 is a square shell

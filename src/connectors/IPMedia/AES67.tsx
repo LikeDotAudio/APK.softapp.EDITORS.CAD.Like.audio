@@ -1,4 +1,4 @@
-// Copyright (c) 2026 oneDiversified.
+// Copyright (c) 2026 APK.audio.
 
 // Changelog:
 //   2026-10-03 - created: AES67 audio-over-IP sender/receiver badges; the same badge, re-worded,

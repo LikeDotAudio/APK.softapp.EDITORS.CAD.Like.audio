@@ -1,4 +1,4 @@
-// Copyright (c) 2026 oneDiversified.
+// Copyright (c) 2026 APK.audio.
 
 // Changelog:
 //   2026-10-03 - created: AMWA NMOS badges (IS-04/05/07/08/11, BCP-003, node, registry).

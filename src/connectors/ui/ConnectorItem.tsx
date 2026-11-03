@@ -1,4 +1,4 @@
-// Copyright (c) 2026 oneDiversified / APK.audio
+// Copyright (c) 2026 APK.audio / APK.audio
 // MIT License.
 
 import React, { useState, useRef, useCallback } from 'react';

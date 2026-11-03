@@ -1,4 +1,4 @@
-// Copyright (c) 2026 oneDiversified.
+// Copyright (c) 2026 APK.audio.
 
 // Changelog:
 //   2026-10-09 - created (owner: "i would like to add Q lan to the audio networked"): Q-LAN stream

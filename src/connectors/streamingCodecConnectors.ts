@@ -1,4 +1,4 @@
-// Copyright (c) 2026 oneDiversified.
+// Copyright (c) 2026 APK.audio.
 
 // Changelog:
 //   2026-10-14 - MXF and MXF-DV (SMPTE ST 383, DV-DIF in MXF) join Codecs-Container, from the owner's SMPTE standards set.

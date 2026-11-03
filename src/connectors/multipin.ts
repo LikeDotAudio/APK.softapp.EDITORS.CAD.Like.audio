@@ -1,4 +1,4 @@
-// Copyright (c) 2026 oneDiversified / APK.audio
+// Copyright (c) 2026 APK.audio / APK.audio
 
 import { AES72_ALL_SPELLINGS, AES72_CHANNELS } from './aes72';
 import { lookupConnectorLoose, type ConnectorLookupEntry } from './ConnectorLookup';
