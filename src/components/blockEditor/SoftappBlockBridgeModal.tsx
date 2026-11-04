@@ -39,6 +39,9 @@ export const STANDALONE_SOFTAPPS: SoftappDef[] = [
   { id: 'raci', name: 'RACI Responsibility Matrix', path: '/APK:Softapps/EDITORS/EDITORS.RACI/index.html', category: 'Project', icon: '👥' },
   { id: 'readiness', name: 'Commissioning Readiness Pipeline', path: '/APK:Softapps/EDITORS/EDITORS.Readiness/index.html', category: 'Project', icon: '🚀' },
   { id: 'moip', name: 'SMPTE ST 2022-7 MoIP Redundancy', path: '/APK:Softapps/EDITORS/EDITORS.MoipBuddy/index.html', category: 'Broadcast', icon: '📡' },
+  { id: 'drawingsheet', name: 'Drawing Sheet Borders & Title Block', path: '/APK:Softapps/EDITORS/EDITORS.DrawingSheet/index.html', category: 'Schematic', icon: '📐' },
+  { id: 'snpwrangler', name: 'Selenio ST 2110 / ST 2022-7 Wrangler', path: '/APK:Softapps/EDITORS/EDITORS.SnpWrangler/index.html', category: 'Broadcast', icon: '📡' },
+  { id: 'topologymanifest', name: 'Project Topology & Manifest', path: '/APK:Softapps/DATATYPE/DATATYPE.TopologyManifest/index.html', category: 'Project', icon: '🌐' },
 ];
 
 interface SoftappBlockBridgeModalProps {
