@@ -54,6 +54,12 @@ export function ContextMenu() {
         disabled={!hasSelection}
         onSelect={run(() => store.explodeSelection())}
       />
+      <MenuItem
+        icon="⚡"
+        label="Edit in Standalone Softapp..."
+        shortcut="SA"
+        onSelect={run(() => store.triggerOpenSoftappBridge())}
+      />
       <MenuDivider />
       <SendToLayerSubmenu onDone={close} />
       <MenuDivider />

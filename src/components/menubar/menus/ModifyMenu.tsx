@@ -80,6 +80,14 @@ export function ModifyMenu({ open, onToggle, onClose }: MenuProps) {
             })}
           />
           <MenuItem
+            icon="⚡"
+            label="Edit in Standalone Softapp..."
+            shortcut="SA"
+            onSelect={run(() => {
+              store.triggerOpenSoftappBridge();
+            })}
+          />
+          <MenuItem
             icon="✨"
             label="Create Block from Selection"
             shortcut="CB"
@@ -95,6 +103,23 @@ export function ModifyMenu({ open, onToggle, onClose }: MenuProps) {
             })}
           />
           <MenuItem icon="📥" label="Insert CAD Block..." shortcut="K" onSelect={run(() => store.setTool('block'))} />
+          <MenuDivider />
+          <MenuItem
+            icon="⚡"
+            label="Auto-Layout Schematic"
+            shortcut="AL"
+            onSelect={run(() => {
+              store.runAutoLayoutSchematic();
+            })}
+          />
+          <MenuItem
+            icon="📐"
+            label="Auto-Route Chamfered Wires"
+            shortcut="AW"
+            onSelect={run(() => {
+              store.runAutoRouteWires();
+            })}
+          />
         </MenuDropdown>
       )}
     </div>

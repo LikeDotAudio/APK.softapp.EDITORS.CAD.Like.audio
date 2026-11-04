@@ -15,6 +15,7 @@ import { EntranceContext } from './shell/EntranceContext';
 import { SpreadsheetModal } from './components/spreadsheet/SpreadsheetModal';
 import { ElementsEditorModal } from './components/elementsEditor/ElementsEditorModal';
 import { BlockEditorModal } from './components/blockEditor/BlockEditorModal';
+import { SoftappBlockBridgeModal } from './components/blockEditor/SoftappBlockBridgeModal';
 import { ConceptLibraryModal } from './components/conceptLibrary/ConceptLibraryModal';
 import { ConnectorsDock } from './connectors/ui/ConnectorsDock';
 import { StartupModal } from './components/startup/StartupModal';
@@ -32,6 +33,9 @@ export default function App() {
   const [showElementsEditor, setShowElementsEditor] = useState(false);
   const [showBlockEditor, setShowBlockEditor] = useState(false);
   const [showConceptLibrary, setShowConceptLibrary] = useState(false);
+  const [showSoftappBridge, setShowSoftappBridge] = useState(false);
+  const [softappTargetBlock, setSoftappTargetBlock] = useState<string | undefined>();
+  const [softappTargetAppId, setSoftappTargetAppId] = useState<string | undefined>();
   /* A softapp built on this editor (the acoustic overlay) wants the sheet, not the palette. */
   const [hosted] = useState(() => currentHost() !== null);
   const [showConnectorsDock, setShowConnectorsDock] = useState(!hosted);
@@ -55,10 +59,16 @@ export default function App() {
     store.openStartupModal = () => {
       setShowStartupModal(true);
     };
+    store.openSoftappBridgeModal = (blockName?: string, defaultAppId?: string) => {
+      setSoftappTargetBlock(blockName);
+      setSoftappTargetAppId(defaultAppId);
+      setShowSoftappBridge(true);
+    };
     return () => {
       store.openBlockEditorModal = null;
       store.openConceptLibraryModal = null;
       store.openStartupModal = null;
+      store.openSoftappBridgeModal = null;
     };
   }, [store]);
 
@@ -135,6 +145,15 @@ export default function App() {
             <BlockEditorModal
               initialBlockName={blockEditorTarget}
               onClose={() => setShowBlockEditor(false)}
+            />
+          )}
+
+          {/* Standalone Softapp Block Bridge Modal */}
+          {showSoftappBridge && (
+            <SoftappBlockBridgeModal
+              initialBlockName={softappTargetBlock}
+              defaultAppId={softappTargetAppId}
+              onClose={() => setShowSoftappBridge(false)}
             />
           )}
 

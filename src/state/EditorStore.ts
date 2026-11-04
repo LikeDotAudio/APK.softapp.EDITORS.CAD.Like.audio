@@ -46,6 +46,8 @@ import type { TracingImage } from '../image/TracingImage';
 import type { RecentFileEntry } from '../io/recentFiles/RecentFileEntry';
 import { DEFAULT_FLOW_DEFINITION } from '../flow/catalog';
 import { createSchematic } from '../flow/Schematic';
+import { autoLayoutSchematic } from '../flow/autoLayout';
+import { applyChamfers } from '../flow/autoWire';
 import { Doc } from '../model/Doc';
 import type { Palette, PaletteFit, PaletteItem } from '../model/palette/PaletteItem';
 import { History } from '../model/history';
@@ -300,6 +302,8 @@ export class EditorStore {
   openFilePicker: (() => void) | null = null;
   /** Hook registered by the UI to open the Block Editor modal. */
   openBlockEditorModal: ((blockName?: string) => void) | null = null;
+  /** Hook registered by the UI to open the Softapp Block Bridge modal. */
+  openSoftappBridgeModal: ((blockName?: string, defaultAppId?: string) => void) | null = null;
   /** Hook registered by the UI to open the Part & Concept Library modal. */
   openConceptLibraryModal: (() => void) | null = null;
   /** Hook registered by the UI to open the Startup / Welcome modal. */
@@ -680,6 +684,43 @@ export class EditorStore {
     if (this.openBlockEditorModal) {
       this.openBlockEditorModal(blockName);
     }
+  }
+
+  triggerOpenSoftappBridge(blockName?: string, defaultAppId?: string): void {
+    if (this.openSoftappBridgeModal) {
+      this.openSoftappBridgeModal(blockName, defaultAppId);
+    }
+  }
+
+  runAutoLayoutSchematic(): boolean {
+    const success = this.editFlow(() => {
+      return autoLayoutSchematic(this.schematic);
+    });
+    if (success) {
+      this.showHint('⚡ Schematic automatically placed and aligned.', 2500);
+    } else {
+      this.showHint('No schematic placements to layout.', 2000);
+    }
+    return success;
+  }
+
+  runAutoRouteWires(): boolean {
+    const success = this.editFlow(() => {
+      let changed = false;
+      for (const connector of this.schematic.connectors) {
+        if (connector.route && connector.route.length >= 3) {
+          connector.route = applyChamfers(connector.route);
+          changed = true;
+        }
+      }
+      return changed;
+    });
+    if (success) {
+      this.showHint('⚡ Chamfered 45° vector routes applied to schematic wires.', 2500);
+    } else {
+      this.showHint('No multi-point connector routes to chamfer.', 2000);
+    }
+    return success;
   }
 
   triggerOpenConceptLibrary(): void {
