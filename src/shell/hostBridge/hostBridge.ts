@@ -103,6 +103,10 @@ import { pickedOutline, sceneForHost, wallsForHost } from './sceneForHost';
  * file, not for this.
  *
  * Standalone (no parent, no opening host), every call here is a no-op.
+ *
+ * The CAD as a PARENT — a block-editing softapp in the CAD's own iframe, the
+ * `toEditor.*` direction and the editorReady / blockChanged / blockSave /
+ * editorClose `toCad` types — is blockHost.ts, same protocol, same origin rule.
  */
 
 export const HOST_PROTOCOL = 'cad.like.audio/host@1';

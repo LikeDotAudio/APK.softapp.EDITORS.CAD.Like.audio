@@ -3,6 +3,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from '@state/useStore';
+import { blockEditorMessage, postToEditor, toEditor } from '../../shell/hostBridge/blockHost';
 
 export interface SoftappDef {
   id: string;
@@ -62,41 +63,34 @@ export function SoftappBlockBridgeModal({
 
   const selectedApp = STANDALONE_SOFTAPPS.find((a) => a.id === selectedAppId) || STANDALONE_SOFTAPPS[0];
 
-  // Send block payload when iframe finishes loading
-  const handleIframeLoad = () => {
-    if (!iframeRef.current || !iframeRef.current.contentWindow) return;
+  // The block to edit, as toEditor.load carries it (host@1, blockHost.ts).
+  const loadMessage = () => {
+    const name = initialBlockName || 'CUSTOM_BLOCK';
+    const block: Record<string, unknown> = initialBlockName && store.doc.blocks.has(initialBlockName)
+      ? JSON.parse(JSON.stringify(store.doc.blocks.get(initialBlockName)))
+      : { name, type: selectedApp.id, timestamp: Date.now() };
+    return toEditor('load', {
+      block,
+      meta: { source: 'CAD.Like.audio', blockName: name, title: `${selectedApp.name}: ${initialBlockName || 'Block'}` },
+    });
+  };
 
-    let payload: Record<string, unknown> = {};
-    if (initialBlockName && store.doc.blocks.has(initialBlockName)) {
-      payload = JSON.parse(JSON.stringify(store.doc.blocks.get(initialBlockName)));
-    } else {
-      payload = {
-        name: initialBlockName || 'CUSTOM_BLOCK',
-        type: selectedApp.id,
-        timestamp: Date.now(),
-      };
-    }
-
-    iframeRef.current.contentWindow.postMessage({
-      type: 'APK_LOAD_BLOCK',
-      block: payload,
-      meta: {
-        source: 'CAD.Like.audio',
-        blockName: initialBlockName || 'CUSTOM_BLOCK',
-        title: `${selectedApp.name}: ${initialBlockName || 'Block'}`,
-      },
-    }, '*');
-
+  const sendLoad = () => {
+    postToEditor(iframeRef.current?.contentWindow, loadMessage(), window.location.origin);
     setSyncStatus('Connected & Synced');
   };
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      const msg = event.data;
-      if (!msg || typeof msg !== 'object') return;
+      const msg = blockEditorMessage(event, iframeRef.current?.contentWindow, window.location.origin);
+      if (!msg) return;
 
-      if (msg.type === 'APK_SAVE_BLOCK') {
-        const returnedBlock = msg.block;
+      if (msg.type === 'editorReady') {
+        sendLoad();
+      } else if (msg.type === 'blockChanged') {
+        setSyncStatus('Edited — not saved into CAD');
+      } else if (msg.type === 'blockSave') {
+        const returnedBlock = msg.block as Record<string, any> | undefined;
         const blockName = msg.meta?.blockName || initialBlockName || 'CUSTOM_BLOCK';
 
         store.edit(() => {
@@ -119,7 +113,7 @@ export function SoftappBlockBridgeModal({
 
         setSyncStatus('Block Saved into CAD ✓');
         store.showHint(`Block "${blockName}" updated from ${selectedApp.name}.`, 3000);
-      } else if (msg.type === 'APK_CLOSE_BLOCK') {
+      } else if (msg.type === 'editorClose') {
         onClose();
       }
     };
@@ -171,9 +165,7 @@ export function SoftappBlockBridgeModal({
             </button>
             <button
               onClick={() => {
-                if (iframeRef.current?.contentWindow) {
-                  iframeRef.current.contentWindow.postMessage({ type: 'APK_REQUEST_BLOCK' }, '*');
-                }
+                postToEditor(iframeRef.current?.contentWindow, toEditor('request'), window.location.origin);
               }}
               className="rounded bg-accent px-3 py-1 text-xs font-semibold text-black hover:opacity-90"
             >
@@ -194,7 +186,7 @@ export function SoftappBlockBridgeModal({
           <iframe
             ref={iframeRef}
             src={selectedApp.path}
-            onLoad={handleIframeLoad}
+            onLoad={sendLoad}
             className="h-full w-full border-0"
             title={selectedApp.name}
           />

@@ -11,6 +11,7 @@ import { addPaletteFill } from '../../model/palette/addPaletteFill';
 import { parsePalette } from '../../model/palette/parsePalette';
 import { placePaletteBlock } from '../../model/palette/placePaletteBlock';
 import type { EditorStore } from '@state/EditorStore';
+import { BLOCK_EDITOR_INBOUND_TYPES, BLOCK_EDITOR_OUTBOUND_TYPES } from './blockHost';
 import { geometryForHost, HOST_HANDLERS, HOST_OUTBOUND_TYPES, HOST_PROTOCOL, mirrorForHost, viewForHost } from './hostBridge';
 import { parseHostSpaces } from './hostSpaces';
 import { applyHostLayers, applyHostSelect, applyHostWalls, selectionForHost } from './hostWalls';
@@ -25,6 +26,7 @@ import { applyHostLayers, applyHostSelect, applyHostWalls, selectionForHost } fr
 type Msg = { protocol: string; type: string; [k: string]: unknown };
 const toCad = samples.toCad as Msg[];
 const toHost = samples.toHost as Msg[];
+const toEditorSamples = samples.toEditor as Msg[];
 const sampleOf = (list: Msg[], type: string) => list.find((m) => m.type === type)!;
 const wrap = (type: string, body: object) => ({ protocol: HOST_PROTOCOL, type, ...body });
 
@@ -35,8 +37,10 @@ describe('cad.like.audio/host@1 — the published schema is this bridge', () => 
   });
 
   it('lists exactly the messages the bridge answers, and exactly the ones it sends', () => {
-    expect(messageTypes(schema, 'toCad')).toEqual(Object.keys(HOST_HANDLERS).sort());
+    // toCad is both doors: a host driving this CAD (HOST_HANDLERS) and a block editor in the CAD's own iframe (blockHost.ts)
+    expect(messageTypes(schema, 'toCad')).toEqual([...Object.keys(HOST_HANDLERS), ...BLOCK_EDITOR_INBOUND_TYPES].sort());
     expect(messageTypes(schema, 'toHost')).toEqual([...HOST_OUTBOUND_TYPES].sort());
+    expect(messageTypes(schema, 'toEditor')).toEqual([...BLOCK_EDITOR_OUTBOUND_TYPES].sort());
   });
 
   it('carries one valid sample of every message, both ways', () => {
@@ -44,6 +48,8 @@ describe('cad.like.audio/host@1 — the published schema is this bridge', () => 
     expect(toHost.map((m) => m.type).sort()).toEqual(messageTypes(schema, 'toHost'));
     for (const m of toCad) expect(validateMessage(schema, 'toCad', m), m.type).toEqual([]);
     for (const m of toHost) expect(validateMessage(schema, 'toHost', m), m.type).toEqual([]);
+    expect(toEditorSamples.map((m) => m.type).sort()).toEqual(messageTypes(schema, 'toEditor'));
+    for (const m of toEditorSamples) expect(validateMessage(schema, 'toEditor', m), m.type).toEqual([]);
   });
 
   it('refuses a message with a renamed field or an unknown type', () => {
