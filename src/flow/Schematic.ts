@@ -11,6 +11,7 @@ import type {
   SchematicModel,
 } from '../core/types';
 import { terminalKey } from '../core/types';
+import { ensureConnectorDefinitionsFor } from '../connectors/connectorBlock';
 import { CATALOG } from './catalog';
 import { forgetPlacement } from './groups';
 import { placementPoint } from './placement';
@@ -321,6 +322,9 @@ export function restoreSchematic(model: SchematicModel, saved: SchematicSnapshot
   }));
   model.nextGroupId =
     saved.nextGroupId ?? model.groups.reduce((n, g) => Math.max(n, g.id + 1), 1);
+  // Connector blocks are built from the connector catalogue, not CATALOG, so a
+  // reopened sheet re-derives the ones it holds (ROAD-3492).
+  ensureConnectorDefinitionsFor(model);
 }
 
 export function clearSchematic(model: SchematicModel): boolean {

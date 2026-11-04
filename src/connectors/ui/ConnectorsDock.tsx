@@ -4,6 +4,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { ConnectorPalette } from './ConnectorPalette';
 import { useStore } from '@state/useStore';
+import { ensureConnectorDefinition } from '../connectorBlock';
 
 interface ConnectorsDockProps {
   isOpen: boolean;
@@ -42,10 +43,15 @@ export function ConnectorsDock({ isOpen, onClose }: ConnectorsDockProps) {
   if (!isOpen) return null;
 
   const handleSelectConnector = (type: string) => {
-    // When a connector is selected in the dock, check if a matching block definition exists
-    // or select the Flow tool and inform the user
-    store.setTool('flow');
-    store.showHint(`Selected connector: ${type}. Click to place or connect.`);
+    // The connector becomes a Flow block (ROAD-3492): a port per channel and its
+    // datasheet footprint in mm. setFlowDefinition arms the Flow tool with it.
+    let id: string | null = null;
+    store.editFlow(() => {
+      id = ensureConnectorDefinition(store.schematic, type);
+      return false;
+    });
+    if (id) store.setFlowDefinition(id);
+    else store.showHint(`Connector ${type} is not in the catalogue.`, 3000);
   };
 
   return (

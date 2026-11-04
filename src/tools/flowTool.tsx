@@ -1,5 +1,11 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
+import {
+  connectorOfDefinitionId,
+  connectorPlacementScale,
+  placeConnectorBlock,
+  placeConnectorDetail,
+} from '../connectors/connectorBlock';
 import { outlineCorners } from '../flow/placement';
 import { definitionOf, hitPlacementAt, placeBlock, removePlacement } from '../flow/Schematic';
 import { FLOW } from '../render/flow/flowColors';
@@ -45,6 +51,21 @@ export const flowTool: Tool<FlowState> = {
       }
       return;
     }
+    const connector = connectorOfDefinitionId(api.flowDefinitionId);
+    if (connector !== null) {
+      // A connector from the Connectors dock (ROAD-3492): true size in mm with
+      // a port per channel, and a DT12 brings its pinout detail sheet along.
+      let placed: ReturnType<typeof placeConnectorBlock> = null;
+      api.editFlow(() => {
+        placed = placeConnectorBlock(api.schematic, connector, input.world, api.units, api.activeLayerId);
+        return placed !== null;
+      });
+      const p = placed as ReturnType<typeof placeConnectorBlock>;
+      if (!p) return;
+      state.placed += 1;
+      api.edit(() => placeConnectorDetail(api.doc, api.schematic, p, api.units, api.activeLayerId) !== null);
+      return;
+    }
     const placement = api.editFlow(() =>
       placeBlock(api.schematic, api.flowDefinitionId, input.world, api.activeLayerId) !== null,
     );
@@ -61,6 +82,7 @@ export const flowTool: Tool<FlowState> = {
       definitionId: def.id,
       at: pointer.world,
       layerId: '0',
+      scale: connectorOfDefinitionId(def.id) !== null ? connectorPlacementScale(scene.units) : undefined,
     }).map((p) => view.toScreen(p.x, p.y));
     ctx.save();
     ctx.setLineDash([5, 4]);

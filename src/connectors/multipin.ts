@@ -11,6 +11,10 @@ export const MULTI_CONNECTOR_CHANNELS: Record<string, number> = {
   E3P: 1,
   E3S: 1,
   DT12: 12,
+  // The catalogue spells the DT12 by gender (ConnectorLookup DT12P / DT12S);
+  // both carry the same twelve pairs (ROAD-3492).
+  DT12P: 12,
+  DT12S: 12,
   A59S: 8,
   A59P: 8,
   ...Object.fromEntries(AES72_ALL_SPELLINGS.map(s => [s.toUpperCase(), AES72_CHANNELS])),

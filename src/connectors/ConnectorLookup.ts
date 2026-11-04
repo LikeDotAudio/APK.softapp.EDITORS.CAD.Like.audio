@@ -1,6 +1,7 @@
 // Copyright (c) 2026 APK.audio.
 
 // Changelog:
+//   2026-11-04 - ROAD-3492: the flat lookup carries only a DECLARED cutout class (no implicit 'D'), so cutoutOf can derive one from datasheet geometry.
 //   2026-10-14 - Idea / Result / Logic / Arithmetic dataflow families from logicConnectors.ts (owner: "new categories....
 //     like "IDEA" or RESULT" or baseic logic and arithmatic"; ruled: dataflow node ports, a Logic tab of their own).
 //   2026-10-14 - SMPTE-Audio (ST 299-1, ST 337 / 339 / 340, ST 2041-2 / -3, ST 2035, ST 2036-2) and MXL families spliced in
@@ -665,7 +666,10 @@ for (const g of CONNECTOR_GROUPS) {
                 argoPanelName: c.argoPanelName,
                 argoWidth: c.argoWidth,
                 argoHeight: c.argoHeight,
-                cutout: c.cutout ?? g.defaultCutout ?? 'D',
+                // Only what is DECLARED (on the entry or its group). Defaulting
+                // to 'D' here hid cutoutOf's geometry step from every catalogued
+                // connector; cutoutOf supplies the 'D' fallback (ROAD-3492).
+                cutout: c.cutout ?? g.defaultCutout,
             });
         }
     }

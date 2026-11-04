@@ -25,7 +25,7 @@
  * dropped into?) is a future layer — see roadmap §3.
  *
  * The precise layer BENEATH this one is `cutoutGeometry.ts`, which describes the
- * individual holes and screws in inches. Where a connector has geometry but no
+ * individual holes and screws in mm, each entry citing its datasheet. Where a connector has geometry but no
  * declared class, the class is derived from the geometry rather than defaulted —
  * see `cutoutOf` for why the precedence runs that way and not the other.
  */
@@ -64,8 +64,9 @@ export const CUTOUT_LABELS: Record<CutoutClass, string> = {
  * is deliberately tagged (ROBO's 'oversize-D', LC fiber's 'square') the moment
  * it gained geometry, which is the opposite of what precise geometry is for.
  *
- * `CONNECTOR_GEOMETRY` is empty today, so step 2 never fires and this function
- * returns exactly what it returned before geometry existed — pinned by test.
+ * Since ROAD-3492 `CONNECTOR_GEOMETRY` holds datasheet-sourced entries, so step
+ * 2 fires for the ones that declare nothing (C14 derives 'square' from its
+ * Schurter rectangle) — pinned in cutoutGeometry.test.ts.
  */
 export function cutoutOf(abbreviation: string): CutoutClass {
     const declared = lookupConnector(abbreviation)?.cutout;
