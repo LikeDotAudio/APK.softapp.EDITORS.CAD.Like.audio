@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { useStore } from '@state/useStore';
 import { useUi } from '@state/useUi';
+import { ApkTable, h, inputNode, numberNode, selectNode, buttonNode } from '../common/ApkTable';
 
 interface ElementsEditorModalProps {
   onClose: () => void;
@@ -12,6 +13,13 @@ interface ElementsEditorModalProps {
 type TabType = 'texts' | 'blocks' | 'fills';
 
 const PAGE_SIZE = 50;
+
+/* THE ONE TABLE (ROAD-3494): the texts, block instances and fills lists are
+   APKTables (cad-elements-texts / -block-instances / -fills; ../common/ApkTable).
+   A field commits when it is left or Enter is pressed — one undo step per edit,
+   not one per keystroke. */
+const INPUT = 'rounded border border-[#3c3c3c] bg-[#141414] px-1 py-0.5 text-white';
+const DELETE = 'rounded bg-red-900/40 px-2 py-0.5 text-red-300 hover:bg-red-800';
 
 function PaginationBar({
   currentPage,
@@ -83,6 +91,9 @@ function PaginationBar({
 export function ElementsEditorModal({ onClose, onOpenBlockEditor }: ElementsEditorModalProps) {
   const store = useStore();
   const { layers, activeLayerId, selectionSize } = useUi();
+  const layerOptions = layers.map((l) => ({ value: l.id, label: l.name }));
+  /** One undoable edit from a table cell. */
+  const edit = (fn: () => void) => store.edit(() => { fn(); return true; });
   const [activeTab, setActiveTab] = useState<TabType>('texts');
   const [search, setSearch] = useState('');
 
@@ -371,141 +382,25 @@ export function ElementsEditorModal({ onClose, onOpenBlockEditor }: ElementsEdit
               />
 
               <div className="rounded border border-[#333] overflow-hidden">
-                <table className="w-full text-left">
-                  <thead className="bg-[#2d2d2d] text-[#aaa]">
-                    <tr>
-                      <th className="p-2.5">ID</th>
-                      <th className="p-2.5">Content</th>
-                      <th className="p-2.5">X</th>
-                      <th className="p-2.5">Y</th>
-                      <th className="p-2.5">Height</th>
-                      <th className="p-2.5">Rotation (°)</th>
-                      <th className="p-2.5">Layer</th>
-                      <th className="p-2.5">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#2a2a2a] bg-[#1e1e1e]">
-                    {filteredTexts.length === 0 ? (
-                      <tr>
-                        <td colSpan={8} className="p-4 text-center text-[#666]">
-                          No text entities found. Use the Text tool (X) or the bar above to add one.
-                        </td>
-                      </tr>
-                    ) : (
-                      pagedTexts.map((text) => (
-                        <tr key={text.id} className="hover:bg-[#252526]">
-                          <td className="p-2.5 text-[#888]">#{text.id}</td>
-                          <td className="p-2.5">
-                            <input
-                              type="text"
-                              value={text.text}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                store.edit(() => {
-                                  text.text = val;
-                                  return true;
-                                });
-                              }}
-                              className="w-48 rounded border border-[#3c3c3c] bg-[#141414] px-2 py-0.5 text-white"
-                            />
-                          </td>
-                          <td className="p-2.5">
-                            <input
-                              type="number"
-                              step="0.1"
-                              value={text.x}
-                              onChange={(e) => {
-                                const val = parseFloat(e.target.value) || 0;
-                                store.edit(() => {
-                                  text.x = val;
-                                  return true;
-                                });
-                              }}
-                              className="w-16 rounded border border-[#3c3c3c] bg-[#141414] px-1 py-0.5 text-white"
-                            />
-                          </td>
-                          <td className="p-2.5">
-                            <input
-                              type="number"
-                              step="0.1"
-                              value={text.y}
-                              onChange={(e) => {
-                                const val = parseFloat(e.target.value) || 0;
-                                store.edit(() => {
-                                  text.y = val;
-                                  return true;
-                                });
-                              }}
-                              className="w-16 rounded border border-[#3c3c3c] bg-[#141414] px-1 py-0.5 text-white"
-                            />
-                          </td>
-                          <td className="p-2.5">
-                            <input
-                              type="number"
-                              step="0.05"
-                              value={text.height}
-                              onChange={(e) => {
-                                const val = parseFloat(e.target.value) || 0.1;
-                                store.edit(() => {
-                                  text.height = val;
-                                  return true;
-                                });
-                              }}
-                              className="w-16 rounded border border-[#3c3c3c] bg-[#141414] px-1 py-0.5 text-white"
-                            />
-                          </td>
-                          <td className="p-2.5">
-                            <input
-                              type="number"
-                              step="15"
-                              value={text.rotation ?? 0}
-                              onChange={(e) => {
-                                const val = parseFloat(e.target.value) || 0;
-                                store.edit(() => {
-                                  text.rotation = val;
-                                  return true;
-                                });
-                              }}
-                              className="w-14 rounded border border-[#3c3c3c] bg-[#141414] px-1 py-0.5 text-white"
-                            />
-                          </td>
-                          <td className="p-2.5">
-                            <select
-                              value={text.layerId}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                store.edit(() => {
-                                  text.layerId = val;
-                                  return true;
-                                });
-                              }}
-                              className="rounded border border-[#3c3c3c] bg-[#141414] px-2 py-0.5 text-white"
-                            >
-                              {layers.map((l) => (
-                                <option key={l.id} value={l.id}>
-                                  {l.name}
-                                </option>
-                              ))}
-                            </select>
-                          </td>
-                          <td className="p-2.5">
-                            <button
-                              onClick={() => {
-                                store.edit(() => {
-                                  store.doc.removeText(text.id);
-                                  return true;
-                                });
-                              }}
-                              className="rounded bg-red-900/40 px-2 py-0.5 text-red-300 hover:bg-red-800"
-                            >
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                <ApkTable
+                  id="cad-elements-texts"
+                  sortable={false}
+                  className="cad-apk"
+                  rows={pagedTexts}
+                  columns={[
+                    { key: 'id', label: 'ID', text: (t) => `#${t.id}`, style: () => ({ color: '#888' }) },
+                    { key: 'text', label: 'Content', node: (t) => inputNode(t.text, (v) => edit(() => { t.text = v; }), `w-48 ${INPUT}`) },
+                    { key: 'x', label: 'X', node: (t) => numberNode(t.x, '0.1', (v) => edit(() => { t.x = v; }), 0, `w-16 ${INPUT}`) },
+                    { key: 'y', label: 'Y', node: (t) => numberNode(t.y, '0.1', (v) => edit(() => { t.y = v; }), 0, `w-16 ${INPUT}`) },
+                    { key: 'height', label: 'Height', node: (t) => numberNode(t.height, '0.05', (v) => edit(() => { t.height = v; }), 0.1, `w-16 ${INPUT}`) },
+                    { key: 'rotation', label: 'Rotation (°)', value: (t) => t.rotation ?? 0, node: (t) => numberNode(t.rotation ?? 0, '15', (v) => edit(() => { t.rotation = v; }), 0, `w-16 ${INPUT}`) },
+                    { key: 'layerId', label: 'Layer', node: (t) => selectNode(layerOptions, t.layerId, (v) => edit(() => { t.layerId = v; }), INPUT) },
+                    { key: 'actions', label: 'Actions', value: () => '', node: (t) => buttonNode('Delete', () => edit(() => { store.doc.removeText(t.id); }), DELETE) },
+                  ]}
+                />
+                {filteredTexts.length === 0 && (
+                  <div className="p-4 text-center text-[#666]">No text entities found. Use the Text tool (X) or the bar above to add one.</div>
+                )}
               </div>
 
               <PaginationBar
@@ -620,136 +515,30 @@ export function ElementsEditorModal({ onClose, onOpenBlockEditor }: ElementsEdit
                 />
 
                 <div className="rounded border border-[#333] overflow-hidden">
-                  <table className="w-full text-left">
-                    <thead className="bg-[#2d2d2d] text-[#aaa]">
-                      <tr>
-                        <th className="p-2.5">ID</th>
-                        <th className="p-2.5">Block Name</th>
-                        <th className="p-2.5">X</th>
-                        <th className="p-2.5">Y</th>
-                        <th className="p-2.5">Scale</th>
-                        <th className="p-2.5">Rotation (°)</th>
-                        <th className="p-2.5">Layer</th>
-                        <th className="p-2.5">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-[#2a2a2a] bg-[#1e1e1e]">
-                      {filteredInstances.length === 0 ? (
-                        <tr>
-                          <td colSpan={8} className="p-4 text-center text-[#666]">
-                            No block instances placed on sheet. Use the "Insert" buttons above or
-                            Block tool (K) to place one.
-                          </td>
-                        </tr>
-                      ) : (
-                        pagedInstances.map((inst) => (
-                          <tr key={inst.id} className="hover:bg-[#252526]">
-                            <td className="p-2.5 text-[#888]">#{inst.id}</td>
-                            <td className="p-2.5 font-mono text-accent">{inst.blockName}</td>
-                            <td className="p-2.5">
-                              <input
-                                type="number"
-                                step="0.5"
-                                value={inst.x}
-                                onChange={(e) => {
-                                  const val = parseFloat(e.target.value) || 0;
-                                  store.edit(() => {
-                                    inst.x = val;
-                                    return true;
-                                  });
-                                }}
-                                className="w-16 rounded border border-[#3c3c3c] bg-[#141414] px-1 py-0.5 text-white"
-                              />
-                            </td>
-                            <td className="p-2.5">
-                              <input
-                                type="number"
-                                step="0.5"
-                                value={inst.y}
-                                onChange={(e) => {
-                                  const val = parseFloat(e.target.value) || 0;
-                                  store.edit(() => {
-                                    inst.y = val;
-                                    return true;
-                                  });
-                                }}
-                                className="w-16 rounded border border-[#3c3c3c] bg-[#141414] px-1 py-0.5 text-white"
-                              />
-                            </td>
-                            <td className="p-2.5">
-                              <input
-                                type="number"
-                                step="0.1"
-                                value={inst.scale}
-                                onChange={(e) => {
-                                  const val = parseFloat(e.target.value) || 1;
-                                  store.edit(() => {
-                                    inst.scale = val;
-                                    return true;
-                                  });
-                                }}
-                                className="w-14 rounded border border-[#3c3c3c] bg-[#141414] px-1 py-0.5 text-white"
-                              />
-                            </td>
-                            <td className="p-2.5">
-                              <input
-                                type="number"
-                                step="15"
-                                value={inst.rotation}
-                                onChange={(e) => {
-                                  const val = parseFloat(e.target.value) || 0;
-                                  store.edit(() => {
-                                    inst.rotation = val;
-                                    return true;
-                                  });
-                                }}
-                                className="w-14 rounded border border-[#3c3c3c] bg-[#141414] px-1 py-0.5 text-white"
-                              />
-                            </td>
-                            <td className="p-2.5">
-                              <select
-                                value={inst.layerId}
-                                onChange={(e) => {
-                                  const val = e.target.value;
-                                  store.edit(() => {
-                                    inst.layerId = val;
-                                    return true;
-                                  });
-                                }}
-                                className="rounded border border-[#3c3c3c] bg-[#141414] px-2 py-0.5 text-white"
-                              >
-                                {layers.map((l) => (
-                                  <option key={l.id} value={l.id}>
-                                    {l.name}
-                                  </option>
-                                ))}
-                              </select>
-                            </td>
-                            <td className="p-2.5 flex items-center gap-1.5">
-                              <button
-                                onClick={() => handleExplodeBlock(inst.id)}
-                                className="rounded bg-amber-900/40 px-2 py-0.5 text-amber-300 hover:bg-amber-800"
-                                title="Unpack into native editable geometry"
-                              >
-                                Explode
-                              </button>
-                              <button
-                                onClick={() => {
-                                  store.edit(() => {
-                                    store.doc.removeBlockInstance(inst.id);
-                                    return true;
-                                  });
-                                }}
-                                className="rounded bg-red-900/40 px-2 py-0.5 text-red-300 hover:bg-red-800"
-                              >
-                                Delete
-                              </button>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
+                  <ApkTable
+                    id="cad-elements-block-instances"
+                    sortable={false}
+                    className="cad-apk"
+                    rows={pagedInstances}
+                    columns={[
+                      { key: 'id', label: 'ID', text: (i) => `#${i.id}`, style: () => ({ color: '#888' }) },
+                      { key: 'blockName', label: 'Block Name', mono: true, style: () => ({ color: 'var(--color-accent)' }) },
+                      { key: 'x', label: 'X', node: (i) => numberNode(i.x, '0.5', (v) => edit(() => { i.x = v; }), 0, `w-16 ${INPUT}`) },
+                      { key: 'y', label: 'Y', node: (i) => numberNode(i.y, '0.5', (v) => edit(() => { i.y = v; }), 0, `w-16 ${INPUT}`) },
+                      { key: 'scale', label: 'Scale', node: (i) => numberNode(i.scale, '0.1', (v) => edit(() => { i.scale = v; }), 1, `w-16 ${INPUT}`) },
+                      { key: 'rotation', label: 'Rotation (°)', node: (i) => numberNode(i.rotation, '15', (v) => edit(() => { i.rotation = v; }), 0, `w-16 ${INPUT}`) },
+                      { key: 'layerId', label: 'Layer', node: (i) => selectNode(layerOptions, i.layerId, (v) => edit(() => { i.layerId = v; }), INPUT) },
+                      { key: 'actions', label: 'Actions', value: () => '', node: (i) => {
+                        const box = h('span', { display: 'flex', alignItems: 'center', gap: '6px' });
+                        box.appendChild(buttonNode('Explode', () => handleExplodeBlock(i.id), 'rounded bg-amber-900/40 px-2 py-0.5 text-amber-300 hover:bg-amber-800', 'Unpack into native editable geometry'));
+                        box.appendChild(buttonNode('Delete', () => edit(() => { store.doc.removeBlockInstance(i.id); }), DELETE));
+                        return box;
+                      } },
+                    ]}
+                  />
+                  {filteredInstances.length === 0 && (
+                    <div className="p-4 text-center text-[#666]">No block instances placed on sheet. Use the &quot;Insert&quot; buttons above or Block tool (K) to place one.</div>
+                  )}
                 </div>
 
                 <PaginationBar
@@ -824,103 +613,32 @@ export function ElementsEditorModal({ onClose, onOpenBlockEditor }: ElementsEdit
               />
 
               <div className="rounded border border-[#333] overflow-hidden">
-                <table className="w-full text-left">
-                  <thead className="bg-[#2d2d2d] text-[#aaa]">
-                    <tr>
-                      <th className="p-2.5">ID</th>
-                      <th className="p-2.5">Type</th>
-                      <th className="p-2.5">Vertices</th>
-                      <th className="p-2.5">Opacity</th>
-                      <th className="p-2.5">Layer</th>
-                      <th className="p-2.5">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#2a2a2a] bg-[#1e1e1e]">
-                    {filteredFills.length === 0 ? (
-                      <tr>
-                        <td colSpan={6} className="p-4 text-center text-[#666]">
-                          No fill or hatch regions found. Use the Fill tool (H) or the bar above to
-                          create one.
-                        </td>
-                      </tr>
-                    ) : (
-                      pagedFills.map((fill) => (
-                        <tr key={fill.id} className="hover:bg-[#252526]">
-                          <td className="p-2.5 text-[#888]">#{fill.id}</td>
-                          <td className="p-2.5">
-                            <select
-                              value={fill.type}
-                              onChange={(e) => {
-                                const val = e.target.value as 'solid' | 'hatch';
-                                store.edit(() => {
-                                  fill.type = val;
-                                  return true;
-                                });
-                              }}
-                              className="rounded border border-[#3c3c3c] bg-[#141414] px-2 py-0.5 text-white capitalize"
-                            >
-                              <option value="solid">Solid</option>
-                              <option value="hatch">Hatch</option>
-                            </select>
-                          </td>
-                          <td className="p-2.5 text-[#aaa]">{fill.points.length} vertices</td>
-                          <td className="p-2.5">
-                            <input
-                              type="range"
-                              min="0.1"
-                              max="1.0"
-                              step="0.05"
-                              value={fill.opacity ?? 0.35}
-                              onChange={(e) => {
-                                const val = parseFloat(e.target.value);
-                                store.edit(() => {
-                                  fill.opacity = val;
-                                  return true;
-                                });
-                              }}
-                              className="w-24 accent-accent"
-                            />
-                            <span className="ml-2 text-[#888]">
-                              {Math.round((fill.opacity ?? 0.35) * 100)}%
-                            </span>
-                          </td>
-                          <td className="p-2.5">
-                            <select
-                              value={fill.layerId}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                store.edit(() => {
-                                  fill.layerId = val;
-                                  return true;
-                                });
-                              }}
-                              className="rounded border border-[#3c3c3c] bg-[#141414] px-2 py-0.5 text-white"
-                            >
-                              {layers.map((l) => (
-                                <option key={l.id} value={l.id}>
-                                  {l.name}
-                                </option>
-                              ))}
-                            </select>
-                          </td>
-                          <td className="p-2.5">
-                            <button
-                              onClick={() => {
-                                store.edit(() => {
-                                  store.doc.removeFill(fill.id);
-                                  return true;
-                                });
-                              }}
-                              className="rounded bg-red-900/40 px-2 py-0.5 text-red-300 hover:bg-red-800"
-                            >
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                <ApkTable
+                  id="cad-elements-fills"
+                  sortable={false}
+                  className="cad-apk"
+                  rows={pagedFills}
+                  columns={[
+                    { key: 'id', label: 'ID', text: (f) => `#${f.id}`, style: () => ({ color: '#888' }) },
+                    { key: 'type', label: 'Type', node: (f) => selectNode([{ value: 'solid', label: 'Solid' }, { value: 'hatch', label: 'Hatch' }], f.type, (v) => edit(() => { f.type = v as 'solid' | 'hatch'; }), `${INPUT} capitalize`) },
+                    { key: 'vertices', label: 'Vertices', value: (f) => f.points.length, text: (f) => `${f.points.length} vertices`, style: () => ({ color: '#aaa' }) },
+                    { key: 'opacity', label: 'Opacity', value: (f) => f.opacity ?? 0.35, node: (f) => {
+                      const box = h('span', { display: 'flex', alignItems: 'center', gap: '8px' });
+                      const r = h('input', undefined, null, 'w-24') as HTMLInputElement;
+                      r.type = 'range'; r.min = '0.1'; r.max = '1.0'; r.step = '0.05'; r.value = String(f.opacity ?? 0.35);
+                      const pct = h('span', { color: '#aaa', fontSize: '11px' }, `${Math.round((f.opacity ?? 0.35) * 100)}%`);
+                      r.oninput = () => { pct.textContent = `${Math.round(parseFloat(r.value) * 100)}%`; };
+                      r.onchange = () => edit(() => { f.opacity = parseFloat(r.value); });
+                      box.appendChild(r); box.appendChild(pct);
+                      return box;
+                    } },
+                    { key: 'layerId', label: 'Layer', node: (f) => selectNode(layerOptions, f.layerId, (v) => edit(() => { f.layerId = v; }), INPUT) },
+                    { key: 'actions', label: 'Actions', value: () => '', node: (f) => buttonNode('Delete', () => edit(() => { store.doc.removeFill(f.id); }), DELETE) },
+                  ]}
+                />
+                {filteredFills.length === 0 && (
+                  <div className="p-4 text-center text-[#666]">No fill or hatch regions found. Use the Fill tool (H) or the bar above to create one.</div>
+                )}
               </div>
 
               <PaginationBar

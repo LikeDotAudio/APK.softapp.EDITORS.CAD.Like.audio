@@ -5,6 +5,22 @@ import { useStore } from '@state/useStore';
 import { useUi } from '@state/useUi';
 import { CATALOG } from '../../flow/catalog';
 import { groupOf, parentOf } from '../../flow/groups';
+import { ApkTable, h, inputNode, numberNode, selectNode, buttonNode, checkNode } from '../common/ApkTable';
+
+/* THE ONE TABLE (ROAD-3494): the four sheets are APKTables (cad-sheet-placements /
+   -connectors / -groups / -bom; ../common/ApkTable). A field commits when it is
+   left or Enter is pressed — one undo step per edit, not one per keystroke. */
+const CELL = 'w-full bg-transparent px-1 focus:bg-[#111] focus:outline-none';
+
+/** The select-all box that sat in each sheet's header row. */
+function SelectAll({ ids, selectedIds, onToggle }: { ids: (string | number)[]; selectedIds: Set<string | number>; onToggle: (ids: (string | number)[]) => void }) {
+  return (
+    <label className="mb-1 flex items-center gap-1.5 text-[11px] text-[#888]">
+      <input type="checkbox" checked={selectedIds.size > 0 && selectedIds.size >= ids.length} onChange={() => onToggle(ids)} />
+      Select all ({ids.length})
+    </label>
+  );
+}
 
 interface SpreadsheetModalProps {
   onClose: () => void;
@@ -40,6 +56,10 @@ export function SpreadsheetModal({ onClose, initialTab = 'placements' }: Spreads
   const [selectedIds, setSelectedIds] = useState<Set<string | number>>(new Set());
 
   const schematic = store.schematic;
+  const layerIds = Array.from(layers.values()).map((l) => ({ value: l.id, label: l.id }));
+  const placementOptions = schematic.placements.map((p) => ({ value: String(p.id), label: `${p.refdes || `Block ${p.id}`} (#${p.id})` }));
+  /** One undoable flow edit from a sheet cell. */
+  const flow = (fn: () => void) => store.editFlow(() => { fn(); return true; });
 
   // Toggle selection
   const toggleSelect = (id: string | number) => {
@@ -632,597 +652,155 @@ export function SpreadsheetModal({ onClose, initialTab = 'placements' }: Spreads
         <div className="flex-1 overflow-auto bg-[#141414] p-2">
           {/* TAB 1: PLACEMENTS SPREADSHEET TABLE */}
           {activeTab === 'placements' && (
-            <table className="w-full border-collapse border border-[#333] text-left text-xs font-mono">
-              <thead className="sticky top-0 bg-[#252526] text-[#888]">
-                <tr>
-                  <th className="w-8 border border-[#333] p-1.5 text-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.size > 0 && selectedIds.size >= filteredPlacements.length}
-                      onChange={() => toggleSelectAll(filteredPlacements.map((p) => p.id))}
-                    />
-                  </th>
-                  <th className="w-16 border border-[#333] p-1.5 text-center">ID</th>
-                  <th className="border border-[#333] p-1.5">RefDes / Name</th>
-                  <th className="border border-[#333] p-1.5">Definition Type</th>
-                  <th className="border border-[#333] p-1.5">Group Owner</th>
-                  <th className="w-20 border border-[#333] p-1.5 text-right">X Pos</th>
-                  <th className="w-20 border border-[#333] p-1.5 text-right">Y Pos</th>
-                  <th className="w-24 border border-[#333] p-1.5">Layer</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredPlacements.map((p) => {
-                  const currentGroup = groupOf(schematic, p.id);
-                  return (
-                    <tr
-                      key={p.id}
-                      className={`hover:bg-[#2a2d2e] ${selectedIds.has(p.id) ? 'bg-accent/15' : ''}`}
-                    >
-                      <td className="border border-[#262626] p-1.5 text-center">
-                        <input
-                          type="checkbox"
-                          checked={selectedIds.has(p.id)}
-                          onChange={() => toggleSelect(p.id)}
-                        />
-                      </td>
-                      <td className="border border-[#262626] p-1.5 text-center font-bold text-[#888]">
-                        {p.id}
-                      </td>
-
-                      {/* Editable RefDes / Name */}
-                      <td className="border border-[#262626] p-1">
-                        <input
-                          type="text"
-                          value={p.refdes || ''}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            store.editFlow(() => {
-                              p.refdes = val;
-                              return true;
-                            });
-                          }}
-                          className="w-full bg-transparent px-1 font-bold text-white focus:bg-[#111] focus:outline-none focus:ring-1 focus:ring-accent"
-                        />
-                      </td>
-
-                      {/* Definition ID Dropdown */}
-                      <td className="border border-[#262626] p-1">
-                        <select
-                          value={p.definitionId}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            store.editFlow(() => {
-                              p.definitionId = val;
-                              return true;
-                            });
-                          }}
-                          className="w-full bg-transparent px-1 text-[#38bdf8] focus:bg-[#111] focus:outline-none"
-                        >
-                          {schematic.definitions.map((def) => (
-                            <option key={def.id} value={def.id} className="bg-[#222] text-white">
-                              {def.name} ({def.id})
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-
-                      {/* Group Assignment */}
-                      <td className="border border-[#262626] p-1">
-                        <select
-                          value={currentGroup ? currentGroup.id : ''}
-                          onChange={(e) => {
-                            const val = e.target.value ? Number(e.target.value) : null;
-                            store.editFlow(() => {
-                              // Detach from current group
-                              schematic.groups.forEach((g) => {
-                                g.members = g.members.filter((m) => m !== p.id);
-                              });
-                              // Attach to new group
-                              if (val !== null) {
-                                const targetG = schematic.groups.find((g) => g.id === val);
-                                if (targetG && !targetG.members.includes(p.id)) {
-                                  targetG.members.push(p.id);
-                                }
-                              }
-                              return true;
-                            });
-                          }}
-                          className="w-full bg-transparent px-1 text-accent focus:bg-[#111] focus:outline-none"
-                        >
-                          <option value="" className="bg-[#222] text-[#888]">(None)</option>
-                          {schematic.groups.map((g) => (
-                            <option key={g.id} value={g.id} className="bg-[#222] text-white">
-                              {g.name} (#{g.id})
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-
-                      {/* X Position */}
-                      <td className="border border-[#262626] p-1 text-right">
-                        <input
-                          type="number"
-                          step="0.1"
-                          value={p.at.x}
-                          onChange={(e) => {
-                            const val = Number(e.target.value);
-                            store.editFlow(() => {
-                              p.at.x = val;
-                              return true;
-                            });
-                          }}
-                          className="w-full text-right bg-transparent px-1 text-white focus:bg-[#111] focus:outline-none"
-                        />
-                      </td>
-
-                      {/* Y Position */}
-                      <td className="border border-[#262626] p-1 text-right">
-                        <input
-                          type="number"
-                          step="0.1"
-                          value={p.at.y}
-                          onChange={(e) => {
-                            const val = Number(e.target.value);
-                            store.editFlow(() => {
-                              p.at.y = val;
-                              return true;
-                            });
-                          }}
-                          className="w-full text-right bg-transparent px-1 text-white focus:bg-[#111] focus:outline-none"
-                        />
-                      </td>
-
-                      {/* Layer */}
-                      <td className="border border-[#262626] p-1">
-                        <select
-                          value={p.layerId || '0'}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            store.editFlow(() => {
-                              p.layerId = val;
-                              return true;
-                            });
-                          }}
-                          className="w-full bg-transparent px-1 text-[#aaa] focus:bg-[#111] focus:outline-none"
-                        >
-                          {Array.from(layers.values()).map((l) => (
-                            <option key={l.id} value={l.id} className="bg-[#222] text-white">
-                              {l.id}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            <>
+            <SelectAll ids={filteredPlacements.map((p) => p.id)} selectedIds={selectedIds} onToggle={toggleSelectAll} />
+            <ApkTable
+              id="cad-sheet-placements"
+              className="cad-apk cad-sheet text-xs font-mono"
+              rows={filteredPlacements}
+              rowClass={(p) => (selectedIds.has(p.id) ? 'cad-row-on' : '')}
+              columns={[
+                { key: 'sel', label: '✓', width: '32px', value: (p) => (selectedIds.has(p.id) ? 1 : 0), node: (p) => checkNode(selectedIds.has(p.id), () => toggleSelect(p.id)) },
+                { key: 'id', label: 'ID', width: '64px', align: 'center', style: () => ({ fontWeight: '700', color: '#888' }) },
+                { key: 'refdes', label: 'RefDes / Name', value: (p) => p.refdes || '', node: (p) => inputNode(p.refdes || '', (v) => flow(() => { p.refdes = v; }), `${CELL} font-bold text-white`) },
+                { key: 'definitionId', label: 'Definition Type', node: (p) => selectNode(schematic.definitions.map((d) => ({ value: d.id, label: `${d.name} (${d.id})` })), p.definitionId, (v) => flow(() => { p.definitionId = v; }), `${CELL} text-[#38bdf8]`) },
+                { key: 'group', label: 'Group Owner', value: (p) => groupOf(schematic, p.id)?.name ?? '', node: (p) => {
+                  const g = groupOf(schematic, p.id);
+                  return selectNode([{ value: '', label: '(None)' }, ...schematic.groups.map((x) => ({ value: String(x.id), label: `${x.name} (#${x.id})` }))], g ? String(g.id) : '', (v) => {
+                    const val = v ? Number(v) : null;
+                    flow(() => {
+                      // Detach from current group
+                      schematic.groups.forEach((x) => { x.members = x.members.filter((m) => m !== p.id); });
+                      // Attach to new group
+                      if (val !== null) {
+                        const targetG = schematic.groups.find((x) => x.id === val);
+                        if (targetG && !targetG.members.includes(p.id)) targetG.members.push(p.id);
+                      }
+                    });
+                  }, `${CELL} text-accent`);
+                } },
+                { key: 'x', label: 'X Pos', width: '80px', align: 'right', value: (p) => p.at.x, node: (p) => numberNode(p.at.x, '0.1', (v) => flow(() => { p.at.x = v; }), 0, `${CELL} text-right text-white`) },
+                { key: 'y', label: 'Y Pos', width: '80px', align: 'right', value: (p) => p.at.y, node: (p) => numberNode(p.at.y, '0.1', (v) => flow(() => { p.at.y = v; }), 0, `${CELL} text-right text-white`) },
+                { key: 'layerId', label: 'Layer', width: '96px', value: (p) => p.layerId || '0', node: (p) => selectNode(layerIds, p.layerId || '0', (v) => flow(() => { p.layerId = v; }), `${CELL} text-[#aaa]`) },
+              ]}
+            />
+            </>
           )}
 
           {/* TAB 2: CONNECTORS (WIRES) SPREADSHEET TABLE */}
           {activeTab === 'connectors' && (
-            <table className="w-full border-collapse border border-[#333] text-left text-xs font-mono">
-              <thead className="sticky top-0 bg-[#252526] text-[#888]">
-                <tr>
-                  <th className="w-8 border border-[#333] p-1.5 text-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.size > 0 && selectedIds.size >= filteredConnectors.length}
-                      onChange={() => toggleSelectAll(filteredConnectors.map((c) => c.id))}
-                    />
-                  </th>
-                  <th className="w-16 border border-[#333] p-1.5 text-center">Wire ID</th>
-                  <th className="border border-[#333] p-1.5">From Block</th>
-                  <th className="w-28 border border-[#333] p-1.5">From Port</th>
-                  <th className="border border-[#333] p-1.5">To Block</th>
-                  <th className="w-28 border border-[#333] p-1.5">To Port</th>
-                  <th className="border border-[#333] p-1.5">Signal Label</th>
-                  <th className="w-24 border border-[#333] p-1.5">Layer</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredConnectors.map((c) => (
-                  <tr
-                    key={c.id}
-                    className={`hover:bg-[#2a2d2e] ${selectedIds.has(c.id) ? 'bg-accent/15' : ''}`}
-                  >
-                    <td className="border border-[#262626] p-1.5 text-center">
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.has(c.id)}
-                        onChange={() => toggleSelect(c.id)}
-                      />
-                    </td>
-
-                    {/* Wire ID */}
-                    <td className="border border-[#262626] p-1 text-center font-bold text-[#888]">
-                      {c.id}
-                    </td>
-
-                    {/* From Placement */}
-                    <td className="border border-[#262626] p-1">
-                      <select
-                        value={c.from.placementId}
-                        onChange={(e) => {
-                          const val = Number(e.target.value);
-                          store.editFlow(() => {
-                            c.from.placementId = val;
-                            return true;
-                          });
-                        }}
-                        className="w-full bg-transparent px-1 font-bold text-[#38bdf8] focus:bg-[#111] focus:outline-none"
-                      >
-                        {schematic.placements.map((p) => (
-                          <option key={p.id} value={p.id} className="bg-[#222] text-white">
-                            {p.refdes || `Block ${p.id}`} (#{p.id})
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-
-                    {/* From Port */}
-                    <td className="border border-[#262626] p-1">
-                      <input
-                        type="text"
-                        value={c.from.portId}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          store.editFlow(() => {
-                            c.from.portId = val;
-                            return true;
-                          });
-                        }}
-                        className="w-full bg-transparent px-1 text-[#4ade80] focus:bg-[#111] focus:outline-none uppercase"
-                      />
-                    </td>
-
-                    {/* To Placement */}
-                    <td className="border border-[#262626] p-1">
-                      <select
-                        value={c.to.placementId}
-                        onChange={(e) => {
-                          const val = Number(e.target.value);
-                          store.editFlow(() => {
-                            c.to.placementId = val;
-                            return true;
-                          });
-                        }}
-                        className="w-full bg-transparent px-1 font-bold text-[#38bdf8] focus:bg-[#111] focus:outline-none"
-                      >
-                        {schematic.placements.map((p) => (
-                          <option key={p.id} value={p.id} className="bg-[#222] text-white">
-                            {p.refdes || `Block ${p.id}`} (#{p.id})
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-
-                    {/* To Port */}
-                    <td className="border border-[#262626] p-1">
-                      <input
-                        type="text"
-                        value={c.to.portId}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          store.editFlow(() => {
-                            c.to.portId = val;
-                            return true;
-                          });
-                        }}
-                        className="w-full bg-transparent px-1 text-[#4ade80] focus:bg-[#111] focus:outline-none uppercase"
-                      />
-                    </td>
-
-                    {/* Signal Label */}
-                    <td className="border border-[#262626] p-1">
-                      <input
-                        type="text"
-                        value={c.label || ''}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          store.editFlow(() => {
-                            c.label = val || undefined;
-                            return true;
-                          });
-                        }}
-                        className="w-full bg-transparent px-1 text-white focus:bg-[#111] focus:outline-none"
-                      />
-                    </td>
-
-                    {/* Layer */}
-                    <td className="border border-[#262626] p-1">
-                      <select
-                        value={c.layerId || '0'}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          store.editFlow(() => {
-                            c.layerId = val;
-                            return true;
-                          });
-                        }}
-                        className="w-full bg-transparent px-1 text-[#aaa] focus:bg-[#111] focus:outline-none"
-                      >
-                        {Array.from(layers.values()).map((l) => (
-                          <option key={l.id} value={l.id} className="bg-[#222] text-white">
-                            {l.id}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <>
+            <SelectAll ids={filteredConnectors.map((c) => c.id)} selectedIds={selectedIds} onToggle={toggleSelectAll} />
+            <ApkTable
+              id="cad-sheet-connectors"
+              className="cad-apk cad-sheet text-xs font-mono"
+              rows={filteredConnectors}
+              rowClass={(c) => (selectedIds.has(c.id) ? 'cad-row-on' : '')}
+              columns={[
+                { key: 'sel', label: '✓', width: '32px', value: (c) => (selectedIds.has(c.id) ? 1 : 0), node: (c) => checkNode(selectedIds.has(c.id), () => toggleSelect(c.id)) },
+                { key: 'id', label: 'Wire ID', width: '64px', align: 'center', style: () => ({ fontWeight: '700', color: '#888' }) },
+                { key: 'from', label: 'From Block', value: (c) => c.from.placementId, node: (c) => selectNode(placementOptions, String(c.from.placementId), (v) => flow(() => { c.from.placementId = Number(v); }), `${CELL} text-white`) },
+                { key: 'fromPort', label: 'From Port', width: '112px', value: (c) => c.from.portId, node: (c) => inputNode(c.from.portId, (v) => flow(() => { c.from.portId = v; }), `${CELL} text-white`) },
+                { key: 'to', label: 'To Block', value: (c) => c.to.placementId, node: (c) => selectNode(placementOptions, String(c.to.placementId), (v) => flow(() => { c.to.placementId = Number(v); }), `${CELL} text-white`) },
+                { key: 'toPort', label: 'To Port', width: '112px', value: (c) => c.to.portId, node: (c) => inputNode(c.to.portId, (v) => flow(() => { c.to.portId = v; }), `${CELL} text-white`) },
+                { key: 'label', label: 'Signal Label', value: (c) => c.label || '', node: (c) => inputNode(c.label || '', (v) => flow(() => { c.label = v || undefined; }), `${CELL} text-white`) },
+                { key: 'layerId', label: 'Layer', width: '96px', value: (c) => c.layerId || '0', node: (c) => selectNode(layerIds, c.layerId || '0', (v) => flow(() => { c.layerId = v; }), `${CELL} text-[#aaa]`) },
+              ]}
+            />
+            </>
           )}
 
           {/* TAB 3: GROUPS SPREADSHEET TABLE */}
           {activeTab === 'groups' && (
-            <table className="w-full border-collapse border border-[#333] text-left text-xs font-mono">
-              <thead className="sticky top-0 bg-[#252526] text-[#888]">
-                <tr>
-                  <th className="w-8 border border-[#333] p-1.5 text-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.size > 0 && selectedIds.size >= filteredGroups.length}
-                      onChange={() => toggleSelectAll(filteredGroups.map((g) => g.id))}
-                    />
-                  </th>
-                  <th className="w-20 border border-[#333] p-1.5 text-center">Group ID</th>
-                  <th className="border border-[#333] p-1.5">Group Name</th>
-                  <th className="border border-[#333] p-1.5">Parent Group</th>
-                  <th className="w-24 border border-[#333] p-1.5">Layer</th>
-                  <th className="w-28 border border-[#333] p-1.5 text-right">Member Blocks</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredGroups.map((g) => {
+            <>
+            <SelectAll ids={filteredGroups.map((g) => g.id)} selectedIds={selectedIds} onToggle={toggleSelectAll} />
+            <ApkTable
+              id="cad-sheet-groups"
+              className="cad-apk cad-sheet text-xs font-mono"
+              rows={filteredGroups}
+              rowClass={(g) => (selectedIds.has(g.id) ? 'cad-row-on' : '')}
+              columns={[
+                { key: 'sel', label: '✓', width: '32px', value: (g) => (selectedIds.has(g.id) ? 1 : 0), node: (g) => checkNode(selectedIds.has(g.id), () => toggleSelect(g.id)) },
+                { key: 'id', label: 'Group ID', width: '80px', align: 'center', style: () => ({ fontWeight: '700', color: '#888' }) },
+                { key: 'name', label: 'Group Name', node: (g) => inputNode(g.name, (v) => flow(() => { g.name = v; }), `${CELL} font-bold text-accent`) },
+                { key: 'parent', label: 'Parent Group', value: (g) => parentOf(schematic, g.id)?.name ?? '', node: (g) => {
                   const parentGroup = parentOf(schematic, g.id);
-                  return (
-                    <tr
-                      key={g.id}
-                      className={`hover:bg-[#2a2d2e] ${selectedIds.has(g.id) ? 'bg-accent/15' : ''}`}
-                    >
-                      <td className="border border-[#262626] p-1.5 text-center">
-                        <input
-                          type="checkbox"
-                          checked={selectedIds.has(g.id)}
-                          onChange={() => toggleSelect(g.id)}
-                        />
-                      </td>
-
-                      {/* Group ID */}
-                      <td className="border border-[#262626] p-1 text-center font-bold text-[#888]">
-                        {g.id}
-                      </td>
-
-                      {/* Group Name */}
-                      <td className="border border-[#262626] p-1">
-                        <input
-                          type="text"
-                          value={g.name}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            store.editFlow(() => {
-                              g.name = val;
-                              return true;
-                            });
-                          }}
-                          className="w-full bg-transparent px-1 font-bold text-accent focus:bg-[#111] focus:outline-none"
-                        />
-                      </td>
-
-                      {/* Parent Group */}
-                      <td className="border border-[#262626] p-1">
-                        <select
-                          value={parentGroup ? parentGroup.id : ''}
-                          onChange={(e) => {
-                            const val = e.target.value ? Number(e.target.value) : null;
-                            store.editFlow(() => {
-                              // Detach from current parent
-                              schematic.groups.forEach((other) => {
-                                other.children = other.children.filter((ch) => ch !== g.id);
-                              });
-                              // Attach to new parent
-                              if (val !== null) {
-                                const newParent = schematic.groups.find((other) => other.id === val);
-                                if (newParent && !newParent.children.includes(g.id)) {
-                                  newParent.children.push(g.id);
-                                }
-                              }
-                              return true;
-                            });
-                          }}
-                          className="w-full bg-transparent px-1 text-[#aaa] focus:bg-[#111] focus:outline-none"
-                        >
-                          <option value="" className="bg-[#222] text-[#888]">(Top Level / None)</option>
-                          {schematic.groups
-                            .filter((other) => other.id !== g.id)
-                            .map((other) => (
-                              <option key={other.id} value={other.id} className="bg-[#222] text-white">
-                                {other.name} (#{other.id})
-                              </option>
-                            ))}
-                        </select>
-                      </td>
-
-                      {/* Layer */}
-                      <td className="border border-[#262626] p-1">
-                        <select
-                          value={g.layerId || '0'}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            store.editFlow(() => {
-                              g.layerId = val;
-                              return true;
-                            });
-                          }}
-                          className="w-full bg-transparent px-1 text-[#aaa] focus:bg-[#111] focus:outline-none"
-                        >
-                          {Array.from(layers.values()).map((l) => (
-                            <option key={l.id} value={l.id} className="bg-[#222] text-white">
-                              {l.id}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-
-                      {/* Member Blocks Count */}
-                      <td className="border border-[#262626] p-1 text-right font-bold text-white">
-                        {g.members.length} block{g.members.length === 1 ? '' : 's'}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                  const opts = [{ value: '', label: '(Top Level / None)' }, ...schematic.groups.filter((o) => o.id !== g.id).map((o) => ({ value: String(o.id), label: `${o.name} (#${o.id})` }))];
+                  return selectNode(opts, parentGroup ? String(parentGroup.id) : '', (v) => {
+                    const val = v ? Number(v) : null;
+                    flow(() => {
+                      // Detach from current parent
+                      schematic.groups.forEach((other) => { other.children = other.children.filter((ch) => ch !== g.id); });
+                      // Attach to new parent
+                      if (val !== null) {
+                        const newParent = schematic.groups.find((other) => other.id === val);
+                        if (newParent && !newParent.children.includes(g.id)) newParent.children.push(g.id);
+                      }
+                    });
+                  }, `${CELL} text-[#aaa]`);
+                } },
+                { key: 'layerId', label: 'Layer', width: '96px', value: (g) => g.layerId || '0', node: (g) => selectNode(layerIds, g.layerId || '0', (v) => flow(() => { g.layerId = v; }), `${CELL} text-[#aaa]`) },
+                { key: 'members', label: 'Member Blocks', width: '112px', align: 'right', value: (g) => g.members.length,
+                  text: (g) => `${g.members.length} block${g.members.length === 1 ? '' : 's'}`, style: () => ({ fontWeight: '700', color: '#fff' }) },
+              ]}
+            />
+            </>
           )}
 
           {/* BOM (Bill of Materials) Table */}
           {activeTab === 'bom' && (
-            <table className="w-full border-collapse text-left font-mono">
-              <thead className="sticky top-0 z-10 border-b border-[#333] bg-[#222] text-[#888]">
-                <tr>
-                  <th className="border border-[#262626] p-1.5 text-center w-8">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.size >= filteredBom.length && filteredBom.length > 0}
-                      onChange={() => toggleSelectAll(filteredBom.map((b) => b.key))}
-                      className="cursor-pointer"
-                    />
-                  </th>
-                  <th className="border border-[#262626] p-1.5 w-12 text-center">#</th>
-                  <th className="border border-[#262626] p-1.5">Component / Symbol</th>
-                  <th className="border border-[#262626] p-1.5 w-28">Category</th>
-                  <th className="border border-[#262626] p-1.5 w-16 text-center">Qty</th>
-                  <th className="border border-[#262626] p-1.5">Designators / Instances</th>
-                  <th className="border border-[#262626] p-1.5 w-24">Layers</th>
-                  <th className="border border-[#262626] p-1.5">Attributes & Properties</th>
-                  <th className="border border-[#262626] p-1.5 w-36 text-center">Interactive Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredBom.map((item, idx) => {
-                  const isSelected = selectedIds.has(item.key);
-                  return (
-                    <tr
-                      key={item.key}
-                      className={`border-b border-[#262626] hover:bg-[#252528] ${
-                        isSelected ? 'bg-[#9333ea]/15' : idx % 2 === 0 ? 'bg-[#1a1a1a]' : 'bg-[#1e1e1e]'
-                      }`}
-                    >
-                      {/* Checkbox */}
-                      <td className="border border-[#262626] p-1 text-center">
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => toggleSelect(item.key)}
-                          className="cursor-pointer"
-                        />
-                      </td>
-
-                      {/* Item # */}
-                      <td className="border border-[#262626] p-1 text-center text-[#666]">
-                        {idx + 1}
-                      </td>
-
-                      {/* Component / Symbol Name */}
-                      <td className="border border-[#262626] p-1">
-                        <div className="flex flex-col">
-                          <span className="font-semibold text-white">{item.displayName}</span>
-                          {item.partName !== item.displayName && (
-                            <span className="text-[10px] text-[#777]">{item.partName}</span>
-                          )}
-                          {item.description && (
-                            <span className="text-[10px] text-[#888] italic">{item.description}</span>
-                          )}
-                        </div>
-                      </td>
-
-                      {/* Category */}
-                      <td className="border border-[#262626] p-1">
-                        <span
-                          className={`inline-block rounded px-1.5 py-0.5 text-[10px] font-semibold ${
-                            item.kind === 'flow'
-                              ? 'bg-[#0e639c]/30 text-[#38bdf8] border border-[#0e639c]/50'
-                              : 'bg-go/30 text-[#4ade80] border border-go/50'
-                          }`}
-                        >
-                          {item.kind === 'flow' ? '⚡ Flow Block' : '🧱 CAD Block'}
-                        </span>
-                      </td>
-
-                      {/* Quantity */}
-                      <td className="border border-[#262626] p-1 text-center font-bold text-white text-xs">
-                        <span className="rounded bg-[#333] px-2 py-0.5">{item.quantity}</span>
-                      </td>
-
-                      {/* Designators / Instances */}
-                      <td className="border border-[#262626] p-1">
-                        <div className="flex flex-wrap gap-1 max-w-xs">
-                          {item.instances.map((inst) => (
-                            <span
-                              key={inst.id}
-                              className="rounded bg-[#2a2a2a] border border-[#444] px-1.5 py-0.5 text-[10px] text-[#ddd]"
-                              title={`Instance ID: ${inst.id} @ (${inst.x.toFixed(1)}, ${inst.y.toFixed(1)})`}
-                            >
-                              {inst.refdes}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-
-                      {/* Layers */}
-                      <td className="border border-[#262626] p-1 text-[#aaa]">
-                        {item.layers.join(', ') || '0'}
-                      </td>
-
-                      {/* Attributes */}
-                      <td className="border border-[#262626] p-1">
-                        <div className="flex flex-wrap gap-1">
-                          {Object.entries(item.attributesSummary).length === 0 ? (
-                            <span className="text-[10px] text-[#555] italic">None</span>
-                          ) : (
-                            Object.entries(item.attributesSummary).map(([k, v]) => (
-                              <span
-                                key={k}
-                                className="rounded bg-[#333]/60 border border-[#555] px-1.5 py-0.5 text-[10px] text-accent"
-                              >
-                                <b>{k}:</b> {v}
-                              </span>
-                            ))
-                          )}
-                        </div>
-                      </td>
-
-                      {/* Actions */}
-                      <td className="border border-[#262626] p-1 text-center">
-                        <div className="flex items-center justify-center gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => handleLocateBomItem(item)}
-                            className="rounded bg-[#38bdf8]/20 border border-[#38bdf8]/50 px-2 py-1 text-[11px] font-semibold text-[#38bdf8] hover:bg-[#38bdf8]/30 transition-colors"
-                            title="Highlight and zoom to all instances of this component on the canvas"
-                          >
-                            🎯 Locate
-                          </button>
-                          {item.kind === 'cad' && (
-                            <button
-                              type="button"
-                              onClick={() => handleEditAttributes(item)}
-                              className="rounded bg-accent/20 border border-accent/50 px-2 py-1 text-[11px] font-semibold text-accent hover:bg-accent/30 transition-colors"
-                              title="Set or update attributes (e.g. Value, Part#, Vendor) on all instances"
-                            >
-                              ✏️ Attr
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            <>
+            <SelectAll ids={filteredBom.map((b) => b.key)} selectedIds={selectedIds} onToggle={toggleSelectAll} />
+            <ApkTable
+              id="cad-sheet-bom"
+              className="cad-apk cad-sheet font-mono"
+              rows={filteredBom}
+              rowClass={(item) => (selectedIds.has(item.key) ? 'cad-row-bom-on' : '')}
+              columns={[
+                { key: 'sel', label: '✓', width: '32px', value: (item) => (selectedIds.has(item.key) ? 1 : 0), node: (item) => checkNode(selectedIds.has(item.key), () => toggleSelect(item.key)) },
+                { key: 'n', label: '#', width: '48px', align: 'center', value: (_item, idx) => idx + 1, style: () => ({ color: '#666' }) },
+                { key: 'displayName', label: 'Component / Symbol', node: (item) => {
+                  const box = h('div', { display: 'flex', flexDirection: 'column' });
+                  box.appendChild(h('span', undefined, item.displayName, 'font-semibold text-white'));
+                  if (item.partName !== item.displayName) box.appendChild(h('span', undefined, item.partName, 'text-[10px] text-[#777]'));
+                  if (item.description) box.appendChild(h('span', undefined, item.description, 'text-[10px] text-[#888] italic'));
+                  return box;
+                } },
+                { key: 'kind', label: 'Category', width: '112px', value: (item) => (item.kind === 'flow' ? 'Flow Block' : 'CAD Block'),
+                  node: (item) => h('span', undefined, item.kind === 'flow' ? '⚡ Flow Block' : '🧱 CAD Block', `inline-block rounded px-1.5 py-0.5 text-[10px] font-semibold ${item.kind === 'flow'
+                    ? 'bg-[#0e639c]/30 text-[#38bdf8] border border-[#0e639c]/50' : 'bg-go/30 text-[#4ade80] border border-go/50'}`) },
+                { key: 'quantity', label: 'Qty', width: '64px', align: 'center', node: (item) => h('span', undefined, item.quantity, 'rounded bg-[#333] px-2 py-0.5 font-bold text-white text-xs') },
+                { key: 'instances', label: 'Designators / Instances', value: (item) => item.instances.map((i) => i.refdes).join(' '), node: (item) => {
+                  const box = h('div', undefined, null, 'flex flex-wrap gap-1 max-w-xs');
+                  for (const inst of item.instances) {
+                    const t = h('span', undefined, inst.refdes, 'rounded bg-[#2a2a2a] border border-[#444] px-1.5 py-0.5 text-[10px] text-[#ddd]');
+                    t.title = `Instance ID: ${inst.id} @ (${inst.x.toFixed(1)}, ${inst.y.toFixed(1)})`;
+                    box.appendChild(t);
+                  }
+                  return box;
+                } },
+                { key: 'layers', label: 'Layers', width: '96px', value: (item) => item.layers.join(', ') || '0', style: () => ({ color: '#aaa' }) },
+                { key: 'attributes', label: 'Attributes & Properties', value: (item) => Object.entries(item.attributesSummary).map(([k, v]) => `${k}: ${v}`).join('; '), node: (item) => {
+                  const box = h('div', undefined, null, 'flex flex-wrap gap-1');
+                  const entries = Object.entries(item.attributesSummary);
+                  if (!entries.length) box.appendChild(h('span', undefined, 'None', 'text-[10px] text-[#555] italic'));
+                  for (const [k, v] of entries) {
+                    const t = h('span', undefined, null, 'rounded bg-[#333]/60 border border-[#555] px-1.5 py-0.5 text-[10px] text-accent');
+                    t.appendChild(h('b', undefined, `${k}:`));
+                    t.appendChild(document.createTextNode(` ${v}`));
+                    box.appendChild(t);
+                  }
+                  return box;
+                } },
+                { key: 'actions', label: 'Interactive Actions', width: '144px', align: 'center', value: () => '', node: (item) => {
+                  const box = h('div', undefined, null, 'flex items-center justify-center gap-1.5');
+                  box.appendChild(buttonNode('🎯 Locate', () => handleLocateBomItem(item), 'rounded bg-[#38bdf8]/20 border border-[#38bdf8]/50 px-2 py-1 text-[11px] font-semibold text-[#38bdf8] hover:bg-[#38bdf8]/30 transition-colors', 'Highlight and zoom to all instances of this component on the canvas'));
+                  if (item.kind === 'cad') box.appendChild(buttonNode('✏️ Attr', () => handleEditAttributes(item), 'rounded bg-accent/20 border border-accent/50 px-2 py-1 text-[11px] font-semibold text-accent hover:bg-accent/30 transition-colors', 'Set or update attributes (e.g. Value, Part#, Vendor) on all instances'));
+                  return box;
+                } },
+              ]}
+            />
+            </>
           )}
         </div>
 

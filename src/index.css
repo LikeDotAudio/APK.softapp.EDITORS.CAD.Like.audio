@@ -74,3 +74,10 @@
   text-transform: uppercase;
   color: var(--color-ink-3);
 }
+
+/* THE ONE TABLE (ROAD-3494): the editors' lists are APKTables (components/common/ApkTable.tsx). */
+.cad-apk table.apk-table { background: #1e1e1e; color: #ddd; }
+.cad-apk table.apk-table td { padding: 4px 6px; border-color: #262626; }
+.cad-sheet table.apk-table th, .cad-sheet table.apk-table td { border: 1px solid #262626; }
+.cad-apk tr.cad-row-on { background: color-mix(in srgb, var(--color-accent) 15%, transparent); }
+.cad-apk tr.cad-row-bom-on { background: rgba(147, 51, 234, 0.15); }
