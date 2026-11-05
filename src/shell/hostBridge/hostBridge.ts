@@ -262,6 +262,18 @@ export function mirrorForHost(store: Pick<EditorStore, 'mirror'>) {
   return { enabled, x, axes: (store.mirror.mirrors ?? []).map((m) => m.x) };
 }
 
+/**
+ * Where every block that `geometry` reports as a patch stands right now. A drag
+ * moves a block on every pointer move but bumps `docVersion` only once, when it
+ * starts — so without this a host saw where a product was picked up, never where
+ * it was put down (the Simulation's wires stayed on the group's old seat).
+ */
+export function patchPlacesKey(doc: Pick<EditorStore['doc'], 'blockInstances'>): string {
+  let key = '';
+  for (const b of doc.blockInstances.values()) if (b.attributes?.paletteId) key += `${b.id}@${b.x},${b.y},${b.rotation ?? 0};`;
+  return key;
+}
+
 /** Called after every frame; sends only what changed since the last one. */
 export function publishToHost(store: EditorStore): void {
   if (!host() || !store.canvas) return;
@@ -285,7 +297,7 @@ export function publishToHost(store: EditorStore): void {
     post('selection', selectionForHost(store));
   }
   const layerKey = [...store.layers.values()].map((l) => `${l.id}:${l.visible ? 1 : 0}:${l.color}:${l.finish ?? ''}`).join();
-  const geometryKey = `${store.docVersion}|${store.units}|${layerKey}|${store.doc.edgeCount}|${[...picked.keys()].join(';')}`;
+  const geometryKey = `${store.docVersion}|${store.units}|${layerKey}|${store.doc.edgeCount}|${[...picked.keys()].join(';')}|${patchPlacesKey(store.doc)}`;
   if (geometryKey !== lastGeometry) {
     lastGeometry = geometryKey;
     post('geometry', geometryForHost(store, [...picked.values()]));
