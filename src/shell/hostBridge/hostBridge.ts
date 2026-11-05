@@ -37,7 +37,7 @@ import { pickedOutline, sceneForHost, wallsForHost } from './sceneForHost';
  *               where the centre line is.
  *
  * The host may send `hello` (resend all three now), `fit` (zoom to the
- * drawing), `mirror` { x, enabled } (put the primary axis there) and `sheet`
+ * drawing, or to `box` { x1, y1, x2, y2 } in drawing units when given), `mirror` { x, enabled } (put the primary axis there) and `sheet`
  * { layer, color?, seed? } (jump to the drawing on that layer and make it
  * current, drawing `seed` there first if the layer is empty — hostSheet.ts)
  * and `palette` { title, items } — the host's materials (model/palette):
@@ -161,7 +161,18 @@ export const HOST_HANDLERS: Record<string, (store: EditorStore, msg: HostMessage
     lastMirror = '';
     publishToHost(store);
   },
-  fit: (store) => store.zoomToFit(),
+  // `box` { x1, y1, x2, y2 } in drawing units frames that rectangle — the
+  // Library Equipment tree flies to one device on the whole-bench sheet.
+  fit: (store, { box }) => {
+    const b = box as Record<string, unknown> | undefined;
+    const ok = b && ['x1', 'y1', 'x2', 'y2'].every((k) => typeof b[k] === 'number' && Number.isFinite(b[k] as number));
+    if (!ok) { store.zoomToFit(); return; }
+    const r = b as { x1: number; y1: number; x2: number; y2: number };
+    if (r.x2 <= r.x1 || r.y2 <= r.y1) { store.zoomToFit(); return; }
+    store.view.zoomToFit(r);
+    store.requestDraw();
+    store.emit();
+  },
   mirror: (store, { x, enabled }) => {
     if (typeof x === 'number' && Number.isFinite(x)) store.setVirtualMirror(x, enabled !== false, false);
   },
