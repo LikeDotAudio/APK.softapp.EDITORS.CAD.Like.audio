@@ -3,6 +3,7 @@
 import type { EditorStore } from '../EditorStore';
 import type { RecentFileEntry } from '@io/recentFiles/RecentFileEntry';
 import { loadRecentFileData } from '@io/recentFiles/recentFileDataStore';
+import { showProblem } from '../../shell/softapp';
 
 export async function loadRecentFile(store: EditorStore, entry: RecentFileEntry): Promise<void> {
   let data = entry.data;
@@ -16,7 +17,11 @@ export async function loadRecentFile(store: EditorStore, entry: RecentFileEntry)
   }
 
   if (!data) {
-    window.alert(`Could not load recent file "${entry.name}". Cached file data was not found in browser storage.`);
+    showProblem('file_unreadable', {
+      subject: entry.name,
+      detail: 'Cached file data was not found in browser storage.',
+      fix: ['Open it again from disk with File ▸ Open... (Ctrl+O): this browser no longer holds its cached copy.'],
+    });
     return;
   }
 

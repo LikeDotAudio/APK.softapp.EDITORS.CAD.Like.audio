@@ -4,6 +4,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 import { currentEntrance } from './shell/entrance';
+import { describeCad } from './shell/softapp';
 import './index.css';
 import brand from './tokens/brand.json';
 import state from './tokens/state.json';
@@ -14,6 +15,9 @@ document.documentElement.style.setProperty('--brand-accent', brand.accent.hex);
 for (const tone of ['good', 'dead', 'kinda'] as const) {
   document.documentElement.style.setProperty(`--brand-state-${tone}`, state.tones[tone].hex);
 }
+
+// the ? button (F1): inputs, outputs, controls — public/vendor/apk-softapp, when it loaded
+describeCad();
 
 const host = document.getElementById('root');
 if (!host) throw new Error('#root not found');

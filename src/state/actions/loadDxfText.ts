@@ -10,6 +10,7 @@ import { parseDxf } from '@io/importDxf/parseDxf';
 import { skippedSummary } from '@io/importDxf/skippedSummary';
 import type { DxfEntity } from '@io/importDxf/DxfParseResult';
 import { unitFactor } from '../../model/units/unitFactor';
+import { showProblem } from '../../shell/softapp';
 
 export async function loadDxfText(store: EditorStore, text: string,
     filename = 'drawing.dxf',
@@ -21,10 +22,13 @@ export async function loadDxfText(store: EditorStore, text: string,
     // what the file holds that the importer reads past (3DFACE, LEADER, a mesh POLYLINE, …)
     const notImported = skippedSummary(result.skipped);
     if (result.entities.length === 0) {
-      window.alert(
-        'No supported geometry (LINE, CIRCLE, ARC, POLYLINE, ELLIPSE, SPLINE, TEXT, HATCH, INSERT, DIMENSION) found in DXF file.' +
-          (notImported ? `\n\n${notImported}` : ''),
-      );
+      showProblem('bad_input', {
+        subject: filename,
+        detail:
+          'No supported geometry (LINE, CIRCLE, ARC, POLYLINE, ELLIPSE, SPLINE, TEXT, HATCH, INSERT, DIMENSION) found in DXF file.' +
+          (notImported ? ` ${notImported}` : ''),
+        fix: ['Export the drawing again as a DXF with its geometry exploded to those entities, then open it.'],
+      });
       return;
     }
 
@@ -107,6 +111,9 @@ export async function loadDxfText(store: EditorStore, text: string,
     notImported ? 12000 : 5000,
   );
   if (notImported) console.warn(`DXF ${filename}: ${notImported}`);
+  } catch (err) {
+    // a file the parser or importer chokes on: say which, and what to try, instead of a silent stop
+    showProblem(err, { subject: filename, fix: ['Check it is a text (ASCII) DXF; save it again from its CAD program if it is binary or damaged.'] });
   } finally {
     store.hideLoading();
   }

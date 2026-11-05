@@ -18,6 +18,7 @@ import type { PendingDxfImport } from './file/PendingDxfImport';
 import { RecentFilesSubmenu } from './file/RecentFilesSubmenu';
 import { useRecentFiles } from './file/useRecentFiles';
 import { loadRecentFileData } from '@io/recentFiles/recentFileDataStore';
+import { showProblem } from '../../../shell/softapp';
 
 /**
  * File ▾ — open, import, recent files, DXF export, and 06a's filed sheet.
@@ -56,7 +57,11 @@ export function FileMenu({ open, onToggle, onClose }: MenuProps) {
       }
     }
     if (!data) {
-      window.alert(`Could not load recent file "${entry.name}". Cached file data was not found in browser storage.`);
+      showProblem('file_unreadable', {
+        subject: entry.name,
+        detail: 'Cached file data was not found in browser storage.',
+        fix: ['Open it again from disk with File ▸ Open... (Ctrl+O): this browser no longer holds its cached copy.'],
+      });
       return;
     }
     if (entry.type === 'dxf') {

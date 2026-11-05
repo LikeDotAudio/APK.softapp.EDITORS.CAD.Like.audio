@@ -3,12 +3,13 @@
 import type { EditorStore } from '../EditorStore';
 import { canUserSave } from '../../core/userAuth';
 import { saveDxf } from '@io/exportDxf/saveDxf';
+import { showProblem } from '../../shell/softapp';
 
 export async function exportDxf(store: EditorStore): Promise<void> {
   if (store.currentUserAuth) {
     const authCheck = await canUserSave(store.currentUserAuth);
     if (!authCheck.allowed) {
-      window.alert(`Export denied: ${authCheck.reason}`);
+      showProblem('http_forbidden', { subject: 'Download DXF', detail: `Export denied: ${authCheck.reason}` });
       return;
     }
   }
@@ -16,11 +17,22 @@ export async function exportDxf(store: EditorStore): Promise<void> {
   if (store.shapeMode) {
     const result = store.validation();
     if (!result.valid) {
-      window.alert(
-        `Cannot export yet:\n\n${result.errs.map((e) => `  • ${e}`).join('\n')}\n\nFix the highlighted issues and try again.`,
-      );
+      showProblem('bad_input', {
+        subject: 'Download DXF',
+        detail: `Cannot export yet: ${result.errs.join(' · ')}`,
+        fix: ['Fix the highlighted issues on the drawing, then Download DXF again.'],
+      });
       return;
     }
   }
-  await saveDxf(store.doc, store.units, store.layers.values(), store.schematic, store.currentFileName);
+  try {
+    await saveDxf(store.doc, store.units, store.layers.values(), store.schematic, store.currentFileName);
+  } catch (err) {
+    // the save dialog or the write failed (not a cancel: saveDxf returns quietly on AbortError)
+    showProblem('save_failed', {
+      subject: store.currentFileName ?? 'Download DXF',
+      detail: String((err as Error)?.message ?? err),
+      onRetry: () => void exportDxf(store),
+    });
+  }
 }
