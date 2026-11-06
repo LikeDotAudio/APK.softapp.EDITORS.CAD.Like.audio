@@ -369,6 +369,10 @@
       "protocol": "cad.like.audio/host@1",
       "type": "editorClose",
       "editor": "Rack Elevation Builder"
+    },
+    {
+      "protocol": "cad.like.audio/host@1",
+      "type": "dxf"
     }
   ],
   "toHost": [
@@ -580,6 +584,28 @@
         "layers": [],
         "activeLayerId": "0"
       }
+    },
+    {
+      "protocol": "cad.like.audio/host@1",
+      "type": "pick",
+      "at": [
+        1250.5,
+        -340.25
+      ],
+      "count": 2,
+      "tool": "select",
+      "shift": false,
+      "ctrl": false,
+      "client": [
+        412,
+        288
+      ]
+    },
+    {
+      "protocol": "cad.like.audio/host@1",
+      "type": "dxf",
+      "fileName": "Simulation — Bench (mm).dxf",
+      "text": "0\nSECTION\n2\nHEADER\n0\nENDSEC\n0\nEOF\n"
     }
   ],
   "toEditor": [

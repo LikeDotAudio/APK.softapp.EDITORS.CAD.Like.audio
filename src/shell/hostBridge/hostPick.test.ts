@@ -1,0 +1,36 @@
+// Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
+// MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
+import { describe, expect, it } from 'vitest';
+import schema from '../../../contract/host@1/host.schema.json';
+// @ts-expect-error — plain JS shipped with the contract, no .d.ts on purpose
+import { validateMessage } from '../../../contract/validate.mjs';
+import { Doc } from '../../model/Doc';
+import { Viewport } from '../../viewport/Viewport';
+import { dxfForHost, pickForHost } from './hostPick';
+import { HOST_PROTOCOL } from './hostBridge';
+
+describe('pick: a click on the sheet says where it landed, in drawing units', () => {
+  it('maps client pixels through the view, and validates as toHost.pick', () => {
+    const view = new Viewport();
+    view.zoom = 2;
+    view.panX = 100;
+    view.panY = 300;
+    const body = pickForHost({ view, tool: { id: 'select' } as never }, { left: 10, top: 20 },
+      { clientX: 210, clientY: 120, shiftKey: true, ctrlKey: false, metaKey: true }, 2);
+    expect(body.at).toEqual([50, 100]);
+    expect(body).toMatchObject({ count: 2, tool: 'select', shift: true, ctrl: true, client: [210, 120] });
+    expect(validateMessage(schema, 'toHost', { protocol: HOST_PROTOCOL, type: 'pick', ...body })).toEqual([]);
+  });
+});
+
+describe('dxf: the sheet as Download DXF writes it', () => {
+  it('carries a DXF text and a file name, and validates as toHost.dxf', () => {
+    const doc = new Doc();
+    doc.addLine({ x: 0, y: 0 }, { x: 1000, y: 0 }, 0, '0');
+    const body = dxfForHost({ doc, units: 'mm', layers: new Map(), schematic: undefined as never, currentFileName: 'Simulation — Bench' });
+    expect(body.text).toContain('SECTION');
+    expect(body.text.trim().endsWith('EOF')).toBe(true);
+    expect(body.fileName).toMatch(/\.dxf$/);
+    expect(validateMessage(schema, 'toHost', { protocol: HOST_PROTOCOL, type: 'dxf', ...body })).toEqual([]);
+  });
+});

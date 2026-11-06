@@ -15,6 +15,7 @@ import { showHostSheet } from './hostSheet';
 import { applyHostSpaces } from './hostSpaces';
 import { applyHostLayers, applyHostSelect, applyHostWalls, selectionForHost } from './hostWalls';
 import { pickedOutline, sceneForHost, wallsForHost } from './sceneForHost';
+import { dxfForHost, installHostPick } from './hostPick';
 
 /**
  * THE DOOR FOR SOFTAPPS BUILT ON THIS ONE
@@ -73,6 +74,12 @@ import { pickedOutline, sceneForHost, wallsForHost } from './sceneForHost';
  * into the sheet and kept current (hostMarks.ts); `geometry` carries `marks`
  * { key: hash } back, so the host knows what is on the sheet.
  *
+ * CLICKS AND THE DXF (hostPick.ts). Every click and double-click on the
+ * sheet goes out as `pick` { at, count, tool, shift, ctrl, client }, so a host
+ * can hit-test the pins inside its own `marks` (the Simulation opens the
+ * readout and the thing card from it). `dxf` asks for the sheet as Download
+ * DXF writes it and gets `dxf` { fileName, text } back.
+ *
  * SAVING A SESSION. `session` asks for the whole drawing — the same object
  * the browser autosaves (SavedSession), without the user's sign-in — and
  * gets `session` { session } back; `open` { session } puts one on the sheet,
@@ -128,7 +135,7 @@ export const HOST_PROTOCOL = 'cad.like.audio/host@1';
  */
 
 /** What this side sends a host. */
-export const HOST_OUTBOUND_TYPES = ['ready', 'view', 'selection', 'geometry', 'mirror', 'session'] as const;
+export const HOST_OUTBOUND_TYPES = ['ready', 'view', 'selection', 'geometry', 'mirror', 'session', 'pick', 'dxf'] as const;
 export type HostOutboundType = (typeof HOST_OUTBOUND_TYPES)[number];
 
 let installed = false;
@@ -202,6 +209,8 @@ export const HOST_HANDLERS: Record<string, (store: EditorStore, msg: HostMessage
     const s = session as SavedSession | undefined;
     if (s && Array.isArray(s.docSnapshot?.edges)) void openSession(store, s);
   },
+  // the sheet as Download DXF writes it, answered with `dxf` { fileName, text } (hostPick.ts)
+  dxf: (store) => post('dxf', dxfForHost(store)),
   floorplan: (store, { file }) => {
     if (file instanceof File) void openFloorPlan(store, file);
   },
@@ -209,6 +218,8 @@ export const HOST_HANDLERS: Record<string, (store: EditorStore, msg: HostMessage
 
 function install(store: EditorStore): void {
   installed = true;
+  // every click and double-click on the sheet, where it landed (hostPick.ts)
+  installHostPick(store, (body) => post('pick', body));
   window.addEventListener('message', (e: MessageEvent) => {
     if (e.source !== host() || e.origin !== window.location.origin) return;
     const msg = e.data as HostMessage | null;

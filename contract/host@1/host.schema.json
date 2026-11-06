@@ -822,6 +822,22 @@
         }
       }
     },
+    "toCad.dxf": {
+      "description": "Ask for the sheet as Download DXF writes it; answered with toHost.dxf (hostPick.ts).",
+      "type": "object",
+      "required": [
+        "protocol",
+        "type"
+      ],
+      "properties": {
+        "protocol": {
+          "const": "cad.like.audio/host@1"
+        },
+        "type": {
+          "const": "dxf"
+        }
+      }
+    },
     "toCad.editorReady": {
       "description": "A block editor in the CAD's iframe is up and listening; the CAD answers with toEditor.load.",
       "type": "object",
@@ -1253,6 +1269,78 @@
               "type": "null"
             }
           ]
+        }
+      }
+    },
+    "toHost.pick": {
+      "description": "A click (count 1) or double-click (count 2) on the sheet, where it landed — so a host can hit-test the pins inside its own marks (hostPick.ts). A press that travelled more than a few pixels was a drag and is not sent.",
+      "type": "object",
+      "required": [
+        "protocol",
+        "type",
+        "at",
+        "count",
+        "tool"
+      ],
+      "properties": {
+        "protocol": {
+          "const": "cad.like.audio/host@1"
+        },
+        "type": {
+          "const": "pick"
+        },
+        "at": {
+          "$ref": "#/$defs/xy"
+        },
+        "count": {
+          "enum": [
+            1,
+            2
+          ]
+        },
+        "tool": {
+          "type": "string",
+          "description": "the active tool; a host acts on 'select' only"
+        },
+        "shift": {
+          "type": "boolean"
+        },
+        "ctrl": {
+          "type": "boolean",
+          "description": "ctrl or meta"
+        },
+        "client": {
+          "description": "[x, y] client pixels in the CAD's window",
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+    "toHost.dxf": {
+      "description": "The answer to toCad.dxf: the sheet as a DXF file's text.",
+      "type": "object",
+      "required": [
+        "protocol",
+        "type",
+        "fileName",
+        "text"
+      ],
+      "properties": {
+        "protocol": {
+          "const": "cad.like.audio/host@1"
+        },
+        "type": {
+          "const": "dxf"
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
         }
       }
     },
