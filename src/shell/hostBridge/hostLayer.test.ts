@@ -36,5 +36,9 @@ describe('a host keeps a layer', () => {
     ensureHostLayer(s as unknown as EditorStore, { name: 'Room · A · Finishes', finish: null });
     expect(s.layers.get('Room · A · Finishes')!.finish).toBeUndefined();
     expect(ensureHostLayer(s as unknown as EditorStore, { name: '  ' })).toBe(false);
+    // a host re-colours its own layer (the Simulation's wiring fader); the same colour again changes nothing
+    expect(ensureHostLayer(s as unknown as EditorStore, { name: 'Room · A · Finishes', color: '#444' })).toBe(true);
+    expect(s.layers.get('Room · A · Finishes')!.color).toBe('#444');
+    expect(ensureHostLayer(s as unknown as EditorStore, { name: 'Room · A · Finishes', color: '#444' })).toBe(false);
   });
 });
