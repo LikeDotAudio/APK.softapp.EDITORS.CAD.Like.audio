@@ -37,7 +37,8 @@ export async function openBigPicture(store: EditorStore): Promise<void> {
     digest: read.digest,
     savedAt: read.sheet.saved_at ?? null,
     filed: Boolean(read.sheet.exists),
-    dirty: false,
+    // a sheet still filed as JSON (big-picture@1) is not filed as IFC until it is saved again
+    dirty: !read.sheet.exists && (held > 0 || groups > 0),
     message: null,
   };
 
@@ -47,7 +48,7 @@ export async function openBigPicture(store: EditorStore): Promise<void> {
     store.emit();
     if (localHeld > 0) {
       store.showHint(
-        'This sheet has never been filed. File ▸ Save to Big Picture writes it to APK:OS/system/big-picture.json.',
+        'This sheet has never been filed. File ▸ Save to Big Picture files it on APK:OS as IFC (big-picture.ifc).',
         6000,
       );
     }
@@ -62,7 +63,10 @@ export async function openBigPicture(store: EditorStore): Promise<void> {
   store.requestDraw();
   store.emit();
   store.showHint(
-    `Opened the filed Big Picture — ${held} block${held === 1 ? '' : 's'} in ${groups} group${groups === 1 ? '' : 's'}.`,
-    5000,
+    read.sheet.exists
+      ? `Opened the filed Big Picture — ${held} block${held === 1 ? '' : 's'} in ${groups} group${groups === 1 ? '' : 's'}.`
+      // big-picture@1's JSON, read until 2027-01-01 so it can be filed again as IFC
+      : `Opened the Big Picture filed as JSON before IFC — ${held} block${held === 1 ? '' : 's'}. File ▸ Save to Big Picture files it as IFC.`,
+    6000,
   );
 }

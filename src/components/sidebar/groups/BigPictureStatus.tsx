@@ -4,7 +4,7 @@ import { useStore } from '@state/useStore';
 import { useUi } from '@state/useUi';
 
 /**
- * Where this sheet stands with `APK:OS/system/big-picture.json`, and the one
+ * Where this sheet stands with APK:OS's `big-picture.ifc` (big-picture@2), and the one
  * button that writes it there.
  *
  * FOUR STATES, AND EACH SAYS WHICH ONE IT IS. `unreachable` is not a failure —
@@ -36,7 +36,7 @@ export function BigPictureStatus() {
           type="button"
           disabled={!bigPicture.reachable}
           onClick={() => void store.fileBigPicture()}
-          title="Write this sheet to APK:OS/system/big-picture.json — 06a's document of record"
+          title="File this sheet as IFC on APK:OS (big-picture.ifc) — 06a's document of record"
           className="flex-shrink-0 rounded-sm border border-[#4a4a4a] px-1.5 py-0.5 font-mono text-[10px] text-[#cccccc] hover:border-accent hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
         >
           file

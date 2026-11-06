@@ -43,7 +43,7 @@ export async function fileBigPicture(store: EditorStore): Promise<void> {
   };
   store.emit();
   store.showHint(
-    `Filed — ${outcome.result.placements} block${outcome.result.placements === 1 ? '' : 's'} in ${outcome.result.groups} group${outcome.result.groups === 1 ? '' : 's'} written to APK:OS/system/big-picture.json.`,
+    `Filed — ${outcome.result.placements} block${outcome.result.placements === 1 ? '' : 's'} in ${outcome.result.groups} group${outcome.result.groups === 1 ? '' : 's'} filed as IFC (big-picture.ifc).`,
     5000,
   );
 }

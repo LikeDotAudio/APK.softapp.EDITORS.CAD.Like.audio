@@ -61,12 +61,12 @@ describe('lengths are converted only where a person reads or types them', () => 
     const before = xs(store.doc);
     const zoom = store.view.zoom;
     const grid = store.gridSize;
-    expect(store.units).toBe('in');
-    expect(grid).toBeCloseTo(6.35, 12); // a quarter inch, in mm
+    expect(store.units).toBe('mm'); // a new sheet shows mm (ROAD-3598 answer 13)
+    expect(grid).toBe(10); // mm
     expect(zoom).toBeCloseTo(80 / 25.4, 12); // 80 px to the inch, as the opening sheet always showed it
     const v = store.docVersion;
-    store.setUnits('mm');
-    expect(store.units).toBe('mm');
+    store.setUnits('in');
+    expect(store.units).toBe('in');
     expect(xs(store.doc)).toEqual(before);
     expect(store.view.zoom).toBe(zoom);
     expect(store.gridSize).toBe(grid);

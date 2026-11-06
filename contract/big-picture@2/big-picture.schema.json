@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cad.like.audio/contract/big-picture@2/big-picture.schema.json",
+  "title": "cad.like.audio/big-picture@2",
+  "description": "The Big Picture route between CAD.Like.audio (customer) and WEB.OsApi server.py (supplier), the sheet filed as IFC (ISO 16739-1:2024, IFC4X3_ADD2, ISO 10303-21 STEP text): GET /api/v2/big-picture answers 'read'; POST /api/v2/big-picture takes 'write' and answers 'saved' (200) or 'refused' (400 invalid / 409 digest conflict / 413 over 4 MB / 500 read-back). The STEP is the CAD's schematic IFC (src/io/bigPicture/bigPictureIfc.ts, IFC-CORE-DELTAS cad-6): placements are occurrences carrying APK_Placement, connectors IfcRelConnectsPorts with an APK_SchematicWire annotation, rack/kit groups IfcElementAssembly (IfcRelAggregates), other groups IfcGroup (IfcRelAssignsToGroup), each carrying APK_SchematicGroup; the server refuses a file whose group tree gives an occurrence two owners or a group two parents or a cycle. big-picture@1 (JSON, /api/v1/big-picture) is read-only from 2026-11-06 and removed on 2027-01-01. Validate with ../validate.mjs; samples.json has one of each, written from its $sheet.",
+  "x-protocol": "cad.like.audio/big-picture@2",
+  "$defs": {
+    "step": {
+      "type": "string",
+      "description": "An ISO 10303-21 file, FILE_SCHEMA(('IFC4X3_ADD2')), at most 4 MB."
+    },
+    "read": {
+      "type": "object",
+      "required": ["schema", "ifc", "digest", "exists", "saved_at"],
+      "properties": {
+        "schema": { "const": "cad.like.audio/big-picture@2" },
+        "ifc": { "anyOf": [{ "$ref": "#/$defs/step" }, { "type": "null" }] },
+        "digest": { "type": ["string", "null"] },
+        "exists": { "type": "boolean" },
+        "saved_at": { "type": ["string", "null"] },
+        "bytes": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "write": {
+      "type": "object",
+      "required": ["schema", "ifc", "base"],
+      "properties": {
+        "schema": { "const": "cad.like.audio/big-picture@2" },
+        "ifc": { "$ref": "#/$defs/step" },
+        "base": { "type": ["string", "null"] },
+        "by": { "type": "string" }
+      }
+    },
+    "saved": {
+      "type": "object",
+      "required": ["saved", "digest", "saved_at", "placements", "connectors", "groups", "bytes"],
+      "properties": {
+        "saved": { "const": true },
+        "digest": { "type": "string" },
+        "saved_at": { "type": "string" },
+        "placements": { "type": "integer" },
+        "connectors": { "type": "integer" },
+        "groups": { "type": "integer" },
+        "bytes": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "refused": {
+      "type": "object",
+      "required": ["error"],
+      "properties": {
+        "error": { "type": "string" },
+        "problems": { "type": "array", "items": { "type": "string" } },
+        "digest": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

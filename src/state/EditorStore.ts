@@ -206,7 +206,7 @@ export class EditorStore {
   /** The wire the cable editor is open on (components/CableEditor.tsx), else null. */
   cableEditId: number | null = null;
   /**
-   * How this window stands with 06a's filed sheet — `APK:OS/system/big-picture.json`.
+   * How this window stands with 06a's filed sheet — `big-picture.ifc` on APK:OS (big-picture@2).
    * `digest` is what the last read or write saw on disk and is what the next
    * save has to quote back; a save that cannot quote it is refused rather than
    * landing on somebody else's drawing.
@@ -236,10 +236,14 @@ export class EditorStore {
   tool: AnyTool;
   toolState: object;
 
-  /** How lengths are shown and typed. The drawing itself is in mm, always (cad-1, docUnits.ts). */
-  units: Units = 'in';
-  /** Grid spacing, mm (a quarter inch, the inch sheet's own step). */
-  gridSize = 6.35;
+  /**
+   * How lengths are shown and typed: mm unless a session or the person says
+   * otherwise (ROAD-3598 answer 13 — mm is the site's unit, as host@1 already
+   * states). The drawing itself is in mm, always (cad-1, docUnits.ts).
+   */
+  units: Units = 'mm';
+  /** Grid spacing, mm. */
+  gridSize = 10;
   gridMode: GridMode = 'lines';
   snapToGrid = true;
   /** Text rendered at a fixed screen size when true, or true CAD world scale when false (default). */
