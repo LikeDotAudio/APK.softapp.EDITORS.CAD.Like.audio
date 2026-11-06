@@ -8,6 +8,7 @@ import { ifcGuid } from '../../vendor/ifc/guid';
 import { StepBuilder, E, R, bool, gid, ident, int, label, length, positiveLength, realv, text, type PropValue } from './stepBuilder';
 import { wallFaces } from './wallFaces';
 import { mergePartType, occurrenceEntity, occurrenceTail, type MergedType } from './partTypes';
+import { schematicNative, writeSchematic } from './schematicIfc';
 
 /**
  * THE DRAWING AS IFC4X3_ADD2 (IFC-CORE-DELTAS cad-3, cad-4, cad-5, cad-10)
@@ -34,9 +35,11 @@ import { mergePartType, occurrenceEntity, occurrenceTail, type MergedType } from
  * - A Virtual Mirror is an IfcAnnotation 'MIRROR_AXIS'; a reflected copy is a
  *   second placement and an APK_Symmetry on each partner — never a negative
  *   scale, which IFC forbids (IfcCartesianTransformationOperator.ScaleGreaterZero).
- * - What IFC has no word for — the Flow schematic's wiring, block symbols,
- *   layers' DXF styling, counters — rides in APK_CadSession as the session's own
- *   JSON, so nothing is lost; the schematic's own IFC shape is cad-6.
+ * - The Flow schematic (schematicIfc.ts, cad-6): every placement an occurrence,
+ *   each connector an IfcRelConnectsPorts between their ports, each group an
+ *   IfcGroup or (a rack, a kit) an IfcElementAssembly.
+ * - What IFC has no word for — block symbols, layers' DXF styling, counters —
+ *   rides in APK_CadSession as the session's own JSON, so nothing is lost.
  *
  * GlobalIds are uuid5 of a role (contracts guid.ts): cad/<docKey>/edge/<id>,
  * cad/<docKey>/space/<key>, inst/serial:<maker>/<serial> for a placed box with
@@ -442,6 +445,10 @@ export function exportIfc(session: SavedSession, opts: ExportIfcOptions = {}): s
     b.add('IFCRELDECLARES', [role('rel', 'library-types'), oh, null, null, library, libraryTypes]);
   }
 
+  if (session.schematic) {
+    writeSchematic({ b, oh, doc, mm, pset, storeyPl, annotationCtx, occurrences: occByPlacement, inStorey }, session.schematic);
+  }
+
   // ------------------------------------------------------------ containment, layers, the session's own state
   if (inStorey.length || contained.get(storey)?.length) {
     b.add('IFCRELCONTAINEDINSPATIALSTRUCTURE', [role('rel', 'storey-contains'), oh, null, null, [...inStorey, ...(contained.get(storey) ?? [])], storey]);
@@ -469,7 +476,7 @@ export function exportIfc(session: SavedSession, opts: ExportIfcOptions = {}): s
     groupIntact: snap.groupIntact,
     blocks: snap.blocks,
     present: (['texts', 'fills', 'blocks', 'blockInstances', 'nextTextId', 'nextFillId', 'nextBlockInstanceId'] as const).filter((k) => snap[k] !== undefined),
-    schematic: sch ? { ...sch, placements: sch.placements.map((p) => (bimPartOf(p) ? { ifc: p.id } : p)) } : undefined,
+    schematic: sch ? schematicNative(sch) : undefined,
     session: Object.fromEntries((['gridMode', 'currentFileName', 'spaces', 'docKey', 'mirror'] as const).map((k) => [k, session[k] !== undefined])),
     version: session.version,
   };

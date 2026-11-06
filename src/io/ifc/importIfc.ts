@@ -2,13 +2,13 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { BlockPlacement, CadBlockInstance, CadSpace, Edge, FillEntity, Layer, Point, TextEntity, Units, Vertex } from '../../core/types';
 import type { VirtualMirror } from '../../core/mirror';
-import type { SchematicSnapshot } from '../../flow/Schematic';
 import type { DocSnapshot } from '../../model/doc/DocSnapshot';
 import { MM_PER_UNIT } from '../../model/units/mmPerUnit';
 import type { SavedSession } from '../browserStorage/SavedSession';
 import { deref, entitiesByType, getPsets, isRef, parseStep, schemaOf, unwrap, type StepEntity, type StepFile, type StepValue } from '../../vendor/ifc/step';
 import { CAD_IFC_SCHEMA } from './exportIfc';
 import { partIdOf } from './partTypes';
+import { readSchematic, type NativeSchematic } from './schematicIfc';
 
 /**
  * AN .ifc BACK INTO A SESSION (IFC-CORE-DELTAS cad-3)
@@ -37,7 +37,7 @@ type Native = {
   groupIntact: number[];
   blocks?: DocSnapshot['blocks'];
   present: string[];
-  schematic?: Omit<SchematicSnapshot, 'placements'> & { placements: (BlockPlacement | { ifc: number })[] };
+  schematic?: NativeSchematic;
   session: Record<string, boolean>;
   version: number;
 };
@@ -302,12 +302,7 @@ export function importIfc(textIn: string): SavedSession {
     tracing: null,
   };
   if (has.currentFileName) session.currentFileName = cad.FileName !== undefined ? String(cad.FileName) : null;
-  if (sch) {
-    session.schematic = {
-      ...sch,
-      placements: sch.placements.map((p) => ('ifc' in p ? placed.get(p.ifc) : p)).filter((p): p is BlockPlacement => !!p),
-    };
-  }
+  if (sch) session.schematic = readSchematic(file, u, sch, placed);
   if (has.gridMode) session.gridMode = cad.GridMode as SavedSession['gridMode'];
   if (has.docKey) session.docKey = String(cad.DocKey);
   if (has.mirror) session.mirror = { enabled: cad.MirrorEnabled === true, x: u(num(cad.MirrorX) ?? 0), selected: cad.MirrorSelected === true, mirrors };

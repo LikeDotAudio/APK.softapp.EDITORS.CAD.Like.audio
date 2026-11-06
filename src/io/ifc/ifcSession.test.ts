@@ -78,7 +78,7 @@ function drawing(units: SavedSession['units'] = 'mm', k = 1): SavedSession {
         { id: 4, definitionId: 'bim.genelec/8050bpm', at: { x: 2000 * k, y: 1500 * k }, layerId: 'Devices', refdes: 'SPK-R', mirrorOf: 3, rotation: -0.5 },
         { id: 5, definitionId: 'bim.acme/not-in-library', at: { x: 8000 * k, y: 2000 * k }, layerId: 'Devices', resource: 'GPIB0::28::INSTR' },
       ],
-      connectors: [{ id: 1, from: { placementId: 1, portId: 'HI' }, to: { placementId: 3, portId: 'IN' }, layerId: '0', route: [{ x: 1, y: 2 }] }],
+      connectors: [{ id: 1, from: { placementId: 1, portId: 'INPUT_OUTPUT_HI' }, to: { placementId: 3, portId: 'ANALOG_INPUT' }, layerId: '0', route: [{ x: 1, y: 2 }] }],
       groups: [{ id: 1, name: 'Rack A', children: [], members: [1, 2], layerId: '0', source: { kind: 'rack', id: 'A' } }],
       nextPlacementId: 6,
       nextConnectorId: 2,
