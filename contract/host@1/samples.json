@@ -663,7 +663,30 @@
       ],
       "marks": {
         "auto-panels": "a1b2c3"
-      }
+      },
+      "hostPlacements": [
+        {
+          "key": "sim-bench",
+          "ref": "U108",
+          "at": [
+            1012,
+            1799.6
+          ],
+          "size": [
+            420,
+            1830
+          ],
+          "ports": [
+            {
+              "terminal": "MIC 1",
+              "at": [
+                802,
+                2700
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       "protocol": "cad.like.audio/host@1",

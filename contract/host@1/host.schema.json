@@ -1572,6 +1572,10 @@
                     }
                   }
                 }
+              },
+              "size": {
+                "description": "[w, h] the block as drawn (its outline's extent, centred on at) — bigger than the host's seat when the part needs more room",
+                "$ref": "#/$defs/xy"
               }
             }
           }

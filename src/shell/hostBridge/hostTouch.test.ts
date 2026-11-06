@@ -7,7 +7,7 @@ import { Viewport } from '../../viewport/Viewport';
 import { hostLineWidth } from '../../render/edges/layerStroke';
 import { bimPartOfDrop, placeBimPart } from '@state/actions/dropBimPart';
 import type { EditorStore } from '@state/EditorStore';
-import { applyHostSchematic } from './hostSchematic';
+import { applyHostSchematic, hostPlacementsOf } from './hostSchematic';
 import { applyHostSelect, selectionForHost } from './hostWalls';
 
 /*
@@ -87,5 +87,17 @@ describe('touching a host\'s blocks', () => {
     expect(placed?.at).toEqual({ x: 120, y: -40 });
     expect(s.schematic.definitions.some((d) => d.id === placed!.definitionId)).toBe(true);
     expect(s.hints[0]).toMatch(/Placed/);
+  });
+
+  it('geometry says how big each block is drawn: at least its seat, bigger when the part needs it (ROAD-3593)', () => {
+    const s = fakeStore();
+    const many = { ...part, id: 'acme/desk', ports: Array.from({ length: 40 }, (_, i) => ({ group: `IN ${i}`, side: 'input', domain: 'audio' })) };
+    applyHostSchematic(s as unknown as EditorStore, { key: 'sim', hash: 'h', parts: [part, many], placements: [
+      { ref: 'small', part: 'acme/amp', at: [0, 0], size: [500, 300] },
+      { ref: 'big', part: 'acme/desk', at: [0, 0], size: [10, 10] }] });
+    const sizes = Object.fromEntries(hostPlacementsOf(s.schematic).map((p) => [p.ref, p.size]));
+    expect(sizes.small).toEqual([500, 300]);
+    expect(sizes.big![0]).toBeGreaterThan(10);
+    expect(sizes.big![1]).toBeGreaterThan(10);
   });
 });

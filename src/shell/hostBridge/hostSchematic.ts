@@ -2,7 +2,8 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { BlockDefinition, BlockPlacement, Group, PortPortal, SchematicModel } from '../../core/types';
 import { partToDefinition, portId, type BimPart, type BimPort } from '../../flow/bimPart';
-import { connectPorts, portsOf, removePlacement } from '../../flow/Schematic';
+import { connectPorts, definitionFor as defOfPlacement, portsOf, removePlacement } from '../../flow/Schematic';
+import { outlineCorners } from '../../flow/placement';
 import type { EditorStore } from '@state/EditorStore';
 
 /**
@@ -65,17 +66,28 @@ export function schematicInModel(model: SchematicModel): Record<string, string> 
 }
 
 /**
- * Every host placement's seat, for `geometry`: { key, ref, at, ports } — `ports`
+ * Every host placement's seat, for `geometry`: { key, ref, at, size, ports } — `size`
+ * [w, h] is the block AS DRAWN (its outline's extent, centred on `at`), which is
+ * bigger than the host's seat when the part needs more room for its ports (ROAD-3593:
+ * the Simulation re-seats it so it covers no neighbour); `ports`
  * [{ terminal, at }] is where each of its ports is on the sheet now, named by
  * its caption (the terminal the host sent), so a host can run its own line work
  * — the Simulation's legs, flys and lenses — to the CAD's ports (ROAD-3555)
  * instead of keeping a copy of the block.
  */
-export function hostPlacementsOf(model: SchematicModel): { key: string; ref: string; at: XY; ports: { terminal: string; at: XY }[] }[] {
+export function hostPlacementsOf(model: SchematicModel): { key: string; ref: string; at: XY; size?: XY; ports: { terminal: string; at: XY }[] }[] {
+  const sizeOf = (p: BlockPlacement): XY | undefined => {
+    const def = defOfPlacement(model, p);
+    if (!def) return undefined;
+    const c = outlineCorners(def, p);
+    const xs = c.map((q) => q.x), ys = c.map((q) => q.y);
+    return [Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)];
+  };
   return model.placements
     .filter((p) => p.hostKey && p.hostRef)
     .map((p) => ({
       key: p.hostKey!, ref: p.hostRef!, at: [p.at.x, p.at.y] as XY,
+      ...(sizeOf(p) ? { size: sizeOf(p) } : {}),
       ports: portsOf(model, p.id).map((r) => ({ terminal: r.port.label ?? r.port.id, at: [r.world.x, r.world.y] as XY })),
     }));
 }
