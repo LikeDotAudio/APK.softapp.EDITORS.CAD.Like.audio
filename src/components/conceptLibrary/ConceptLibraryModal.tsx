@@ -8,6 +8,7 @@ import { evaluatePortCompatibility, getEssenceCategory } from '../../connectors/
 import { CATALOG } from '../../flow/catalog';
 import { useStore } from '@state/useStore';
 import type { BlockDefinition } from '../../core/types';
+import { BimLibraryTab } from './BimLibraryTab';
 
 interface ConceptLibraryModalProps {
   isOpen: boolean;
@@ -22,7 +23,8 @@ type TabCategory =
   | 'CODECS_CONTAINERS'
   | 'MEDIA_IMAGES'
   | 'PHYSICAL'
-  | 'SCHEMATIC_BLOCKS';
+  | 'SCHEMATIC_BLOCKS'
+  | 'BIM_LIBRARY';
 
 export function ConceptLibraryModal({ isOpen, onClose, onSelectBlock }: ConceptLibraryModalProps) {
   const store = useStore();
@@ -174,6 +176,7 @@ export function ConceptLibraryModal({ isOpen, onClose, onSelectBlock }: ConceptL
               { id: 'MEDIA_IMAGES', label: '🖼 Media & Images' },
               { id: 'SCHEMATIC_BLOCKS', label: '⚙️ Schematic Blocks' },
               { id: 'PHYSICAL', label: '🔌 Physical Connectors' },
+              { id: 'BIM_LIBRARY', label: '🏗 BIM Library' },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -208,8 +211,11 @@ export function ConceptLibraryModal({ isOpen, onClose, onSelectBlock }: ConceptL
           </div>
         </div>
 
+        {/* the BIM library: the shared browser, a part placed as its BIM block (ROAD-3570) */}
+        {activeTab === 'BIM_LIBRARY' && <BimLibraryTab onPlaced={onClose} />}
+
         {/* Content Area: Grid + Details Side Panel */}
-        <div className="flex flex-1 min-h-0 overflow-hidden">
+        <div className={`flex flex-1 min-h-0 overflow-hidden${activeTab === 'BIM_LIBRARY' ? ' hidden' : ''}`}>
           {/* Main Tiles Grid */}
           <div className="flex-1 overflow-y-auto p-6 bg-[#181818]">
             {/* Schematic Blocks section if applicable */}
