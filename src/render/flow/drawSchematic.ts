@@ -5,7 +5,8 @@ import { routeWaterfallWire } from '../../flow/autoWire';
 import { groupBounds } from '../../flow/groups';
 import { outlineCorners } from '../../flow/placement';
 import { definitionFor, portOf, portsOf, portWorldPoint } from '../../flow/Schematic';
-import { FONT } from '../palette';
+import { FONT, UI_FONT } from '../palette';
+import { refdesLabel } from './refdesLabel';
 import type { Scene } from '../Scene';
 import { drawPortals } from './drawPortals';
 import { FLOW, SIDE_COLOR } from './flowColors';
@@ -133,7 +134,21 @@ export function drawSchematic(scene: Scene, model: SchematicModel | undefined): 
     drawPortals(scene, model, placement);
 
     const centre = view.toScreen(placement.at.x, placement.at.y);
-    if (placement.refdes) {
+    if (placement.refdes && placement.hostKey) {
+      // a host's block: its name sized by the block, clipped, hidden when too small (refdesLabel.ts)
+      const scale = view.zoom * (placement.scale ?? 1);
+      const label = refdesLabel(placement.refdes, def.size.w * scale, (t, px) => {
+        ctx.font = `bold ${px}px ${UI_FONT}`;
+        return ctx.measureText(t).width;
+      });
+      if (label) {
+        ctx.font = `bold ${label.px}px ${UI_FONT}`;
+        ctx.fillStyle = FLOW.refdes;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText(label.text, centre.x, centre.y + (def.size.h / 2) * scale + label.px * 0.4);
+      }
+    } else if (placement.refdes) {
       ctx.font = FONT.marker;
       ctx.fillStyle = FLOW.refdes;
       ctx.textAlign = 'center';

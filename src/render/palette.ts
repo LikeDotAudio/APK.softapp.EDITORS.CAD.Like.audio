@@ -37,7 +37,7 @@ export const CANVAS = {
   white: '#ffffff',
 } as const;
 
-const UI_FONT = "'Inter', -apple-system, system-ui, sans-serif";
+export const UI_FONT = "'Inter', -apple-system, system-ui, sans-serif";
 
 export const FONT = {
   marker: `bold 9px ${UI_FONT}`,
