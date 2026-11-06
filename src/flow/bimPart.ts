@@ -8,10 +8,10 @@
  * at the bottom — a group of N as N ports (at most 16, the rest named on the
  * last), its domain kept for the Terminals table. Pure: no DOM, no store.
  */
-import type { BlockDefinition, BoxIdentity, Port, PortSide } from '../core/types';
+import type { BimRef, BlockDefinition, BoxIdentity, Port, PortSide } from '../core/types';
 
 export interface BimPort { group?: string; terminal?: string; side?: string; domain?: string; count?: number; labels?: string[] }
-export interface BimPart { id: string; manufacturer?: string; model?: string; name?: string; description?: string; ports?: BimPort[] }
+export interface BimPart { id: string; manufacturer?: string; model?: string; name?: string; description?: string; ports?: BimPort[]; ref?: Partial<BimRef> }
 
 export const PORTS_PER_GROUP = 16;
 
@@ -27,7 +27,17 @@ export function bimDefinitionId(part: BimPart): string {
   return `bim.${part.id}`;
 }
 
-export function partToDefinition(part: BimPart): BlockDefinition {
+/**
+ * The BIM reference a block keeps (ROAD-3572): the pick's `ref`, else the one a full part
+ * carries (/api/bim/parts/…), else none. Only {part, url, rev} (+ globalId once ROAD-3579 fills it).
+ */
+export function bimRefOf(part: BimPart, ref?: Partial<BimRef> | null): BimRef | undefined {
+  const r = ref ?? part.ref;
+  if (!r || !r.part) return undefined;
+  return { part: String(r.part), url: String(r.url ?? ''), rev: String(r.rev ?? ''), ...(r.globalId ? { globalId: String(r.globalId) } : {}) };
+}
+
+export function partToDefinition(part: BimPart, ref?: Partial<BimRef> | null): BlockDefinition {
   const ports: Port[] = [];
   const used = new Set<string>();
   for (const p of part.ports ?? []) {
@@ -55,6 +65,7 @@ export function partToDefinition(part: BimPart): BlockDefinition {
     size: { w: Math.max(80, wide * 14), h: Math.max(40, tall * 10) },
     glyph: [],
     ports,
+    ...(bimRefOf(part, ref) ? { bimRef: bimRefOf(part, ref) } : {}),
   };
 }
 

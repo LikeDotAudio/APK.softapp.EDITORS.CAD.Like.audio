@@ -3,6 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import { partToDefinition, bimDefinitionId, liveBoxesOf, PORTS_PER_GROUP } from './bimPart';
 import { createSchematic, placeBlock } from './Schematic';
+import { bimPartOfDrop } from '../state/actions/dropBimPart';
 
 const CORE = {
   id: 'qsc/core-110f', manufacturer: 'QSC', model: 'Core 110f', name: 'QSC Core 110f',
@@ -55,5 +56,27 @@ describe('a placement names the box it stands for (ROAD-3537)', () => {
     expect(placeBlock(model, def.id, { x: 0, y: 0 })?.serial).toBe('A1');
     expect(placeBlock(model, def.id, { x: 50, y: 0 })?.serial).toBe('A2');
     expect(placeBlock(model, def.id, { x: 99, y: 0 })?.serial).toBeUndefined();
+  });
+});
+
+describe('a BIM block keeps its BIM reference (ROAD-3572)', () => {
+  const REF = { part: 'keysight/34401a', url: 'http://apk.local:8160/api/bim/parts/keysight/34401a', rev: '3f1c0a9be27d4410', source: 'live' };
+  const DMM = { id: 'keysight/34401a', manufacturer: 'Keysight', model: '34401A', ports: [{ group: 'GPIB', side: 'connection', domain: 'control' }] };
+  it('the definition carries the pick\'s ref, and every placement of it a copy', () => {
+    const d = partToDefinition(DMM, REF);
+    expect(d.bimRef).toEqual({ part: 'keysight/34401a', url: REF.url, rev: REF.rev });
+    const s = createSchematic();
+    s.definitions.push(d);
+    const p = placeBlock(s, d.id, { x: 0, y: 0 });
+    expect(p?.bimRef).toEqual(d.bimRef);
+    expect(p?.bimRef).not.toBe(d.bimRef);
+  });
+  it('a full part\'s own ref is used when the pick gave none; a part with none keeps none', () => {
+    expect(partToDefinition({ ...DMM, ref: { part: DMM.id, url: '/api/bim/parts/keysight/34401a', rev: 'r1' } }).bimRef?.rev).toBe('r1');
+    expect(partToDefinition(CORE).bimRef).toBeUndefined();
+  });
+  it('a part dropped from the library brings its ref along', () => {
+    const got = bimPartOfDrop(JSON.stringify({ bim: DMM, ref: REF }));
+    expect(partToDefinition(got!).bimRef?.url).toBe(REF.url);
   });
 });

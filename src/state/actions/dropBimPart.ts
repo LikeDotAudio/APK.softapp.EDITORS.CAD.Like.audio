@@ -1,6 +1,7 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { partToDefinition, type BimPart } from '../../flow/bimPart';
+import type { BimRef } from '../../core/types';
 import { placeBlock } from '../../flow/Schematic';
 import type { BlockPlacement, Point } from '../../core/types';
 import type { EditorStore } from '../EditorStore';
@@ -16,12 +17,13 @@ import type { EditorStore } from '../EditorStore';
  */
 export const BIM_DRAG_MIME = 'application/x-apk-bim';
 
-/** The part a drop carries, or null: { bim } with an id. */
+/** The part a drop carries, or null: { bim } with an id — with the drop's BIM reference on it as `ref`. */
 export function bimPartOfDrop(text: string | undefined | null): BimPart | null {
   if (!text) return null;
   try {
-    const v = JSON.parse(text) as { bim?: BimPart } | null;
-    return v && v.bim && typeof v.bim.id === 'string' && v.bim.id ? v.bim : null;
+    const v = JSON.parse(text) as { bim?: BimPart; ref?: Partial<BimRef> } | null;
+    if (!(v && v.bim && typeof v.bim.id === 'string' && v.bim.id)) return null;
+    return v.ref && v.ref.part ? { ...v.bim, ref: v.ref } : v.bim;
   } catch {
     return null;
   }
@@ -34,7 +36,9 @@ export function placeBimPart(
   at: Point,
 ): BlockPlacement | null {
   const def = partToDefinition(part);
-  if (!store.schematic.definitions.some((d) => d.id === def.id)) store.schematic.definitions.push(def);
+  const known = store.schematic.definitions.find((d) => d.id === def.id);
+  if (!known) store.schematic.definitions.push(def);
+  else if (!known.bimRef && def.bimRef) known.bimRef = def.bimRef;   // a block from before ROAD-3572 learns its reference
   let placed: BlockPlacement | null = null;
   store.editFlow(() => {
     placed = placeBlock(store.schematic, def.id, at, store.activeLayerId);

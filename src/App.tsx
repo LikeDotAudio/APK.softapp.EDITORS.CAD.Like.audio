@@ -64,7 +64,16 @@ export default function App() {
       setSoftappTargetAppId(defaultAppId);
       setShowSoftappBridge(true);
     };
+    /* 📚 Library from anywhere: Ctrl/⌘+Shift+L, the shortcut every editor gives it (ROAD-3572) */
+    const onLibraryKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && !e.altKey && e.key.toLowerCase() === 'l') {
+        e.preventDefault();
+        setShowConceptLibrary((was) => !was);
+      }
+    };
+    window.addEventListener('keydown', onLibraryKey);
     return () => {
+      window.removeEventListener('keydown', onLibraryKey);
       store.openBlockEditorModal = null;
       store.openConceptLibraryModal = null;
       store.openStartupModal = null;

@@ -108,11 +108,12 @@ export function LibrarySash({ open, onClose }: { open: boolean; onClose: () => v
 
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
-      const msg = e.data as { protocol?: string; type?: string; part?: LibraryPart; bim?: LibraryPart } | null;
+      const msg = e.data as { protocol?: string; type?: string; part?: LibraryPart; bim?: LibraryPart; ref?: LibraryPart['ref'] } | null;
       if (!frame.current || e.source !== frame.current.contentWindow) return;
       if (!msg || msg.protocol !== 'apk.bim.library@1' || msg.type !== 'part') return;
       const got = msg.bim ?? msg.part;
-      if (got?.id) setPart(got);
+      // the part with its BIM reference: what is placed from it keeps the ref (ROAD-3572)
+      if (got?.id) setPart(msg.ref?.part ? { ...got, ref: msg.ref } : got);
     };
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && open) onClose(); };
     window.addEventListener('message', onMessage);
@@ -140,7 +141,9 @@ export function LibrarySash({ open, onClose }: { open: boolean; onClose: () => v
   const place = () => {
     if (!part) return;
     const def = conceptDefinition(part) ?? partToDefinition(part);
-    if (!store.schematic.definitions.some((d) => d.id === def.id)) store.schematic.definitions.push(def);
+    const known = store.schematic.definitions.find((d) => d.id === def.id);
+    if (!known) store.schematic.definitions.push(def);
+    else if (!known.bimRef && def.bimRef) known.bimRef = def.bimRef;
     store.setFlowDefinition(def.id);
     store.setTool('flow');
     store.showHint(`Click to place ${part.name || part.model} — ${def.id.startsWith('bim.') ? 'its BIM block' : 'its symbol'}.`, 4000);

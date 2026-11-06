@@ -74,6 +74,7 @@ export function placeBlock(
     layerId,
     refdes: refdes ?? `${def.name}${existing + 1}`,
   };
+  if (def.bimRef) placement.bimRef = { ...def.bimRef };   // every placed BIM block points back to BIM (ROAD-3572)
   const box = nextLiveBox(model, def);
   if (box?.serial) placement.serial = box.serial;
   if (box?.mac) placement.mac = box.mac;

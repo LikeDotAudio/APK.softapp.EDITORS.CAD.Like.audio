@@ -336,6 +336,20 @@ export interface BlockDefinition {
    * the real box it stands for. A hint at pick time, not a roster.
    */
   liveBoxes?: BoxIdentity[];
+  /** The BIM reference of the part this block draws (ROAD-3572, apk.bim.library@1 `ref`): set when it came from the library. */
+  bimRef?: BimRef;
+}
+
+/**
+ * A BIM reference (DATABASE.server.BIM, apk.bim.library@1): the part, a resolvable url
+ * (/api/bim/parts/… live, or the snapshot file that holds it) and its revision.
+ * `globalId` is the IFC session's slot (ROAD-3579), empty until it is filled.
+ */
+export interface BimRef {
+  part: string;
+  url: string;
+  rev: string;
+  globalId?: string;
 }
 
 /**
@@ -388,6 +402,8 @@ export interface BlockPlacement {
   hostKey?: string;
   hostHash?: string;
   hostRef?: string;
+  /** The BIM reference of the part placed here (ROAD-3572): copied from its definition's bimRef. */
+  bimRef?: BimRef;
   /** The box this placement stands for (BoxIdentity): set from the definition's liveBoxes. */
   serial?: string;
   mac?: string;

@@ -51,7 +51,7 @@ export function MenuBar({ onOpenSpreadsheet, onOpenBom, onOpenElementsEditor, on
         <button
           onClick={onOpenConceptLibrary}
           className="flex items-center gap-1.5 rounded bg-[#007acc] px-2.5 py-1 text-xs font-semibold text-white hover:bg-[#1188dd] transition-colors font-mono tracking-wide"
-          title="The BIM library: parts, the CAD's concepts and the connector vocabulary — a sash over the drawing (Esc closes)"
+          title="The BIM library: parts, the CAD's concepts and the connector vocabulary — a sash over the drawing (Ctrl+Shift+L; Esc closes)"
         >
           <span>📚</span>
           <span>Library</span>
