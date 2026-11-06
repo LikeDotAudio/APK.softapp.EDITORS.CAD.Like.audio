@@ -111,6 +111,8 @@ export function reflectAcrossMirror(
       undefined,
       b.attributes ? { ...b.attributes } : undefined,
     );
+    // the pair is two placements and a link, never a negative scale (IFC cad-10: APK_Symmetry)
+    doc.blockInstances.get(newId)!.mirrorOf = b.uuid;
     result.blockIds.push(newId);
   }
 

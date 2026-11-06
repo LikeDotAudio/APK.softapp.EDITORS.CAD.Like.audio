@@ -32,7 +32,8 @@
  * The body is 94 one-action modules under `actions/`, bound as methods here:
  * a 664-line class is easier to read as a table of contents than as a wall.
  */
-import type { CadViewport, Layer, Point, SchematicModel, ToolId, Units, GridMode, ValidationResult } from '../core/types';
+import type { CadSpace, CadViewport, Layer, Point, SchematicModel, ToolId, Units, GridMode, ValidationResult } from '../core/types';
+import { generateUuid } from '../core/generateUuid';
 import { DEFAULT_VIRTUAL_MIRROR, type VirtualMirrorState, type VirtualMirror } from '../core/mirror';
 import type { UserAuth, UserStatus } from '../core/userAuth';
 import { createUserAuth } from '../core/userAuth';
@@ -93,6 +94,7 @@ import { emit } from './actions/emit';
 import { explodeSelection } from './actions/explodeSelection';
 import { fileBigPicture } from './actions/fileBigPicture';
 import { exportDxf } from './actions/exportDxf';
+import { openIfcText, saveIfcFile } from './actions/ifcFile';
 import { finishBasePointPick } from './actions/finishBasePointPick';
 import { flipHorizontalSelection } from './actions/flipHorizontalSelection';
 import { flipVerticalSelection } from './actions/flipVerticalSelection';
@@ -280,6 +282,11 @@ export class EditorStore {
 
   /** Virtual Mirror for Symmetrical CAD Mode. */
   mirror: VirtualMirrorState = { ...DEFAULT_VIRTUAL_MIRROR };
+
+  /** The drawing's persistent key: every GlobalId of its .ifc twin derives from it (src/io/ifc, cad-3). */
+  docKey: string = generateUuid();
+  /** Rooms the user declared (cad-4), saved with the session: each one IfcSpace. */
+  spaces: CadSpace[] = [];
 
   /** Snapped cursor before any typed dimension override — the dyn box's reference. */
   dynCursor: Point = ORIGIN;
@@ -672,6 +679,16 @@ export class EditorStore {
 
   async exportDxf(): Promise<void> {
     return await exportDxf(this);
+  }
+
+  /** File → Save .ifc: the drawing as IFC4X3_ADD2 (src/io/ifc). */
+  async saveIfcFile(): Promise<void> {
+    return await saveIfcFile(this);
+  }
+
+  /** File → Open .ifc: an IFC file replaces the drawing (one undo step). */
+  async openIfcText(text: string, fileName: string): Promise<boolean> {
+    return await openIfcText(this, text, fileName);
   }
 
   openFileDialog(): void {

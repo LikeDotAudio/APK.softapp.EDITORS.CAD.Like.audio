@@ -3,6 +3,7 @@
 import type { EditorStore } from '@state/EditorStore';
 import { parsePalette } from '../../model/palette/parsePalette';
 import type { SavedSession } from '@io/browserStorage/SavedSession';
+import { sessionIfc } from '@io/ifc/sessionIfc';
 import { buildSavedSession } from '@state/actions/autoSaveSession';
 import { applySavedSession } from '@state/actions/restoreBrowserSession';
 import { currentHost } from '../entrance';
@@ -105,6 +106,9 @@ import { hostPicked } from '../../flow/hostSelection';
  * gets `session` { session } back; `open` { session } puts one on the sheet,
  * replacing what is there (one undo step). The host bundles it with its own
  * state into a file that can be carried to another machine.
+ * `session` { format: 'ifc' } also gets `ifc`: the drawing as IFC4X3_ADD2
+ * STEP text (src/io/ifc), the lossless twin a host saves as its .ifc; `open`
+ * { ifc } opens one, and a `floorplan` that is an .ifc opens the same way.
  *
  * `floorplan` { file } opens a floor plan the user picked in the host, as
  * File → Open does here: a .dxf replaces the drawing (its own units, mm when
@@ -155,7 +159,7 @@ export const HOST_PROTOCOL = 'cad.like.audio/host@1';
  */
 
 /** What this side sends a host. */
-export const HOST_OUTBOUND_TYPES = ['ready', 'view', 'selection', 'geometry', 'mirror', 'session', 'pick', 'dxf'] as const;
+export const HOST_OUTBOUND_TYPES = ['ready', 'view', 'selection', 'geometry', 'mirror', 'session', 'pick', 'dxf', 'bimDrop'] as const;
 export type HostOutboundType = (typeof HOST_OUTBOUND_TYPES)[number];
 
 let installed = false;
@@ -165,6 +169,8 @@ let lastMirror = '';
 /** Every set of edges the user has selected that closed a loop, this session: "these are walls", taken without asking. */
 const picked = new Map<string, number[]>();
 let lastSelection = '';
+/** The host said hello { bimDrops: true }: a part dropped from the BIM library is its to place (ROAD-3595). */
+let hostTakesBimDrops = false;
 
 /** The window driving this one: the parent frame, else the softapp that popped us out. */
 function host(): Window | null {
@@ -178,11 +184,23 @@ function post(type: HostOutboundType, body: object): void {
   host()?.postMessage({ protocol: HOST_PROTOCOL, type, ...body }, window.location.origin);
 }
 
+/**
+ * A part dropped from the BIM library (`application/x-apk-bim` { bim, ref }), offered to a
+ * host that takes them (hello { bimDrops }): sent as `bimDrop` { bim, ref, at } and true —
+ * the host places it, with its BIM reference. False: no such host, the CAD places it itself.
+ */
+export function offerBimDropToHost(item: { bim: { id: string }; ref: { part: string } }, at: { x: number; y: number }): boolean {
+  if (!hostTakesBimDrops || !host()) return false;
+  post('bimDrop', { bim: item.bim, ref: item.ref, at: [at.x, at.y] });
+  return true;
+}
+
 type HostMessage = Record<string, unknown>;
 
 /** Every message a host may send, and what it does here. The keys are the protocol's inbound vocabulary. */
 export const HOST_HANDLERS: Record<string, (store: EditorStore, msg: HostMessage) => void> = {
-  hello: (store) => {
+  hello: (store, { bimDrops }) => {
+    hostTakesBimDrops = bimDrops === true;
     lastView = '';
     lastGeometry = '';
     lastMirror = '';
@@ -226,11 +244,18 @@ export const HOST_HANDLERS: Record<string, (store: EditorStore, msg: HostMessage
   marks: (store, msg) => applyHostMarks(store, msg),
   schematic: (store, msg) => applyHostSchematic(store, msg),
   schematicMove: (store, msg) => void moveHostSchematic(store, msg),
-  session: (store) => post('session', { session: { ...buildSavedSession(store), userAuth: undefined } }),
+  // `session { format: 'ifc' }` is answered with the session AND its IFC4X3 text (src/io/ifc): the document a host saves
+  session: (store, { format }) => {
+    const session = { ...buildSavedSession(store), userAuth: undefined };
+    if (format !== 'ifc') return post('session', { session });
+    void sessionIfc(session).then((ifc) => post('session', { session, ifc }), () => post('session', { session }));
+  },
   handover: (store, { token }) => {
     if (typeof token === 'string' && /^[\w-]{1,64}$/.test(token)) offerHandover(token, () => buildSavedSession(store));
   },
-  open: (store, { session }) => {
+  open: (store, { session, ifc }) => {
+    // a host's .ifc (whole-model STEP) wins over a bundled session: it is the document
+    if (typeof ifc === 'string' && ifc.startsWith('ISO-10303-21')) return void openHostIfc(store, ifc);
     const s = session as SavedSession | undefined;
     if (s && Array.isArray(s.docSnapshot?.edges)) void openSession(store, s);
   },
@@ -284,14 +309,19 @@ async function openSession(store: EditorStore, session: SavedSession): Promise<v
   store.showHint(`Opened ${session.currentFileName ?? 'the session'} from the host's file.`, 4000);
 }
 
+async function openHostIfc(store: EditorStore, ifc: string): Promise<void> {
+  await store.openIfcText(ifc, 'the host\'s .ifc');
+}
+
 async function openFloorPlan(store: EditorStore, file: File): Promise<void> {
   if (/\.dxf$/i.test(file.name)) await store.loadDxfText(await file.text(), file.name);
+  else if (/\.ifc$/i.test(file.name)) await store.openIfcText(await file.text(), file.name);
   else if (file.type.startsWith('image/')) {
     // a new layout, not a tracing over the last room: the sheet is cleared first (one undo step)
     store.clearAll();
     await store.importImage(file);
   }
-  else store.showHint(`${file.name} is not a floor plan this editor opens: a .dxf, or an image to trace.`, 4000);
+  else store.showHint(`${file.name} is not a floor plan this editor opens: a .dxf, an .ifc, or an image to trace.`, 4000);
 }
 
 /** The `view` body: the world→screen transform and the canvas box in this window. */

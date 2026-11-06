@@ -21,7 +21,7 @@ import { loadRecentFileData } from '@io/recentFiles/recentFileDataStore';
 import { showProblem } from '../../../shell/softapp';
 
 /**
- * File ▾ — open, import, recent files, DXF export, and 06a's filed sheet.
+ * File ▾ — open, import, recent files, DXF export, the IFC model in and out, and 06a's filed sheet.
  *
  * The two Big Picture verbs are shown at that entrance only. 07b · Drawing is a
  * sketch board: handing it "save to the bench model" would file a sketch as the
@@ -33,6 +33,7 @@ export function FileMenu({ open, onToggle, onClose }: MenuProps) {
   const { showsFlowPanel } = useEntrance();
   const dxfInput = useRef<HTMLInputElement>(null);
   const imageInput = useRef<HTMLInputElement>(null);
+  const ifcInput = useRef<HTMLInputElement>(null);
   const recent = useRecentFiles(open);
   const [pendingImport, setPendingImport] = useState<PendingDxfImport | null>(null);
 
@@ -104,6 +105,14 @@ export function FileMenu({ open, onToggle, onClose }: MenuProps) {
             }}
           />
           <MenuItem
+            icon="🏗️"
+            label="Open .ifc..."
+            onSelect={() => {
+              onClose();
+              ifcInput.current?.click();
+            }}
+          />
+          <MenuItem
             icon="📋"
             label="Create from Clipboard"
             onSelect={() => {
@@ -163,11 +172,40 @@ export function FileMenu({ open, onToggle, onClose }: MenuProps) {
               void store.exportDxf();
             }}
           />
+          <MenuItem
+            icon="🏗️"
+            label="Save .ifc"
+            disabled={!canExport}
+            onSelect={() => {
+              onClose();
+              void store.saveIfcFile();
+            }}
+          />
         </MenuDropdown>
       )}
 
       <DxfFileInput inputRef={dxfInput} onPicked={setPendingImport} />
       <ImageFileInput inputRef={imageInput} onPicked={(file) => void store.importImage(file)} />
+      {/* IFC4X3 in: the model (src/io/ifc); DXF above stays the 2D drawing exchange */}
+      <input
+        ref={ifcInput}
+        type="file"
+        accept=".ifc"
+        hidden
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+          e.target.value = '';
+          if (!file) return;
+          await store.showLoading('Opening drawings', `Reading ${file.name}...`);
+          try {
+            const text = await file.text();
+            store.hideLoading();
+            await store.openIfcText(text, file.name);
+          } finally {
+            store.hideLoading();
+          }
+        }}
+      />
 
       {pendingImport && (
         <ImportUnitModal

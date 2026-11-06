@@ -74,6 +74,20 @@ The canvas draws each layer's linetype and lineweight; a text's or fill's own co
 
 ---
 
+## 🏗️ IFC in & out (the model)
+
+The drawing is also an **IFC4X3_ADD2** model (ISO 16739-1:2024) — `src/io/ifc`, written with the monorepo's own STEP codec and GlobalId rule (`contracts/src/ifc`, vendored byte for byte in `src/vendor/ifc`, held equal by `vendored.test.ts`):
+
+* **IfcProject → IfcSite → IfcBuilding → IfcBuildingStorey 'Level 0' → IfcSpace** per room; every coordinate in **mm** (a session in inches is multiplied out, its display unit kept).
+* **Walls are classified, not inferred:** a layer with `ifc: { entity: 'IfcWall', height_mm?, thickness_mm? }` (host@1 `layer { ifc }`) makes each of its edges an `IfcWall` with an Axis (and a SweptSolid Body when both are known), contained in the storey. Every room those walls enclose is an `IfcSpace` with `IfcRelSpaceBoundary` to each wall around it; rooms the user declares (`session.spaces`) are spaces too.
+* **Placed BIM blocks are occurrences of their part's own type** — the library's type object (`GET /api/bim/parts/<id>.ifc`) copied in with its GlobalId, Psets and RepresentationMap — at an `IfcLocalPlacement` in mm (z = `z_mm`), contained in the space they stand in, with their own ports. A device on a wall (`mountedOn`) is an `IfcRelConnectsElements` wall → device. Identity is serial / MAC, never an IP.
+* **Virtual Mirror:** the axis is an `IfcAnnotation` 'MIRROR_AXIS'; a reflected copy is a second placement with `APK_Symmetry` on each partner — never a negative scale, which IFC forbids.
+* Linework, texts, fills and symbols are `IfcAnnotation`s carrying `APK_Cad*` sets, so the welded vertex graph re-welds; what IFC has no word for yet (the Flow schematic's wiring — cad-6) rides in `APK_CadSession`. The `APK_*` sets are declared in DATABASE.server.BIM `SRC/tools/ifc/apk_psets.py`.
+
+**File → Save .ifc / Open .ifc...** write and read it (DXF is untouched — it stays the 2D drawing exchange). **Every autosave writes the native session AND its .ifc twin** in one IndexedDB transaction (`current_active_session_ifc`). host@1: `session { format: 'ifc' }` answers with `ifc` beside `session`, `open { ifc }` opens one, a `floorplan` .ifc opens the same way. `importIfc(exportIfc(s))` is `s` (`src/io/ifc/ifcSession.test.ts`); `CAD_IFC_OUT=<dir> npx vitest run src/io/ifc` writes the test drawings out for IfcOpenShell's validator and the IDS.
+
+---
+
 ## 🚀 Usage & Integration
 * **Web Portal Entry**: `dist/index.html#/drawing` (the drawing board) and `dist/index.html#/big-picture` (the schematic), as named in `display.json`.
 * **Live**: https://likedotaudio.github.io/APK.softapp.EDITORS.CAD.Like.audio/ (see Hosting above).

@@ -4,6 +4,7 @@ import type { EditorStore } from '../EditorStore';
 import type { SavedSession } from '@io/browserStorage/SavedSession';
 import { snapshotSchematic } from '../../flow/Schematic';
 import { saveSessionToBrowser } from '@io/browserStorage/saveSessionToBrowser';
+import { sessionIfc } from '@io/ifc/sessionIfc';
 
 export async function autoSaveSession(store: EditorStore, forceLoadingScreen = false): Promise<void> {
   const showLoading = forceLoadingScreen && !store.loading;
@@ -12,7 +13,16 @@ export async function autoSaveSession(store: EditorStore, forceLoadingScreen = f
     await store.showLoading('Opening drawings', 'Caching drawing session to browser storage...');
   }
   try {
-    await saveSessionToBrowser(buildSavedSession(store));
+    // Owner decision 1: the native session AND its .ifc twin, in one IndexedDB transaction.
+    // A twin that cannot be built is dropped in that same transaction, never left stale.
+    const session = buildSavedSession(store);
+    let ifc: string | null = null;
+    try {
+      ifc = await sessionIfc(session);
+    } catch (err) {
+      console.warn('autoSaveSession: the .ifc twin could not be built:', err);
+    }
+    await saveSessionToBrowser(session, ifc);
   } finally {
     if (showLoading) {
       store.hideLoading();
@@ -46,5 +56,8 @@ export function buildSavedSession(store: EditorStore): SavedSession {
           visible: store.tracing.visible,
         }
       : null,
+    docKey: store.docKey,
+    mirror: { ...store.mirror, mirrors: store.mirror.mirrors.map((m) => ({ ...m })) },
+    spaces: store.spaces.map((s) => ({ ...s, points: s.points.map((p) => ({ ...p })) })),
   };
 }

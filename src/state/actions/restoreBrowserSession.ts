@@ -4,6 +4,7 @@ import type { EditorStore } from '../EditorStore';
 import type { SavedSession } from '@io/browserStorage/SavedSession';
 import { restoreSchematic } from '../../flow/Schematic';
 import { loadSessionFromBrowser } from '@io/browserStorage/loadSessionFromBrowser';
+import { generateUuid } from '../../core/generateUuid';
 
 export async function restoreBrowserSession(store: EditorStore): Promise<void> {
   await store.showLoading('Opening drawings', 'Restoring cached drawing from browser memory...');
@@ -36,6 +37,10 @@ export async function applySavedSession(store: EditorStore, session: SavedSessio
   store.gridMode = session.gridMode || 'lines';
   store.snapToGrid = session.snapToGrid ?? true;
   store.shapeMode = session.shapeMode ?? false;
+  // the IFC twin's identity (cad-3): kept, or new for a session saved before it existed
+  store.docKey = session.docKey || generateUuid();
+  if (session.mirror) store.mirror = { ...session.mirror, mirrors: session.mirror.mirrors.map((m) => ({ ...m })) };
+  store.spaces = (session.spaces ?? []).map((s) => ({ ...s, points: s.points.map((p) => ({ ...p })) }));
 
   if (session.layers && session.layers.length > 0) {
     store.layers = new Map(session.layers.map((l) => [l.id, { ...l }]));

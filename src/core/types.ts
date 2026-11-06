@@ -65,6 +65,40 @@ export interface Layer {
    * or floor to be made of, where no painted patch says otherwise.
    */
   finish?: string;
+  /**
+   * What the IFC export (src/io/ifc) takes the layer's linework to BE — the
+   * classification, never inferred from the geometry (IFC-CORE-DELTAS cad-4).
+   * `IfcWall`: every edge on the layer is one IfcWall with an Axis, and a Body
+   * extruded to `height_mm` when `thickness_mm` and `height_mm` are known.
+   * Absent: the linework is drawing (IfcAnnotation). Numbers in mm, always.
+   */
+  ifc?: LayerIfc;
+}
+
+/** A layer's IFC classification (cad-4). Set by a host's `layer { ifc }` or by the user. */
+export interface LayerIfc {
+  entity: 'IfcWall';
+  /** An IfcWallTypeEnum value (STANDARD, PARTITIONING, SOLIDWALL, MOVABLE, …). */
+  predefinedType?: string;
+  height_mm?: number;
+  thickness_mm?: number;
+}
+
+/**
+ * A room the user declared (cad-4): kept in the session, so it survives a
+ * reload and becomes one IfcSpace with a stable GlobalId from its `key`.
+ * Points in drawing units, like the Doc.
+ */
+export interface CadSpace {
+  /** Persistent string key: the IfcSpace GlobalId is cad/<docKey>/space/<key>. */
+  key: string;
+  name?: string;
+  layerId: string;
+  points: Point[];
+  /** ObjectType of the IfcSpace: what kind of room it is. */
+  roomType?: string;
+  /** Floor to ceiling, mm: the Body extrusion. */
+  height_mm?: number;
 }
 
 interface EdgeBase {
@@ -200,6 +234,12 @@ export interface CadBlockInstance {
   layerId: string;
   protected?: boolean;
   attributes?: Record<string, string>;
+  /**
+   * The uuid of the instance this one was reflected from across a Virtual
+   * Mirror (reflectAcrossMirror). IFC forbids a negative scale, so the pair is
+   * two placements and an APK_Symmetry link on each (cad-10).
+   */
+  mirrorOf?: string;
 }
 
 export interface ValidationResult {
@@ -408,6 +448,12 @@ export interface BlockPlacement {
   serial?: string;
   mac?: string;
   resource?: string;
+  /** Mounting height above the storey floor, mm: the z of its IfcLocalPlacement (cad-5). */
+  z_mm?: number;
+  /** The wall (Doc edge on an IfcWall layer) this device hangs on: an IfcRelConnectsElements wall→device (cad-5). */
+  mountedOn?: { edgeId: number };
+  /** The placement this one is the mirror image of (cad-10): an APK_Symmetry pair in the IFC. */
+  mirrorOf?: number;
 }
 
 /** One end of a connector: a port on a particular placement. */

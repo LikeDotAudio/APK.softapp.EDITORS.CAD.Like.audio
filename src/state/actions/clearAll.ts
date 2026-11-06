@@ -2,6 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { clearSchematic, isSchematicEmpty } from '../../flow/Schematic';
 import type { EditorStore } from '../EditorStore';
+import { generateUuid } from '../../core/generateUuid';
 
 export function clearAll(store: EditorStore): void {
   if (
@@ -24,6 +25,9 @@ export function clearAll(store: EditorStore): void {
   store.toolState = store.tool.createState();
   store.closeDynInput();
   store.currentFileName = null;
+  // a new drawing: new IFC identity, no rooms
+  store.docKey = generateUuid();
+  store.spaces = [];
   store.forgetSheets();
   store.activeViewportId = 'ALL';
   store.markDocChanged();
