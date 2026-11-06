@@ -137,7 +137,7 @@ describe('the CAD document as IFC4X3_ADD2 (cad-3)', () => {
     // the wall that was 4000 mm long still is
     const f = parseStep(text);
     const wall = entitiesByType(f, 'IFCWALL')[0]!;
-    expect(getPsets(f, wall).APK_CadEdge!.EdgeId).toBe(1);
+    expect(getPsets(f, wall).APK_CadWall!.EdgeIds).toEqual([1, 2]);
     expect(text).toContain('IFCCARTESIANPOINT((4000.,0.))');
   });
 
@@ -152,13 +152,14 @@ describe('the CAD document as IFC4X3_ADD2 (cad-3)', () => {
 describe('walls and rooms are classified (cad-4)', () => {
   const f = parseStep(exportIfc(drawing(), { types: TYPES }));
 
-  it('every edge on the IfcWall layer is one IfcWall, contained in the storey, with Axis and Body', () => {
+  it('the edges on the IfcWall layer are IfcWalls (collinear ones one wall), contained in the storey, with Axis and Body', () => {
     const walls = entitiesByType(f, 'IFCWALL');
-    expect(walls).toHaveLength(7);
+    // 7 edges, but the long sides were welded apart by the partition: 5 walls
+    expect(walls).toHaveLength(5);
     const contains = entitiesByType(f, 'IFCRELCONTAINEDINSPATIALSTRUCTURE').find((r) => (r.args[5] as { id: number }).id === entitiesByType(f, 'IFCBUILDINGSTOREY')[0]!.id)!;
     const held = new Set((contains.args[4] as { id: number }[]).map((r) => r.id));
     for (const w of walls) expect(held.has(w.id)).toBe(true);
-    expect(entitiesByType(f, 'IFCEXTRUDEDAREASOLID').length).toBeGreaterThanOrEqual(7);
+    expect(entitiesByType(f, 'IFCEXTRUDEDAREASOLID').length).toBeGreaterThanOrEqual(5);
     expect(entitiesByType(f, 'IFCANNOTATION').filter((a) => a.args[4] === 'LINEWORK')).toHaveLength(4);
   });
 
@@ -168,8 +169,12 @@ describe('walls and rooms are classified (cad-4)', () => {
     const bounds = entitiesByType(f, 'IFCRELSPACEBOUNDARY');
     const byWall = new Map<number, number>();
     for (const b of bounds) byWall.set((b.args[5] as { id: number }).id, (byWall.get((b.args[5] as { id: number }).id) ?? 0) + 1);
-    const shared = entitiesByType(f, 'IFCWALL').find((w) => getPsets(f, w).APK_CadEdge!.EdgeId === 7)!;
+    const shared = entitiesByType(f, 'IFCWALL').find((w) => getPsets(f, w).APK_CadEdge?.EdgeId === 7)!;
     expect(byWall.get(shared.id)).toBe(2);
+    // the long walls bound both rooms too: 4 walls round each room
+    const long = entitiesByType(f, 'IFCWALL').filter((w) => getPsets(f, w).APK_CadWall);
+    expect(long).toHaveLength(2);
+    for (const w of long) expect(byWall.get(w.id)).toBe(2);
     expect(bounds).toHaveLength(8);
   });
 

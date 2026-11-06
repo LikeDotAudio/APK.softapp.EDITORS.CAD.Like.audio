@@ -70,6 +70,17 @@ export function ModifyMenu({ open, onToggle, onClose }: MenuProps) {
             onSelect={run(() => store.setTool('break'))}
           />
           <MenuDivider />
+          <MenuItem
+            icon="🏠"
+            label="Declare Room (IfcSpace) from Selection"
+            onSelect={run(() => store.declareRoomFromSelection())}
+          />
+          <MenuItem
+            icon="🚪"
+            label="Undeclare Room in Selection"
+            onSelect={run(() => store.undeclareRoomsInSelection())}
+          />
+          <MenuDivider />
           <MenuItem icon="💥" label="Explode Groups" shortcut="XP" onSelect={run(() => store.explodeSelection())} />
           <MenuItem
             icon="🧱"

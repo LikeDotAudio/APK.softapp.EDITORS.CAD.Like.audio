@@ -32,6 +32,8 @@ export class IfcImportError extends Error {
 type Pt = [number, number];
 type Native = {
   vertexOrder: number[];
+  /** The snapshot's edge order (files from round 1 lack it: their order is the file's). */
+  edgeOrder?: number[];
   orphans: Vertex[];
   groupPrimitives: DocSnapshot['groupPrimitives'];
   groupIntact: number[];
@@ -161,6 +163,21 @@ export function importIfc(textIn: string): SavedSession {
       ? { ...base, type: 'arc', cx: u(curve.arc.cx), cy: u(curve.arc.cy), r: u(curve.arc.r) }
       : { ...base, type: 'line' });
   }
+  // a wall made of several welded edges (APK_CadWall): the Axis polyline's i-th point is Vertices[i]
+  for (const { e, p } of withSet('APK_CadWall')) {
+    const line = items(file, e, 'Axis').find((it) => it.type === 'IFCPOLYLINE');
+    const pts = line && Array.isArray(line.args[0]) ? line.args[0].map((r) => coords(file, r)) : [];
+    const vids = Array.isArray(p.Vertices) ? (p.Vertices as number[]) : [];
+    if (pts.length !== vids.length || pts.some((x) => !x)) continue;
+    vids.forEach((id, i) => pos.set(id, { x: u(pts[i]![0]), y: u(pts[i]![1]) }));
+    for (const x of JSON.parse(String(p.Edges ?? '[]')) as { id: number; v1: number; v2: number; groupId: number; protected?: boolean }[]) {
+      edges.push({ id: x.id, v1: x.v1, v2: x.v2, groupId: x.groupId, layerId: String(p.Layer), ...(x.protected !== undefined ? { protected: x.protected } : {}), type: 'line' });
+    }
+  }
+  if (native.edgeOrder) {
+    const rank = new Map(native.edgeOrder.map((id, i) => [id, i]));
+    edges.sort((a, b) => (rank.get(a.id) ?? Infinity) - (rank.get(b.id) ?? Infinity));
+  }
   for (const o of native.orphans) pos.set(o.id, { x: o.x, y: o.y });
   const vertices: Vertex[] = native.vertexOrder.filter((id) => pos.has(id)).map((id) => ({ id, ...pos.get(id)! }));
 
@@ -233,6 +250,7 @@ export function importIfc(textIn: string): SavedSession {
     if (p.Name !== undefined) s.name = String(p.Name);
     if (p.RoomType !== undefined) s.roomType = String(p.RoomType);
     if (p.Height !== undefined) s.height_mm = p.Height as number;
+    if (Array.isArray(p.EdgeIds)) s.edgeIds = p.EdgeIds as number[];
   }
 
   // ---- placed BIM blocks

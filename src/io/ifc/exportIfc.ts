@@ -7,6 +7,8 @@ import { typed, type StepRef, type StepValue } from '../../vendor/ifc/step';
 import { ifcGuid } from '../../vendor/ifc/guid';
 import { StepBuilder, E, R, bool, gid, ident, int, label, length, positiveLength, realv, text, type PropValue } from './stepBuilder';
 import { wallFaces } from './wallFaces';
+import { runByEdge, wallRuns, type WallRun } from './wallRuns';
+import { arcLength, insetPolygon, perimeter, signedArea, toSegment } from './quantities';
 import { mergePartType, occurrenceEntity, occurrenceTail, type MergedType } from './partTypes';
 import { schematicNative, writeSchematic } from './schematicIfc';
 
@@ -24,10 +26,15 @@ import { schematicNative, writeSchematic } from './schematicIfc';
  * - Linework is IfcAnnotation (Curve2D: IfcPolyline, an arc an IfcTrimmedCurve
  *   on an IfcCircle), each edge one annotation carrying APK_CadEdge {EdgeId,
  *   GroupId, V1, V2}, so the welded vertex graph re-welds on the way back in.
- * - An edge on a layer classified `ifc.entity = 'IfcWall'` is an IfcWall with an
+ * - The edges on a layer classified `ifc.entity = 'IfcWall'` are IfcWalls with an
  *   Axis (and a SweptSolid Body when thickness and height are known), contained
- *   in the storey. Every room the walls enclose (wallFaces.ts) is an IfcSpace
- *   bounded by those walls (IfcRelSpaceBoundary); so are the rooms the user declared (session.spaces).
+ *   in the storey; collinear edges the CAD welded apart are one wall (wallRuns.ts),
+ *   and walls that meet are joined by IfcRelConnectsPathElements (ATSTART /
+ *   ATEND / ATPATH). Every room the walls enclose (wallFaces.ts) is an IfcSpace
+ *   bounded by those walls (IfcRelSpaceBoundary); so are the rooms the user
+ *   declared (session.spaces), and a declared room over a wall face replaces it.
+ * - Walls carry Qto_WallBaseQuantities (and Pset_WallCommon where the layer says),
+ *   spaces Qto_SpaceBaseQuantities (quantities.ts): lengths mm, areas m², volumes m³.
  * - A placed BIM block is an occurrence of its part's own type — the library's
  *   type object copied in with its GlobalId (partTypes.ts) — at an
  *   IfcLocalPlacement in mm, contained in the space it stands in, its ports
@@ -129,7 +136,7 @@ export function exportIfc(session: SavedSession, opts: ExportIfcOptions = {}): s
   const units = b.add('IFCUNITASSIGNMENT', [[
     si('LENGTHUNIT', 'MILLI', 'METRE'), si('MASSUNIT', 'KILO', 'GRAM'), si('POWERUNIT', null, 'WATT'),
     si('ELECTRICVOLTAGEUNIT', null, 'VOLT'), si('ELECTRICCURRENTUNIT', null, 'AMPERE'), si('FREQUENCYUNIT', null, 'HERTZ'),
-    si('ELECTRICRESISTANCEUNIT', null, 'OHM'),
+    si('ELECTRICRESISTANCEUNIT', null, 'OHM'), si('AREAUNIT', null, 'SQUARE_METRE'), si('VOLUMEUNIT', null, 'CUBIC_METRE'),
   ]]);
   const p3 = (x: number, y: number, z: number) => b.add('IFCCARTESIANPOINT', [[R(x), R(y), R(z)]]);
   const p2 = (x: number, y: number) => b.add('IFCCARTESIANPOINT', [[R(x), R(y)]]);
@@ -156,6 +163,15 @@ export function exportIfc(session: SavedSession, opts: ExportIfcOptions = {}): s
     const set = b.add('IFCPROPERTYSET', [ifcGuid(owner, 'pset', name), oh, name, null, items]);
     rels.push({ set, objects });
   };
+  /** One Qto_ set (IfcElementQuantity) on `objects`: lengths in mm, areas m², volumes m³; the quantities left undefined are not written. */
+  const qto = (owner: string, name: string, qs: [string, 'L' | 'A' | 'V', number | undefined][], objects: StepRef[]) => {
+    const known = qs.filter(([, , v]) => v !== undefined && Number.isFinite(v) && v >= 0) as [string, 'L' | 'A' | 'V', number][];
+    if (!known.length || !objects.length) return;
+    const ent = { L: 'IFCQUANTITYLENGTH', A: 'IFCQUANTITYAREA', V: 'IFCQUANTITYVOLUME' } as const;
+    const items = known.map(([k, kind, v]) => b.add(ent[kind], [k, null, null, R(v), null]));
+    const set = b.add('IFCELEMENTQUANTITY', [ifcGuid(owner, 'qto', name), oh, name, null, null, items]);
+    rels.push({ set, objects });
+  };
   const opt = <T,>(v: T | undefined | null, w: (x: T) => StepValue): PropValue => (v === undefined || v === null ? undefined : w(v));
 
   // ------------------------------------------------------------ project and spatial spine
@@ -178,54 +194,101 @@ export function exportIfc(session: SavedSession, opts: ExportIfcOptions = {}): s
   const shape = (reps: StepRef[]) => b.add('IFCPRODUCTDEFINITIONSHAPE', [null, null, reps]);
   const polyline = (pts: Point[]) => b.add('IFCPOLYLINE', [pts.map((p) => p2(p.x, p.y))]);
 
-  // ------------------------------------------------------------ linework and walls (cad-3, cad-4)
+  // ------------------------------------------------------------ linework and walls (cad-3, cad-4, ROAD-3581)
   const vertices = new Map(snap.vertices.map((v) => [v.id, v]));
+  /** Wall runs: collinear edges that are one wall are one IfcWall (wallRuns.ts), keyed by the run's lowest edge id. */
+  const { runs, joins } = wallRuns(snap.vertices, snap.edges.filter((e) => walls.has(e.layerId)));
+  const runOf = runByEdge(runs);
+  const edgeById = new Map(snap.edges.map((e) => [e.id, e]));
   const wallRef = new Map<number, StepRef>();
   const wallGid = new Map<number, string>();
-  const wallEnds = new Map<number, [Point, Point]>();
+  /** Each wall's axis ends (mm) and its thickness (mm, 0 when unknown), for the rooms it bounds. */
+  const wallAxis = new Map<number, { A: Point; C: Point; t: number; arc: boolean }>();
   const usedVertices = new Set<number>();
+  const curveOf = (e: (typeof snap.edges)[number], A: Point, C: Point) => (e.type === 'line'
+    ? polyline([A, C])
+    : b.add('IFCTRIMMEDCURVE', [
+        b.add('IFCCIRCLE', [b.add('IFCAXIS2PLACEMENT2D', [p2(mm(e.cx), mm(e.cy)), null]), R(mm(e.r))]),
+        [p2(A.x, A.y)], [p2(C.x, C.y)], E('T'), E('CARTESIAN')]));
+  const emitWall = (run: WallRun) => {
+    const first = edgeById.get(run.id)!;
+    const spec = layerById.get(run.layerId)!.ifc!;
+    const pts = run.points.map((p) => ({ x: mm(p.x), y: mm(p.y) }));
+    const A = pts[0]!, C = pts[pts.length - 1]!;
+    const curve = run.arc ? curveOf(first, A, C) : polyline(pts);
+    const reps = [b.add('IFCSHAPEREPRESENTATION', [axisCtx, 'Axis', 'Curve2D', [curve]])];
+    onLayer(run.layerId, curve);
+    const t = spec.thickness_mm && spec.thickness_mm > 0 ? spec.thickness_mm : undefined;
+    const h = spec.height_mm && spec.height_mm > 0 ? spec.height_mm : undefined;
+    const len = first.type === 'arc' ? arcLength(mm(first.cx), mm(first.cy), mm(first.r), A, C) : Math.hypot(C.x - A.x, C.y - A.y);
+    if (!run.arc && t && h && len > 0) {
+      const nx = (-(C.y - A.y) / len) * (t / 2), ny = ((C.x - A.x) / len) * (t / 2);
+      const ring = [{ x: A.x + nx, y: A.y + ny }, { x: C.x + nx, y: C.y + ny }, { x: C.x - nx, y: C.y - ny }, { x: A.x - nx, y: A.y - ny }];
+      const profile = b.add('IFCARBITRARYCLOSEDPROFILEDEF', [E('AREA'), null, polyline([...ring, ring[0]!])]);
+      const solid = b.add('IFCEXTRUDEDAREASOLID', [profile, null, b.once('IFCDIRECTION', [[R(0), R(0), R(1)]]), R(h)]);
+      reps.push(b.add('IFCSHAPEREPRESENTATION', [body, 'Body', 'SweptSolid', [solid]]));
+    }
+    const pre = spec.predefinedType && WALL_TYPES.has(spec.predefinedType) ? spec.predefinedType : 'NOTDEFINED';
+    const g = role('edge', run.id);
+    const product = b.add('IFCWALL', [g, oh, `Wall ${run.id}`, null, null, local(storeyPl), shape(reps), null, E(pre)]);
+    wallRef.set(run.id, product);
+    wallGid.set(run.id, g);
+    wallAxis.set(run.id, { A, C, t: t ?? 0, arc: run.arc });
+    inStorey.push(product);
+    if (run.edgeIds.length === 1) {
+      pset(g, 'APK_CadEdge', [
+        ['EdgeId', int(first.id)], ['GroupId', int(first.groupId)], ['V1', int(first.v1)], ['V2', int(first.v2)],
+        ['Layer', ident(first.layerId)], ['Protected', opt(first.protected, bool)],
+      ], [product]);
+    } else {
+      // one wall made of several of the CAD's welded edges: the Axis polyline's i-th point is Vertices[i]
+      pset(g, 'APK_CadWall', [
+        ['EdgeIds', run.edgeIds.map((id) => int(id))], ['Vertices', run.vertexIds.map((id) => int(id))], ['Layer', ident(run.layerId)],
+        ['Edges', text(json(run.edgeIds.map((id) => {
+          const e = edgeById.get(id)!;
+          return { id, v1: e.v1, v2: e.v2, groupId: e.groupId, ...(e.protected !== undefined ? { protected: e.protected } : {}) };
+        })))],
+      ], [product]);
+    }
+    pset(g, 'Pset_WallCommon', [
+      ['IsExternal', opt(spec.isExternal, bool)], ['LoadBearing', opt(spec.loadBearing, bool)],
+      ['AcousticRating', opt(spec.acousticRating, label)], ['FireRating', opt(spec.fireRating, label)],
+    ], [product]);
+    qto(g, 'Qto_WallBaseQuantities', [
+      ['Length', 'L', len], ['Width', 'L', t], ['Height', 'L', h],
+      ['GrossFootPrintArea', 'A', t !== undefined && !run.arc ? (len * t) / 1e6 : undefined],
+      ['GrossSideArea', 'A', h !== undefined ? (len * h) / 1e6 : undefined],
+      ['GrossVolume', 'V', t !== undefined && h !== undefined ? (len * t * h) / 1e9 : undefined],
+    ], [product]);
+  };
   for (const e of snap.edges) {
     const a = vertices.get(e.v1), c = vertices.get(e.v2);
     if (!a || !c) continue;
     usedVertices.add(e.v1).add(e.v2);
-    const A = { x: mm(a.x), y: mm(a.y) }, C = { x: mm(c.x), y: mm(c.y) };
-    const curve = e.type === 'line'
-      ? polyline([A, C])
-      : b.add('IFCTRIMMEDCURVE', [
-          b.add('IFCCIRCLE', [b.add('IFCAXIS2PLACEMENT2D', [p2(mm(e.cx), mm(e.cy)), null]), R(mm(e.r))]),
-          [p2(A.x, A.y)], [p2(C.x, C.y)], E('T'), E('CARTESIAN')]);
-    const isWall = walls.has(e.layerId);
-    const pl = local(storeyPl);
-    const g = role('edge', e.id);
-    let product: StepRef;
-    if (isWall) {
-      const spec = layerById.get(e.layerId)!.ifc!;
-      const reps = [b.add('IFCSHAPEREPRESENTATION', [axisCtx, 'Axis', 'Curve2D', [curve]])];
-      onLayer(e.layerId, curve);
-      const t = spec.thickness_mm, h = spec.height_mm;
-      const len = Math.hypot(C.x - A.x, C.y - A.y);
-      if (e.type === 'line' && t && h && t > 0 && h > 0 && len > 0) {
-        const nx = (-(C.y - A.y) / len) * (t / 2), ny = ((C.x - A.x) / len) * (t / 2);
-        const ring = [{ x: A.x + nx, y: A.y + ny }, { x: C.x + nx, y: C.y + ny }, { x: C.x - nx, y: C.y - ny }, { x: A.x - nx, y: A.y - ny }];
-        const profile = b.add('IFCARBITRARYCLOSEDPROFILEDEF', [E('AREA'), null, polyline([...ring, ring[0]!])]);
-        const solid = b.add('IFCEXTRUDEDAREASOLID', [profile, null, b.once('IFCDIRECTION', [[R(0), R(0), R(1)]]), R(h)]);
-        reps.push(b.add('IFCSHAPEREPRESENTATION', [body, 'Body', 'SweptSolid', [solid]]));
-      }
-      const pre = spec.predefinedType && WALL_TYPES.has(spec.predefinedType) ? spec.predefinedType : 'NOTDEFINED';
-      product = b.add('IFCWALL', [g, oh, `Wall ${e.id}`, null, null, pl, shape(reps), null, E(pre)]);
-      wallRef.set(e.id, product);
-      wallGid.set(e.id, g);
-      wallEnds.set(e.id, [A, C]);
-    } else {
-      const rep = b.add('IFCSHAPEREPRESENTATION', [annotationCtx, 'Annotation', 'Curve2D', [curve]]);
-      onLayer(e.layerId, curve);
-      product = b.add('IFCANNOTATION', [g, oh, null, null, 'LINEWORK', pl, shape([rep]), E('USERDEFINED')]);
+    const run = walls.has(e.layerId) ? runOf.get(e.id) : undefined;
+    if (run) {
+      if (!wallRef.has(run.id)) emitWall(run);
+      continue;
     }
+    const A = { x: mm(a.x), y: mm(a.y) }, C = { x: mm(c.x), y: mm(c.y) };
+    const curve = curveOf(e, A, C);
+    const g = role('edge', e.id);
+    const rep = b.add('IFCSHAPEREPRESENTATION', [annotationCtx, 'Annotation', 'Curve2D', [curve]]);
+    onLayer(e.layerId, curve);
+    const product = b.add('IFCANNOTATION', [g, oh, null, null, 'LINEWORK', local(storeyPl), shape([rep]), E('USERDEFINED')]);
     inStorey.push(product);
     pset(g, 'APK_CadEdge', [
       ['EdgeId', int(e.id)], ['GroupId', int(e.groupId)], ['V1', int(e.v1)], ['V2', int(e.v2)],
       ['Layer', ident(e.layerId)], ['Protected', opt(e.protected, bool)],
     ], [product]);
+  }
+  // corners: two walls that meet are joined, each saying which of its ends (IfcRelConnectsPathElements)
+  for (const j of joins) {
+    const a = wallRef.get(j.relating), c = wallRef.get(j.related);
+    if (!a || !c) continue;
+    b.add('IFCRELCONNECTSPATHELEMENTS', [
+      ifcGuid('rel', 'pathjoin', wallGid.get(j.relating)!, wallGid.get(j.related)!, String(j.vertexId)), oh, null, null, null,
+      a, c, [], [], E(j.relatedType), E(j.relatingType)]);
   }
 
   // ------------------------------------------------------------ texts and fills
@@ -311,18 +374,28 @@ export function exportIfc(session: SavedSession, opts: ExportIfcOptions = {}): s
     ], [product]);
   }
 
-  // ------------------------------------------------------------ rooms (cad-4)
+  // ------------------------------------------------------------ rooms (cad-4, ROAD-3581)
   interface Room { key: string; name: string; points: Point[]; layerId: string; kind: string; declared: boolean; roomType?: string; height?: number; edgeIds?: number[] }
   const rooms: Room[] = [];
+  const sameRing = (a: Point[], c: Point[]) => a.length === c.length && a.every((p) => c.some((q) => Math.hypot(p.x - q.x, p.y - q.y) <= 1e-3));
   for (const s of session.spaces ?? []) {
-    rooms.push({ key: s.key, name: s.name ?? s.key, points: s.points.map((p) => ({ x: mm(p.x), y: mm(p.y) })), layerId: s.layerId, kind: 'declared', declared: true, roomType: s.roomType, height: s.height_mm });
+    rooms.push({ key: s.key, name: s.name ?? s.key, points: s.points.map((p) => ({ x: mm(p.x), y: mm(p.y) })), layerId: s.layerId, kind: 'declared', declared: true, roomType: s.roomType, height: s.height_mm, edgeIds: s.edgeIds });
   }
+  const declared = rooms.slice();
   for (const face of wallFaces(snap.vertices, snap.edges.filter((e) => walls.has(e.layerId)))) {
+    const points = face.points.map((p) => ({ x: mm(p.x), y: mm(p.y) }));
+    // a room the user declared over these walls is this room, not a second one beside it
+    const key = face.edgeIds.join('.');
+    if (declared.some((d) => (d.edgeIds && [...d.edgeIds].sort((x, y) => x - y).join('.') === key) || sameRing(d.points, points))) continue;
     const layerId = snap.edges.find((e) => e.id === face.edgeIds[0])!.layerId;
-    rooms.push({ key: face.key, name: `Room ${rooms.length + 1}`, points: face.points.map((p) => ({ x: mm(p.x), y: mm(p.y) })), layerId, kind: 'walls', declared: false, height: layerById.get(layerId)?.ifc?.height_mm, edgeIds: face.edgeIds });
+    rooms.push({ key: face.key, name: `Room ${rooms.length + 1}`, points, layerId, kind: 'walls', declared: false, height: layerById.get(layerId)?.ifc?.height_mm, edgeIds: face.edgeIds });
   }
   const spaceRefs: { ref: StepRef; pl: StepRef; points: Point[] }[] = [];
   const tol = 1e-3;
+  const ends = (id: number): [Point, Point] | null => {
+    const e = edgeById.get(id), a = e && vertices.get(e.v1), c = e && vertices.get(e.v2);
+    return a && c ? [{ x: mm(a.x), y: mm(a.y) }, { x: mm(c.x), y: mm(c.y) }] : null;
+  };
   for (const r of rooms) {
     if (r.points.length < 3) continue;
     const g = role('space', r.key);
@@ -334,17 +407,45 @@ export function exportIfc(session: SavedSession, opts: ExportIfcOptions = {}): s
     const pl = local(storeyPl);
     const space = b.add('IFCSPACE', [g, oh, r.name, null, r.roomType ?? null, pl, shape(reps), null, E('ELEMENT'), E('SPACE'), null]);
     spaceRefs.push({ ref: space, pl, points: r.points });
+    const own = r.declared ? (session.spaces ?? []).find((x) => x.key === r.key)! : undefined;
     pset(g, 'Pset_SpaceCommon', [['Reference', ident(r.key)]], [space]);
     pset(g, 'APK_CadSpace', [
-      ['SpaceKey', ident(r.key)], ['Name', r.declared ? opt((session.spaces ?? []).find((x) => x.key === r.key)!.name, label) : undefined], ['Kind', label(r.kind)], ['Layer', ident(r.layerId)], ['Declared', bool(r.declared)],
+      ['SpaceKey', ident(r.key)], ['Name', own ? opt(own.name, label) : undefined], ['Kind', label(r.kind)], ['Layer', ident(r.layerId)], ['Declared', bool(r.declared)],
       ['RoomType', opt(r.roomType, label)], ['Height', opt(r.height, positiveLength)],
-      ['Points', r.declared ? text(json((session.spaces ?? []).find((s) => s.key === r.key)!.points)) : undefined],
+      ['Points', own ? text(json(own.points)) : undefined],
+      ['EdgeIds', own?.edgeIds?.length ? own.edgeIds.map((id) => int(id)) : undefined],
     ], [space]);
-    for (const [edgeId, [A, C]] of wallEnds) {
-      if (r.edgeIds ? !r.edgeIds.includes(edgeId) : !onBoundary(A, r.points, tol) || !onBoundary(C, r.points, tol)) continue;
-      const wg = wallGid.get(edgeId)!;
-      b.add('IFCRELSPACEBOUNDARY', [ifcGuid('rel', 'spaceboundary', g, wg), oh, null, null, space, wallRef.get(edgeId)!, null, E('PHYSICAL'), E('NOTDEFINED')]);
+    // the walls that bound it: a wall face's own walls; for a declared room, the walls among its edges and every wall lying on its outline
+    const bounding = new Set<number>();
+    for (const id of r.edgeIds ?? []) { const run = runOf.get(id); if (run && walls.has(run.layerId)) bounding.add(run.id); }
+    if (r.declared) {
+      for (const run of runs) {
+        if (run.edgeIds.some((id) => { const ac = ends(id); return !!ac && onBoundary(ac[0], r.points, tol) && onBoundary(ac[1], r.points, tol); })) bounding.add(run.id);
+      }
     }
+    for (const id of [...bounding].sort((x, y) => x - y)) {
+      b.add('IFCRELSPACEBOUNDARY', [ifcGuid('rel', 'spaceboundary', g, wallGid.get(id)!), oh, null, null, space, wallRef.get(id)!, null, E('PHYSICAL'), E('NOTDEFINED')]);
+    }
+    // what it measures: Gross on the outline drawn, Net inside the walls (each side pulled in by half its wall)
+    const insets = r.points.map((p, i) => {
+      const q = r.points[(i + 1) % r.points.length]!;
+      let t = 0;
+      for (const id of bounding) {
+        const w = wallAxis.get(id)!;
+        if (!w.arc && toSegment(p, w.A, w.C) <= tol && toSegment(q, w.A, w.C) <= tol) t = Math.max(t, w.t);
+      }
+      return t / 2;
+    });
+    const gross = Math.abs(signedArea(r.points));
+    const inner = insetPolygon(r.points, insets);
+    const netOk = Math.sign(signedArea(inner)) === Math.sign(signedArea(r.points)) && Math.abs(signedArea(inner)) <= gross;
+    const net = netOk ? Math.abs(signedArea(inner)) : undefined;
+    const h = r.height && r.height > 0 ? r.height : undefined;
+    qto(g, 'Qto_SpaceBaseQuantities', [
+      ['Height', 'L', h], ['GrossPerimeter', 'L', perimeter(r.points)], ['NetPerimeter', 'L', netOk ? perimeter(inner) : undefined],
+      ['GrossFloorArea', 'A', gross / 1e6], ['NetFloorArea', 'A', net !== undefined ? net / 1e6 : undefined],
+      ['GrossVolume', 'V', h !== undefined ? (gross * h) / 1e9 : undefined], ['NetVolume', 'V', h !== undefined && net !== undefined ? (net * h) / 1e9 : undefined],
+    ], [space]);
   }
   if (spaceRefs.length) b.add('IFCRELAGGREGATES', [role('rel', 'storey-spaces'), oh, null, null, storey, spaceRefs.map((s) => s.ref)]);
 
@@ -424,8 +525,9 @@ export function exportIfc(session: SavedSession, opts: ExportIfcOptions = {}): s
   }
   for (const [, o] of occByPlacement) {
     const p = o.p;
-    if (p.mountedOn && wallRef.has(p.mountedOn.edgeId)) {
-      b.add('IFCRELCONNECTSELEMENTS', [ifcGuid('rel', 'mounted', wallGid.get(p.mountedOn.edgeId)!, o.gid), oh, 'Mounted on', null, null, wallRef.get(p.mountedOn.edgeId)!, o.ref]);
+    const hung = p.mountedOn ? runOf.get(p.mountedOn.edgeId) : undefined;
+    if (hung && wallRef.has(hung.id)) {
+      b.add('IFCRELCONNECTSELEMENTS', [ifcGuid('rel', 'mounted', wallGid.get(hung.id)!, o.gid), oh, 'Mounted on', null, null, wallRef.get(hung.id)!, o.ref]);
     }
     const reflected = [...occByPlacement.values()].find((x) => x.p.mirrorOf === p.id);
     const partner = p.mirrorOf !== undefined ? occByPlacement.get(p.mirrorOf) : reflected;
@@ -471,6 +573,7 @@ export function exportIfc(session: SavedSession, opts: ExportIfcOptions = {}): s
   const orphans = snap.vertices.filter((v) => !usedVertices.has(v.id));
   const native = {
     vertexOrder,
+    edgeOrder: snap.edges.map((e) => e.id),
     orphans,
     groupPrimitives: snap.groupPrimitives,
     groupIntact: snap.groupIntact,

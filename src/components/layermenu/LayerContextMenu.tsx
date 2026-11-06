@@ -32,6 +32,10 @@ export function LayerContextMenu({
     action();
     onClose();
   };
+  const ifc = targetLayer.ifc;
+  const isWalls = ifc?.entity === 'IfcWall';
+  const wallSize = isWalls ? `${ifc.height_mm ?? '?'} × ${ifc.thickness_mm ?? '?'} mm` : '';
+  const external = ifc?.isExternal === undefined ? 'not said' : ifc.isExternal ? 'yes' : 'no';
 
   return (
     <div
@@ -63,6 +67,27 @@ export function LayerContextMenu({
       <MenuItem icon="➕" label="Add Layer..." shortcut="YA" onSelect={run(onAddLayerPrompt)} />
       <MenuItem icon="➖" label="Delete Layer" shortcut="YR" onSelect={run(() => store.deleteLayer(targetLayer.id))} />
       <MenuItem icon="✏️" label="Edit Layer..." shortcut="YE" onSelect={run(() => onEditLayer(targetLayer))} />
+      <MenuDivider />
+      {/* what the IFC export takes this layer's lines to be (ROAD-3581): never guessed */}
+      <MenuItem
+        icon="🧱"
+        label={isWalls ? 'Walls (IfcWall) ✓' : 'Walls (IfcWall)'}
+        onSelect={run(() => store.toggleWallLayer(targetLayer.id))}
+      />
+      {isWalls && (
+        <>
+          <MenuItem
+            icon="📏"
+            label={`Wall Size... ${wallSize}`}
+            onSelect={run(() => store.promptWallSize(targetLayer.id))}
+          />
+          <MenuItem
+            icon="🌦️"
+            label={`External: ${external}`}
+            onSelect={run(() => store.cycleWallExternal(targetLayer.id))}
+          />
+        </>
+      )}
       <MenuDivider />
       <MenuItem
         icon="📐"

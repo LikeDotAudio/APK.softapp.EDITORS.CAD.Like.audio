@@ -32,7 +32,7 @@
  * The body is 94 one-action modules under `actions/`, bound as methods here:
  * a 664-line class is easier to read as a table of contents than as a wall.
  */
-import type { CadSpace, CadViewport, Layer, Point, SchematicModel, ToolId, Units, GridMode, ValidationResult } from '../core/types';
+import type { CadSpace, CadViewport, Layer, LayerIfc, Point, SchematicModel, ToolId, Units, GridMode, ValidationResult } from '../core/types';
 import { generateUuid } from '../core/generateUuid';
 import { DEFAULT_VIRTUAL_MIRROR, type VirtualMirrorState, type VirtualMirror } from '../core/mirror';
 import type { UserAuth, UserStatus } from '../core/userAuth';
@@ -144,6 +144,7 @@ import { setImageOpacity } from './actions/setImageOpacity';
 import { setImageWorldWidth } from './actions/setImageWorldWidth';
 import { setLayerColor } from './actions/setLayerColor';
 import { setLayerFinish } from './actions/setLayerFinish';
+import { cycleWallExternal, declareRoomFromSelection, promptWallSize, setLayerIfc, toggleWallLayer, undeclareRoomsInSelection } from './actions/roomsAndWalls';
 import { setLayerStyle, type LayerStyle } from './actions/setLayerStyle';
 import { setMeasurement } from './actions/setMeasurement';
 import { setPalette } from './actions/setPalette';
@@ -918,6 +919,31 @@ export class EditorStore {
 
   setLayerFinish(id: string, finish: string | null): void {
     setLayerFinish(this, id, finish);
+  }
+
+  // walls and rooms for the IFC export (roomsAndWalls.ts, ROAD-3581)
+  setLayerIfc(id: string, ifc: LayerIfc | null): void {
+    setLayerIfc(this, id, ifc);
+  }
+
+  toggleWallLayer(id: string): void {
+    toggleWallLayer(this, id);
+  }
+
+  promptWallSize(id: string): void {
+    promptWallSize(this, id);
+  }
+
+  cycleWallExternal(id: string): void {
+    cycleWallExternal(this, id);
+  }
+
+  declareRoomFromSelection(): CadSpace | null {
+    return declareRoomFromSelection(this);
+  }
+
+  undeclareRoomsInSelection(): number {
+    return undeclareRoomsInSelection(this);
   }
 
   setLayerStyle(id: string, style: LayerStyle): void {

@@ -22,6 +22,8 @@ export function setUnits(store: EditorStore, units: Units): void {
   if (store.calibration.p2) {
     store.calibration.p2 = { x: store.calibration.p2.x * f, y: store.calibration.p2.y * f };
   }
+  // declared rooms are in drawing units, like the Doc (CadSpace): they scale with it
+  store.spaces = store.spaces.map((s) => ({ ...s, points: s.points.map((p) => ({ x: p.x * f, y: p.y * f })) }));
   store.gridSize = convertGridSize(store.gridSize, units);
   store.units = units;
   store.dynCursor = { x: store.dynCursor.x * f, y: store.dynCursor.y * f };

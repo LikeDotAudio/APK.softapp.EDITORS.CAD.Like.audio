@@ -82,6 +82,11 @@ export interface LayerIfc {
   predefinedType?: string;
   height_mm?: number;
   thickness_mm?: number;
+  /** Pset_WallCommon, written only when the user said so: never inferred from the geometry. */
+  isExternal?: boolean;
+  loadBearing?: boolean;
+  acousticRating?: string;
+  fireRating?: string;
 }
 
 /**
@@ -99,6 +104,12 @@ export interface CadSpace {
   roomType?: string;
   /** Floor to ceiling, mm: the Body extrusion. */
   height_mm?: number;
+  /**
+   * The edges the user closed the room with (Declare Room, ROAD-3581): the
+   * walls among them bound the IfcSpace, and a wall face with the same edges
+   * is this room rather than a second one.
+   */
+  edgeIds?: number[];
 }
 
 interface EdgeBase {
