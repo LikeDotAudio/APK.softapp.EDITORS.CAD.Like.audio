@@ -29,6 +29,12 @@
  * mixed content there), else this host on 8160. When that does not answer (cad.like.audio
  * has no BIM), the same app as published with its snapshot on apk.audio.
  * ITS THEME IS THIS EDITOR'S: ?theme=dark&tokens=… (the app is dark by default anyway).
+ *
+ * WIDE AND CATALOG (ROAD-3603). The app's filter drawer posts `wide` {on}: while on, the sash
+ * takes the whole canvas (it already sits inside it — never the toolbar, the menus or the
+ * status bar) so every filter column shows, then gives the user's width back. 📖 Catalog
+ * opens the same sash on the app's Catalog lens (toLibrary `lens`). In a CAD whose host owns
+ * the library (hello { library }), both buttons ask the host instead (App.tsx).
  */
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from '@state/useStore';
@@ -36,6 +42,9 @@ import { liveBoxesOf, partToDefinition, type BimPart } from '../../flow/bimPart'
 import { loadApkLibrary } from '../../shell/apkLibrary';
 import { CONCEPTS } from '../../flow/concepts';
 import type { BlockDefinition } from '../../core/types';
+
+/** Which lens the sash opens on: 📚 Library (the list) or 📖 Catalog. */
+export type LibraryLens = 'part' | 'catalog';
 
 interface LibraryPart extends BimPart { maker?: string; category?: string; stage?: string; class?: string }
 
@@ -73,9 +82,10 @@ export async function bimLibraryUrl(fetcher: typeof fetch = fetch): Promise<{ ur
 }
 
 /** The app's address with what this editor asks of it: pick mode, its theme. */
-export function libraryFrameUrl(url: string): string {
+export function libraryFrameUrl(url: string, lens: LibraryLens = 'part'): string {
   const u = new URL(url);
   u.searchParams.set('mode', 'pick');
+  if (lens !== 'part') u.searchParams.set('lens', lens);
   u.searchParams.set('theme', 'dark');
   u.searchParams.set('tokens', JSON.stringify(LIBRARY_THEME));
   return u.href;
@@ -101,7 +111,7 @@ export function conceptDefinition(part: { id?: string; model?: string; descripti
   return catalog.find((d) => slug(d.id) === model) ?? null;
 }
 
-export function LibrarySash({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function LibrarySash({ open, onClose, lens = 'part' }: { open: boolean; onClose: () => void; lens?: LibraryLens }) {
   const store = useStore();
   const frame = useRef<HTMLIFrameElement | null>(null);
   const [src, setSrc] = useState('');
@@ -111,22 +121,32 @@ export function LibrarySash({ open, onClose }: { open: boolean; onClose: () => v
     try { return Math.max(SASH_MIN, Number(localStorage.getItem(SASH_KEY)) || 440); } catch { return 440; }
   });
   const [dragging, setDragging] = useState(false);
+  /* the app's filter drawer is open: the sash takes the whole canvas (library@1 `wide`) */
+  const [wide, setWide] = useState(false);
 
   useEffect(() => {
     if (!open || src) return;
     let alive = true;
     void bimLibraryUrl().then(({ url, live: up }) => {
       if (!alive) return;
-      setSrc(libraryFrameUrl(url));
+      setSrc(libraryFrameUrl(url, lens));
       setLive(up);
     });
     return () => { alive = false; };
-  }, [open, src]);
+  }, [open, src, lens]);
+
+  /* 📚 Library / 📖 Catalog after the app has loaded: tell it which lens (library@1 toLibrary `lens`) */
+  useEffect(() => {
+    if (!open || !frame.current?.contentWindow) return;
+    frame.current.contentWindow.postMessage({ protocol: 'apk.bim.library@1', type: 'lens', lens }, '*');
+  }, [open, lens]);
+  useEffect(() => { if (!open) setWide(false); }, [open]);
 
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
       const msg = e.data as { protocol?: string; type?: string; part?: LibraryPart; bim?: LibraryPart; ref?: LibraryPart['ref'] } | null;
       if (!frame.current || e.source !== frame.current.contentWindow) return;
+      if (msg && msg.protocol === 'apk.bim.library@1' && msg.type === 'wide') { setWide((msg as { on?: boolean }).on === true); return; }
       if (!msg || msg.protocol !== 'apk.bim.library@1' || msg.type !== 'part') return;
       const got = msg.bim ?? msg.part;
       // the part with its BIM reference: what is placed from it keeps the ref (ROAD-3572)
@@ -182,13 +202,14 @@ export function LibrarySash({ open, onClose }: { open: boolean; onClose: () => v
   return (
     <div
       className="library-sash absolute left-0 top-0 bottom-0 z-30 flex flex-col border-r border-[#333] bg-[#1e1e1e] text-sm"
-      style={{ width, maxWidth: 'calc(100% - 48px)', transform: open ? 'none' : 'translateX(calc(-100% - 2px))',
-               transition: dragging ? 'none' : 'transform .24s cubic-bezier(.16,1,.3,1)',
+      style={{ width: wide ? '100%' : width, maxWidth: wide ? 'none' : 'calc(100% - 48px)', transform: open ? 'none' : 'translateX(calc(-100% - 2px))',
+               transition: dragging ? 'none' : 'transform .24s cubic-bezier(.16,1,.3,1), width .2s',
                boxShadow: open ? '8px 0 28px rgba(0,0,0,.5)' : 'none', pointerEvents: open ? 'auto' : 'none' }}
       aria-hidden={!open}
+      data-wide={wide ? '1' : undefined}
     >
       <div className="flex items-center gap-2 border-b border-[#333] px-2 py-1 text-xs text-[#ccc]">
-        <span className="font-semibold">📚 Library</span>
+        <span className="font-semibold">{lens === 'catalog' ? '📖 Catalog' : '📚 Library'}</span>
         <span className="text-[#858585]">{live === false ? 'published snapshot — no BIM here' : live ? 'live BIM' : '…'}</span>
         <span className="flex-1" />
         <button className="library-sash-close rounded px-2 hover:bg-[#333]" title="Close (Esc)" onClick={onClose}>✕</button>

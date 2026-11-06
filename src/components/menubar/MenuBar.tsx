@@ -16,13 +16,14 @@ interface MenuBarProps {
   onOpenElementsEditor?: () => void;
   onOpenBlockEditor?: () => void;
   onOpenConceptLibrary?: () => void;
+  onOpenCatalog?: () => void;
 }
 
 /**
  * The application header. It owns only "which menu is open" — every dropdown
  * lives in its own file under `menus/`.
  */
-export function MenuBar({ onOpenSpreadsheet, onOpenBom, onOpenElementsEditor, onOpenBlockEditor, onOpenConceptLibrary }: MenuBarProps) {
+export function MenuBar({ onOpenSpreadsheet, onOpenBom, onOpenElementsEditor, onOpenBlockEditor, onOpenConceptLibrary, onOpenCatalog }: MenuBarProps) {
   const [openMenu, setOpenMenu] = useState<MenuId | null>(null);
   const close = useCallback(() => setOpenMenu(null), []);
   useMenuDismiss(close);
@@ -53,6 +54,14 @@ export function MenuBar({ onOpenSpreadsheet, onOpenBom, onOpenElementsEditor, on
         >
           <span>📚</span>
           <span>Library</span>
+        </button>
+        <button
+          onClick={onOpenCatalog}
+          className="flex items-center gap-1.5 rounded bg-[#2d6a4f] px-2.5 py-1 text-xs font-semibold text-white hover:bg-[#3a8763] transition-colors font-mono tracking-wide"
+          title="The BIM library as an engineering catalogue: category › class, a Visual Catalog or an Engineering Specs Table (ROAD-3603)"
+        >
+          <span>📖</span>
+          <span>Catalog</span>
         </button>
         <button
           onClick={onOpenBlockEditor}

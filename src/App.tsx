@@ -16,7 +16,8 @@ import { SpreadsheetModal } from './components/spreadsheet/SpreadsheetModal';
 import { ElementsEditorModal } from './components/elementsEditor/ElementsEditorModal';
 import { BlockEditorModal } from './components/blockEditor/BlockEditorModal';
 import { SoftappBlockBridgeModal } from './components/blockEditor/SoftappBlockBridgeModal';
-import { LibrarySash } from './components/conceptLibrary/BimLibraryTab';
+import { LibrarySash, type LibraryLens } from './components/conceptLibrary/BimLibraryTab';
+import { offerLibraryToHost } from './shell/hostBridge/hostBridge';
 import { ConnectorsDock } from './connectors/ui/ConnectorsDock';
 import { StartupModal } from './components/startup/StartupModal';
 import { LoadingOverlay } from './components/loading/LoadingOverlay';
@@ -33,6 +34,13 @@ export default function App() {
   const [showElementsEditor, setShowElementsEditor] = useState(false);
   const [showBlockEditor, setShowBlockEditor] = useState(false);
   const [showConceptLibrary, setShowConceptLibrary] = useState(false);
+  /* 📚 Library or 📖 Catalog — one library per sheet: a host that owns one is asked to show it (ROAD-3603) */
+  const [libraryLens, setLibraryLens] = useState<LibraryLens>('part');
+  const openLibrary = (lens: LibraryLens) => {
+    if (offerLibraryToHost(lens)) return;
+    setLibraryLens(lens);
+    setShowConceptLibrary((was) => !(was && lens === libraryLens));
+  };
   const [showSoftappBridge, setShowSoftappBridge] = useState(false);
   const [softappTargetBlock, setSoftappTargetBlock] = useState<string | undefined>();
   const [softappTargetAppId, setSoftappTargetAppId] = useState<string | undefined>();
@@ -54,6 +62,8 @@ export default function App() {
       setShowBlockEditor(true);
     };
     store.openLibrarySash = () => {
+      if (offerLibraryToHost('part')) return;
+      setLibraryLens('part');
       setShowConceptLibrary((was) => !was);
     };
     store.openStartupModal = () => {
@@ -68,6 +78,8 @@ export default function App() {
     const onLibraryKey = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && !e.altKey && e.key.toLowerCase() === 'l') {
         e.preventDefault();
+        if (offerLibraryToHost('part')) return;
+        setLibraryLens('part');
         setShowConceptLibrary((was) => !was);
       }
     };
@@ -96,7 +108,8 @@ export default function App() {
             onOpenBom={() => handleOpenSpreadsheet('bom')}
             onOpenElementsEditor={() => setShowElementsEditor(true)}
             onOpenBlockEditor={() => handleOpenBlockEditor()}
-            onOpenConceptLibrary={() => setShowConceptLibrary((was) => !was)}
+            onOpenConceptLibrary={() => openLibrary('part')}
+            onOpenCatalog={() => openLibrary('catalog')}
           />
 
           {/* Main Work Area: Left Toolbar + docked panels either side of the Canvas */}
@@ -108,7 +121,7 @@ export default function App() {
                 <DrawingCanvas />
                 <ImagePanel />
                 {/* 📚 the BIM library: a sash over the drawing, not over the toolbar or menus (ROAD-3587) */}
-                <LibrarySash open={showConceptLibrary} onClose={() => setShowConceptLibrary(false)} />
+                <LibrarySash open={showConceptLibrary} lens={libraryLens} onClose={() => setShowConceptLibrary(false)} />
               </div>
               <DockRail side="right" />
             </div>

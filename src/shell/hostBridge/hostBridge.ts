@@ -160,7 +160,7 @@ export const HOST_PROTOCOL = 'cad.like.audio/host@1';
  */
 
 /** What this side sends a host. */
-export const HOST_OUTBOUND_TYPES = ['ready', 'view', 'selection', 'geometry', 'mirror', 'session', 'pick', 'dxf', 'bimDrop'] as const;
+export const HOST_OUTBOUND_TYPES = ['ready', 'view', 'selection', 'geometry', 'mirror', 'session', 'pick', 'dxf', 'bimDrop', 'library'] as const;
 export type HostOutboundType = (typeof HOST_OUTBOUND_TYPES)[number];
 
 let installed = false;
@@ -172,6 +172,15 @@ const picked = new Map<string, number[]>();
 let lastSelection = '';
 /** The host said hello { bimDrops: true }: a part dropped from the BIM library is its to place (ROAD-3595). */
 let hostTakesBimDrops = false;
+/** The host said hello { library: true }: it shows the BIM library itself — one library per sheet (ROAD-3603). */
+let hostOwnsLibrary = false;
+
+/** 📚 Library / 📖 Catalog pressed: true when the host owns the library and was asked (`library` { lens }); false — open the CAD's own. */
+export function offerLibraryToHost(lens: 'part' | 'catalog'): boolean {
+  if (!hostOwnsLibrary || !host()) return false;
+  post('library', { lens });
+  return true;
+}
 
 /** The window driving this one: the parent frame, else the softapp that popped us out. */
 function host(): Window | null {
@@ -200,8 +209,9 @@ type HostMessage = Record<string, unknown>;
 
 /** Every message a host may send, and what it does here. The keys are the protocol's inbound vocabulary. */
 export const HOST_HANDLERS: Record<string, (store: EditorStore, msg: HostMessage) => void> = {
-  hello: (store, { bimDrops }) => {
+  hello: (store, { bimDrops, library }) => {
     hostTakesBimDrops = bimDrops === true;
+    hostOwnsLibrary = library === true;
     lastView = '';
     lastGeometry = '';
     lastMirror = '';

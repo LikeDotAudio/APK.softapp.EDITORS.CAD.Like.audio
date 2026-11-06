@@ -46,3 +46,10 @@ describe('the library sash (ROAD-3587)', () => {
     expect(conceptDefinition({ id: 'keysight/34401a', model: '34401a' })).toBeNull();
   });
 });
+
+describe('📖 Catalog and the wide sash (ROAD-3603)', () => {
+  it('opens the app on the Catalog lens when asked, the list otherwise', () => {
+    expect(new URL(libraryFrameUrl('https://apk.local/library/', 'catalog')).searchParams.get('lens')).toBe('catalog');
+    expect(new URL(libraryFrameUrl('https://apk.local/library/', 'part')).searchParams.has('lens')).toBe(false);
+  });
+});
