@@ -10,15 +10,27 @@
  */
 import { useEffect, useState } from 'react';
 import { useStore } from '@state/useStore';
-import { partToDefinition, type BimPart } from '../../flow/bimPart';
+import { liveBoxesFromDevices, liveBoxesOf, partToDefinition, type BimInstance, type BimPart, type OsDevice } from '../../flow/bimPart';
 
 interface PickerModule {
   pickPart(opts: { title?: string }): Promise<BimPart | null>;
   defaultGuiFor(partId: string): Promise<{ name?: string; panel?: { prefix?: string } } | null>;
+  liveDevices?(partId: string): Promise<BimInstance[]>;
   openDefaultGui(device: unknown, label?: string): boolean;
 }
 
 const PICKER_URL = '/api/bim/ui/picker.js';
+const OS_DEVICES_URL = '/api/os/devices';
+
+/** The OS's device list (the boxes it says the bench presents), or [] where there is no OS. */
+async function osDevices(): Promise<OsDevice[]> {
+  try {
+    const r = await fetch(OS_DEVICES_URL, { cache: 'no-store' });
+    return r.ok ? ((await r.json()).devices ?? []) : [];
+  } catch {
+    return [];
+  }
+}
 
 export function BimLibraryButton() {
   const store = useStore();
@@ -34,7 +46,14 @@ export function BimLibraryButton() {
     const part = await lib.pickPart({ title: 'Place a device from the BIM library' });
     if (!part) return;
     const def = partToDefinition(part);
-    if (!store.schematic.definitions.some((d) => d.id === def.id)) store.schematic.definitions.push(def);
+    /* The boxes of this model on the bench now: each placement takes the next
+       one, so a filed Big Picture names the real box (ROAD-3537). */
+    const live = lib.liveDevices ? await lib.liveDevices(part.id).catch(() => []) : [];
+    let boxes = liveBoxesOf(live);
+    if (!boxes.length) boxes = liveBoxesFromDevices(await osDevices(), part.model);
+    const known = store.schematic.definitions.find((d) => d.id === def.id);
+    if (known) known.liveBoxes = boxes;
+    else store.schematic.definitions.push({ ...def, liveBoxes: boxes });
     store.setFlowDefinition(def.id);
     const device = await lib.defaultGuiFor(part.id);
     if (device) lib.openDefaultGui(device, device.name);

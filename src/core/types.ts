@@ -329,6 +329,25 @@ export interface BlockDefinition {
   ports: Port[];
   /** Built from a host's `schematic` (hostSchematic.ts): replaced whenever that host resends its key. */
   hostKey?: string;
+  /**
+   * The boxes of this model the bench presented when the part was picked from
+   * the BIM library (BimLibraryButton). Each new placement takes the first one
+   * no placement on the sheet carries yet (placeBlock), so a placement names
+   * the real box it stands for. A hint at pick time, not a roster.
+   */
+  liveBoxes?: BoxIdentity[];
+}
+
+/**
+ * What names ONE box: its serial, else its MAC, else its fixed GPIB address as a
+ * VISA resource — never a bare IP (WEB.OsApi osapi/identity.py, ROAD-3537). The
+ * OS Schematic joins a Big Picture placement to the discovered box by these, and
+ * files it in the room its group is named for.
+ */
+export interface BoxIdentity {
+  serial?: string;
+  mac?: string;
+  resource?: string;
 }
 
 /**
@@ -369,6 +388,10 @@ export interface BlockPlacement {
   hostKey?: string;
   hostHash?: string;
   hostRef?: string;
+  /** The box this placement stands for (BoxIdentity): set from the definition's liveBoxes. */
+  serial?: string;
+  mac?: string;
+  resource?: string;
 }
 
 /** One end of a connector: a port on a particular placement. */

@@ -8,7 +8,7 @@
  * at the bottom — a group of N as N ports (at most 16, the rest named on the
  * last), its domain kept for the Terminals table. Pure: no DOM, no store.
  */
-import type { BlockDefinition, Port, PortSide } from '../core/types';
+import type { BlockDefinition, BoxIdentity, Port, PortSide } from '../core/types';
 
 export interface BimPort { group?: string; terminal?: string; side?: string; domain?: string; count?: number; labels?: string[] }
 export interface BimPart { id: string; manufacturer?: string; model?: string; name?: string; description?: string; ports?: BimPort[] }
@@ -56,4 +56,62 @@ export function partToDefinition(part: BimPart): BlockDefinition {
     glyph: [],
     ports,
   };
+}
+
+/** One live instance of a part, as DATABASE.server.BIM `/api/bim/instances` lists it. */
+export interface BimInstance {
+  state?: string;
+  protocol?: string;
+  mac?: string;
+  serial?: string;
+  resource?: string;
+  panel?: { serial?: string; resource?: string } | null;
+}
+
+/** A serial that names one box: not empty, not all zeros (the 661xx answer 0). */
+const realSerial = (s?: string) => { const v = String(s ?? '').trim(); return v && !/^0+$/.test(v) ? v : ''; };
+
+/** A fixed GPIB address (GPIB0::28::INSTR, a gateway's ::gpib7,30,0::), board number dropped; else ''. */
+export function fixedGpib(resource?: string): string {
+  const text = String(resource ?? '').trim().toUpperCase().replace(/^([A-Z]+)\d*::/, '$1::');
+  return /^GPIB::\d+/.test(text) || /::GPIB\d+,\d+/.test(text) ? text : '';
+}
+
+/**
+ * The boxes a part's online instances stand for, each named by serial, else
+ * fixed GPIB address — never a bare IP. A VISA box's MAC is not used: behind a
+ * GPIB gateway it is the gateway's, shared by every box on the bus.
+ */
+export function liveBoxesOf(instances: BimInstance[]): BoxIdentity[] {
+  const out: BoxIdentity[] = [];
+  for (const i of instances) {
+    if (i.state && i.state !== 'online') continue;
+    const serial = realSerial(i.panel?.serial ?? i.serial);
+    const resource = fixedGpib(i.panel?.resource ?? i.resource);
+    const mac = i.protocol !== 'visa' ? String(i.mac ?? '').trim() : '';
+    const box: BoxIdentity = serial ? { serial } : mac ? { mac } : resource ? { resource } : {};
+    if (box.serial || box.mac || box.resource) {
+      if (!out.some((b) => (b.serial && b.serial === box.serial) || (b.mac && b.mac === box.mac)
+        || (b.resource && b.resource === box.resource))) out.push(box);
+    }
+  }
+  return out;
+}
+
+/** One box as WEB.OsApi `/api/os/devices` lists it (ROAD-3538: `presented` + its serial). */
+export interface OsDevice { model?: string; serial?: string; resource?: string; presented?: string | null }
+
+const foldModel = (m?: string) => String(m ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+
+/**
+ * The boxes of a model the OS says the bench presents now — the fallback when
+ * the BIM library lists none of the part's instances online. Same rule as
+ * liveBoxesOf: serial, else fixed GPIB address, never an IP.
+ */
+export function liveBoxesFromDevices(devices: OsDevice[], model?: string): BoxIdentity[] {
+  const want = foldModel(model);
+  if (!want) return [];
+  return liveBoxesOf(devices
+    .filter((d) => d.presented && foldModel(d.model) === want)
+    .map((d) => ({ state: 'online', protocol: 'visa', serial: d.serial, resource: d.resource })));
 }

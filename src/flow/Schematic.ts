@@ -2,6 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type {
   BlockDefinition,
+  BoxIdentity,
   BlockPlacement,
   Connector,
   Group,
@@ -73,8 +74,19 @@ export function placeBlock(
     layerId,
     refdes: refdes ?? `${def.name}${existing + 1}`,
   };
+  const box = nextLiveBox(model, def);
+  if (box?.serial) placement.serial = box.serial;
+  if (box?.mac) placement.mac = box.mac;
+  if (box?.resource) placement.resource = box.resource;
   model.placements.push(placement);
   return placement;
+}
+
+/** The first of the definition's live boxes that no placement on the sheet stands for yet. */
+export function nextLiveBox(model: SchematicModel, def: BlockDefinition): BoxIdentity | undefined {
+  const same = (a: BoxIdentity, b: BoxIdentity) =>
+    (!!a.serial && a.serial === b.serial) || (!!a.mac && a.mac === b.mac) || (!!a.resource && a.resource === b.resource);
+  return (def.liveBoxes ?? []).find((box) => !model.placements.some((p) => same(p, box)));
 }
 
 /**
