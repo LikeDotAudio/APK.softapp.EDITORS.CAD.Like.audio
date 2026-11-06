@@ -17,8 +17,12 @@
  * vocabulary (contracts/ifc/connectors.json) in its 🔌 Connectors lens.
  *
  * A part picked there comes back over postMessage (apk.bim.library@1 `part`) and is placed
- * on this drawing as its BIM block (partToDefinition, the Flow tool armed with it). A
- * concept is placed as the CAD's own symbol for it, so it looks as it always did.
+ * on this drawing as its BIM block (partToDefinition, the Flow tool armed with it), keeping
+ * its BIM reference. A concept is placed as the CAD's own symbol for it, so it looks as it
+ * always did. What the old 🏗 BIM button did besides (ROAD-3596) is done here too: the
+ * bench's boxes of the part ride on its definition (each placement takes the next one,
+ * ROAD-3537), and when one presents a panel its default GUI opens in the OS shell — both
+ * from the one picker script (shell/apkLibrary.ts, APKLibrary.liveDevices).
  *
  * WHERE THE APP IS: localStorage `cad.bimLibraryUrl`, else `bimLibrary=` in the address,
  * else — on an https page (the gateway) — this origin's /library/ (http://<host>:8160 is
@@ -28,7 +32,8 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from '@state/useStore';
-import { partToDefinition, type BimPart } from '../../flow/bimPart';
+import { liveBoxesOf, partToDefinition, type BimPart } from '../../flow/bimPart';
+import { loadApkLibrary } from '../../shell/apkLibrary';
 import { CATALOG } from '../../flow/catalog';
 import type { BlockDefinition } from '../../core/types';
 
@@ -144,6 +149,17 @@ export function LibrarySash({ open, onClose }: { open: boolean; onClose: () => v
     const known = store.schematic.definitions.find((d) => d.id === def.id);
     if (!known) store.schematic.definitions.push(def);
     else if (!known.bimRef && def.bimRef) known.bimRef = def.bimRef;
+    /* the bench's boxes of this part, and its default GUI when one is online (ROAD-3596) */
+    if (def.id.startsWith('bim.')) {
+      const picked = part;
+      void loadApkLibrary().then(async (lib) => {
+        const live = await lib.liveDevices(picked.id);
+        const target = store.schematic.definitions.find((d) => d.id === def.id);
+        if (target) target.liveBoxes = liveBoxesOf(live);
+        const gui = live.find((d) => d.state === 'online' && d.panel?.prefix);
+        if (gui) lib.openDefaultGui(gui, gui.name);
+      }).catch(() => { /* no bench here (a static site): nothing live to name */ });
+    }
     store.setFlowDefinition(def.id);
     store.setTool('flow');
     store.showHint(`Click to place ${part.name || part.model} — ${def.id.startsWith('bim.') ? 'its BIM block' : 'its symbol'}.`, 4000);

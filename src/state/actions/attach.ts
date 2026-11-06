@@ -2,6 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { EditorStore } from '../EditorStore';
 import { BIM_DRAG_MIME, bimPartOfDrop, placeBimPart } from './dropBimPart';
+import { offerBimDropToHost } from '../../shell/hostBridge/hostBridge';
 
 export function attach(store: EditorStore, canvas: HTMLCanvasElement): () => void {
   store.canvas = canvas;
@@ -41,6 +42,9 @@ export function attach(store: EditorStore, canvas: HTMLCanvasElement): () => voi
     if (part) {
       const r = canvas.getBoundingClientRect();
       const w = store.view.toWorld(e.clientX - r.left, e.clientY - r.top);
+      // a host that takes library drops (hello { bimDrops }) places it itself, with its ref (ROAD-3595)
+      const { ref, ...bim } = part;
+      if (ref?.part && offerBimDropToHost({ bim, ref: { ...ref, part: ref.part } }, w)) return;
       placeBimPart(store, part, { x: w.x, y: w.y });
       return;
     }

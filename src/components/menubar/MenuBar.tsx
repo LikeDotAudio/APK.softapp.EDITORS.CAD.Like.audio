@@ -9,7 +9,6 @@ import { DrawingMenu } from './menus/DrawingMenu';
 import { EditMenu } from './menus/EditMenu';
 import { FileMenu } from './menus/FileMenu';
 import { ModifyMenu } from './menus/ModifyMenu';
-import { BimLibraryButton } from './BimLibraryButton';
 
 interface MenuBarProps {
   onOpenSpreadsheet?: () => void;
@@ -47,7 +46,6 @@ export function MenuBar({ onOpenSpreadsheet, onOpenBom, onOpenElementsEditor, on
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <BimLibraryButton />
         <button
           onClick={onOpenConceptLibrary}
           className="flex items-center gap-1.5 rounded bg-[#007acc] px-2.5 py-1 text-xs font-semibold text-white hover:bg-[#1188dd] transition-colors font-mono tracking-wide"
