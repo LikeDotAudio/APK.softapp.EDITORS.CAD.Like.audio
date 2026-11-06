@@ -984,6 +984,45 @@
         }
       }
     },
+    "toCad.schematicMove": {
+      "description": "Set where some of the host's schematic placements stand, without rebuilding them (hostSchematic.ts moveHostSchematic) — a host moving its blocks with its own layout. Off the undo stack.",
+      "type": "object",
+      "required": [
+        "protocol",
+        "type",
+        "key",
+        "items"
+      ],
+      "properties": {
+        "protocol": {
+          "const": "cad.like.audio/host@1"
+        },
+        "type": {
+          "const": "schematicMove"
+        },
+        "key": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "ref",
+              "at"
+            ],
+            "properties": {
+              "ref": {
+                "type": "string"
+              },
+              "at": {
+                "$ref": "#/$defs/xy"
+              }
+            }
+          }
+        }
+      }
+    },
     "toCad.session": {
       "description": "Ask for the whole drawing session; answered with toHost.session.",
       "type": "object",
@@ -1446,6 +1485,24 @@
               },
               "at": {
                 "$ref": "#/$defs/xy"
+              },
+              "ports": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "terminal",
+                    "at"
+                  ],
+                  "properties": {
+                    "terminal": {
+                      "type": "string"
+                    },
+                    "at": {
+                      "$ref": "#/$defs/xy"
+                    }
+                  }
+                }
               }
             }
           }

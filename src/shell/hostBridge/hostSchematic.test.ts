@@ -7,7 +7,7 @@ import { groupBounds } from '../../flow/groups';
 import { portalPoints } from '../../render/flow/drawPortals';
 import type { EditorStore } from '@state/EditorStore';
 import { HOST_HANDLERS } from './hostBridge';
-import { applyHostSchematic, hostPlacementsOf, schematicInModel } from './hostSchematic';
+import { applyHostSchematic, hostPlacementsOf, moveHostSchematic, schematicInModel } from './hostSchematic';
 
 /** Just the store a host's schematic touches. */
 function fakeStore() {
@@ -63,7 +63,7 @@ describe('host schematic — BIM parts placed as blocks with ports', () => {
     expect(m.groups[0]!.members).toHaveLength(2);
     expect(groupBounds(m, m.groups[0]!.id)).not.toBeNull();
     expect(schematicInModel(m)).toEqual({ bench: 'h1' });
-    expect(hostPlacementsOf(m)).toEqual([{ key: 'bench', ref: 'U9', at: [0, 0] }, { key: 'bench', ref: 'U10', at: [200, 0] }]);
+    expect(hostPlacementsOf(m).map(({ key, ref, at }) => ({ key, ref, at }))).toEqual([{ key: 'bench', ref: 'U9', at: [0, 0] }, { key: 'bench', ref: 'U10', at: [200, 0] }]);
   });
 
   it('a resend with the same hash is ignored; a new hash replaces everything under the key', () => {
@@ -95,6 +95,21 @@ describe('host schematic — BIM parts placed as blocks with ports', () => {
     applyHostSchematic(s as unknown as EditorStore, send('h2', { placements: [] }));
     expect(s.schematic.placements.map((p) => p.definitionId)).toEqual(['mine']);
     expect(s.activeLayerId).toBe('0');
+  });
+
+  it('geometry says where every host port is, and schematicMove moves a block without rebuilding it (ROAD-3555)', () => {
+    const s = fakeStore();
+    applyHostSchematic(s as unknown as EditorStore, send('h1'));
+    const before = hostPlacementsOf(s.schematic).find((p) => p.ref === 'U9')!;
+    const out = before.ports.find((p) => p.terminal === 'AUDIO OUT')!;
+    expect(out.at[0]).toBeGreaterThan(before.at[0]);
+    const id = s.schematic.placements.find((p) => p.hostRef === 'U9')!.id;
+    expect(moveHostSchematic(s as unknown as EditorStore, { key: 'bench', items: [{ ref: 'U9', at: [50, 20] }] })).toBe(true);
+    expect(s.schematic.placements.find((p) => p.hostRef === 'U9')!.id).toBe(id);
+    const after = hostPlacementsOf(s.schematic).find((p) => p.ref === 'U9')!;
+    const moved = after.ports.find((p) => p.terminal === 'AUDIO OUT')!;
+    expect([moved.at[0] - out.at[0], moved.at[1] - out.at[1]]).toEqual([50, 20]);
+    expect(moveHostSchematic(s as unknown as EditorStore, { key: 'other', items: [{ ref: 'U9', at: [0, 0] }] })).toBe(false);
   });
 
   it('the published sample is understood', () => {

@@ -8,7 +8,7 @@ import { applySavedSession } from '@state/actions/restoreBrowserSession';
 import { currentHost } from '../entrance';
 import { handoverFromHash, offerHandover, receiveHandover } from './hostHandover';
 import { applyHostMarks, marksInDoc } from './hostMarks';
-import { applyHostSchematic, hostPlacementsOf, hostPlacesKey, schematicInModel } from './hostSchematic';
+import { applyHostSchematic, hostPlacementsOf, hostPlacesKey, moveHostSchematic, schematicInModel } from './hostSchematic';
 import { placeHostItems } from './hostPlace';
 import { moveHostItems, removeHostItems, repaintHostItems } from './hostMove';
 import { ensureHostLayer } from './hostLayer';
@@ -79,8 +79,9 @@ import { applyHostTool, dxfForHost, installHostPick } from './hostPick';
  * is the host's DEVICES as BIM blocks with ports, not line work
  * (hostSchematic.ts): the CAD builds each block from its part and finds each
  * terminal's port itself. `geometry` carries `schematic` { key: hash } and
- * `hostPlacements` [{ key, ref, at }], so a block dragged here is a seat the
- * host learns.
+ * `hostPlacements` [{ key, ref, at, ports }], so a block dragged here is a seat
+ * the host learns, and where its ports are; `schematicMove` { key, items } sets
+ * seats without rebuilding the blocks.
  *
  * CLICKS AND THE DXF (hostPick.ts). Every click and double-click on the
  * sheet goes out as `pick` { at, count, tool, shift, ctrl, client }, so a host
@@ -211,6 +212,7 @@ export const HOST_HANDLERS: Record<string, (store: EditorStore, msg: HostMessage
   select: (store, msg) => applyHostSelect(store, msg),
   marks: (store, msg) => applyHostMarks(store, msg),
   schematic: (store, msg) => applyHostSchematic(store, msg),
+  schematicMove: (store, msg) => void moveHostSchematic(store, msg),
   session: (store) => post('session', { session: { ...buildSavedSession(store), userAuth: undefined } }),
   handover: (store, { token }) => {
     if (typeof token === 'string' && /^[\w-]{1,64}$/.test(token)) offerHandover(token, () => buildSavedSession(store));

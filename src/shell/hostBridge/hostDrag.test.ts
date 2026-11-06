@@ -38,7 +38,7 @@ describe('host blocks under Select', () => {
     const { schematic: m } = store();
     m.placements.push({ id: 99, definitionId: m.placements[0]!.definitionId, at: { x: 0, y: 0 }, layerId: '0' });
     expect(dragHostPlacements(m, hostDragAt(m, { x: 150, y: 0 }).concat([99]), 10, -5)).toBe(true);
-    expect(hostPlacementsOf(m)).toEqual([{ key: 'bench', ref: 'U1', at: [10, -5] }, { key: 'bench', ref: 'U2', at: [310, -5] }]);
+    expect(hostPlacementsOf(m).map(({ key, ref, at }) => ({ key, ref, at }))).toEqual([{ key: 'bench', ref: 'U1', at: [10, -5] }, { key: 'bench', ref: 'U2', at: [310, -5] }]);
     expect(m.placements.find((p) => p.id === 99)!.at).toEqual({ x: 0, y: 0 });
   });
 

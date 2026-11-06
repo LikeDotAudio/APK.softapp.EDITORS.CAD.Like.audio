@@ -2,7 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { BlockDefinition, BlockPlacement, Group, PortPortal, SchematicModel } from '../../core/types';
 import { partToDefinition, portId, type BimPart, type BimPort } from '../../flow/bimPart';
-import { connectPorts, removePlacement } from '../../flow/Schematic';
+import { connectPorts, portsOf, removePlacement } from '../../flow/Schematic';
 import type { EditorStore } from '@state/EditorStore';
 
 /**
@@ -63,11 +63,46 @@ export function schematicInModel(model: SchematicModel): Record<string, string> 
   return out;
 }
 
-/** Every host placement's seat, for `geometry`: { key, ref, at }. */
-export function hostPlacementsOf(model: SchematicModel): { key: string; ref: string; at: XY }[] {
+/**
+ * Every host placement's seat, for `geometry`: { key, ref, at, ports } — `ports`
+ * [{ terminal, at }] is where each of its ports is on the sheet now, named by
+ * its caption (the terminal the host sent), so a host can run its own line work
+ * — the Simulation's legs, flys and lenses — to the CAD's ports (ROAD-3555)
+ * instead of keeping a copy of the block.
+ */
+export function hostPlacementsOf(model: SchematicModel): { key: string; ref: string; at: XY; ports: { terminal: string; at: XY }[] }[] {
   return model.placements
     .filter((p) => p.hostKey && p.hostRef)
-    .map((p) => ({ key: p.hostKey!, ref: p.hostRef!, at: [p.at.x, p.at.y] as XY }));
+    .map((p) => ({
+      key: p.hostKey!, ref: p.hostRef!, at: [p.at.x, p.at.y] as XY,
+      ports: portsOf(model, p.id).map((r) => ({ terminal: r.port.label ?? r.port.id, at: [r.world.x, r.world.y] as XY })),
+    }));
+}
+
+/**
+ * `schematicMove { key, items: [{ ref, at }] }` sets where some of the host's
+ * placements stand, without rebuilding them — a host moving its blocks with
+ * its own layout (a fader, a frame it carries). Off the undo stack, like the
+ * rest; `geometry` reports the new seats and ports.
+ */
+export function moveHostSchematic(store: Pick<EditorStore, 'schematic' | 'markDocChanged' | 'requestDraw' | 'emit'>,
+  msg: { key?: unknown; items?: unknown }): boolean {
+  if (!str(msg.key) || !Array.isArray(msg.items)) return false;
+  const byRef = new Map(store.schematic.placements.filter((p) => p.hostKey === msg.key && p.hostRef).map((p) => [p.hostRef!, p]));
+  let moved = false;
+  for (const it of msg.items as { ref?: unknown; at?: unknown }[]) {
+    const p = it && str(it.ref) ? byRef.get(it.ref) : undefined;
+    if (!p || !xy(it.at)) continue;
+    if (p.at.x === it.at[0] && p.at.y === it.at[1]) continue;
+    p.at = { x: it.at[0], y: it.at[1] };
+    moved = true;
+  }
+  if (moved) {
+    store.markDocChanged();
+    store.requestDraw();
+    store.emit();
+  }
+  return moved;
 }
 
 /** A key that moves whenever a host placement does — so a drag is reported. */

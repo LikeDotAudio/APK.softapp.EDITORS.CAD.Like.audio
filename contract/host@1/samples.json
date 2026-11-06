@@ -333,6 +333,20 @@
     },
     {
       "protocol": "cad.like.audio/host@1",
+      "type": "schematicMove",
+      "key": "bench",
+      "items": [
+        {
+          "ref": "U9",
+          "at": [
+            40,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "protocol": "cad.like.audio/host@1",
       "type": "session"
     },
     {
