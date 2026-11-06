@@ -22,8 +22,10 @@ export async function saveDxf(
   layers: Iterable<Layer> = [],
   schematic?: SchematicModel,
   currentFileName?: string | null,
+  ifc?: string,
 ): Promise<void> {
-  const blob = new Blob([buildDxf(doc, units, layers, schematic)], { type: 'application/dxf' });
+  // `ifc`: the drawing's .ifc twin — its objects ride on the hidden APK_IFC layer (buildDxf)
+  const blob = new Blob([buildDxf(doc, units, layers, schematic, ifc)], { type: 'application/dxf' });
   const name = dxfFileName(units, currentFileName);
   const picker = (window as unknown as SaveFilePickerWindow).showSaveFilePicker;
 

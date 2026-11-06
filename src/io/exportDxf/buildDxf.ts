@@ -15,6 +15,7 @@ import { definitionOf, portWorldPoint } from '../../flow/Schematic';
 import type { Doc } from '../../model/Doc';
 import { hexToAci } from '../../core/dxfColors/hexToAci';
 import { DxfDocument, type DxfLayerSpec } from './DxfDocument';
+import { addIfcToDxf, ifcDxfBlobs, type IfcDxfBlob } from '../../vendor/ifc/dxf';
 import { dxfBlockName } from './dxfBlockName';
 
 /**
@@ -37,6 +38,13 @@ import { dxfBlockName } from './dxfBlockName';
  *     of it as a reference, so a block moves as one thing and a sheet with
  *     twelve of them is not twelve copies of the same strokes.
  *
+ *   · IFC, when the drawing's model is given (its .ifc twin, sessionIfc, or blobs
+ *     made from it): every object of the model rides on the hidden layer APK_IFC
+ *     (frozen, off, never plotted) as one POINT carrying its GlobalId, entity,
+ *     property sets and STEP line in XDATA — contracts/src/ifc/dxf.ts
+ *     (apk-ifc-dxf/1, ROAD-3598), vendored as src/vendor/ifc/dxf.ts. A reader that
+ *     ignores the layer sees the same drawing as without it.
+ *
  * The writer underneath is `DxfDocument` — first ported from the since-removed
  * `.apk.scripts/dxf_writer.py`, now the suite's one conformant DXF emitter.
  */
@@ -45,6 +53,7 @@ export function buildDxf(
   units: Units,
   layers: Iterable<Layer> = [],
   schematic?: SchematicModel,
+  ifc?: string | readonly IfcDxfBlob[],
 ): string {
   const dxf = new DxfDocument(Array.from(layers, dxfLayerSpec));
 
@@ -201,7 +210,9 @@ export function buildDxf(
     }
   }
 
-  return dxf.dxf(units);
+  const text = dxf.dxf(units);
+  if (ifc === undefined) return text;
+  return addIfcToDxf(text, typeof ifc === 'string' ? ifcDxfBlobs(ifc) : ifc);
 }
 
 /* -- helpers, kept below the entry point so the shape of the file reads first */

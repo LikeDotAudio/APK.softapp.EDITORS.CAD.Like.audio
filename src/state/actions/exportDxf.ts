@@ -5,6 +5,8 @@ import { canUserSave } from '../../core/userAuth';
 import { saveDxf } from '@io/exportDxf/saveDxf';
 import { showProblem } from '../../shell/softapp';
 import { DOC_UNITS } from '../../model/units/docUnits';
+import { sessionIfc } from '@io/ifc/sessionIfc';
+import { buildSavedSession } from './autoSaveSession';
 
 export async function exportDxf(store: EditorStore): Promise<void> {
   if (store.currentUserAuth) {
@@ -26,9 +28,17 @@ export async function exportDxf(store: EditorStore): Promise<void> {
       return;
     }
   }
+  // the drawing's model (the same .ifc Save Model writes) rides on the DXF's hidden APK_IFC layer
+  // (ROAD-3598); a model that cannot be made leaves the DXF the drawing alone, and says so
+  let ifc: string | undefined;
+  try {
+    ifc = await sessionIfc(buildSavedSession(store), undefined, store.viewports);
+  } catch (err) {
+    store.showHint(`DXF without its IFC layer: ${String((err as Error)?.message ?? err)}`, 4000);
+  }
   try {
     // the DXF says what its numbers are ($INSUNITS 4): the drawing's own mm (cad-1)
-    await saveDxf(store.doc, DOC_UNITS, store.layers.values(), store.schematic, store.currentFileName);
+    await saveDxf(store.doc, DOC_UNITS, store.layers.values(), store.schematic, store.currentFileName, ifc);
   } catch (err) {
     // the save dialog or the write failed (not a cancel: saveDxf returns quietly on AbortError)
     showProblem('save_failed', {
