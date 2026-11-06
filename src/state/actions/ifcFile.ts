@@ -2,7 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { EditorStore } from '../EditorStore';
 import { canUserSave } from '../../core/userAuth';
-import { importIfc } from '@io/ifc/importIfc';
+import { openAnyIfc, webIfcEngine } from '@io/ifc/foreignIfc';
 import { ifcFileName, sessionIfc } from '@io/ifc/sessionIfc';
 import { showProblem } from '../../shell/softapp';
 import { buildSavedSession } from './autoSaveSession';
@@ -98,11 +98,15 @@ export async function saveIfcFile(store: EditorStore): Promise<void> {
   }
 }
 
-/** File → Open .ifc (and a host's `open { ifc }` / an .ifc `floorplan`): the file replaces the drawing, one undo step. */
+/**
+ * File → Open .ifc (and a host's `open { ifc }` / an .ifc `floorplan`): the file replaces the drawing, one undo step.
+ * Our own files through the small codec; a foreign one through web-ifc, loaded only then (src/io/ifc/foreignIfc.ts).
+ */
 export async function openIfcText(store: EditorStore, text: string, fileName: string): Promise<boolean> {
-  let session;
+  let session, opened;
   try {
-    session = importIfc(text);
+    opened = await openAnyIfc(text, webIfcEngine);
+    session = opened.session;
   } catch (err) {
     showProblem('file_unreadable', { subject: fileName, detail: String((err as Error)?.message ?? err), fix: ['Open an IFC (ISO 10303-21 .ifc) file, or a .dxf with File ▸ Open...'] });
     return false;
@@ -110,7 +114,9 @@ export async function openIfcText(store: EditorStore, text: string, fileName: st
   store.history.push(store.doc.snapshot());
   await applySavedSession(store, { ...session, currentFileName: session.currentFileName ?? fileName, userAuth: undefined });
   await store.autoSaveSession(false);
-  store.showHint(`Opened ${fileName} — ${session.docSnapshot.edges.length} edges, ${session.schematic?.placements.length ?? 0} blocks.`, 4000);
+  store.showHint(opened.via === 'web-ifc'
+    ? `Opened ${fileName} (foreign ${opened.schema ?? 'IFC'}, web-ifc) — ${opened.products} products as ${session.docSnapshot.edges.length} plan edges${opened.truncated ? ', the rest not drawn' : ''}.`
+    : `Opened ${fileName} — ${session.docSnapshot.edges.length} edges, ${session.schematic?.placements.length ?? 0} blocks.`, 4000);
   return true;
 }
 
