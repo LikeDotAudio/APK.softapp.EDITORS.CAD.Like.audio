@@ -24,6 +24,10 @@ export const FLOW = {
   connector: '#22d3ee',
   connectorPending: '#facc15',
   portLabel: '#9ca3af',
+  /** A portal whose far end is another block (drawPortals). */
+  portalWired: COLORS.accent,
+  /** A portal whose far end is a patch-bay position. */
+  portalBay: '#7c8594',
 } as const;
 
 /**

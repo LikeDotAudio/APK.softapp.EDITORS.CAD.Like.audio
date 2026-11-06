@@ -8,6 +8,7 @@ import { applySavedSession } from '@state/actions/restoreBrowserSession';
 import { currentHost } from '../entrance';
 import { handoverFromHash, offerHandover, receiveHandover } from './hostHandover';
 import { applyHostMarks, marksInDoc } from './hostMarks';
+import { applyHostSchematic, hostPlacementsOf, hostPlacesKey, schematicInModel } from './hostSchematic';
 import { placeHostItems } from './hostPlace';
 import { moveHostItems, removeHostItems, repaintHostItems } from './hostMove';
 import { ensureHostLayer } from './hostLayer';
@@ -73,6 +74,13 @@ import { dxfForHost, installHostPick } from './hostPick';
  * `marks` { key, hash, items } is the host's own line work and panels, drawn
  * into the sheet and kept current (hostMarks.ts); `geometry` carries `marks`
  * { key: hash } back, so the host knows what is on the sheet.
+ *
+ * `schematic` { key, hash, parts, placements, connections, groups?, portals? }
+ * is the host's DEVICES as BIM blocks with ports, not line work
+ * (hostSchematic.ts): the CAD builds each block from its part and finds each
+ * terminal's port itself. `geometry` carries `schematic` { key: hash } and
+ * `hostPlacements` [{ key, ref, at }], so a block dragged here is a seat the
+ * host learns.
  *
  * CLICKS AND THE DXF (hostPick.ts). Every click and double-click on the
  * sheet goes out as `pick` { at, count, tool, shift, ctrl, client }, so a host
@@ -201,6 +209,7 @@ export const HOST_HANDLERS: Record<string, (store: EditorStore, msg: HostMessage
   layers: (store, msg) => void applyHostLayers(store, msg),
   select: (store, msg) => applyHostSelect(store, msg),
   marks: (store, msg) => applyHostMarks(store, msg),
+  schematic: (store, msg) => applyHostSchematic(store, msg),
   session: (store) => post('session', { session: { ...buildSavedSession(store), userAuth: undefined } }),
   handover: (store, { token }) => {
     if (typeof token === 'string' && /^[\w-]{1,64}$/.test(token)) offerHandover(token, () => buildSavedSession(store));
@@ -273,9 +282,15 @@ export function viewForHost(store: Pick<EditorStore, 'view' | 'units'>, rect: { 
   return { zoom, panX, panY, rect, units: store.units };
 }
 
-/** The `geometry` body: the visible sheet (sceneForHost), its file name, and the marks hash per key. */
-export function geometryForHost(store: Pick<EditorStore, 'doc' | 'units' | 'layers' | 'currentFileName'>, pickedLoops: readonly (readonly number[])[]) {
-  return { fileName: store.currentFileName, ...sceneForHost(store.doc, store.units, store.layers, pickedLoops), marks: marksInDoc(store.doc) };
+/** The `geometry` body: the visible sheet (sceneForHost), its file name, the marks hash per key, and the host's schematic. */
+export function geometryForHost(store: Pick<EditorStore, 'doc' | 'units' | 'layers' | 'currentFileName'> & Partial<Pick<EditorStore, 'schematic'>>, pickedLoops: readonly (readonly number[])[]) {
+  const sch = store.schematic;
+  return {
+    fileName: store.currentFileName,
+    ...sceneForHost(store.doc, store.units, store.layers, pickedLoops),
+    marks: marksInDoc(store.doc),
+    ...(sch ? { schematic: schematicInModel(sch), hostPlacements: hostPlacementsOf(sch) } : {}),
+  };
 }
 
 /** The `mirror` body: whether Symmetrical Mode is on, its primary axis and every axis x. */
@@ -319,7 +334,7 @@ export function publishToHost(store: EditorStore): void {
     post('selection', selectionForHost(store));
   }
   const layerKey = [...store.layers.values()].map((l) => `${l.id}:${l.visible ? 1 : 0}:${l.color}:${l.finish ?? ''}`).join();
-  const geometryKey = `${store.docVersion}|${store.units}|${layerKey}|${store.doc.edgeCount}|${[...picked.keys()].join(';')}|${patchPlacesKey(store.doc)}`;
+  const geometryKey = `${store.docVersion}|${store.units}|${layerKey}|${store.doc.edgeCount}|${[...picked.keys()].join(';')}|${patchPlacesKey(store.doc)}|${hostPlacesKey(store.schematic)}`;
   if (geometryKey !== lastGeometry) {
     lastGeometry = geometryKey;
     post('geometry', geometryForHost(store, [...picked.values()]));

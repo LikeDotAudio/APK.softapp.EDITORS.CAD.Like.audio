@@ -21,7 +21,7 @@ function sideOf(p: BimPort): PortSide {
   return p.side === 'input' ? 'input' : 'output';
 }
 
-const portId = (text: string): string => text.toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_|_$/g, '') || 'PORT';
+export const portId = (text: string): string => text.toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_|_$/g, '') || 'PORT';
 
 export function bimDefinitionId(part: BimPart): string {
   return `bim.${part.id}`;

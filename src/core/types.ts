@@ -327,6 +327,18 @@ export interface BlockDefinition {
   /** Strokes inside the outline. Each entry is one open polyline. */
   glyph: Point[][];
   ports: Port[];
+  /** Built from a host's `schematic` (hostSchematic.ts): replaced whenever that host resends its key. */
+  hostKey?: string;
+}
+
+/**
+ * What is on the far end of a port, said where the port is — the Portal capsule
+ * drawn beyond it with this text. `wired`: another block (accent); otherwise
+ * where the port is permanently cabled in, a patch-bay position (grey).
+ */
+export interface PortPortal {
+  text: string;
+  wired?: boolean;
 }
 
 /** One placement of a definition - a DXF `INSERT`. */
@@ -347,6 +359,16 @@ export interface BlockPlacement {
   refdes?: string;
   /** Per-instance CAPTION overrides, by port id. Never adds or removes a port. */
   portLabels?: Record<string, string>;
+  /** The far end of each port, by port id, drawn as a portal (drawSchematic). */
+  portals?: Record<string, PortPortal>;
+  /**
+   * Placed by a host's `schematic` under this key (hostSchematic.ts). The host's
+   * resend replaces every placement, connector and group carrying it; `hostHash`
+   * says which send is on the sheet, `hostRef` is the host's own name for it.
+   */
+  hostKey?: string;
+  hostHash?: string;
+  hostRef?: string;
 }
 
 /** One end of a connector: a port on a particular placement. */
@@ -371,6 +393,8 @@ export interface Connector {
    */
   route?: Point[];
   label?: string;
+  /** Drawn by a host's `schematic` under this key (hostSchematic.ts). */
+  hostKey?: string;
 }
 
 /**
@@ -438,6 +462,8 @@ export interface Group {
    * thing it is drawing is the fork this field exists to prevent.
    */
   source?: { kind: string; id: string };
+  /** Made by a host's `schematic` under this key (hostSchematic.ts). */
+  hostKey?: string;
 }
 
 /** Everything on the sheet that is a thing rather than a stroke. */

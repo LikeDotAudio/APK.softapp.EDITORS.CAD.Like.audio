@@ -7,6 +7,7 @@ import { outlineCorners } from '../../flow/placement';
 import { definitionFor, portOf, portsOf, portWorldPoint } from '../../flow/Schematic';
 import { FONT } from '../palette';
 import type { Scene } from '../Scene';
+import { drawPortals } from './drawPortals';
 import { FLOW, SIDE_COLOR } from './flowColors';
 
 const PORT_PX = 4;
@@ -129,6 +130,7 @@ export function drawSchematic(scene: Scene, model: SchematicModel | undefined): 
       ctx.fillStyle = SIDE_COLOR[resolved.port.side];
       ctx.fillRect(s.x - PORT_PX / 2, s.y - PORT_PX / 2, PORT_PX, PORT_PX);
     }
+    drawPortals(scene, model, placement);
 
     const centre = view.toScreen(placement.at.x, placement.at.y);
     if (placement.refdes) {
