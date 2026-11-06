@@ -58,6 +58,6 @@ describe('signal formats come from signal-formats.json', () => {
         expect(ICONS[x.abbreviation], x.abbreviation).toBeTypeOf('function');
       }
     }
-    expect(SIGNAL_FORMAT_FAMILIES.reduce((n, f) => n + f.formats.length, 0)).toBe(200);
+    expect(SIGNAL_FORMAT_FAMILIES.reduce((n, f) => n + f.formats.length, 0)).toBe(204);
   });
 });

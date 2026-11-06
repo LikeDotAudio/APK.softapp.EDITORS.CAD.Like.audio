@@ -7,6 +7,7 @@
   "slots Codec / Container / MediaFormat / Logic: APK_Signal.<slot> (IFC4X3 has no word for them).",
   "A port typed only by a Logic word is a CAD dataflow node, never an IfcDistributionPort.",
   "Each family's `description` is the one line a palette or picker shows for it.",
+  "One protocol, one canonical id (owner, ROAD-3598 answer 9, 2026-11-06). `aliases` are the other spellings that name a format, matched whole with case and white space aside ('Dante / AES67', 'Ravenna / AES67' and 'AES-67' are AES67); a spelling two formats claim names neither. A flow variant the CAD draws (DANTE-TX8, AES67-RX, ST2110-30-RX16 ...) names its protocol in `canonical`, and Pset_DistributionPortTypeCable.Protocols always carries the canonical id.",
   "Hand-kept since ROAD-3588 (2026-11-06): this file is the source. Edit it here, then copy it byte for byte to contracts/python/apkaudio_contracts/ifc/ (npm run gen in contracts) and DATABASE.server.BIM/SRC/bim/data/ifc/ (tools/ifc/vendor_ifc_data.py) and EDITORS.CAD.Like.audio/src/vendor/ifc/. `cad_source` names the CAD file a format was first drawn from (those files are gone)."
  ],
  "families": {
@@ -103,7 +104,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "Dante receive flow, 2 channels (consumed)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "DANTE"
   },
   {
    "id": "DANTE-RX8",
@@ -111,7 +113,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "Dante receive flow, 8 channels (consumed)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "DANTE"
   },
   {
    "id": "DANTE-RX16",
@@ -119,7 +122,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "Dante receive flow, 16 channels (consumed)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "DANTE"
   },
   {
    "id": "DANTE-TX2",
@@ -127,7 +131,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "Dante transmit flow, 2 channels (generated)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "DANTE"
   },
   {
    "id": "DANTE-TX8",
@@ -135,7 +140,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "Dante transmit flow, 8 channels (generated)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "DANTE"
   },
   {
    "id": "DANTE-TX16",
@@ -143,7 +149,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "Dante transmit flow, 16 channels (generated)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "DANTE"
   },
   {
    "id": "DANTE",
@@ -151,7 +158,17 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "Dante flow / channel — Audinate audio-over-IP, unicast or multicast flow",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "aliases": [
+    "Audinate Dante",
+    "Dante Primary",
+    "Dante Secondary",
+    "Dante Network",
+    "Dante Primary Network",
+    "Dante Secondary Network",
+    "Dante Primary / Secondary",
+    "Dante Interfaces"
+   ]
   },
   {
    "id": "DANTE-MC",
@@ -159,7 +176,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "Dante multicast flow (generated, one-to-many)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "DANTE"
   },
   {
    "id": "DANTE-AES67",
@@ -167,7 +185,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "Dante flow in AES67 mode (interoperable RTP / PTPv2)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "AES67"
   },
   {
    "id": "DDM-RX2",
@@ -175,7 +194,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "DDM Manager receive flow, 2 channels (consumed) — Dante under a Dante Domain Manager domain",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "DDM"
   },
   {
    "id": "DDM-RX8",
@@ -183,7 +203,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "DDM Manager receive flow, 8 channels (consumed) — Dante under a Dante Domain Manager domain",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "DDM"
   },
   {
    "id": "DDM-RX16",
@@ -191,7 +212,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "DDM Manager receive flow, 16 channels (consumed) — Dante under a Dante Domain Manager domain",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "DDM"
   },
   {
    "id": "DDM-TX2",
@@ -199,7 +221,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "DDM Manager transmit flow, 2 channels (generated, multicast) — Dante under a Dante Domain Manager domain",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "DDM"
   },
   {
    "id": "DDM-TX8",
@@ -207,7 +230,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "DDM Manager transmit flow, 8 channels (generated, multicast) — Dante under a Dante Domain Manager domain",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "DDM"
   },
   {
    "id": "DDM-TX16",
@@ -215,7 +239,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "DDM Manager transmit flow, 16 channels (generated, multicast) — Dante under a Dante Domain Manager domain",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "DDM"
   },
   {
    "id": "DDM",
@@ -223,7 +248,10 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "DDM Manager flow — a Dante flow whose devices are enrolled in a Dante Domain Manager domain (managed, secured Dante); a Dante receiver in the domain hears it",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "aliases": [
+    "Dante Domain Manager"
+   ]
   },
   {
    "id": "DDM-MC",
@@ -231,7 +259,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "DDM Manager multicast flow (generated, one-to-many) — Dante's 239.255.x.y : 4321 plan",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "DDM"
   },
   {
    "id": "QLAN-RX2",
@@ -239,7 +268,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "Q-LAN receive stream, 2 channels (consumed)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "QLAN"
   },
   {
    "id": "QLAN-RX8",
@@ -247,7 +277,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "Q-LAN receive stream, 8 channels (consumed)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "QLAN"
   },
   {
    "id": "QLAN-RX16",
@@ -255,7 +286,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "Q-LAN receive stream, 16 channels (consumed)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "QLAN"
   },
   {
    "id": "QLAN-TX2",
@@ -263,7 +295,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "Q-LAN transmit stream, 2 channels (generated, unicast)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "QLAN"
   },
   {
    "id": "QLAN-TX8",
@@ -271,7 +304,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "Q-LAN transmit stream, 8 channels (generated, unicast)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "QLAN"
   },
   {
    "id": "QLAN-TX16",
@@ -279,7 +313,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "Q-LAN transmit stream, 16 channels (generated, unicast)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "QLAN"
   },
   {
    "id": "QLAN",
@@ -287,7 +322,29 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "Q-LAN stream — QSC Q-SYS audio-over-IP: unicast RTP, 32-bit float, up to 16 channels per stream, PTPv2-clocked",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "aliases": [
+    "Q-LAN",
+    "Q-SYS Q-LAN"
+   ]
+  },
+  {
+   "id": "AES67",
+   "family": "Audio-Networked",
+   "slot": "Protocols",
+   "SystemType": "DATA",
+   "description": "AES67 — the AES standard for audio-over-IP interoperability: L16 / L24 PCM over RTP, PTPv2-clocked, SDP-described; Dante, RAVENNA, Q-LAN and ST 2110-30 meet in it. The canonical word for any port that says AES67.",
+   "cad_source": "contracts (ROAD-3598)",
+   "aliases": [
+    "AES-67",
+    "AES 67",
+    "AES67 Network",
+    "Dante / AES67",
+    "AES67 / Dante",
+    "Ravenna / AES67",
+    "AES67 / Ravenna",
+    "Q-LAN / AES67"
+   ]
   },
   {
    "id": "AES67-RX",
@@ -295,7 +352,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "AES67 receive flow (consumed)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "AES67"
   },
   {
    "id": "AES67-TX",
@@ -303,7 +361,19 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "AES67 transmit flow (generated, multicast) — the same wire format as ST 2110-30 (see the ST-2110 tab)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "AES67"
+  },
+  {
+   "id": "RAVENNA",
+   "family": "Audio-Networked",
+   "slot": "Protocols",
+   "SystemType": "DATA",
+   "description": "RAVENNA — ALC NetworX's IP media networking technology (AES67-compatible streams, PTPv2-clocked). The canonical word for any port that says RAVENNA.",
+   "cad_source": "contracts (ROAD-3598)",
+   "aliases": [
+    "RAVENNA Network"
+   ]
   },
   {
    "id": "RAVENNA-RX",
@@ -311,7 +381,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "RAVENNA receive stream (consumed; AES67-compatible)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "RAVENNA"
   },
   {
    "id": "RAVENNA-TX",
@@ -319,7 +390,36 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "RAVENNA transmit stream (generated, multicast; AES67-compatible)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "RAVENNA"
+  },
+  {
+   "id": "WHEATNET-IP",
+   "family": "Audio-Networked",
+   "slot": "Protocols",
+   "SystemType": "DATA",
+   "description": "WheatNet-IP — Wheatstone's audio-over-IP network for broadcast plants (AES67-compatible).",
+   "cad_source": "contracts (ROAD-3598)",
+   "aliases": [
+    "WheatNet IP",
+    "WheatNet",
+    "WheatNet-IP Network",
+    "WheatNet-IP Primary",
+    "WheatNet-IP Secondary"
+   ]
+  },
+  {
+   "id": "SOUNDGRID",
+   "family": "Audio-Networked",
+   "slot": "Protocols",
+   "SystemType": "DATA",
+   "description": "SoundGrid — Waves' Ethernet audio network linking SoundGrid I/O, DSP servers and host computers.",
+   "cad_source": "contracts (ROAD-3598)",
+   "aliases": [
+    "Waves SoundGrid",
+    "SoundGrid Primary",
+    "SoundGrid Secondary"
+   ]
   },
   {
    "id": "MILAN",
@@ -327,7 +427,14 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "AVB / Milan stream — IEEE 1722 AVTP over TSN (Layer 2: no IP multicast group)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "aliases": [
+    "AVB",
+    "AVB / Milan",
+    "Milan / AVB",
+    "AVnu Milan",
+    "AVB Network"
+   ]
   },
   {
    "id": "DANTE-AV",
@@ -335,7 +442,10 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "Dante AV — video (and embedded audio) over Dante",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "aliases": [
+    "Dante AV"
+   ]
   },
   {
    "id": "ST2110-10",
@@ -343,7 +453,13 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "System timing & definitions — PTP (IEEE 1588, ST 2059-2 profile), RTP/UDP over IPv4 multicast (IGMPv3) or unicast; UDP ≤ 1460 octets (8960 extended, signalled MAXUDP); one SDP per stream with mediaclk + ts-refclk",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "aliases": [
+    "ST 2110-10",
+    "SMPTE ST 2110-10",
+    "SMPTE 2110-10",
+    "ST2110_10"
+   ]
   },
   {
    "id": "ST2110-20",
@@ -351,7 +467,13 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "Uncompressed active video — RFC 4175-based, 90 kHz clock, video/raw; YCbCr / RGB / ICtCp 4:4:4 / 4:2:2 / 4:2:0 at 8-16 bit; BT.709 / BT.2020 / BT.2100; GPM or BPM packing",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "aliases": [
+    "ST 2110-20",
+    "SMPTE ST 2110-20",
+    "SMPTE 2110-20",
+    "ST2110_20"
+   ]
   },
   {
    "id": "ST2110-21",
@@ -359,7 +481,13 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "Traffic shaping & delivery timing for video senders — TP=2110TPN (narrow, gapped), 2110TPNL (narrow linear) or 2110TPW (wide, software); receivers N / W / A",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "aliases": [
+    "ST 2110-21",
+    "SMPTE ST 2110-21",
+    "SMPTE 2110-21",
+    "ST2110_21"
+   ]
   },
   {
    "id": "ST2110-22",
@@ -367,7 +495,13 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "Constant bit-rate compressed video (e.g. JPEG XS)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "aliases": [
+    "ST 2110-22",
+    "SMPTE ST 2110-22",
+    "SMPTE 2110-22",
+    "ST2110_22"
+   ]
   },
   {
    "id": "ST2110-23",
@@ -375,7 +509,13 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "Single video essence over multiple -20 streams",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "aliases": [
+    "ST 2110-23",
+    "SMPTE ST 2110-23",
+    "SMPTE 2110-23",
+    "ST2110_23"
+   ]
   },
   {
    "id": "ST2110-30",
@@ -383,7 +523,13 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "PCM digital audio over AES67 (L16 / L24) — 48 kHz mandatory; receiver levels A (1-8 ch @ 1 ms), B (+ 125 µs), C (up to 64 ch @ 125 µs), AX / BX / CX add 96 kHz; channel-order=SMPTE2110.(ST, 51, 71, 222, SGRP …)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "aliases": [
+    "ST 2110-30",
+    "SMPTE ST 2110-30",
+    "SMPTE 2110-30",
+    "ST2110_30"
+   ]
   },
   {
    "id": "ST2110-30-RX2",
@@ -391,7 +537,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "ST 2110-30 audio receiver, 2 channels (consumed)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "ST2110-30"
   },
   {
    "id": "ST2110-30-RX8",
@@ -399,7 +546,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "ST 2110-30 audio receiver, 8 channels (consumed)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "ST2110-30"
   },
   {
    "id": "ST2110-30-RX16",
@@ -407,7 +555,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "ST 2110-30 audio receiver, 16 channels (consumed)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "ST2110-30"
   },
   {
    "id": "ST2110-30-TX2",
@@ -415,7 +564,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "ST 2110-30 audio sender, 2 channels (generated)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "ST2110-30"
   },
   {
    "id": "ST2110-30-TX8",
@@ -423,7 +573,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "ST 2110-30 audio sender, 8 channels (generated)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "ST2110-30"
   },
   {
    "id": "ST2110-30-TX16",
@@ -431,7 +582,8 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "ST 2110-30 audio sender, 16 channels (generated)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "canonical": "ST2110-30"
   },
   {
    "id": "ST2110-31",
@@ -439,7 +591,13 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "AES3 transparent transport",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "aliases": [
+    "ST 2110-31",
+    "SMPTE ST 2110-31",
+    "SMPTE 2110-31",
+    "ST2110_31"
+   ]
   },
   {
    "id": "ST2110-40",
@@ -447,7 +605,13 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "SMPTE ST 291-1 ancillary data",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "aliases": [
+    "ST 2110-40",
+    "SMPTE ST 2110-40",
+    "SMPTE 2110-40",
+    "ST2110_40"
+   ]
   },
   {
    "id": "ST2110-41",
@@ -455,7 +619,13 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "Fast metadata framework",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "aliases": [
+    "ST 2110-41",
+    "SMPTE ST 2110-41",
+    "SMPTE 2110-41",
+    "ST2110_41"
+   ]
   },
   {
    "id": "ST2110-43",
@@ -463,7 +633,13 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "Timed text markup (TTML)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "aliases": [
+    "ST 2110-43",
+    "SMPTE ST 2110-43",
+    "SMPTE 2110-43",
+    "ST2110_43"
+   ]
   },
   {
    "id": "ST2022-7",
@@ -471,7 +647,12 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "Seamless protection switching — identical RTP streams on two paths (red / blue), rebuilt packet by packet; receiver skew class A ≤ 10 ms, B ≤ 50 ms, C ≤ 150 / 450 ms; signalled a=group:DUP in 2110",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "aliases": [
+    "ST 2022-7",
+    "SMPTE ST 2022-7",
+    "SMPTE 2022-7"
+   ]
   },
   {
    "id": "NMOS",
@@ -487,7 +668,12 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "AMWA IS-04 discovery & registration",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "aliases": [
+    "IS-04",
+    "AMWA IS-04",
+    "NMOS IS-04"
+   ]
   },
   {
    "id": "NMOS-IS05",
@@ -495,7 +681,12 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "AMWA IS-05 device connection management",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "aliases": [
+    "IS-05",
+    "AMWA IS-05",
+    "NMOS IS-05"
+   ]
   },
   {
    "id": "NMOS-IS07",
@@ -503,7 +694,12 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "AMWA IS-07 event & tally",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "aliases": [
+    "IS-07",
+    "AMWA IS-07",
+    "NMOS IS-07"
+   ]
   },
   {
    "id": "NMOS-IS08",
@@ -511,7 +707,12 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "AMWA IS-08 audio channel mapping",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "aliases": [
+    "IS-08",
+    "AMWA IS-08",
+    "NMOS IS-08"
+   ]
   },
   {
    "id": "NMOS-IS11",
@@ -519,7 +720,12 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "AMWA IS-11 stream compatibility management",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "aliases": [
+    "IS-11",
+    "AMWA IS-11",
+    "NMOS IS-11"
+   ]
   },
   {
    "id": "NMOS-BCP-003",
@@ -527,7 +733,11 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "AMWA BCP-003 security (TLS, authorization)",
-   "cad_source": "ipMediaConnectors.ts"
+   "cad_source": "ipMediaConnectors.ts",
+   "aliases": [
+    "BCP-003",
+    "AMWA BCP-003"
+   ]
   },
   {
    "id": "NMOS-REG",
@@ -791,7 +1001,11 @@
    "slot": "Protocols",
    "SystemType": "DATA",
    "description": "NDI HX — the compressed (H.264 / H.265) NDI variant for lower-bandwidth links",
-   "cad_source": "streamingCodecConnectors.ts"
+   "cad_source": "streamingCodecConnectors.ts",
+   "aliases": [
+    "NDI|HX",
+    "NDI HX"
+   ]
   },
   {
    "id": "SDVOE",

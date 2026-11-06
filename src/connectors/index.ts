@@ -147,7 +147,7 @@ import { NMOS, NMOS_IS04, NMOS_IS05, NMOS_IS07, NMOS_IS08, NMOS_IS11, NMOS_BCP00
 import {
     Dante, DanteMC, DanteAES67, DanteAV, DanteTX2, DanteTX8, DanteTX16, DanteRX2, DanteRX8, DanteRX16,
 } from './IPMedia/Dante';
-import { AES67RX, AES67TX, RavennaRX, RavennaTX, Milan } from './IPMedia/AES67';
+import { AES67, AES67RX, AES67TX, Ravenna, RavennaRX, RavennaTX, Milan, WheatNetIP, SoundGrid } from './IPMedia/AES67';
 import { STREAMING_ICONS } from './IPMedia/StreamingBadges';
 import { SMPTE_ICONS } from './IPMedia/SmpteBadges';
 import { LOGIC_ICONS } from './IPMedia/LogicBadges';
@@ -522,8 +522,9 @@ export const ICONS: Record<string, React.FC> = {
     'DDM-TX2': DdmTX2, 'DDM-TX8': DdmTX8, 'DDM-TX16': DdmTX16, 'DDM': Ddm, 'DDM-MC': DdmMC,
     'QLAN-RX2': QLanRX2, 'QLAN-RX8': QLanRX8, 'QLAN-RX16': QLanRX16,
     'QLAN-TX2': QLanTX2, 'QLAN-TX8': QLanTX8, 'QLAN-TX16': QLanTX16, 'QLAN': QLan,
-    'AES67-RX': AES67RX, 'AES67-TX': AES67TX,
-    'RAVENNA-RX': RavennaRX, 'RAVENNA-TX': RavennaTX, 'MILAN': Milan,
+    'AES67': AES67, 'AES67-RX': AES67RX, 'AES67-TX': AES67TX,
+    'RAVENNA': Ravenna, 'RAVENNA-RX': RavennaRX, 'RAVENNA-TX': RavennaTX, 'MILAN': Milan,
+    'WHEATNET-IP': WheatNetIP, 'SOUNDGRID': SoundGrid,
 
     // ── ST-2110 ───────────────────────────────────────────
     'ST2110-10': ST2110_10, 'ST2110-20': ST2110_20, 'ST2110-21': ST2110_21,
