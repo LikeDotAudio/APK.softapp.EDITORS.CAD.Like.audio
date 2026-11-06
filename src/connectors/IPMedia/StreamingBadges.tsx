@@ -19,7 +19,7 @@
 import React from 'react';
 import { Badge } from './Badge';
 import { Brackets, FanOut, Flow, Screen, Waveform } from './glyphs';
-import { STREAMING_CODEC_GROUPS } from '../streamingCodecConnectors';
+import { formatsOf } from '../signalFormats';
 
 type GlyphFC = React.FC<{ c: string }>;
 
@@ -56,5 +56,5 @@ const badge = (abbreviation: string, family: string): React.FC => {
 
 /** Abbreviation → its badge, for every entry in the six families. */
 export const STREAMING_ICONS: Record<string, React.FC> = Object.fromEntries(
-    STREAMING_CODEC_GROUPS.flatMap(g => g.connectors.map(c => [c.abbreviation, badge(c.abbreviation, g.name)])),
+    formatsOf(['IP-Streaming', 'AV-over-IP', 'VoIP', 'Codecs-Audio', 'Codecs-Video', 'Codecs-Container']).map(([id, family]) => [id, badge(id, family)]),
 );

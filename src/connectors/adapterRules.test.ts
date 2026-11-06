@@ -3,7 +3,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { evaluatePortCompatibility, getEssenceCategory } from './adapterRules';
-import { evaluateLogicPort, logicArity } from './logicConnectors';
+import { evaluateLogicPort, logicArity } from './logicPorts';
 
 describe('Essence Categorization', () => {
   it('correctly maps ST 2110 essences to video, audio, and ancillary', () => {

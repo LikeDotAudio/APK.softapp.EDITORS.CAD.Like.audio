@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { useStore } from '@state/useStore';
 import { useUi } from '@state/useUi';
-import { CATALOG } from '../../flow/catalog';
+import { CONCEPTS, DEFAULT_FLOW_DEFINITION } from '../../flow/concepts';
 import { groupOf, parentOf } from '../../flow/groups';
 import { ApkTable, h, inputNode, numberNode, selectNode, buttonNode, checkNode } from '../common/ApkTable';
 
@@ -84,7 +84,7 @@ export function SpreadsheetModal({ onClose, initialTab = 'placements' }: Spreads
     store.editFlow(() => {
       const maxId = schematic.placements.reduce((m, p) => Math.max(m, p.id), 0);
       const newId = maxId + 1;
-      const firstCatalog = CATALOG[0]?.id || 'flow.process';
+      const firstCatalog = CONCEPTS[0]?.id || DEFAULT_FLOW_DEFINITION;
       schematic.placements.push({
         id: newId,
         definitionId: firstCatalog,
@@ -326,7 +326,7 @@ export function SpreadsheetModal({ onClose, initialTab = 'placements' }: Spreads
     for (const p of schematic.placements) {
       let item = flowMap.get(p.definitionId);
       if (!item) {
-        const cat = CATALOG.find((c) => c.id === p.definitionId);
+        const cat = CONCEPTS.find((c) => c.id === p.definitionId);
         item = {
           key: `flow:${p.definitionId}`,
           kind: 'flow',

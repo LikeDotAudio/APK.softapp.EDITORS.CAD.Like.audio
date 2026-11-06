@@ -14,7 +14,7 @@ import type {
 } from '../core/types';
 import { terminalKey } from '../core/types';
 import { ensureConnectorDefinitionsFor } from '../connectors/connectorBlock';
-import { CATALOG } from './catalog';
+import { CONCEPTS } from './concepts';
 import { forgetPlacement } from './groups';
 import { placementPoint } from './placement';
 import { portLocalPoint } from './portLocalPoint';
@@ -29,7 +29,7 @@ import { portLocalPoint } from './portLocalPoint';
  * which is the difference between a drawing of a system and a model of one.
  */
 
-export function createSchematic(definitions = CATALOG): SchematicModel {
+export function createSchematic(definitions = CONCEPTS): SchematicModel {
   return {
     definitions: definitions.slice(),
     placements: [],
@@ -356,7 +356,7 @@ export function restoreSchematic(model: SchematicModel, saved: SchematicSnapshot
   }));
   model.nextGroupId =
     saved.nextGroupId ?? model.groups.reduce((n, g) => Math.max(n, g.id + 1), 1);
-  // Connector blocks are built from the connector catalogue, not CATALOG, so a
+  // Connector blocks are built from the connector catalogue, not the concepts, so a
   // reopened sheet re-derives the ones it holds (ROAD-3492).
   ensureConnectorDefinitionsFor(model);
 }

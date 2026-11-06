@@ -14,7 +14,7 @@
 import React from 'react';
 import { Badge } from './Badge';
 import { Brackets, Flow, Interop, Clock } from './glyphs';
-import { LOGIC_GROUPS } from '../logicConnectors';
+import { formatsOf } from '../signalFormats';
 
 type GlyphFC = React.FC<{ c: string }>;
 
@@ -48,5 +48,5 @@ const badge = (abbreviation: string, family: string): React.FC => {
 
 /** Abbreviation → its badge, for every port in the four families. */
 export const LOGIC_ICONS: Record<string, React.FC> = Object.fromEntries(
-    LOGIC_GROUPS.flatMap(g => g.connectors.map(c => [c.abbreviation, badge(c.abbreviation, g.name)])),
+    formatsOf(['Idea', 'Result', 'Logic', 'Arithmetic']).map(([id, family]) => [id, badge(id, family)]),
 );

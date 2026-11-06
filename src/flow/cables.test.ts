@@ -5,7 +5,7 @@ import { EditorStore } from '@state/EditorStore';
 import { wireTool } from '../tools/wireTool';
 import { connectPorts, createSchematic, placeBlock, portWorldPoint, restoreSchematic, snapshotSchematic } from './Schematic';
 import { hitConnectorAt, normaliseCable, setConnectorCable, wirePath, wireTitle } from './cables';
-import { CATALOG } from './catalog';
+import { CONCEPTS as CATALOG } from './concepts';
 
 /* ROAD-3582 r4: a drawn wire marked as a cable — found under the pointer, its fields
    normalised, set and cleared without touching the snapshot it came from. */

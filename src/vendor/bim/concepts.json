@@ -1,0 +1,2278 @@
+{
+ "schema": "apk.cad.bim-concepts/1",
+ "source": "DATABASE.server.BIM/SRC/library/concept/*.bim.json (ext.cad)",
+ "rule": "Vendored by scripts/vendorBimConcepts.mjs; never hand-edited. A concept is changed in the BIM library.",
+ "concepts": [
+  {
+   "part": "concept/flow-source",
+   "class": "Concept · Flow",
+   "description": "Where signal starts. Output only, on the right.",
+   "cad": {
+    "definition": "flow.source",
+    "name": "FLOW_SOURCE",
+    "size": {
+     "w": 1.6,
+     "h": 1
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.35,
+       "y": 0.3
+      },
+      {
+       "x": 0.35,
+       "y": 0
+      },
+      {
+       "x": -0.35,
+       "y": -0.3
+      },
+      {
+       "x": -0.35,
+       "y": 0.3
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "OUT",
+      "side": "output",
+      "label": "out"
+     },
+     {
+      "id": "CTL",
+      "side": "control",
+      "label": "ctl"
+     },
+     {
+      "id": "PWR",
+      "side": "power",
+      "label": "pwr"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/flow-process",
+   "class": "Concept · Flow",
+   "description": "Something done to the signal on its way through.",
+   "cad": {
+    "definition": "flow.process",
+    "name": "FLOW_PROCESS",
+    "size": {
+     "w": 1.6,
+     "h": 1
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.45,
+       "y": 0
+      },
+      {
+       "x": -0.15,
+       "y": 0
+      }
+     ],
+     [
+      {
+       "x": -0.15,
+       "y": -0.28
+      },
+      {
+       "x": -0.15,
+       "y": 0.28
+      },
+      {
+       "x": 0.15,
+       "y": 0.28
+      },
+      {
+       "x": 0.15,
+       "y": -0.28
+      },
+      {
+       "x": -0.15,
+       "y": -0.28
+      }
+     ],
+     [
+      {
+       "x": 0.15,
+       "y": 0
+      },
+      {
+       "x": 0.45,
+       "y": 0
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "IN",
+      "side": "input",
+      "label": "in"
+     },
+     {
+      "id": "OUT",
+      "side": "output",
+      "label": "out"
+     },
+     {
+      "id": "CTL",
+      "side": "control",
+      "label": "ctl"
+     },
+     {
+      "id": "PWR",
+      "side": "power",
+      "label": "pwr"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/flow-split",
+   "class": "Concept · Flow",
+   "description": "One in, two out. Two ports on one edge, spread by the rule.",
+   "cad": {
+    "definition": "flow.split",
+    "name": "FLOW_SPLIT",
+    "size": {
+     "w": 1.6,
+     "h": 1.2
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.45,
+       "y": 0
+      },
+      {
+       "x": 0,
+       "y": 0
+      },
+      {
+       "x": 0.45,
+       "y": 0.28
+      }
+     ],
+     [
+      {
+       "x": 0,
+       "y": 0
+      },
+      {
+       "x": 0.45,
+       "y": -0.28
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "IN",
+      "side": "input",
+      "label": "in"
+     },
+     {
+      "id": "OUT_A",
+      "side": "output",
+      "label": "A"
+     },
+     {
+      "id": "OUT_B",
+      "side": "output",
+      "label": "B"
+     },
+     {
+      "id": "CTL",
+      "side": "control",
+      "label": "ctl"
+     },
+     {
+      "id": "PWR",
+      "side": "power",
+      "label": "pwr"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/flow-sink",
+   "class": "Concept · Flow",
+   "description": "Where signal stops. Input only, on the left.",
+   "cad": {
+    "definition": "flow.sink",
+    "name": "FLOW_SINK",
+    "size": {
+     "w": 1.6,
+     "h": 1
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.45,
+       "y": 0
+      },
+      {
+       "x": 0.05,
+       "y": 0
+      }
+     ],
+     [
+      {
+       "x": 0.05,
+       "y": -0.3
+      },
+      {
+       "x": 0.05,
+       "y": 0.3
+      }
+     ],
+     [
+      {
+       "x": 0.25,
+       "y": -0.18
+      },
+      {
+       "x": 0.25,
+       "y": 0.18
+      }
+     ],
+     [
+      {
+       "x": 0.42,
+       "y": -0.08
+      },
+      {
+       "x": 0.42,
+       "y": 0.08
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "IN",
+      "side": "input",
+      "label": "in"
+     },
+     {
+      "id": "CTL",
+      "side": "control",
+      "label": "ctl"
+     },
+     {
+      "id": "PWR",
+      "side": "power",
+      "label": "pwr"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/shop-nic",
+   "class": "Concept · Shop",
+   "description": "An ethernet interface, as the Terminals table terminates one: rx in, tx out. Place it and name it after the interface — enp12s0, enp5s0f0.",
+   "cad": {
+    "definition": "shop.nic",
+    "name": "SHOP_NIC",
+    "size": {
+     "w": 1.6,
+     "h": 1
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.3,
+       "y": -0.3
+      },
+      {
+       "x": 0.3,
+       "y": -0.3
+      },
+      {
+       "x": 0.3,
+       "y": 0.3
+      },
+      {
+       "x": -0.3,
+       "y": 0.3
+      },
+      {
+       "x": -0.3,
+       "y": -0.3
+      }
+     ],
+     [
+      {
+       "x": -0.12,
+       "y": 0.3
+      },
+      {
+       "x": -0.12,
+       "y": 0.42
+      },
+      {
+       "x": 0.12,
+       "y": 0.42
+      },
+      {
+       "x": 0.12,
+       "y": 0.3
+      }
+     ],
+     [
+      {
+       "x": -0.21,
+       "y": -0.12
+      },
+      {
+       "x": 0.21,
+       "y": -0.12
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "rx",
+      "side": "input",
+      "label": "rx",
+      "domain": "network"
+     },
+     {
+      "id": "tx",
+      "side": "output",
+      "label": "tx",
+      "domain": "network"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/symbol-opamp",
+   "class": "Concept · Schematic symbol",
+   "description": "Operational Amplifier. Inverting (-), Non-inverting (+), Output, Power rails.",
+   "cad": {
+    "definition": "symbol.opamp",
+    "name": "OP_AMP",
+    "size": {
+     "w": 1.6,
+     "h": 1.2
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.4,
+       "y": 0.45
+      },
+      {
+       "x": 0.4,
+       "y": 0
+      },
+      {
+       "x": -0.4,
+       "y": -0.45
+      },
+      {
+       "x": -0.4,
+       "y": 0.45
+      }
+     ],
+     [
+      {
+       "x": -0.32,
+       "y": 0.22
+      },
+      {
+       "x": -0.22,
+       "y": 0.22
+      }
+     ],
+     [
+      {
+       "x": -0.32,
+       "y": -0.22
+      },
+      {
+       "x": -0.22,
+       "y": -0.22
+      }
+     ],
+     [
+      {
+       "x": -0.27,
+       "y": -0.27
+      },
+      {
+       "x": -0.27,
+       "y": -0.17
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "INV",
+      "side": "input",
+      "label": "-"
+     },
+     {
+      "id": "NON_INV",
+      "side": "input",
+      "label": "+"
+     },
+     {
+      "id": "OUT",
+      "side": "output",
+      "label": "out"
+     },
+     {
+      "id": "V_POS",
+      "side": "control",
+      "label": "V+"
+     },
+     {
+      "id": "V_NEG",
+      "side": "power",
+      "label": "V-"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/symbol-preamp",
+   "class": "Concept · Schematic symbol",
+   "description": "Mic/Line Preamplifier block. Low-noise gain stage.",
+   "cad": {
+    "definition": "symbol.preamp",
+    "name": "PREAMP",
+    "size": {
+     "w": 1.6,
+     "h": 1
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.45,
+       "y": -0.3
+      },
+      {
+       "x": 0.35,
+       "y": 0
+      },
+      {
+       "x": -0.45,
+       "y": 0.3
+      },
+      {
+       "x": -0.45,
+       "y": -0.3
+      }
+     ],
+     [
+      {
+       "x": -0.1,
+       "y": -0.1
+      },
+      {
+       "x": 0.1,
+       "y": 0.1
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "IN",
+      "side": "input",
+      "label": "in"
+     },
+     {
+      "id": "OUT",
+      "side": "output",
+      "label": "out"
+     },
+     {
+      "id": "GAIN",
+      "side": "control",
+      "label": "gain"
+     },
+     {
+      "id": "PWR",
+      "side": "power",
+      "label": "pwr"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/symbol-eq",
+   "class": "Concept · Schematic symbol",
+   "description": "Parametric Equalizer / Filter block.",
+   "cad": {
+    "definition": "symbol.eq",
+    "name": "EQ_FILTER",
+    "size": {
+     "w": 1.6,
+     "h": 1
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.4,
+       "y": 0.3
+      },
+      {
+       "x": 0.4,
+       "y": 0.3
+      },
+      {
+       "x": 0.4,
+       "y": -0.3
+      },
+      {
+       "x": -0.4,
+       "y": -0.3
+      },
+      {
+       "x": -0.4,
+       "y": 0.3
+      }
+     ],
+     [
+      {
+       "x": -0.3,
+       "y": 0
+      },
+      {
+       "x": -0.15,
+       "y": 0
+      },
+      {
+       "x": 0,
+       "y": 0.2
+      },
+      {
+       "x": 0.15,
+       "y": -0.2
+      },
+      {
+       "x": 0.3,
+       "y": 0
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "IN",
+      "side": "input",
+      "label": "in"
+     },
+     {
+      "id": "OUT",
+      "side": "output",
+      "label": "out"
+     },
+     {
+      "id": "FREQ",
+      "side": "control",
+      "label": "freq"
+     },
+     {
+      "id": "PWR",
+      "side": "power",
+      "label": "pwr"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/symbol-compressor",
+   "class": "Concept · Schematic symbol",
+   "description": "Dynamics Compressor / Limiter block with sidechain.",
+   "cad": {
+    "definition": "symbol.compressor",
+    "name": "COMPRESSOR",
+    "size": {
+     "w": 1.6,
+     "h": 1.1
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.4,
+       "y": 0.35
+      },
+      {
+       "x": 0.4,
+       "y": 0.35
+      },
+      {
+       "x": 0.4,
+       "y": -0.35
+      },
+      {
+       "x": -0.4,
+       "y": -0.35
+      },
+      {
+       "x": -0.4,
+       "y": 0.35
+      }
+     ],
+     [
+      {
+       "x": -0.3,
+       "y": -0.2
+      },
+      {
+       "x": 0,
+       "y": -0.1
+      },
+      {
+       "x": 0.3,
+       "y": 0.05
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "IN",
+      "side": "input",
+      "label": "in"
+     },
+     {
+      "id": "OUT",
+      "side": "output",
+      "label": "out"
+     },
+     {
+      "id": "SIDECHAIN",
+      "side": "input",
+      "label": "sc"
+     },
+     {
+      "id": "THRESH",
+      "side": "control",
+      "label": "thr"
+     },
+     {
+      "id": "PWR",
+      "side": "power",
+      "label": "pwr"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/symbol-resistor",
+   "class": "Concept · Schematic symbol",
+   "description": "Passive Resistor symbol. Zig-zag element.",
+   "cad": {
+    "definition": "symbol.resistor",
+    "name": "RESISTOR",
+    "size": {
+     "w": 1.4,
+     "h": 0.6
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.5,
+       "y": 0
+      },
+      {
+       "x": -0.3,
+       "y": 0
+      },
+      {
+       "x": -0.2,
+       "y": 0.15
+      },
+      {
+       "x": -0.1,
+       "y": -0.15
+      },
+      {
+       "x": 0,
+       "y": 0.15
+      },
+      {
+       "x": 0.1,
+       "y": -0.15
+      },
+      {
+       "x": 0.2,
+       "y": 0.15
+      },
+      {
+       "x": 0.3,
+       "y": 0
+      },
+      {
+       "x": 0.5,
+       "y": 0
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "PIN_A",
+      "side": "input",
+      "label": "1"
+     },
+     {
+      "id": "PIN_B",
+      "side": "output",
+      "label": "2"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/symbol-capacitor",
+   "class": "Concept · Schematic symbol",
+   "description": "Passive Capacitor symbol. Parallel plates.",
+   "cad": {
+    "definition": "symbol.capacitor",
+    "name": "CAPACITOR",
+    "size": {
+     "w": 1.2,
+     "h": 0.6
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.45,
+       "y": 0
+      },
+      {
+       "x": -0.08,
+       "y": 0
+      }
+     ],
+     [
+      {
+       "x": -0.08,
+       "y": -0.25
+      },
+      {
+       "x": -0.08,
+       "y": 0.25
+      }
+     ],
+     [
+      {
+       "x": 0.08,
+       "y": -0.25
+      },
+      {
+       "x": 0.08,
+       "y": 0.25
+      }
+     ],
+     [
+      {
+       "x": 0.08,
+       "y": 0
+      },
+      {
+       "x": 0.45,
+       "y": 0
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "PIN_A",
+      "side": "input",
+      "label": "1"
+     },
+     {
+      "id": "PIN_B",
+      "side": "output",
+      "label": "2"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/symbol-transformer",
+   "class": "Concept · Schematic symbol",
+   "description": "Audio Isolation Transformer. Dual coupled coils.",
+   "cad": {
+    "definition": "symbol.transformer",
+    "name": "TRANSFORMER",
+    "size": {
+     "w": 1.5,
+     "h": 1
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.45,
+       "y": 0.3
+      },
+      {
+       "x": -0.2,
+       "y": 0.3
+      },
+      {
+       "x": -0.2,
+       "y": -0.3
+      },
+      {
+       "x": -0.45,
+       "y": -0.3
+      }
+     ],
+     [
+      {
+       "x": -0.05,
+       "y": 0.35
+      },
+      {
+       "x": -0.05,
+       "y": -0.35
+      }
+     ],
+     [
+      {
+       "x": 0.05,
+       "y": 0.35
+      },
+      {
+       "x": 0.05,
+       "y": -0.35
+      }
+     ],
+     [
+      {
+       "x": 0.45,
+       "y": 0.3
+      },
+      {
+       "x": 0.2,
+       "y": 0.3
+      },
+      {
+       "x": 0.2,
+       "y": -0.3
+      },
+      {
+       "x": 0.45,
+       "y": -0.3
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "PRI_HI",
+      "side": "input",
+      "label": "P+"
+     },
+     {
+      "id": "PRI_LO",
+      "side": "input",
+      "label": "P-"
+     },
+     {
+      "id": "SEC_HI",
+      "side": "output",
+      "label": "S+"
+     },
+     {
+      "id": "SEC_LO",
+      "side": "output",
+      "label": "S-"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/symbol-ground",
+   "class": "Concept · Schematic symbol",
+   "description": "Earth / Signal Ground termination symbol.",
+   "cad": {
+    "definition": "symbol.ground",
+    "name": "GROUND",
+    "size": {
+     "w": 1,
+     "h": 0.8
+    },
+    "glyph": [
+     [
+      {
+       "x": 0,
+       "y": 0.3
+      },
+      {
+       "x": 0,
+       "y": 0
+      }
+     ],
+     [
+      {
+       "x": -0.3,
+       "y": 0
+      },
+      {
+       "x": 0.3,
+       "y": 0
+      }
+     ],
+     [
+      {
+       "x": -0.2,
+       "y": -0.1
+      },
+      {
+       "x": 0.2,
+       "y": -0.1
+      }
+     ],
+     [
+      {
+       "x": -0.1,
+       "y": -0.2
+      },
+      {
+       "x": 0.1,
+       "y": -0.2
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "GND",
+      "side": "input",
+      "label": "gnd"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/symbol-xlr",
+   "class": "Concept · Schematic symbol",
+   "description": "3-Pin Balanced XLR Audio Connector (Pin 1 GND, Pin 2 Hot, Pin 3 Cold).",
+   "cad": {
+    "definition": "symbol.xlr",
+    "name": "XLR_3PIN",
+    "size": {
+     "w": 1.4,
+     "h": 1
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.3,
+       "y": -0.3
+      },
+      {
+       "x": 0.3,
+       "y": -0.3
+      },
+      {
+       "x": 0.3,
+       "y": 0.3
+      },
+      {
+       "x": -0.3,
+       "y": 0.3
+      },
+      {
+       "x": -0.3,
+       "y": -0.3
+      }
+     ],
+     [
+      {
+       "x": -0.15,
+       "y": 0.1
+      },
+      {
+       "x": -0.15,
+       "y": 0.12
+      }
+     ],
+     [
+      {
+       "x": 0.15,
+       "y": 0.1
+      },
+      {
+       "x": 0.15,
+       "y": 0.12
+      }
+     ],
+     [
+      {
+       "x": 0,
+       "y": -0.15
+      },
+      {
+       "x": 0,
+       "y": -0.13
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "PIN1_GND",
+      "side": "input",
+      "label": "1 (GND)"
+     },
+     {
+      "id": "PIN2_HOT",
+      "side": "output",
+      "label": "2 (HOT)"
+     },
+     {
+      "id": "PIN3_COLD",
+      "side": "output",
+      "label": "3 (COLD)"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/math-add",
+   "class": "Concept · Math & Logic",
+   "description": "Arithmetic Addition (A + B). Sums wired inputs.",
+   "cad": {
+    "definition": "math.add",
+    "name": "MATH_ADD",
+    "size": {
+     "w": 1.4,
+     "h": 1
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.35,
+       "y": -0.35
+      },
+      {
+       "x": 0.35,
+       "y": -0.35
+      },
+      {
+       "x": 0.35,
+       "y": 0.35
+      },
+      {
+       "x": -0.35,
+       "y": 0.35
+      },
+      {
+       "x": -0.35,
+       "y": -0.35
+      }
+     ],
+     [
+      {
+       "x": 0,
+       "y": -0.2
+      },
+      {
+       "x": 0,
+       "y": 0.2
+      }
+     ],
+     [
+      {
+       "x": -0.2,
+       "y": 0
+      },
+      {
+       "x": 0.2,
+       "y": 0
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "A",
+      "side": "input",
+      "label": "A",
+      "domain": "numeric"
+     },
+     {
+      "id": "B",
+      "side": "input",
+      "label": "B",
+      "domain": "numeric"
+     },
+     {
+      "id": "OUT",
+      "side": "output",
+      "label": "+",
+      "domain": "numeric"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/math-sub",
+   "class": "Concept · Math & Logic",
+   "description": "Arithmetic Subtraction (A - B).",
+   "cad": {
+    "definition": "math.sub",
+    "name": "MATH_SUB",
+    "size": {
+     "w": 1.4,
+     "h": 1
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.35,
+       "y": -0.35
+      },
+      {
+       "x": 0.35,
+       "y": -0.35
+      },
+      {
+       "x": 0.35,
+       "y": 0.35
+      },
+      {
+       "x": -0.35,
+       "y": 0.35
+      },
+      {
+       "x": -0.35,
+       "y": -0.35
+      }
+     ],
+     [
+      {
+       "x": -0.2,
+       "y": 0
+      },
+      {
+       "x": 0.2,
+       "y": 0
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "A",
+      "side": "input",
+      "label": "A",
+      "domain": "numeric"
+     },
+     {
+      "id": "B",
+      "side": "input",
+      "label": "B",
+      "domain": "numeric"
+     },
+     {
+      "id": "OUT",
+      "side": "output",
+      "label": "−",
+      "domain": "numeric"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/math-mul",
+   "class": "Concept · Math & Logic",
+   "description": "Arithmetic Multiplication (A × B). Scale factor or product.",
+   "cad": {
+    "definition": "math.mul",
+    "name": "MATH_MUL",
+    "size": {
+     "w": 1.4,
+     "h": 1
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.35,
+       "y": -0.35
+      },
+      {
+       "x": 0.35,
+       "y": -0.35
+      },
+      {
+       "x": 0.35,
+       "y": 0.35
+      },
+      {
+       "x": -0.35,
+       "y": 0.35
+      },
+      {
+       "x": -0.35,
+       "y": -0.35
+      }
+     ],
+     [
+      {
+       "x": -0.15,
+       "y": -0.15
+      },
+      {
+       "x": 0.15,
+       "y": 0.15
+      }
+     ],
+     [
+      {
+       "x": -0.15,
+       "y": 0.15
+      },
+      {
+       "x": 0.15,
+       "y": -0.15
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "A",
+      "side": "input",
+      "label": "A",
+      "domain": "numeric"
+     },
+     {
+      "id": "B",
+      "side": "input",
+      "label": "B",
+      "domain": "numeric"
+     },
+     {
+      "id": "OUT",
+      "side": "output",
+      "label": "×",
+      "domain": "numeric"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/math-compare",
+   "class": "Concept · Math & Logic",
+   "description": "Arithmetic Comparator (A vs B). Outputs EQ, GT, LT booleans.",
+   "cad": {
+    "definition": "math.compare",
+    "name": "MATH_CMP",
+    "size": {
+     "w": 1.6,
+     "h": 1.2
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.4,
+       "y": -0.4
+      },
+      {
+       "x": 0.4,
+       "y": -0.4
+      },
+      {
+       "x": 0.4,
+       "y": 0.4
+      },
+      {
+       "x": -0.4,
+       "y": 0.4
+      },
+      {
+       "x": -0.4,
+       "y": -0.4
+      }
+     ],
+     [
+      {
+       "x": -0.2,
+       "y": -0.15
+      },
+      {
+       "x": 0.2,
+       "y": -0.15
+      }
+     ],
+     [
+      {
+       "x": -0.2,
+       "y": -0.05
+      },
+      {
+       "x": 0.2,
+       "y": -0.05
+      }
+     ],
+     [
+      {
+       "x": 0.1,
+       "y": 0.1
+      },
+      {
+       "x": -0.1,
+       "y": 0.2
+      },
+      {
+       "x": 0.1,
+       "y": 0.3
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "A",
+      "side": "input",
+      "label": "A",
+      "domain": "numeric"
+     },
+     {
+      "id": "B",
+      "side": "input",
+      "label": "B",
+      "domain": "numeric"
+     },
+     {
+      "id": "EQ",
+      "side": "output",
+      "label": "=",
+      "domain": "logic_bool"
+     },
+     {
+      "id": "GT",
+      "side": "output",
+      "label": ">",
+      "domain": "logic_bool"
+     },
+     {
+      "id": "LT",
+      "side": "output",
+      "label": "<",
+      "domain": "logic_bool"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/logic-and",
+   "class": "Concept · Math & Logic",
+   "description": "ANSI / IEEE AND Gate. True when all inputs are true.",
+   "cad": {
+    "definition": "logic.and",
+    "name": "LOGIC_AND",
+    "size": {
+     "w": 1.6,
+     "h": 1.1
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.4,
+       "y": -0.4
+      },
+      {
+       "x": 0,
+       "y": -0.4
+      },
+      {
+       "x": 0.25,
+       "y": -0.2
+      },
+      {
+       "x": 0.35,
+       "y": 0
+      },
+      {
+       "x": 0.25,
+       "y": 0.2
+      },
+      {
+       "x": 0,
+       "y": 0.4
+      },
+      {
+       "x": -0.4,
+       "y": 0.4
+      },
+      {
+       "x": -0.4,
+       "y": -0.4
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "A",
+      "side": "input",
+      "label": "A",
+      "domain": "logic_bool"
+     },
+     {
+      "id": "B",
+      "side": "input",
+      "label": "B",
+      "domain": "logic_bool"
+     },
+     {
+      "id": "OUT",
+      "side": "output",
+      "label": "out",
+      "domain": "logic_bool"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/logic-or",
+   "class": "Concept · Math & Logic",
+   "description": "ANSI / IEEE OR Gate. True when any input is true.",
+   "cad": {
+    "definition": "logic.or",
+    "name": "LOGIC_OR",
+    "size": {
+     "w": 1.6,
+     "h": 1.1
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.4,
+       "y": -0.4
+      },
+      {
+       "x": -0.2,
+       "y": 0
+      },
+      {
+       "x": -0.4,
+       "y": 0.4
+      },
+      {
+       "x": 0,
+       "y": 0.35
+      },
+      {
+       "x": 0.4,
+       "y": 0
+      },
+      {
+       "x": 0,
+       "y": -0.35
+      },
+      {
+       "x": -0.4,
+       "y": -0.4
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "A",
+      "side": "input",
+      "label": "A",
+      "domain": "logic_bool"
+     },
+     {
+      "id": "B",
+      "side": "input",
+      "label": "B",
+      "domain": "logic_bool"
+     },
+     {
+      "id": "OUT",
+      "side": "output",
+      "label": "out",
+      "domain": "logic_bool"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/logic-not",
+   "class": "Concept · Math & Logic",
+   "description": "ANSI / IEEE NOT Inverter Gate. Inverts true / false.",
+   "cad": {
+    "definition": "logic.not",
+    "name": "LOGIC_NOT",
+    "size": {
+     "w": 1.4,
+     "h": 0.8
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.35,
+       "y": -0.3
+      },
+      {
+       "x": 0.15,
+       "y": 0
+      },
+      {
+       "x": -0.35,
+       "y": 0.3
+      },
+      {
+       "x": -0.35,
+       "y": -0.3
+      }
+     ],
+     [
+      {
+       "x": 0.15,
+       "y": -0.06
+      },
+      {
+       "x": 0.27,
+       "y": -0.06
+      },
+      {
+       "x": 0.27,
+       "y": 0.06
+      },
+      {
+       "x": 0.15,
+       "y": 0.06
+      },
+      {
+       "x": 0.15,
+       "y": -0.06
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "IN",
+      "side": "input",
+      "label": "in",
+      "domain": "logic_bool"
+     },
+     {
+      "id": "OUT",
+      "side": "output",
+      "label": "out",
+      "domain": "logic_bool"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/idea-value",
+   "class": "Concept · Math & Logic",
+   "description": "Idea / Parameter Value source. Inlines an idea, constant, or switch into the schematic.",
+   "cad": {
+    "definition": "idea.value",
+    "name": "IDEA_VALUE",
+    "size": {
+     "w": 1.5,
+     "h": 1
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.35,
+       "y": 0
+      },
+      {
+       "x": -0.18,
+       "y": 0.3
+      },
+      {
+       "x": 0.18,
+       "y": 0.3
+      },
+      {
+       "x": 0.35,
+       "y": 0
+      },
+      {
+       "x": 0.18,
+       "y": -0.3
+      },
+      {
+       "x": -0.18,
+       "y": -0.3
+      },
+      {
+       "x": -0.35,
+       "y": 0
+      }
+     ],
+     [
+      {
+       "x": -0.1,
+       "y": 0
+      },
+      {
+       "x": 0.1,
+       "y": 0
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "VAL_IN",
+      "side": "input",
+      "label": "in",
+      "domain": "universal"
+     },
+     {
+      "id": "VAL_OUT",
+      "side": "output",
+      "label": "idea",
+      "domain": "universal"
+     },
+     {
+      "id": "PARAM",
+      "side": "control",
+      "label": "param",
+      "domain": "universal"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/adapter-value",
+   "class": "Concept · Adapter",
+   "description": "In-line Value & Idea Adapter: bridges mismatched data types, units, and signal domains.",
+   "cad": {
+    "definition": "adapter.value",
+    "name": "ADAPTER_VALUE",
+    "size": {
+     "w": 1.6,
+     "h": 1
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.4,
+       "y": 0
+      },
+      {
+       "x": -0.2,
+       "y": 0.35
+      },
+      {
+       "x": 0.2,
+       "y": 0.35
+      },
+      {
+       "x": 0.4,
+       "y": 0
+      },
+      {
+       "x": 0.2,
+       "y": -0.35
+      },
+      {
+       "x": -0.2,
+       "y": -0.35
+      },
+      {
+       "x": -0.4,
+       "y": 0
+      }
+     ],
+     [
+      {
+       "x": -0.15,
+       "y": 0
+      },
+      {
+       "x": 0.15,
+       "y": 0
+      }
+     ],
+     [
+      {
+       "x": 0.05,
+       "y": -0.1
+      },
+      {
+       "x": 0.15,
+       "y": 0
+      },
+      {
+       "x": 0.05,
+       "y": 0.1
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "IN",
+      "side": "input",
+      "label": "in",
+      "domain": "universal"
+     },
+     {
+      "id": "OUT",
+      "side": "output",
+      "label": "out",
+      "domain": "universal"
+     },
+     {
+      "id": "RULE",
+      "side": "control",
+      "label": "rule"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/adapter-demux",
+   "class": "Concept · Adapter",
+   "description": "Media Container Demultiplexer: demuxes MP4, MOV, MKV, MXF into Video, Audio, and ANC tracks.",
+   "cad": {
+    "definition": "adapter.demux",
+    "name": "CONTAINER_DEMUX",
+    "size": {
+     "w": 1.8,
+     "h": 1.4
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.4,
+       "y": -0.2
+      },
+      {
+       "x": 0.4,
+       "y": -0.45
+      },
+      {
+       "x": 0.4,
+       "y": 0.45
+      },
+      {
+       "x": -0.4,
+       "y": 0.2
+      },
+      {
+       "x": -0.4,
+       "y": -0.2
+      }
+     ],
+     [
+      {
+       "x": -0.2,
+       "y": 0
+      },
+      {
+       "x": 0.15,
+       "y": -0.25
+      }
+     ],
+     [
+      {
+       "x": -0.2,
+       "y": 0
+      },
+      {
+       "x": 0.15,
+       "y": 0
+      }
+     ],
+     [
+      {
+       "x": -0.2,
+       "y": 0
+      },
+      {
+       "x": 0.15,
+       "y": 0.25
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "FILE_IN",
+      "side": "input",
+      "label": "file",
+      "domain": "container"
+     },
+     {
+      "id": "VIDEO_OUT",
+      "side": "output",
+      "label": "video",
+      "domain": "video"
+     },
+     {
+      "id": "AUDIO_OUT",
+      "side": "output",
+      "label": "audio",
+      "domain": "audio"
+     },
+     {
+      "id": "ANC_OUT",
+      "side": "output",
+      "label": "anc",
+      "domain": "ancillary"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/adapter-mux",
+   "class": "Concept · Adapter",
+   "description": "Media Container Multiplexer: multiplexes Video, Audio, and ANC into an MP4/MKV/MXF container.",
+   "cad": {
+    "definition": "adapter.mux",
+    "name": "CONTAINER_MUX",
+    "size": {
+     "w": 1.8,
+     "h": 1.4
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.4,
+       "y": -0.45
+      },
+      {
+       "x": 0.4,
+       "y": -0.2
+      },
+      {
+       "x": 0.4,
+       "y": 0.2
+      },
+      {
+       "x": -0.4,
+       "y": 0.45
+      },
+      {
+       "x": -0.4,
+       "y": -0.45
+      }
+     ],
+     [
+      {
+       "x": -0.2,
+       "y": -0.25
+      },
+      {
+       "x": 0.15,
+       "y": 0
+      }
+     ],
+     [
+      {
+       "x": -0.2,
+       "y": 0
+      },
+      {
+       "x": 0.15,
+       "y": 0
+      }
+     ],
+     [
+      {
+       "x": -0.2,
+       "y": 0.25
+      },
+      {
+       "x": 0.15,
+       "y": 0
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "VIDEO_IN",
+      "side": "input",
+      "label": "video",
+      "domain": "video"
+     },
+     {
+      "id": "AUDIO_IN",
+      "side": "input",
+      "label": "audio",
+      "domain": "audio"
+     },
+     {
+      "id": "ANC_IN",
+      "side": "input",
+      "label": "anc",
+      "domain": "ancillary"
+     },
+     {
+      "id": "FILE_OUT",
+      "side": "output",
+      "label": "file",
+      "domain": "container"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/adapter-transcode",
+   "class": "Concept · Adapter",
+   "description": "Media Transcoder & Converter: converts video/audio codecs and formats (e.g. H.264 to ProRes, PCM to AAC).",
+   "cad": {
+    "definition": "adapter.transcode",
+    "name": "CODEC_TRANSCODE",
+    "size": {
+     "w": 1.6,
+     "h": 1
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.45,
+       "y": -0.3
+      },
+      {
+       "x": 0.45,
+       "y": -0.3
+      },
+      {
+       "x": 0.45,
+       "y": 0.3
+      },
+      {
+       "x": -0.45,
+       "y": 0.3
+      },
+      {
+       "x": -0.45,
+       "y": -0.3
+      }
+     ],
+     [
+      {
+       "x": -0.2,
+       "y": -0.1
+      },
+      {
+       "x": 0.2,
+       "y": 0.1
+      }
+     ],
+     [
+      {
+       "x": 0.2,
+       "y": -0.1
+      },
+      {
+       "x": -0.2,
+       "y": 0.1
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "IN",
+      "side": "input",
+      "label": "in"
+     },
+     {
+      "id": "OUT",
+      "side": "output",
+      "label": "out"
+     },
+     {
+      "id": "PROFILE",
+      "side": "control",
+      "label": "prof"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/adapter-st2110-gateway",
+   "class": "Concept · Adapter",
+   "description": "SMPTE ST 2110 IP Media Gateway. Separates or combines -20 video, -30 audio, -40 ANC over 10G/25G IP.",
+   "cad": {
+    "definition": "adapter.st2110_gateway",
+    "name": "ST2110_GATEWAY",
+    "size": {
+     "w": 2,
+     "h": 1.5
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.5,
+       "y": -0.4
+      },
+      {
+       "x": 0.5,
+       "y": -0.4
+      },
+      {
+       "x": 0.5,
+       "y": 0.4
+      },
+      {
+       "x": -0.5,
+       "y": 0.4
+      },
+      {
+       "x": -0.5,
+       "y": -0.4
+      }
+     ],
+     [
+      {
+       "x": -0.3,
+       "y": -0.15
+      },
+      {
+       "x": -0.3,
+       "y": 0.15
+      }
+     ],
+     [
+      {
+       "x": -0.4,
+       "y": 0
+      },
+      {
+       "x": -0.2,
+       "y": 0
+      }
+     ],
+     [
+      {
+       "x": 0.1,
+       "y": -0.2
+      },
+      {
+       "x": 0.4,
+       "y": -0.2
+      }
+     ],
+     [
+      {
+       "x": 0.1,
+       "y": 0
+      },
+      {
+       "x": 0.4,
+       "y": 0
+      }
+     ],
+     [
+      {
+       "x": 0.1,
+       "y": 0.2
+      },
+      {
+       "x": 0.4,
+       "y": 0.2
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "ETH_PRIMARY",
+      "side": "input",
+      "label": "eth1",
+      "domain": "network"
+     },
+     {
+      "id": "ETH_SECONDARY",
+      "side": "input",
+      "label": "eth2",
+      "domain": "network"
+     },
+     {
+      "id": "ST2110_20",
+      "side": "output",
+      "label": "video (-20)",
+      "domain": "video"
+     },
+     {
+      "id": "ST2110_30",
+      "side": "output",
+      "label": "audio (-30)",
+      "domain": "audio"
+     },
+     {
+      "id": "ST2110_40",
+      "side": "output",
+      "label": "anc (-40)",
+      "domain": "ancillary"
+     },
+     {
+      "id": "PTP_10",
+      "side": "control",
+      "label": "ptp (-10)",
+      "domain": "clock"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/adapter-st2022-7",
+   "class": "Concept · Adapter",
+   "description": "SMPTE ST 2022-7 Seamless Hitless Protection Switching. Merges redundant Red & Blue network paths.",
+   "cad": {
+    "definition": "adapter.st2022_7",
+    "name": "ST2022_7_REDUNDANCY",
+    "size": {
+     "w": 1.6,
+     "h": 1.1
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.4,
+       "y": -0.3
+      },
+      {
+       "x": 0.4,
+       "y": -0.3
+      },
+      {
+       "x": 0.4,
+       "y": 0.3
+      },
+      {
+       "x": -0.4,
+       "y": 0.3
+      },
+      {
+       "x": -0.4,
+       "y": -0.3
+      }
+     ],
+     [
+      {
+       "x": -0.25,
+       "y": -0.15
+      },
+      {
+       "x": 0.25,
+       "y": -0.15
+      }
+     ],
+     [
+      {
+       "x": -0.25,
+       "y": 0.15
+      },
+      {
+       "x": 0.25,
+       "y": 0.15
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "RED_PATH",
+      "side": "input",
+      "label": "red (A)",
+      "domain": "network"
+     },
+     {
+      "id": "BLUE_PATH",
+      "side": "input",
+      "label": "blue (B)",
+      "domain": "network"
+     },
+     {
+      "id": "OUT",
+      "side": "output",
+      "label": "stream",
+      "domain": "network"
+     },
+     {
+      "id": "STATUS",
+      "side": "control",
+      "label": "stat"
+     }
+    ]
+   }
+  },
+  {
+   "part": "concept/adapter-deembedder",
+   "class": "Concept · Adapter",
+   "description": "SMPTE ST 299-1 SDI Audio De-embedder. Demuxes 16 channels of embedded AES3 audio from HD/3G-SDI.",
+   "cad": {
+    "definition": "adapter.deembedder",
+    "name": "SDI_DEEMBEDDER",
+    "size": {
+     "w": 1.8,
+     "h": 1.2
+    },
+    "glyph": [
+     [
+      {
+       "x": -0.45,
+       "y": -0.35
+      },
+      {
+       "x": 0.45,
+       "y": -0.35
+      },
+      {
+       "x": 0.45,
+       "y": 0.35
+      },
+      {
+       "x": -0.45,
+       "y": 0.35
+      },
+      {
+       "x": -0.45,
+       "y": -0.35
+      }
+     ],
+     [
+      {
+       "x": -0.25,
+       "y": 0
+      },
+      {
+       "x": 0.25,
+       "y": 0
+      }
+     ],
+     [
+      {
+       "x": 0,
+       "y": 0
+      },
+      {
+       "x": 0.25,
+       "y": -0.2
+      }
+     ]
+    ],
+    "ports": [
+     {
+      "id": "SDI_IN",
+      "side": "input",
+      "label": "sdi in",
+      "domain": "video"
+     },
+     {
+      "id": "SDI_THRU",
+      "side": "output",
+      "label": "sdi thru",
+      "domain": "video"
+     },
+     {
+      "id": "AUDIO_1_8",
+      "side": "output",
+      "label": "ch 1-8",
+      "domain": "audio"
+     },
+     {
+      "id": "AUDIO_9_16",
+      "side": "output",
+      "label": "ch 9-16",
+      "domain": "audio"
+     }
+    ]
+   }
+  }
+ ]
+}

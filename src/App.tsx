@@ -53,7 +53,7 @@ export default function App() {
       setBlockEditorTarget(blockName);
       setShowBlockEditor(true);
     };
-    store.openConceptLibraryModal = () => {
+    store.openLibrarySash = () => {
       setShowConceptLibrary((was) => !was);
     };
     store.openStartupModal = () => {
@@ -75,7 +75,7 @@ export default function App() {
     return () => {
       window.removeEventListener('keydown', onLibraryKey);
       store.openBlockEditorModal = null;
-      store.openConceptLibraryModal = null;
+      store.openLibrarySash = null;
       store.openStartupModal = null;
       store.openSoftappBridgeModal = null;
     };

@@ -10,13 +10,13 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { CONNECTOR_GROUPS, lookupConnector } from './ConnectorLookup';
+import { CONNECTOR_SHELVES, lookupConnector } from './ConnectorLookup';
 import { cutoutOf } from './cutoutClasses';
 import { ICONS } from './index';
 
 describe('§5 Robo connectors', () => {
     it('registers a Robo group defaulting to the oversize-D cutout', () => {
-        const robo = CONNECTOR_GROUPS.find(g => g.name === 'Robo');
+        const robo = CONNECTOR_SHELVES.find(g => g.name === 'Robo');
         expect(robo).toBeDefined();
         expect(robo!.defaultCutout).toBe('oversize-D');
         expect(robo!.connectors.map(c => c.abbreviation)).toEqual(['ROBO', 'ROBO-S']);

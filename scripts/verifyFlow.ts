@@ -23,7 +23,10 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { PORT_SIDES, terminalKey, terminalSideOf } from '../src/core/types';
-import { FLOW_CATALOG, SHOP_CATALOG } from '../src/flow/catalog';
+import { conceptsOf } from '../src/flow/concepts';
+
+const FLOW_CATALOG = conceptsOf('Flow');
+const SHOP_CATALOG = conceptsOf('Shop');
 import { placementPoint } from '../src/flow/placement';
 import { portLocalPoint } from '../src/flow/portLocalPoint';
 import {

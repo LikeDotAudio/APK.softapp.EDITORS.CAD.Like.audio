@@ -4,7 +4,7 @@
 import React from 'react';
 import { Badge } from './Badge';
 import { Screen, Brackets, Flow } from './glyphs';
-import { MEDIA_FORMAT_GROUPS } from '../mediaFormatConnectors';
+import { formatsOf } from '../signalFormats';
 
 type GlyphFC = React.FC<{ c: string }>;
 
@@ -56,5 +56,5 @@ const badge = (abbreviation: string, family: string): React.FC => {
 };
 
 export const IMAGE_ICONS: Record<string, React.FC> = Object.fromEntries(
-  MEDIA_FORMAT_GROUPS.flatMap((g) => g.connectors.map((c) => [c.abbreviation, badge(c.abbreviation, g.name)])),
+  formatsOf(['Media-Images', 'Media-3D-Doc']).map(([id, family]) => [id, badge(id, family)]),
 );

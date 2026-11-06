@@ -1,7 +1,7 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { useState, useMemo } from 'react';
-import { CATALOG } from '../../../flow/catalog';
+import { CONCEPTS } from '../../../flow/concepts';
 import { PORT_SIDES } from '../../../core/types';
 import { SIDE_COLOR } from '../../../render/flow/flowColors';
 import { useStore } from '@state/useStore';
@@ -21,7 +21,7 @@ export function FlowCatalogSection() {
 
   const filteredCatalog = useMemo(() => {
     const q = search.toLowerCase().trim();
-    return CATALOG.filter((def) => {
+    return CONCEPTS.filter((def) => {
       if (category === 'FLOW' && !def.id.startsWith('flow.')) return false;
       if (category === 'MATH_LOGIC' && !def.id.startsWith('math.') && !def.id.startsWith('logic.') && !def.id.startsWith('idea.'))
         return false;

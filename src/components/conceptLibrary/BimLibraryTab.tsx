@@ -34,7 +34,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useStore } from '@state/useStore';
 import { liveBoxesOf, partToDefinition, type BimPart } from '../../flow/bimPart';
 import { loadApkLibrary } from '../../shell/apkLibrary';
-import { CATALOG } from '../../flow/catalog';
+import { CONCEPTS } from '../../flow/concepts';
 import type { BlockDefinition } from '../../core/types';
 
 interface LibraryPart extends BimPart { maker?: string; category?: string; stage?: string; class?: string }
@@ -81,9 +81,21 @@ export function libraryFrameUrl(url: string): string {
   return u.href;
 }
 
-/** A concept (concept/<slug of a CAD definition id>) is placed as this editor's own symbol for it. */
-export function conceptDefinition(part: { id?: string; model?: string }, catalog: BlockDefinition[] = CATALOG): BlockDefinition | null {
+type ConceptCad = Pick<BlockDefinition, 'name' | 'size' | 'glyph' | 'ports'> & { definition: string };
+
+/**
+ * A concept (concept/<slug of a CAD definition id>) is placed as the symbol the library entry
+ * itself describes (its ext.cad, ROAD-3588); a pick that carries no ext.cad falls back to the
+ * vendored snapshot of the same entries.
+ */
+export function conceptDefinition(part: { id?: string; model?: string; description?: string; ext?: { cad?: ConceptCad } },
+                                  catalog: BlockDefinition[] = CONCEPTS): BlockDefinition | null {
   if (!String(part.id ?? '').startsWith('concept/')) return null;
+  const cad = part.ext?.cad;
+  if (cad?.definition && cad.size && Array.isArray(cad.ports)) {
+    return { id: cad.definition, name: cad.name ?? cad.definition, description: part.description ?? '',
+             size: cad.size, glyph: cad.glyph ?? [], ports: cad.ports };
+  }
   const slug = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   const model = String(part.model ?? String(part.id).slice('concept/'.length));
   return catalog.find((d) => slug(d.id) === model) ?? null;

@@ -45,7 +45,7 @@ import type { CalibrationState } from '../image/calibration/CalibrationState';
 import { idleCalibration } from '../image/calibration/idleCalibration';
 import type { TracingImage } from '../image/TracingImage';
 import type { RecentFileEntry } from '../io/recentFiles/RecentFileEntry';
-import { DEFAULT_FLOW_DEFINITION } from '../flow/catalog';
+import { DEFAULT_FLOW_DEFINITION } from '../flow/concepts';
 import { createSchematic } from '../flow/Schematic';
 import { autoLayoutSchematic } from '../flow/autoLayout';
 import { applyChamfers } from '../flow/autoWire';
@@ -319,7 +319,7 @@ export class EditorStore {
   /** Hook registered by the UI to open the Softapp Block Bridge modal. */
   openSoftappBridgeModal: ((blockName?: string, defaultAppId?: string) => void) | null = null;
   /** Hook registered by the UI to open the Part & Concept Library modal. */
-  openConceptLibraryModal: (() => void) | null = null;
+  openLibrarySash: (() => void) | null = null;
   /** Hook registered by the UI to open the Startup / Welcome modal. */
   openStartupModal: (() => void) | null = null;
   /** Active loading / caching state for modal loading screen. */
@@ -770,8 +770,8 @@ export class EditorStore {
   }
 
   triggerOpenConceptLibrary(): void {
-    if (this.openConceptLibraryModal) {
-      this.openConceptLibraryModal();
+    if (this.openLibrarySash) {
+      this.openLibrarySash();
     }
   }
 

@@ -14,7 +14,7 @@
 import React from 'react';
 import { Badge } from './Badge';
 import { Flow, Waveform } from './glyphs';
-import { SMPTE_MEDIA_GROUPS } from '../smpteMediaConnectors';
+import { formatsOf } from '../signalFormats';
 
 type GlyphFC = React.FC<{ c: string }>;
 
@@ -41,5 +41,5 @@ const badge = (abbreviation: string, family: string): React.FC => {
 
 /** Abbreviation → its badge, for every entry in both families. */
 export const SMPTE_ICONS: Record<string, React.FC> = Object.fromEntries(
-    SMPTE_MEDIA_GROUPS.flatMap(g => g.connectors.map(c => [c.abbreviation, badge(c.abbreviation, g.name)])),
+    formatsOf(['SMPTE-Audio', 'MXL']).map(([id, family]) => [id, badge(id, family)]),
 );
