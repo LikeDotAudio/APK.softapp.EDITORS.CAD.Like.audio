@@ -97,21 +97,3 @@ export function liveBoxesOf(instances: BimInstance[]): BoxIdentity[] {
   }
   return out;
 }
-
-/** One box as WEB.OsApi `/api/os/devices` lists it (ROAD-3538: `presented` + its serial). */
-export interface OsDevice { model?: string; serial?: string; resource?: string; presented?: string | null }
-
-const foldModel = (m?: string) => String(m ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '');
-
-/**
- * The boxes of a model the OS says the bench presents now — the fallback when
- * the BIM library lists none of the part's instances online. Same rule as
- * liveBoxesOf: serial, else fixed GPIB address, never an IP.
- */
-export function liveBoxesFromDevices(devices: OsDevice[], model?: string): BoxIdentity[] {
-  const want = foldModel(model);
-  if (!want) return [];
-  return liveBoxesOf(devices
-    .filter((d) => d.presented && foldModel(d.model) === want)
-    .map((d) => ({ state: 'online', protocol: 'visa', serial: d.serial, resource: d.resource })));
-}

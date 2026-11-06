@@ -10,7 +10,7 @@
  */
 import { useEffect, useState } from 'react';
 import { useStore } from '@state/useStore';
-import { liveBoxesFromDevices, liveBoxesOf, partToDefinition, type BimInstance, type BimPart, type OsDevice } from '../../flow/bimPart';
+import { liveBoxesOf, partToDefinition, type BimInstance, type BimPart } from '../../flow/bimPart';
 
 interface PickerModule {
   pickPart(opts: { title?: string }): Promise<BimPart | null>;
@@ -20,17 +20,6 @@ interface PickerModule {
 }
 
 const PICKER_URL = '/api/bim/ui/picker.js';
-const OS_DEVICES_URL = '/api/os/devices';
-
-/** The OS's device list (the boxes it says the bench presents), or [] where there is no OS. */
-async function osDevices(): Promise<OsDevice[]> {
-  try {
-    const r = await fetch(OS_DEVICES_URL, { cache: 'no-store' });
-    return r.ok ? ((await r.json()).devices ?? []) : [];
-  } catch {
-    return [];
-  }
-}
 
 export function BimLibraryButton() {
   const store = useStore();
@@ -49,8 +38,9 @@ export function BimLibraryButton() {
     /* The boxes of this model on the bench now: each placement takes the next
        one, so a filed Big Picture names the real box (ROAD-3537). */
     const live = lib.liveDevices ? await lib.liveDevices(part.id).catch(() => []) : [];
-    let boxes = liveBoxesOf(live);
-    if (!boxes.length) boxes = liveBoxesFromDevices(await osDevices(), part.model);
+    /* The library's online instances follow the boxes presenting a panel (ROAD-3549),
+       so the OS's /api/os/devices fallback is gone (ROAD-3552). */
+    const boxes = liveBoxesOf(live);
     const known = store.schematic.definitions.find((d) => d.id === def.id);
     if (known) known.liveBoxes = boxes;
     else store.schematic.definitions.push({ ...def, liveBoxes: boxes });
