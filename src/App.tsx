@@ -16,7 +16,7 @@ import { SpreadsheetModal } from './components/spreadsheet/SpreadsheetModal';
 import { ElementsEditorModal } from './components/elementsEditor/ElementsEditorModal';
 import { BlockEditorModal } from './components/blockEditor/BlockEditorModal';
 import { SoftappBlockBridgeModal } from './components/blockEditor/SoftappBlockBridgeModal';
-import { ConceptLibraryModal } from './components/conceptLibrary/ConceptLibraryModal';
+import { LibrarySash } from './components/conceptLibrary/BimLibraryTab';
 import { ConnectorsDock } from './connectors/ui/ConnectorsDock';
 import { StartupModal } from './components/startup/StartupModal';
 import { LoadingOverlay } from './components/loading/LoadingOverlay';
@@ -54,7 +54,7 @@ export default function App() {
       setShowBlockEditor(true);
     };
     store.openConceptLibraryModal = () => {
-      setShowConceptLibrary(true);
+      setShowConceptLibrary((was) => !was);
     };
     store.openStartupModal = () => {
       setShowStartupModal(true);
@@ -87,7 +87,7 @@ export default function App() {
             onOpenBom={() => handleOpenSpreadsheet('bom')}
             onOpenElementsEditor={() => setShowElementsEditor(true)}
             onOpenBlockEditor={() => handleOpenBlockEditor()}
-            onOpenConceptLibrary={() => setShowConceptLibrary(true)}
+            onOpenConceptLibrary={() => setShowConceptLibrary((was) => !was)}
           />
 
           {/* Main Work Area: Left Toolbar + docked panels either side of the Canvas */}
@@ -98,6 +98,8 @@ export default function App() {
               <div className="flex flex-1 flex-col overflow-hidden relative">
                 <DrawingCanvas />
                 <ImagePanel />
+                {/* 📚 the BIM library: a sash over the drawing, not over the toolbar or menus (ROAD-3587) */}
+                <LibrarySash open={showConceptLibrary} onClose={() => setShowConceptLibrary(false)} />
               </div>
               <DockRail side="right" />
             </div>
@@ -116,12 +118,6 @@ export default function App() {
           <StatusBar
             isConnectorsOpen={showConnectorsDock}
             onToggleConnectors={() => setShowConnectorsDock((prev) => !prev)}
-          />
-
-          {/* Universal Part & Concept Library Modal */}
-          <ConceptLibraryModal
-            isOpen={showConceptLibrary}
-            onClose={() => setShowConceptLibrary(false)}
           />
 
           {/* Spreadsheet Modal */}
