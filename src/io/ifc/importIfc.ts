@@ -4,6 +4,8 @@ import type { BlockPlacement, CadBlockInstance, CadSpace, Edge, FillEntity, Laye
 import type { VirtualMirror } from '../../core/mirror';
 import type { DocSnapshot } from '../../model/doc/DocSnapshot';
 import { MM_PER_UNIT } from '../../model/units/mmPerUnit';
+import { sessionDocUnits } from '../browserStorage/sessionInMm';
+import { SESSION_MM_VERSION } from '../../model/units/docUnits';
 import type { SavedSession } from '../browserStorage/SavedSession';
 import { deref, entitiesByType, getPsets, isRef, parseStep, schemaOf, unwrap, type StepEntity, type StepFile, type StepValue } from '../../vendor/ifc/step';
 import { CAD_IFC_SCHEMA } from './exportIfc';
@@ -131,7 +133,8 @@ export function importIfc(textIn: string): SavedSession {
 
   const native = JSON.parse(String(cad.Native)) as Native;
   const units = (str(cad.Units) ?? 'mm') as Units;
-  const f = MM_PER_UNIT[units] ?? 1;
+  // a version 2 file's session is in mm, Units only how it was shown (cad-1); version 1 in Units
+  const f = MM_PER_UNIT[sessionDocUnits({ version: native.version, units })] ?? 1;
   const u = (v: number) => v / f;
   const layers = JSON.parse(String(cad.Layers ?? '[]')) as Layer[];
 
@@ -370,7 +373,7 @@ function foreign(file: StepFile, project: StepEntity): SavedSession {
     spaces.push({ key: g, ...(typeof s.args[2] === 'string' ? { name: s.args[2] } : {}), layerId: '0', points: pts.map(([x, y]) => ({ x, y })) });
   }
   return {
-    version: 1,
+    version: SESSION_MM_VERSION,
     timestamp: 0,
     docSnapshot: { vertices, edges, groupPrimitives: [], groupIntact: [], texts: [], fills: [], blocks: [], blockInstances: [], nextVertexId: vertices.length + 1, nextEdgeId: edges.length + 1, nextGroupId: 1 },
     currentFileName: typeof project.args[2] === 'string' ? project.args[2] : null,

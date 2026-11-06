@@ -8,6 +8,10 @@ import type { DocSnapshot } from '../../model/doc/DocSnapshot';
 
 /** Everything restored when the app reopens. */
 export interface SavedSession {
+  /**
+   * 2: every number below is in mm and `units` is only how lengths are shown
+   * (cad-1). 1: the geometry is in `units` — opened through sessionInMm.
+   */
   version: number;
   timestamp: number;
   userAuth?: UserAuth;
@@ -15,7 +19,9 @@ export interface SavedSession {
   currentFileName?: string | null;
   /** Optional: sessions saved before Flow blocks existed do not have one. */
   schematic?: SchematicSnapshot;
+  /** How lengths are shown and typed (version 2); version 1: also what the numbers are in. */
   units: Units;
+  /** Grid spacing, mm (version 2). */
   gridSize: number;
   gridMode?: GridMode;
   snapToGrid: boolean;

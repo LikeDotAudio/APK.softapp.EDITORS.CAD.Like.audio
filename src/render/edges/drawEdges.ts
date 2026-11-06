@@ -9,6 +9,7 @@ import type { EdgeStyleState } from './EdgeStyleState';
 import { isDarkColor } from './isDarkColor';
 import { layerStroke } from './layerStroke';
 import { renderEdge } from './renderEdge';
+import { DOC_UNITS } from '../../model/units/docUnits';
 
 /** Every visible edge, then the selection handles and net on top. */
 export function drawEdges(scene: Scene, state: EdgeStyleState): void {
@@ -22,7 +23,7 @@ export function drawEdges(scene: Scene, state: EdgeStyleState): void {
 
     const baseColor = isDarkColor(layer?.color) ? CANVAS.edge : layer!.color;
     // The layer's linetype and lineweight: a DASHED or 0.50 mm layer looks it.
-    const { width, dash } = layerStroke(layer, scene.units, view.zoom);
+    const { width, dash } = layerStroke(layer, DOC_UNITS, view.zoom) // the pattern in the drawing's mm, not the display units;
 
     if (state.selected.has(e.id)) {
       renderEdge(scene, e, CANVAS.edgeSelected, Math.max(2.8, width), dash);

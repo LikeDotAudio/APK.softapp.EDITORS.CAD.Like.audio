@@ -26,7 +26,7 @@ export const textTool: Tool<TextState> = {
 
   createState: () => ({
     currentText: 'TEXT NOTE',
-    height: 0.5,
+    height: 12.7, // mm: half an inch
   }),
 
   onPointerDown(state, input, api) {

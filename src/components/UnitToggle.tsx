@@ -6,7 +6,7 @@ import { useUi } from '../state/useUi';
 
 const OPTIONS: Units[] = ['in', 'mm'];
 
-/** Switching units rescales the drawing so it keeps its real-world size. */
+/** Which units lengths are shown and typed in; the drawing stays in mm (cad-1). */
 export function UnitToggle() {
   const store = useStore();
   const { units } = useUi();

@@ -66,14 +66,63 @@ export function promptWallSize(store: EditorStore, id: string): void {
   setLayerIfc(store, id, next);
 }
 
-/** Layer menu ▸ External Walls: Pset_WallCommon.IsExternal, said by the user (true → false → not said). */
-export function cycleWallExternal(store: EditorStore, id: string): void {
+/** The Pset_WallCommon facts a person states about a wall layer: yes/no ones, and ratings as written. */
+export type WallFlag = 'isExternal' | 'loadBearing';
+export type WallRating = 'acousticRating' | 'fireRating';
+
+/** A yes/no fact said by the user, stepped true → false → not said. */
+export function cycleWallFlag(store: EditorStore, id: string, key: WallFlag): void {
   const layer = store.layers.get(id);
   if (!layer || layer.ifc?.entity !== 'IfcWall') return;
   const next: LayerIfc = { ...layer.ifc };
-  if (next.isExternal === undefined) next.isExternal = true;
-  else if (next.isExternal) next.isExternal = false;
-  else delete next.isExternal;
+  if (next[key] === undefined) next[key] = true;
+  else if (next[key]) next[key] = false;
+  else delete next[key];
+  setLayerIfc(store, id, next);
+}
+
+/** Layer menu ▸ External: Pset_WallCommon.IsExternal, said by the user (true → false → not said). */
+export function cycleWallExternal(store: EditorStore, id: string): void {
+  cycleWallFlag(store, id, 'isExternal');
+}
+
+/** Layer menu ▸ Load Bearing: Pset_WallCommon.LoadBearing, said by the user (true → false → not said). */
+export function cycleWallLoadBearing(store: EditorStore, id: string): void {
+  cycleWallFlag(store, id, 'loadBearing');
+}
+
+/** The longest rating a person writes (an IfcLabel holds 255). */
+export const RATING_MAX = 255;
+
+/**
+ * A rating as the user wrote it — "STC 52", "Rw 45 dB", "EI 60", "2 HR" — or
+ * undefined for empty (not said), null for an answer that cannot be one
+ * (cancelled, or longer than an IfcLabel). Never parsed: Pset_WallCommon's
+ * AcousticRating and FireRating are labels, in whatever rating system the
+ * project uses.
+ */
+export function parseRating(text: string | null): string | undefined | null {
+  if (text === null) return null;
+  const t = text.replace(/\s+/g, ' ').trim();
+  if (!t) return undefined;
+  return t.length <= RATING_MAX ? t : null;
+}
+
+const RATING_WORDS: Record<WallRating, { what: string; eg: string }> = {
+  acousticRating: { what: 'Acoustic rating', eg: 'STC 52, Rw 45 dB' },
+  fireRating: { what: 'Fire rating', eg: 'EI 60, 2 HR' },
+};
+
+/** Layer menu ▸ Acoustic Rating... / Fire Rating...: Pset_WallCommon AcousticRating / FireRating, as written. */
+export function promptWallRating(store: EditorStore, id: string, key: WallRating): void {
+  const layer = store.layers.get(id);
+  if (!layer || layer.ifc?.entity !== 'IfcWall') return;
+  const { what, eg } = RATING_WORDS[key];
+  const r = parseRating(window.prompt(`${what} of the walls on ${layer.name} (e.g. ${eg}; empty: not said):`, layer.ifc[key] ?? ''));
+  if (r === null) return;
+  const next: LayerIfc = { ...layer.ifc };
+  if (r === undefined) delete next[key];
+  else next[key] = r;
   setLayerIfc(store, id, next);
 }
 

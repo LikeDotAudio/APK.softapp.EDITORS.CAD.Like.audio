@@ -144,7 +144,7 @@ import { setImageOpacity } from './actions/setImageOpacity';
 import { setImageWorldWidth } from './actions/setImageWorldWidth';
 import { setLayerColor } from './actions/setLayerColor';
 import { setLayerFinish } from './actions/setLayerFinish';
-import { cycleWallExternal, declareRoomFromSelection, promptWallSize, setLayerIfc, toggleWallLayer, undeclareRoomsInSelection } from './actions/roomsAndWalls';
+import { cycleWallExternal, cycleWallLoadBearing, declareRoomFromSelection, promptWallRating, promptWallSize, setLayerIfc, toggleWallLayer, undeclareRoomsInSelection, type WallRating } from './actions/roomsAndWalls';
 import { setLayerStyle, type LayerStyle } from './actions/setLayerStyle';
 import { setMeasurement } from './actions/setMeasurement';
 import { setPalette } from './actions/setPalette';
@@ -156,6 +156,7 @@ import { setTool } from './actions/setTool';
 import { setVirtualMirror } from './actions/setVirtualMirror';
 import { toggleSymmetryMode } from './actions/toggleSymmetryMode';
 import { setUnits } from './actions/setUnits';
+import { MM_PER_INCH } from '../model/units/mmPerUnit';
 import { showAllLayers } from './actions/showAllLayers';
 import { showHint } from './actions/showHint';
 import { showOnlyActiveLayer } from './actions/showOnlyActiveLayer';
@@ -232,8 +233,10 @@ export class EditorStore {
   tool: AnyTool;
   toolState: object;
 
+  /** How lengths are shown and typed. The drawing itself is in mm, always (cad-1, docUnits.ts). */
   units: Units = 'in';
-  gridSize = 0.25;
+  /** Grid spacing, mm (a quarter inch, the inch sheet's own step). */
+  gridSize = 6.35;
   gridMode: GridMode = 'lines';
   snapToGrid = true;
   /** Text rendered at a fixed screen size when true, or true CAD world scale when false (default). */
@@ -328,6 +331,8 @@ export class EditorStore {
     this.toolId = entrance.initialTool;
     this.tool = getTool(this.toolId);
     this.toolState = this.tool.createState();
+    // the view's zoom is px per mm: the opening sheet shows an inch as 80 px, as it always has
+    this.view.zoom = 80 / MM_PER_INCH;
 
     // `units` and `gridSize` are getters so tools always read live values.
     const store = this;
@@ -938,6 +943,16 @@ export class EditorStore {
     cycleWallExternal(this, id);
   }
 
+  /** Layer menu ▸ Load Bearing: Pset_WallCommon.LoadBearing (true → false → not said). */
+  cycleWallLoadBearing(id: string): void {
+    cycleWallLoadBearing(this, id);
+  }
+
+  /** Layer menu ▸ Acoustic / Fire Rating...: Pset_WallCommon AcousticRating / FireRating, as written. */
+  promptWallRating(id: string, key: WallRating): void {
+    promptWallRating(this, id, key);
+  }
+
   declareRoomFromSelection(): CadSpace | null {
     return declareRoomFromSelection(this);
   }
@@ -1010,7 +1025,7 @@ export class EditorStore {
     handleCalibrationClick(this, screen);
   }
 
-  /** Rescale everything so the two picked points are `distance` units apart. */
+  /** Rescale everything so the two picked points are `distance` mm apart. */
   applyCalibration(distance: number): boolean {
     return applyCalibration(this, distance);
   }

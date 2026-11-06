@@ -5,6 +5,7 @@ import { pointInPolygon } from '../geometry/polygon/pointInPolygon';
 import { addPaletteFill } from '../model/palette/addPaletteFill';
 import { closedLoopAt } from '../model/palette/closedLoopAt';
 import { metresToUnits } from '../model/palette/metresToUnits';
+import { DOC_UNITS } from '../model/units/docUnits';
 import { regionAt, tileCentres } from '../model/palette/regionAt';
 import { paletteBlockDefinition } from '../model/palette/paletteBlockDefinition';
 import { placePaletteBlock } from '../model/palette/placePaletteBlock';
@@ -92,14 +93,14 @@ function fitProduct(api: ToolApi, p: Point): boolean {
     paintRegion(api, region);
     return true;
   }
-  const w = metresToUnits(item.size[0], api.units);
-  const h = metresToUnits(item.size[1], api.units);
+  const w = metresToUnits(item.size[0], DOC_UNITS);
+  const h = metresToUnits(item.size[1], DOC_UNITS);
   const centres = tileCentres(region, w, h);
   if (!centres.length) {
     api.showHint(`${item.name} does not fit whole in that region — Fit: fill paints it instead.`, 2500);
     return true;
   }
-  api.edit(() => centres.map((c) => placePaletteBlock(api.doc, item, api.units, c, 0, api.activeLayerId)).some((id) => id !== null));
+  api.edit(() => centres.map((c) => placePaletteBlock(api.doc, item, DOC_UNITS, c, 0, api.activeLayerId)).some((id) => id !== null));
   api.showHint(`Tiled ${centres.length} × ${item.name}.`, 1500);
   return true;
 }
@@ -135,7 +136,7 @@ export const paletteTool: Tool<PaletteState> = {
     }
     if (item.size) {
       if (fitProduct(api, input.rawWorld)) return;
-      api.edit(() => placePaletteBlock(api.doc, item, api.units, input.world, 0, api.activeLayerId) !== null);
+      api.edit(() => placePaletteBlock(api.doc, item, DOC_UNITS, input.world, 0, api.activeLayerId) !== null);
       api.showHint(`Placed ${item.name}.`, 1500);
       return;
     }
@@ -217,7 +218,7 @@ export const paletteTool: Tool<PaletteState> = {
       ctx.globalAlpha = 1;
     }
     if (item.size && (scene.paletteFit ?? 'place') === 'place') {
-      const def = paletteBlockDefinition(item, scene.units);
+      const def = paletteBlockDefinition(item, DOC_UNITS);
       const pts = def?.fills?.[0]?.points;
       if (pts) {
         const scr = pts.map((p) => view.toScreen(pointer.world.x + p.x, pointer.world.y + p.y));

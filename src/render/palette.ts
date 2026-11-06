@@ -34,6 +34,10 @@ export const CANVAS = {
   /** Dashed net drawn around a multi-element selection. */
   selectionNet: '#38bdf8',
   imageOutline: 'rgba(129,140,248,0.6)',
+  /** A declared room (IfcSpace, ROAD-3581): its outline, a faint floor tint and its name/area label. */
+  room: '#14b8a6',
+  roomFill: 'rgba(20,184,166,.07)',
+  roomText: '#5eead4',
   white: '#ffffff',
 } as const;
 
@@ -44,4 +48,6 @@ export const FONT = {
   dimension: `bold 11px ${UI_FONT}`,
   measure: `bold 12px ${UI_FONT}`,
   banner: `bold 13px ${UI_FONT}`,
+  room: `bold 11px ${UI_FONT}`,
+  roomArea: `10px ${UI_FONT}`,
 } as const;

@@ -76,7 +76,7 @@ export function ImportUnitModal({
         {/* Target Base Unit Selection */}
         <div className="space-y-1.5">
           <label className="block text-[11px] font-semibold uppercase tracking-wider text-[#aaa]">
-            2. What base unit would you like to work in? (Base Unit)
+            2. Which unit should lengths be shown in? (the drawing keeps mm)
           </label>
           <select
             value={targetUnit}
@@ -101,8 +101,8 @@ export function ImportUnitModal({
           </div>
           <p className="text-[#aaa] text-[10px]">
             {factor === 1
-              ? 'Geometry will be imported 1:1 without scaling.'
-              : `All coordinates will be scaled by ${factor} to convert from ${sourceUnit} to ${targetUnit}.`}
+              ? 'Lengths will be shown as the file states them.'
+              : `Lengths in ${sourceUnit} will be shown in ${targetUnit} (×${factor}); the drawing itself is kept in mm.`}
           </p>
         </div>
 

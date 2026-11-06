@@ -5,6 +5,7 @@ import type { SavedSession } from '@io/browserStorage/SavedSession';
 import { snapshotSchematic } from '../../flow/Schematic';
 import { saveSessionToBrowser } from '@io/browserStorage/saveSessionToBrowser';
 import { sessionIfc } from '@io/ifc/sessionIfc';
+import { SESSION_MM_VERSION } from '../../model/units/docUnits';
 
 export async function autoSaveSession(store: EditorStore, forceLoadingScreen = false): Promise<void> {
   const showLoading = forceLoadingScreen && !store.loading;
@@ -33,7 +34,7 @@ export async function autoSaveSession(store: EditorStore, forceLoadingScreen = f
 /** The whole drawing session as one plain object — what the browser keeps, and what a host saves to a file. */
 export function buildSavedSession(store: EditorStore): SavedSession {
   return {
-    version: 1,
+    version: SESSION_MM_VERSION, // every number in mm; `units` is the display choice (cad-1)
     timestamp: Date.now(),
     userAuth: store.currentUserAuth ?? undefined,
     docSnapshot: store.doc.snapshot(),

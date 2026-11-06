@@ -7,7 +7,7 @@ export function applyLoadedImage(store: EditorStore, img: HTMLImageElement): voi
     img,
     x: 0,
     y: 0,
-    worldWidth: store.units === 'mm' ? 254 : 10,
+    worldWidth: 254, // mm (ten inches), whatever units the lengths are shown in
     opacity: 0.4,
     visible: true,
   };

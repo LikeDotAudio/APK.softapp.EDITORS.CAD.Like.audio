@@ -84,7 +84,7 @@ export const lineTool: Tool<LineState> = {
   dyn: {
     fields: () => [
       { key: 'len', label: 'Len' },
-      { key: 'ang', label: '∠°' },
+      { key: 'ang', label: '∠°', angle: true },
     ],
 
     placeholder(state, key, _mode, cursor, units) {

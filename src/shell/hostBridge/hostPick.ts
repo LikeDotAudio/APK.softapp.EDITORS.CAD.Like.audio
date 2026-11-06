@@ -6,6 +6,7 @@ import { dxfFileName } from '@io/exportDxf/dxfFileName';
 import type { ToolId } from '../../core/types';
 import { getTool } from '../../tools/registry';
 import { hostPickAt } from './hostDrag';
+import { DOC_UNITS } from '../../model/units/docUnits';
 
 /**
  * A CLICK ON THE SHEET, FOR A HOST THAT KNOWS WHAT IS UNDER IT.
@@ -72,8 +73,8 @@ export function installHostPick(store: EditorStore, post: (body: ReturnType<type
  */
 export function dxfForHost(store: Pick<EditorStore, 'doc' | 'units' | 'layers' | 'schematic' | 'currentFileName'>) {
   return {
-    fileName: dxfFileName(store.units, store.currentFileName),
-    text: buildDxf(store.doc, store.units, store.layers.values(), store.schematic),
+    fileName: dxfFileName(DOC_UNITS, store.currentFileName),
+    text: buildDxf(store.doc, DOC_UNITS, store.layers.values(), store.schematic), // in mm, $INSUNITS 4 (cad-1)
   };
 }
 

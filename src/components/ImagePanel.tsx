@@ -3,6 +3,7 @@
 import { useStore } from '../state/useStore';
 import { useUi } from '../state/useUi';
 import { BTN, BTN_BASE, LABEL_CAPS, NUMBER_INPUT } from './styles';
+import { fromDisplay, toDisplay } from '../model/units/docUnits';
 
 /** Controls for the tracing image; only mounted while one is loaded. */
 export function ImagePanel() {
@@ -34,8 +35,8 @@ export function ImagePanel() {
         type="number"
         min="0.1"
         step="0.1"
-        value={parseFloat(tracing.worldWidth.toFixed(units === 'mm' ? 2 : 3))}
-        onChange={(e) => store.setImageWorldWidth(parseFloat(e.target.value))}
+        value={parseFloat(toDisplay(tracing.worldWidth, units).toFixed(units === 'mm' ? 2 : 3))}
+        onChange={(e) => store.setImageWorldWidth(fromDisplay(parseFloat(e.target.value), units))}
         className={NUMBER_INPUT}
       />
       <span className="font-mono text-[11px] text-ink-3">{units}</span>

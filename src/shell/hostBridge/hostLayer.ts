@@ -2,6 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { EditorStore } from '@state/EditorStore';
 import { applyLayerStyle } from '@state/actions/setLayerStyle';
+import { parseRating } from '@state/actions/roomsAndWalls';
 import type { LayerIfc } from '../../core/types';
 
 /**
@@ -15,7 +16,9 @@ import type { LayerIfc } from '../../core/types';
  * snapped to a DXF step; null back to Default) is how heavy the layer's line
  * work is drawn — the Simulation's WEIGHT knob sends its wire and box layers
  * with it. `ifc` classifies the layer for the IFC export: { entity: 'IfcWall',
- * predefinedType?, height_mm?, thickness_mm? } makes its edges IfcWalls (null
+ * predefinedType?, height_mm?, thickness_mm?, isExternal?, loadBearing?,
+ * acousticRating?, fireRating? } makes its edges IfcWalls, with the
+ * Pset_WallCommon facts the host states (2.11.0) (null
  * clears it). Returns whether anything changed.
  */
 export function ensureHostLayer(store: EditorStore, msg: { name?: unknown; color?: unknown; finish?: unknown; lineweight?: unknown; ifc?: unknown }): boolean {
@@ -42,7 +45,8 @@ export function ensureHostLayer(store: EditorStore, msg: { name?: unknown; color
   }
   if (layer && (lineweight === null || (typeof lineweight === 'number' && Number.isFinite(lineweight) && lineweight >= 0))
       && applyLayerStyle(layer, { lineweight: lineweight as number | null })) changed = true;
-  // `ifc` { entity: 'IfcWall', predefinedType?, height_mm?, thickness_mm? } classifies the layer's
+  // `ifc` { entity: 'IfcWall', predefinedType?, height_mm?, thickness_mm?, isExternal?, loadBearing?,
+  // acousticRating?, fireRating? } classifies the layer's
   // linework for the IFC export (cad-4); null takes the classification off
   if (layer && ifc !== undefined) {
     const next = parseLayerIfc(ifc);
@@ -70,6 +74,14 @@ export function parseLayerIfc(v: unknown): LayerIfc | null | undefined {
   for (const k of ['height_mm', 'thickness_mm'] as const) {
     const n = o[k];
     if (typeof n === 'number' && Number.isFinite(n) && n > 0) out[k] = n;
+  }
+  // Pset_WallCommon, as the host states it (2.11.0): yes/no facts, and ratings as written
+  for (const k of ['isExternal', 'loadBearing'] as const) {
+    if (typeof o[k] === 'boolean') out[k] = o[k];
+  }
+  for (const k of ['acousticRating', 'fireRating'] as const) {
+    const r = typeof o[k] === 'string' ? parseRating(o[k]) : undefined;
+    if (typeof r === 'string') out[k] = r;
   }
   return out;
 }

@@ -4,7 +4,7 @@ import { useStore } from '@state/useStore';
 import { useUi } from '@state/useUi';
 import { SegmentedButton } from './SegmentedButton';
 
-/** Inch/mm switch. Changing units rescales the whole document. */
+/** Inch/mm switch: how lengths are shown and typed. The drawing stays in mm (cad-1). */
 export function UnitsRow() {
   const store = useStore();
   const { units } = useUi();

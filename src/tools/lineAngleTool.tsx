@@ -30,7 +30,7 @@ export const lineAngleTool: Tool<LineAngleState> = {
   cursor: 'crosshair',
   snaps: true,
 
-  createState: () => ({ start: null, angleDeg: 30, length: 2.0 }),
+  createState: () => ({ start: null, angleDeg: 30, length: 50.8 }), // mm: two inches
   isDrawing: () => true,
 
   onPointerDown(state, input, api) {
@@ -41,7 +41,7 @@ export const lineAngleTool: Tool<LineAngleState> = {
     api.edit(() =>
       commitLine(api.doc, input.world.x, input.world.y, endX, endY, api.activeLayerId),
     );
-    api.showHint(`Created line at ${state.angleDeg}° with length ${state.length}`, 3000);
+    api.showHint(`Created line at ${state.angleDeg}° with length ${formatField(state.length, api.units)} ${api.units}`, 3000);
   },
 
   onPointerMove(_state, input, api) {
@@ -70,7 +70,7 @@ export const lineAngleTool: Tool<LineAngleState> = {
 
   dyn: {
     fields: () => [
-      { key: 'ang', label: '∠°' },
+      { key: 'ang', label: '∠°', angle: true },
       { key: 'len', label: 'Len' },
     ],
 

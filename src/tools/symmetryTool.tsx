@@ -1,6 +1,7 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { Tool } from './types';
+import { formatLength } from '../model/units/formatLength';
 import type { Scene } from '../render/Scene';
 
 interface SymmetryState {
@@ -43,7 +44,7 @@ export const symmetryTool: Tool<SymmetryState> = {
 
   onPointerMove(state, input, api) {
     state.previewX = input.world.x;
-    api.setMeasurement(`Mirror Axis X = ${input.world.x.toFixed(3)} ${api.units}`);
+    api.setMeasurement(`Mirror Axis X = ${formatLength(input.world.x, api.units)} ${api.units}`);
 
     if (state.isDragging) {
       api.setVirtualMirror(input.world.x, true, true);
@@ -72,7 +73,7 @@ export const symmetryTool: Tool<SymmetryState> = {
     ctx.lineTo(screenX, height);
     ctx.stroke();
 
-    const tag = `🪞 PLACE MIRROR: X = ${state.previewX.toFixed(2)}`;
+    const tag = `🪞 PLACE MIRROR: X = ${formatLength(state.previewX, scene.units)} ${scene.units}`;
     ctx.font = 'bold 10px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace';
     const tw = ctx.measureText(tag).width;
     ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';

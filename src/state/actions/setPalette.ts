@@ -1,6 +1,7 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { ensurePaletteBlock } from '../../model/palette/ensurePaletteBlock';
+import { DOC_UNITS } from '../../model/units/docUnits';
 import { paletteBlockName } from '../../model/palette/paletteBlockName';
 import type { Palette } from '../../model/palette/PaletteItem';
 import type { EditorStore } from '../EditorStore';
@@ -23,7 +24,7 @@ export function setPalette(store: EditorStore, palette: Palette | null): void {
   for (const item of palette?.items ?? []) {
     if (!item.size) continue;
     const had = store.doc.blocks.has(paletteBlockName(item.id));
-    if (ensurePaletteBlock(store.doc, item, store.units) && !had) added = true;
+    if (ensurePaletteBlock(store.doc, item, DOC_UNITS) && !had) added = true;
   }
   if (added) store.markDocChanged();
   if (store.paletteItemId !== null && !store.paletteItem()) {

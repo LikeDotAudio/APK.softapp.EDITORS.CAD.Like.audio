@@ -108,7 +108,7 @@ export const rotateTool: Tool<RotateState> = {
   },
 
   dyn: {
-    fields: () => [{ key: 'ang', label: 'Angle°' }],
+    fields: () => [{ key: 'ang', label: 'Angle°', angle: true }],
 
     placeholder(state) {
       return `${state.angleDeg}`;

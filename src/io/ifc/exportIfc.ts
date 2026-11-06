@@ -2,6 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { BlockPlacement, CadBlockInstance, Layer, Point } from '../../core/types';
 import { MM_PER_UNIT } from '../../model/units/mmPerUnit';
+import { sessionDocUnits } from '../browserStorage/sessionInMm';
 import type { SavedSession } from '../browserStorage/SavedSession';
 import { typed, type StepRef, type StepValue } from '../../vendor/ifc/step';
 import { ifcGuid } from '../../vendor/ifc/guid';
@@ -116,7 +117,8 @@ export const bimPartOf = (p: Pick<BlockPlacement, 'definitionId'>): string | nul
   p.definitionId.startsWith('bim.') && p.definitionId.length > 4 ? p.definitionId.slice(4) : null;
 
 export function exportIfc(session: SavedSession, opts: ExportIfcOptions = {}): string {
-  const f = MM_PER_UNIT[session.units] ?? 1;
+  // the session's numbers are mm from version 2 on (cad-1); a version 1 one is in its `units`
+  const f = MM_PER_UNIT[sessionDocUnits(session)] ?? 1;
   const mm = (v: number) => v * f;
   const doc = session.docKey || 'session';
   const role = (...r: (string | number)[]) => gid('cad', doc, ...r);

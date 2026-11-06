@@ -1,6 +1,6 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
-import type { Layer, ValidationResult } from '../core/types';
+import type { CadSpace, Layer, ValidationResult } from '../core/types';
 import type { CalibrationState } from '../image/calibration/CalibrationState';
 import type { TracingImage } from '../image/TracingImage';
 import type { AnyTool } from '../tools/types';
@@ -21,6 +21,7 @@ import { drawBoundsOverlay } from './overlays/drawBoundsOverlay';
 import { drawErrorBanner } from './overlays/drawErrorBanner';
 import type { Scene } from './Scene';
 import { drawSnapIndicator } from './snapIndicator';
+import { drawRoomFloors, drawRoomLabels } from './rooms/drawRooms';
 
 export interface FrameState {
   tool: AnyTool;
@@ -36,6 +37,8 @@ export interface FrameState {
   /** True while Ctrl+Shift+C waits for the reference point click. */
   pickingBasePoint?: boolean;
   mirror?: VirtualMirrorState;
+  /** The rooms the user declared (ROAD-3581): outlined and labelled with name and area. */
+  spaces?: readonly CadSpace[];
 }
 
 /** Paint one frame, back to front. */
@@ -47,6 +50,9 @@ export function renderScene(scene: Scene, frame: FrameState): void {
 
   // Fills sit behind wireframe edges
   drawFills(scene, { layers: frame.layers, selectedIds: frame.selection });
+
+  // Declared rooms: a floor tint and dashed outline behind the linework
+  drawRoomFloors(scene, frame.spaces, frame.layers);
 
   // CAD block instances
   drawBlockInstances(scene, { layers: frame.layers, selectedIds: frame.selection });
@@ -60,6 +66,7 @@ export function renderScene(scene: Scene, frame: FrameState): void {
 
   // Texts sit on top of geometry
   drawTexts(scene, { layers: frame.layers, selectedIds: frame.selection });
+  drawRoomLabels(scene, frame.spaces, frame.layers);
 
   // Containers behind their contents: a group is the ground a block sits on.
   drawGroups(scene, scene.schematic);

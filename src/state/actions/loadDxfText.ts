@@ -10,6 +10,7 @@ import { parseDxf } from '@io/importDxf/parseDxf';
 import { skippedSummary } from '@io/importDxf/skippedSummary';
 import type { DxfEntity } from '@io/importDxf/DxfParseResult';
 import { unitFactor } from '../../model/units/unitFactor';
+import { DOC_UNITS } from '../../model/units/docUnits';
 import { showProblem } from '../../shell/softapp';
 
 export async function loadDxfText(store: EditorStore, text: string,
@@ -57,14 +58,15 @@ export async function loadDxfText(store: EditorStore, text: string,
 
   const fromUnit = sourceUnit || result.units || 'mm';
   const toUnit = targetUnit || store.units;
-  const factor = unitFactor(fromUnit, toUnit);
+  // the file's numbers become the drawing's mm (cad-1); `toUnit` is only how they are shown
+  const factor = unitFactor(fromUnit, DOC_UNITS);
 
   if (toUnit !== store.units) {
     store.setUnits(toUnit);
   }
 
-  // Scale geometry entities if source unit != base workspace unit — the
-  // sheet's and every block definition's alike, base points included.
+  // Scale geometry entities if the file is not in mm — the sheet's and every
+  // block definition's alike, base points included.
   if (factor !== 1) {
     // A block the file defines is scaled once, in its definition; an INSERT
     // of it keeps its own scale. A block only the session knows is in session

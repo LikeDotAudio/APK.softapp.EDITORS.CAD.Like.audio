@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from '../state/useStore';
 import { useUi } from '../state/useUi';
+import { fromDisplay } from '../model/units/docUnits';
 
 /**
  * Prompt for the real distance between the two calibration points. Positioned
@@ -24,7 +25,8 @@ export function ScaleBox() {
   if (!calibrationBox) return null;
 
   const apply = () => {
-    const distance = parseFloat(value);
+    // typed in the units shown beside the box; the drawing is in mm (cad-1)
+    const distance = fromDisplay(parseFloat(value), units);
     if (!store.applyCalibration(distance)) {
       window.alert('Please enter a valid distance — the two points must be further apart.');
     }

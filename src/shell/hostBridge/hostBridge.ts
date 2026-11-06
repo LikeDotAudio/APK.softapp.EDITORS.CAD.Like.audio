@@ -5,6 +5,7 @@ import { parsePalette } from '../../model/palette/parsePalette';
 import type { SavedSession } from '@io/browserStorage/SavedSession';
 import { sessionIfc } from '@io/ifc/sessionIfc';
 import { buildSavedSession } from '@state/actions/autoSaveSession';
+import { DOC_UNITS } from '../../model/units/docUnits';
 import { applySavedSession } from '@state/actions/restoreBrowserSession';
 import { currentHost } from '../entrance';
 import { handoverFromHash, offerHandover, receiveHandover } from './hostHandover';
@@ -327,7 +328,8 @@ async function openFloorPlan(store: EditorStore, file: File): Promise<void> {
 /** The `view` body: the world→screen transform and the canvas box in this window. */
 export function viewForHost(store: Pick<EditorStore, 'view' | 'units'>, rect: { left: number; top: number; width: number; height: number }) {
   const { zoom, panX, panY } = store.view;
-  return { zoom, panX, panY, rect, units: store.units };
+  // the drawing's numbers are mm whatever the display units (cad-1): `units` says what zoom is per
+  return { zoom, panX, panY, rect, units: DOC_UNITS };
 }
 
 /** The `geometry` body: the visible sheet (sceneForHost), its file name, the marks hash per key, and the host's schematic. */
@@ -335,7 +337,7 @@ export function geometryForHost(store: Pick<EditorStore, 'doc' | 'units' | 'laye
   const sch = store.schematic;
   return {
     fileName: store.currentFileName,
-    ...sceneForHost(store.doc, store.units, store.layers, pickedLoops),
+    ...sceneForHost(store.doc, DOC_UNITS, store.layers, pickedLoops), // geometry.units: the numbers' own, mm (cad-1)
     marks: marksInDoc(store.doc),
     ...(sch ? { schematic: schematicInModel(sch), hostPlacements: hostPlacementsOf(sch) } : {}),
   };

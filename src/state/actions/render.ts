@@ -35,6 +35,7 @@ export function render(store: EditorStore): void {
     layers: store.layers,
     pickingBasePoint: store.pickingBasePoint,
     mirror: store.mirror,
+    spaces: store.spaces,
   });
   publishToHost(store);
 

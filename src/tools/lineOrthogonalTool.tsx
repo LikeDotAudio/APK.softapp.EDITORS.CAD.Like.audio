@@ -58,7 +58,7 @@ export const lineOrthogonalTool: Tool<OrthogonalState> = {
   cursor: 'crosshair',
   snaps: false,
 
-  createState: () => ({ length: 1.5 }),
+  createState: () => ({ length: 38.1 }), // mm: an inch and a half
   isDrawing: () => true,
 
   onPointerDown(state, input, api) {
@@ -75,7 +75,7 @@ export const lineOrthogonalTool: Tool<OrthogonalState> = {
     api.edit(() =>
       commitLine(api.doc, ortho.p1.x, ortho.p1.y, ortho.p2.x, ortho.p2.y, api.activeLayerId),
     );
-    api.showHint(`Created orthogonal line with length ${state.length}`, 3000);
+    api.showHint(`Created orthogonal line with length ${formatField(state.length, api.units)} ${api.units}`, 3000);
   },
 
   onPointerMove(_state, input, api) {

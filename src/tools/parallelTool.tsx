@@ -63,7 +63,7 @@ export const parallelTool: Tool<ParallelState> = {
   cursor: 'crosshair',
   snaps: false,
 
-  createState: () => ({ distance: 1.0 }),
+  createState: () => ({ distance: 25.4 }), // mm: an inch
   isDrawing: () => true,
 
   onPointerDown(state, input, api) {
@@ -80,7 +80,7 @@ export const parallelTool: Tool<ParallelState> = {
     api.edit(() =>
       commitLine(api.doc, par.p1.x, par.p1.y, par.p2.x, par.p2.y, api.activeLayerId),
     );
-    api.showHint(`Created parallel line at offset ${state.distance}`, 3000);
+    api.showHint(`Created parallel line at offset ${formatField(state.distance, api.units)} ${api.units}`, 3000);
   },
 
   onPointerMove(_state, input, api) {

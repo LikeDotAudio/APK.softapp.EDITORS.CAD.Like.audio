@@ -35,7 +35,10 @@ export function LayerContextMenu({
   const ifc = targetLayer.ifc;
   const isWalls = ifc?.entity === 'IfcWall';
   const wallSize = isWalls ? `${ifc.height_mm ?? '?'} × ${ifc.thickness_mm ?? '?'} mm` : '';
-  const external = ifc?.isExternal === undefined ? 'not said' : ifc.isExternal ? 'yes' : 'no';
+  const said = (v: boolean | undefined) => (v === undefined ? 'not said' : v ? 'yes' : 'no');
+  const external = said(ifc?.isExternal);
+  const loadBearing = said(ifc?.loadBearing);
+  const rating = (v: string | undefined) => v ?? 'not said';
 
   return (
     <div
@@ -85,6 +88,22 @@ export function LayerContextMenu({
             icon="🌦️"
             label={`External: ${external}`}
             onSelect={run(() => store.cycleWallExternal(targetLayer.id))}
+          />
+          {/* Pset_WallCommon: only what the user says, never inferred (ROAD-3581) */}
+          <MenuItem
+            icon="🏗️"
+            label={`Load Bearing: ${loadBearing}`}
+            onSelect={run(() => store.cycleWallLoadBearing(targetLayer.id))}
+          />
+          <MenuItem
+            icon="🔇"
+            label={`Acoustic Rating... ${rating(ifc.acousticRating)}`}
+            onSelect={run(() => store.promptWallRating(targetLayer.id, 'acousticRating'))}
+          />
+          <MenuItem
+            icon="🔥"
+            label={`Fire Rating... ${rating(ifc.fireRating)}`}
+            onSelect={run(() => store.promptWallRating(targetLayer.id, 'fireRating'))}
           />
         </>
       )}

@@ -4,6 +4,7 @@ import type { EditorStore } from '../EditorStore';
 import { canUserSave } from '../../core/userAuth';
 import { saveDxf } from '@io/exportDxf/saveDxf';
 import { showProblem } from '../../shell/softapp';
+import { DOC_UNITS } from '../../model/units/docUnits';
 
 export async function exportDxf(store: EditorStore): Promise<void> {
   if (store.currentUserAuth) {
@@ -26,7 +27,8 @@ export async function exportDxf(store: EditorStore): Promise<void> {
     }
   }
   try {
-    await saveDxf(store.doc, store.units, store.layers.values(), store.schematic, store.currentFileName);
+    // the DXF says what its numbers are ($INSUNITS 4): the drawing's own mm (cad-1)
+    await saveDxf(store.doc, DOC_UNITS, store.layers.values(), store.schematic, store.currentFileName);
   } catch (err) {
     // the save dialog or the write failed (not a cancel: saveDxf returns quietly on AbortError)
     showProblem('save_failed', {

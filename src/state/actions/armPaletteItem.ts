@@ -2,6 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { metresToUnits } from '../../model/palette/metresToUnits';
 import { formatField } from '../../model/units/formatField';
+import { DOC_UNITS } from '../../model/units/docUnits';
 import type { EditorStore } from '../EditorStore';
 
 /** Choose the palette item to paint or place, and switch to the Palette tool. */
@@ -19,8 +20,8 @@ export function armPaletteItem(store: EditorStore, id: string | null): void {
 
   const layer = store.layers.get(store.activeLayerId)?.name ?? store.activeLayerId;
   if (item.size) {
-    const w = formatField(metresToUnits(item.size[0], store.units), store.units);
-    const h = formatField(metresToUnits(item.size[1], store.units), store.units);
+    const w = formatField(metresToUnits(item.size[0], DOC_UNITS), store.units);
+    const h = formatField(metresToUnits(item.size[1], DOC_UNITS), store.units);
     const how = store.paletteFit === 'fill' ? 'click a region to fill it with it' : store.paletteFit === 'tile' ? 'click a region to tile it' : 'click to place';
     store.showHint(`${item.name} (${w} × ${h} ${store.units}) — ${how} on "${layer}" · Esc to stop`, 4000);
   } else {

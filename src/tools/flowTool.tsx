@@ -10,6 +10,7 @@ import { outlineCorners } from '../flow/placement';
 import { definitionOf, hitPlacementAt, placeBlock, removePlacement } from '../flow/Schematic';
 import { FLOW } from '../render/flow/flowColors';
 import type { Tool } from './types';
+import { DOC_UNITS } from '../model/units/docUnits';
 
 /**
  * Place a Flow block. Which symbol is placed is the sidebar's Flow panel's
@@ -57,13 +58,13 @@ export const flowTool: Tool<FlowState> = {
       // a port per channel, and a DT12 brings its pinout detail sheet along.
       let placed: ReturnType<typeof placeConnectorBlock> = null;
       api.editFlow(() => {
-        placed = placeConnectorBlock(api.schematic, connector, input.world, api.units, api.activeLayerId);
+        placed = placeConnectorBlock(api.schematic, connector, input.world, DOC_UNITS, api.activeLayerId);
         return placed !== null;
       });
       const p = placed as ReturnType<typeof placeConnectorBlock>;
       if (!p) return;
       state.placed += 1;
-      api.edit(() => placeConnectorDetail(api.doc, api.schematic, p, api.units, api.activeLayerId) !== null);
+      api.edit(() => placeConnectorDetail(api.doc, api.schematic, p, DOC_UNITS, api.activeLayerId) !== null);
       return;
     }
     const placement = api.editFlow(() =>
@@ -82,7 +83,7 @@ export const flowTool: Tool<FlowState> = {
       definitionId: def.id,
       at: pointer.world,
       layerId: '0',
-      scale: connectorOfDefinitionId(def.id) !== null ? connectorPlacementScale(scene.units) : undefined,
+      scale: connectorOfDefinitionId(def.id) !== null ? connectorPlacementScale(DOC_UNITS) : undefined,
     }).map((p) => view.toScreen(p.x, p.y));
     ctx.save();
     ctx.setLineDash([5, 4]);

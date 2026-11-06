@@ -2,6 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { placePaletteBlock } from '../../model/palette/placePaletteBlock';
 import type { EditorStore } from '@state/EditorStore';
+import { DOC_UNITS } from '../../model/units/docUnits';
 
 /**
  * A HOST FURNISHES THE SHEET
@@ -29,7 +30,7 @@ export function placeHostItems(store: EditorStore, msg: { layer?: unknown; items
     const at = it?.at;
     if (!item || !Array.isArray(at) || at.length !== 2 || !at.every((v) => typeof v === 'number' && Number.isFinite(v))) continue;
     const rotation = typeof it.rotation === 'number' && Number.isFinite(it.rotation) ? it.rotation : 0;
-    if (placePaletteBlock(store.doc, item, store.units, { x: at[0], y: at[1] }, rotation, layer) !== null) n++;
+    if (placePaletteBlock(store.doc, item, DOC_UNITS, { x: at[0], y: at[1] }, rotation, layer) !== null) n++;
   }
   if (!n) return 0;
   store.history.push(before);

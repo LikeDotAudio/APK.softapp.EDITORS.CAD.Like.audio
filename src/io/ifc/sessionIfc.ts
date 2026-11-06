@@ -5,6 +5,7 @@ import type { SavedSession } from '../browserStorage/SavedSession';
 import { bimPartOf, exportIfc } from './exportIfc';
 import { fetchPartTypes } from './partTypes';
 import { withViews } from './viewsIfc';
+import { sessionDocUnits } from '../browserStorage/sessionInMm';
 
 /**
  * The session's .ifc twin, with every placed part's own type fetched from the
@@ -16,7 +17,7 @@ import { withViews } from './viewsIfc';
 export async function sessionIfc(session: SavedSession, fetcher?: typeof fetch, viewports: readonly CadViewport[] = []): Promise<string> {
   const ids = (session.schematic?.placements ?? []).map(bimPartOf).filter((id): id is string => !!id);
   const types = ids.length ? await fetchPartTypes(ids, fetcher ?? globalThis.fetch?.bind(globalThis)) : {};
-  return withViews(exportIfc(session, { types }), viewports, session.units);
+  return withViews(exportIfc(session, { types }), viewports, sessionDocUnits(session));
 }
 
 /** The .ifc file name for a drawing: its own name, else 'drawing'. */

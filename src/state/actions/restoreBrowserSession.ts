@@ -5,6 +5,7 @@ import type { SavedSession } from '@io/browserStorage/SavedSession';
 import { restoreSchematic } from '../../flow/Schematic';
 import { loadSessionFromBrowser } from '@io/browserStorage/loadSessionFromBrowser';
 import { generateUuid } from '../../core/generateUuid';
+import { sessionInMm } from '@io/browserStorage/sessionInMm';
 
 export async function restoreBrowserSession(store: EditorStore): Promise<void> {
   await store.showLoading('Opening drawings', 'Restoring cached drawing from browser memory...');
@@ -28,12 +29,14 @@ export async function restoreBrowserSession(store: EditorStore): Promise<void> {
 }
 
 /** Put a saved session on the sheet: the drawing, its layers, units and grid, and the tracing image. */
-export async function applySavedSession(store: EditorStore, session: SavedSession): Promise<void> {
+export async function applySavedSession(store: EditorStore, saved: SavedSession): Promise<void> {
+  // a version 1 session (geometry in its display units) is scaled to mm first (cad-1)
+  const session = sessionInMm(saved);
   store.doc.restore(session.docSnapshot);
   store.currentFileName = session.currentFileName ?? null;
   if (session.schematic) restoreSchematic(store.schematic, session.schematic);
   store.units = session.units || 'in';
-  store.gridSize = session.gridSize || 0.25;
+  store.gridSize = session.gridSize || 6.35; // mm
   store.gridMode = session.gridMode || 'lines';
   store.snapToGrid = session.snapToGrid ?? true;
   store.shapeMode = session.shapeMode ?? false;

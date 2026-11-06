@@ -76,6 +76,11 @@ export type DynValues = Record<string, number | null>;
 export interface DynField {
   key: string;
   label: string;
+  /**
+   * Degrees, taken as typed. Every other field is a length: typed in the
+   * display units and handed to resolve() in mm (cad-1, dynNumbers).
+   */
+  angle?: boolean;
 }
 
 /**
@@ -88,8 +93,9 @@ export interface DynDescriptor<S> {
   /** Optional cycling toggle, e.g. radius vs diameter. First entry is the default. */
   modes?: readonly string[];
   modeLabel?(mode: string): string;
+  /** What the empty field shows: lengths through formatField (mm in, display units out). */
   placeholder(state: S, key: string, mode: string, cursor: Point, units: Units): string;
-  /** Effective end point implied by the typed values, or null if none is usable. */
+  /** Effective end point implied by the typed values (lengths in mm), or null if none is usable. */
   resolve(state: S, values: DynValues, mode: string, cursor: Point): Point | null;
   /** Finish the shape at the resolved point. */
   commit(state: S, point: Point, api: ToolApi): void;
