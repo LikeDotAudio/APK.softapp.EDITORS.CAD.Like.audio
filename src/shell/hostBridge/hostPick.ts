@@ -3,6 +3,8 @@
 import type { EditorStore } from '@state/EditorStore';
 import { buildDxf } from '@io/exportDxf/buildDxf';
 import { dxfFileName } from '@io/exportDxf/dxfFileName';
+import type { ToolId } from '../../core/types';
+import { getTool } from '../../tools/registry';
 
 /**
  * A CLICK ON THE SHEET, FOR A HOST THAT KNOWS WHAT IS UNDER IT.
@@ -67,4 +69,19 @@ export function dxfForHost(store: Pick<EditorStore, 'doc' | 'units' | 'layers' |
     fileName: dxfFileName(store.units, store.currentFileName),
     text: buildDxf(store.doc, store.units, store.layers.values(), store.schematic),
   };
+}
+
+/**
+ * `tool` { id } puts a tool in the user's hand, as its toolbar button would.
+ * The drawing door opens holding Line, which is right for a host whose sheet
+ * is drawn on (the acoustic room) and wrong for one whose sheet is read and
+ * rearranged (the Simulation): there the first click should select, so a
+ * group drags and a `pick` is acted on. An id this editor does not have is
+ * ignored.
+ */
+export function applyHostTool(store: Pick<EditorStore, 'setTool'>, { id }: Record<string, unknown>): boolean {
+  if (typeof id !== 'string') return false;
+  try { getTool(id as ToolId); } catch { return false; }
+  store.setTool(id as ToolId);
+  return true;
 }

@@ -1074,6 +1074,26 @@
         }
       }
     },
+    "toCad.tool": {
+      "description": "Put a tool in the user's hand, as its toolbar button would (hostPick.ts); an id this editor does not have is ignored. The Simulation asks for 'select'.",
+      "type": "object",
+      "required": [
+        "protocol",
+        "type",
+        "id"
+      ],
+      "properties": {
+        "protocol": {
+          "const": "cad.like.audio/host@1"
+        },
+        "type": {
+          "const": "tool"
+        },
+        "id": {
+          "type": "string"
+        }
+      }
+    },
     "toCad.editorReady": {
       "description": "A block editor in the CAD's iframe is up and listening; the CAD answers with toEditor.load.",
       "type": "object",

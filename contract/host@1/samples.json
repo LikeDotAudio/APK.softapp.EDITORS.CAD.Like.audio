@@ -454,6 +454,11 @@
     {
       "protocol": "cad.like.audio/host@1",
       "type": "dxf"
+    },
+    {
+      "protocol": "cad.like.audio/host@1",
+      "type": "tool",
+      "id": "select"
     }
   ],
   "toHost": [

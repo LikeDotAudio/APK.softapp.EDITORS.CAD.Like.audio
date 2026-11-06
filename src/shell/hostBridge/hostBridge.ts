@@ -16,7 +16,7 @@ import { showHostSheet } from './hostSheet';
 import { applyHostSpaces } from './hostSpaces';
 import { applyHostLayers, applyHostSelect, applyHostWalls, selectionForHost } from './hostWalls';
 import { pickedOutline, sceneForHost, wallsForHost } from './sceneForHost';
-import { dxfForHost, installHostPick } from './hostPick';
+import { applyHostTool, dxfForHost, installHostPick } from './hostPick';
 
 /**
  * THE DOOR FOR SOFTAPPS BUILT ON THIS ONE
@@ -86,7 +86,8 @@ import { dxfForHost, installHostPick } from './hostPick';
  * sheet goes out as `pick` { at, count, tool, shift, ctrl, client }, so a host
  * can hit-test the pins inside its own `marks` (the Simulation opens the
  * readout and the thing card from it). `dxf` asks for the sheet as Download
- * DXF writes it and gets `dxf` { fileName, text } back.
+ * DXF writes it and gets `dxf` { fileName, text } back. `tool` { id } puts a
+ * tool in the user's hand (the Simulation asks for 'select').
  *
  * SAVING A SESSION. `session` asks for the whole drawing — the same object
  * the browser autosaves (SavedSession), without the user's sign-in — and
@@ -220,6 +221,8 @@ export const HOST_HANDLERS: Record<string, (store: EditorStore, msg: HostMessage
   },
   // the sheet as Download DXF writes it, answered with `dxf` { fileName, text } (hostPick.ts)
   dxf: (store) => post('dxf', dxfForHost(store)),
+  // put a tool in the user's hand: the Simulation reads its sheet, so it asks for 'select' (hostPick.ts)
+  tool: (store, msg) => void applyHostTool(store, msg),
   floorplan: (store, { file }) => {
     if (file instanceof File) void openFloorPlan(store, file);
   },

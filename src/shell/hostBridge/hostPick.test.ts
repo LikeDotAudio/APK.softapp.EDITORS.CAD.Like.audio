@@ -34,3 +34,15 @@ describe('dxf: the sheet as Download DXF writes it', () => {
     expect(validateMessage(schema, 'toHost', { protocol: HOST_PROTOCOL, type: 'dxf', ...body })).toEqual([]);
   });
 });
+
+describe('tool: a host puts a tool in the hand', () => {
+  it('sets a tool the editor has, and ignores one it does not', async () => {
+    const { applyHostTool } = await import('./hostPick');
+    const set: string[] = [];
+    const store = { setTool: (id: string) => void set.push(id) } as never;
+    expect(applyHostTool(store, { id: 'select' })).toBe(true);
+    expect(applyHostTool(store, { id: 'teleport' })).toBe(false);
+    expect(applyHostTool(store, {})).toBe(false);
+    expect(set).toEqual(['select']);
+  });
+});
