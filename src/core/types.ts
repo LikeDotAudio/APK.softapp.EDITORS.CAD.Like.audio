@@ -500,6 +500,25 @@ export interface Connector {
   label?: string;
   /** Drawn by a host's `schematic` under this key (hostSchematic.ts). */
   hostKey?: string;
+  /**
+   * The wire is a real cable, not only a line on the sheet: in IFC an
+   * IfcCableSegment that is the connection's RealizingElement, typed by its
+   * BIM cable part when the drawing has the part's file (schematicIfc.ts).
+   */
+  cable?: ConnectorCable;
+}
+
+/** The cable a wire is (Connector.cable). Every field optional: a cable whose part is not known is still a cable. */
+export interface ConnectorCable {
+  /** Its BIM part, `<maker>/<model>` (an IfcCableSegmentType). */
+  part?: string;
+  /** The label on the cable, `W-001` (IfcCableSegment.Tag). */
+  tag?: string;
+  /** Its length, mm (Qto_CableSegmentBaseQuantities.Length). */
+  length_mm?: number;
+  colour?: string;
+  /** planned, made, tested … */
+  status?: string;
 }
 
 /**

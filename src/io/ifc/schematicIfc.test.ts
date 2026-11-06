@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { Doc } from '../../model/Doc';
 import type { SavedSession } from '../browserStorage/SavedSession';
-import { deref, entitiesByType, getPsets, parseStep, type StepEntity } from '../../vendor/ifc/step';
+import { deref, entitiesByType, getPsets, parseStep, type StepEntity, type StepValue } from '../../vendor/ifc/step';
 import { exportIfc } from './exportIfc';
 import { importIfc } from './importIfc';
 import { readSchematic } from './schematicIfc';
@@ -14,11 +14,13 @@ import { readSchematic } from './schematicIfc';
  * cad-6: the Flow schematic's wiring and groups are IFC entities —
  * IfcRelConnectsPorts between occurrence ports, IfcElementAssembly (rack, kit)
  * and IfcGroup — not JSON in APK_CadSession.Native, and the session still comes
- * back whole. `CAD_IFC_OUT=<dir>` writes the files for IfcOpenShell.
+ * back whole. A wire that is a cable is an IfcCableSegment realizing its
+ * connection, every block's symbol an IfcAnnotation assigned to its occurrence,
+ * and a host's resend keeps its GlobalIds. `CAD_IFC_OUT=<dir>` writes the files for IfcOpenShell.
  */
 
 const fixture = (name: string) => readFileSync(join(__dirname, 'fixtures', name), 'utf8');
-const TYPES = { 'keithley/2400': fixture('keithley--2400.ifc'), 'genelec/8050bpm': fixture('genelec--8050bpm.ifc') };
+const TYPES = { 'keithley/2400': fixture('keithley--2400.ifc'), 'genelec/8050bpm': fixture('genelec--8050bpm.ifc'), 'hosa/cmr-206': fixture('hosa--cmr-206.ifc') };
 
 function sheet(units: SavedSession['units'] = 'mm', k = 1): SavedSession {
   const doc = new Doc();
@@ -47,17 +49,19 @@ function sheet(units: SavedSession['units'] = 'mm', k = 1): SavedSession {
       ],
       connectors: [
         // a terminal of each part (the keithley's SOURCE to the genelec's SINK)
-        { id: 1, from: { placementId: 1, portId: 'INPUT_OUTPUT_HI' }, to: { placementId: 2, portId: 'ANALOG_INPUT' }, layerId: 'Flow', route: [{ x: 1500 * k, y: 1000 * k }, { x: 2500 * k, y: 1000 * k }], label: 'drive L' },
+        { id: 1, from: { placementId: 1, portId: 'INPUT_OUTPUT_HI' }, to: { placementId: 2, portId: 'ANALOG_INPUT' }, layerId: 'Flow', route: [{ x: 1500 * k, y: 1000 * k }, { x: 2500 * k, y: 1000 * k }], label: 'drive L',
+          cable: { part: 'hosa/cmr-206', tag: 'W-001', length_mm: 1800, colour: 'black', status: 'made' } },
         // drawn sink → source: RelatingPort is still the SOURCE side
         { id: 2, from: { placementId: 3, portId: 'ANALOG_INPUT' }, to: { placementId: 1, portId: 'INPUT_OUTPUT_LO' }, layerId: 'Flow', route: [] },
         // a fan-out from the same terminal: IFC lets a port be RelatingPort once, so a second port carries it
         { id: 3, from: { placementId: 1, portId: 'INPUT_OUTPUT_HI' }, to: { placementId: 4, portId: 'IN' }, layerId: 'Flow', route: [{ x: 1800 * k, y: 700 * k }] },
         // catalogue to catalogue, ports made for them
-        { id: 4, from: { placementId: 4, portId: 'OUT' }, to: { placementId: 5, portId: 'PIN_1' }, layerId: 'Flow', hostKey: 'sim' },
+        // a cable whose part the drawing does not have: an untyped CABLESEGMENT
+        { id: 4, from: { placementId: 4, portId: 'OUT' }, to: { placementId: 5, portId: 'PIN_1' }, layerId: 'Flow', hostKey: 'sim', cable: { tag: 'W-002' } },
         { id: 5, from: { placementId: 6, portId: 'OUT' }, to: { placementId: 4, portId: 'IN' }, layerId: '0' },
         // a port to itself, and an end whose placement is gone
         { id: 6, from: { placementId: 4, portId: 'LOOP' }, to: { placementId: 4, portId: 'LOOP' }, layerId: 'Flow' },
-        { id: 7, from: { placementId: 4, portId: 'OUT' }, to: { placementId: 99, portId: 'IN' }, layerId: 'Flow', label: 'dangling' },
+        { id: 7, from: { placementId: 4, portId: 'OUT' }, to: { placementId: 99, portId: 'IN' }, layerId: 'Flow', label: 'dangling', cable: { part: 'hosa/cmr-206' } },
       ],
       groups: [
         { id: 1, name: 'Rack A', children: [3], members: [1, 4], layerId: 'Flow', source: { kind: 'rack', id: 'A' }, pad: 0.6 },
@@ -154,6 +158,65 @@ describe('the Flow schematic as IFC entities (cad-6)', () => {
     const s = sheet();
     const legacy = { placements: s.schematic!.placements, connectors: s.schematic!.connectors, groups: s.schematic!.groups, nextPlacementId: 7, nextConnectorId: 8, nextGroupId: 5 };
     expect(readSchematic(f, (v) => v, legacy, new Map())).toEqual(s.schematic);
+  });
+
+  it('a wire that is a cable is an IfcCableSegment realizing its connection, typed by its cable part', () => {
+    const cables = entitiesByType(f, 'IFCCABLESEGMENT');
+    expect(cables.map((c) => c.args[7])).toEqual(['W-001', 'W-002']);
+    const realized = entitiesByType(f, 'IFCRELCONNECTSPORTS').filter((r) => r.args[6]).map((r) => deref(f, r.args[6])!.args[7]);
+    expect(realized).toEqual(['W-001', 'W-002']);
+    const typeOf = (e: StepEntity) => entitiesByType(f, 'IFCRELDEFINESBYTYPE').find((r) => (r.args[4] as { id: number }[]).some((x) => x.id === e.id));
+    const [typed, untyped] = cables as [StepEntity, StepEntity];
+    expect(deref(f, typeOf(typed)!.args[5])!.type).toBe('IFCCABLESEGMENTTYPE');
+    expect(typed.args[8]).toBeNull();
+    expect(typeOf(untyped)).toBeUndefined();
+    expect(enumOf(untyped.args[8])).toBe('CABLESEGMENT');
+    const sets = getPsets(f, typed);
+    expect(sets.APK_Connection).toMatchObject({ Medium: 'wired', CablePart: 'hosa/cmr-206', CableStatus: 'made', CableColour: 'black' });
+    expect(sets.Qto_CableSegmentBaseQuantities!.Length).toBe(1800);
+    // the cable type is declared in the project library with the other parts, once
+    expect(entitiesByType(f, 'IFCCABLESEGMENTTYPE')).toHaveLength(1);
+  });
+
+  it('each placement has a SYMBOL annotation on the GRAPH_VIEW sheet, assigned to its occurrence', () => {
+    const symbols = entitiesByType(f, 'IFCANNOTATION').filter((a) => enumOf(a.args[7]) === 'SYMBOL');
+    expect(symbols.map((a) => a.args[2])).toEqual(['SMU1', 'SPK-L', 'SPK-R', 'DSP1', 'conn.xlr3f', 'flow.source']);
+    const assigned = entitiesByType(f, 'IFCRELASSIGNSTOPRODUCT');
+    expect(assigned).toHaveLength(6);
+    symbols.forEach((sym, i) => {
+      const rel = assigned.find((r) => (r.args[4] as { id: number }[]).some((x) => x.id === sym.id))!;
+      expect(getPsets(f, deref(f, rel.args[6])!).APK_Placement!.PlacementId).toBe(i + 1);
+      const shape = deref(f, sym.args[6])!;
+      const rep = deref(f, (shape.args[2] as StepValue[])[0])!;
+      expect(enumOf(deref(f, rep.args[0])!.args[8])).toBe('GRAPH_VIEW');
+      expect(getPsets(f, sym).APK_SheetSeat!.Sheet).toBe('Schematic');
+    });
+  });
+
+  it("a host's resend keeps the GlobalIds of what it placed, wired and grouped", () => {
+    const hosted = (shift: number): SavedSession => {
+      const s = sheet();
+      const sch = s.schematic!;
+      // the host's things come back with new CAD ids (hostSchematic.ts replaces them by key)
+      const ren = (id: number) => (id === 2 ? 2 + shift : id === 5 ? 5 + shift : id);
+      sch.placements = sch.placements.map((p) => ({ ...p, id: ren(p.id) }));
+      sch.placements[4] = { ...sch.placements[4]!, hostKey: 'sim', hostRef: 'X1', hostHash: 'h1' };
+      sch.connectors = sch.connectors.map((c) => ({ ...c, id: c.hostKey ? c.id + shift : c.id, from: { ...c.from, placementId: ren(c.from.placementId) }, to: { ...c.to, placementId: ren(c.to.placementId) } }));
+      sch.connectors[3] = { ...sch.connectors[3]!, from: { placementId: ren(5), portId: 'PIN_1' }, to: { placementId: ren(2), portId: 'ANALOG_INPUT' }, hostKey: 'sim' };
+      sch.groups = sch.groups!.map((g) => (g.hostKey ? { ...g, id: g.id + shift, source: { kind: 'host', id: 'monitors' } } : g));
+      sch.groups[0] = { ...sch.groups[0]!, children: [3 + shift] };
+      sch.groups[1] = { ...sch.groups[1]!, members: [ren(5)] };
+      sch.groups[2] = { ...sch.groups[2]!, members: [ren(2), 3] };
+      sch.nextPlacementId = 7 + shift; sch.nextConnectorId = 8 + shift; sch.nextGroupId = 5 + shift;
+      return s;
+    };
+    const gids = (s: SavedSession, type: string) => entitiesByType(parseStep(exportIfc(s, { types: TYPES })), type).map((e) => e.args[0]).sort();
+    const a = hosted(0), b = hosted(40);
+    for (const type of ['IFCAUDIOVISUALAPPLIANCE', 'IFCDISTRIBUTIONELEMENT', 'IFCDISTRIBUTIONPORT', 'IFCRELCONNECTSPORTS', 'IFCCABLESEGMENT', 'IFCANNOTATION', 'IFCGROUP', 'IFCELEMENTASSEMBLY']) {
+      expect(gids(b, type)).toEqual(gids(a, type));
+    }
+    // and each still reads back as itself
+    expect(importIfc(exportIfc(b, { types: TYPES }))).toEqual(b);
   });
 
   it('is deterministic to the byte', () => {

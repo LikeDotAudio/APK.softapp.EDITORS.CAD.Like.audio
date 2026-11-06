@@ -1,6 +1,6 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
-import type { BlockPlacement, Connector, Group, Point } from '../../core/types';
+import type { BlockPlacement, Connector, ConnectorCable, Group, Point } from '../../core/types';
 import type { SchematicSnapshot } from '../../flow/Schematic';
 import { portId as cadPortId } from '../../flow/bimPart';
 import { deref, entitiesByType, getPsets, inverseIndex, isRef, unwrap, type StepEntity, type StepFile, type StepRef, type StepValue } from '../../vendor/ifc/step';
@@ -27,6 +27,22 @@ import { E, R, bool, ident, int, label, length, realv, text, type PropValue, typ
  * - Its drawn route is an IfcAnnotation 'WIRE' (Curve2D in a GRAPH_VIEW
  *   subcontext) with APK_SchematicWire {ConnectorId, Connection = the
  *   relationship's GlobalId, Label, Layer, Reversed, RoutePoints, HostKey}.
+ * - A wire that is a real cable (Connector.cable) is also an IfcCableSegment,
+ *   the relationship's RealizingElement: Tag = the cable's label, typed by its
+ *   BIM cable part (IfcRelDefinesByType) when the drawing has the part's file
+ *   and that part is an IfcCableSegmentType, else PredefinedType CABLESEGMENT;
+ *   APK_Connection {Medium wired, CablePart, CableStatus, CableColour} and
+ *   Qto_CableSegmentBaseQuantities.Length (mm) on it.
+ * - Every placement's symbol on the sheet is an IfcAnnotation (SYMBOL) in the
+ *   GRAPH_VIEW subcontext, placed where the block is drawn and assigned to its
+ *   occurrence by IfcRelAssignsToProduct (what ifcopenshell.api.drawing
+ *   .assign_product writes); APK_SheetSeat.Sheet 'Schematic'. Derived from the
+ *   placement, so the reader ignores it.
+ * - GlobalIds stay put across a host's resend (hostSchematic.ts replaces what
+ *   it placed by key): an occurrence's derives from (hostKey, hostRef), a
+ *   host group's from (hostKey, its source), a host connector's from
+ *   (hostKey, both ends' hostRef and port id); the ports, symbols, wires and
+ *   cables from those. Everything else keeps its CAD id.
  * - The ports' own SystemType (from the part) groups the occurrences into
  *   IfcDistributionSystems (AUDIOVISUAL, SIGNAL, ELECTRICAL …) — derived, so
  *   the reader ignores them.
@@ -69,6 +85,10 @@ export interface SchematicIfcTargets {
   occurrences: Map<number, { ref: StepRef; gid: string }>;
   /** exportIfc's storey containment: what this writes is held there too. */
   inStorey: StepRef[];
+  /** exportIfc's Qto_ writer (lengths mm). */
+  qto?: (owner: string, name: string, qs: [string, 'L' | 'A' | 'V', number | undefined][], objects: StepRef[]) => void;
+  /** The part types exportIfc merged, by part id: a cable part's types its cables. */
+  types?: Map<string, { type: StepRef; entity: string }>;
 }
 
 /** Group sources drawn as a physical assembly rather than a logical group. */
@@ -79,6 +99,32 @@ const IPV4 = /\b\d{1,3}(?:\.\d{1,3}){3}\b/;
 /** The BlockPlacement keys written as their own properties; anything else rides in Extra. */
 const KNOWN = new Set(['id', 'definitionId', 'at', 'rotation', 'scale', 'layerId', 'refdes', 'portLabels', 'portals', 'hostKey', 'hostHash', 'hostRef', 'bimRef', 'serial', 'mac', 'resource', 'z_mm', 'mountedOn', 'mirrorOf']);
 const json = (v: unknown) => JSON.stringify(v);
+const CABLE_TYPE = 'IFCCABLESEGMENTTYPE';
+
+/** The key a host's group keeps across resends, else its CAD id. */
+function groupKey(g: Group): string {
+  return g.hostKey && g.source?.id ? `host:${g.hostKey}:${g.source.kind}:${g.source.id}` : String(g.id);
+}
+
+/** The key a host's connector keeps across resends — its two ends by the host's names, in either order — else its CAD id. */
+function connectorKey(c: Connector, byId: Map<number, BlockPlacement>): string {
+  const a = byId.get(c.from.placementId), z = byId.get(c.to.placementId);
+  if (!c.hostKey || !a?.hostRef || !z?.hostRef || a.hostKey !== c.hostKey || z.hostKey !== c.hostKey) return String(c.id);
+  const ends = [`${a.hostRef}.${c.from.portId}`, `${z.hostRef}.${c.to.portId}`].sort();
+  return `host:${c.hostKey}:${ends.join('~')}`;
+}
+
+/** Keys unique within the file: a repeat (two host connectors on the same two ports) falls back to the CAD id. */
+function uniqueKeys<T extends { id: number }>(items: T[], key: (x: T) => string): Map<number, string> {
+  const seen = new Set<string>(), out = new Map<number, string>();
+  for (const x of items) {
+    let k = key(x);
+    if (seen.has(k)) k = String(x.id);
+    seen.add(k);
+    out.set(x.id, k);
+  }
+  return out;
+}
 const opt = <T,>(v: T | undefined | null, w: (x: T) => StepValue): PropValue => (v === undefined || v === null ? undefined : w(v));
 
 /** Native's schematic for a cad-6 file: every placement by reference, connectors and groups in IFC. */
@@ -131,6 +177,19 @@ export function writeSchematic(t: SchematicIfcTargets, sch: SchematicSnapshot): 
     ], [e]);
   }
 
+  // ---- each placement's symbol on the sheet, assigned to its occurrence
+  let graph: StepRef | null = null;
+  const graphCtx = () => graph ??= b.add('IFCGEOMETRICREPRESENTATIONSUBCONTEXT', ['Annotation', 'Plan', { kind: 'derived' }, { kind: 'derived' }, { kind: 'derived' }, { kind: 'derived' }, b.entity(t.annotationCtx).args[6] ?? null, null, E('GRAPH_VIEW'), null]);
+  for (const p of sch.placements) {
+    const o = occ.get(p.id)!;
+    const sg = ifcGuid(o.gid, 'symbol');
+    const rep = b.add('IFCPRODUCTDEFINITIONSHAPE', [null, null, [b.add('IFCSHAPEREPRESENTATION', [graphCtx(), 'Annotation', 'Point', [b.once('IFCCARTESIANPOINT', [[R(0), R(0)]])]])]]);
+    const sym = b.add('IFCANNOTATION', [sg, oh, p.refdes ?? p.definitionId, 'Its symbol on the schematic: where the block is drawn, not where the thing is', null, placementAt(mm(p.at.x), mm(p.at.y), p.rotation ?? 0), rep, E('SYMBOL')]);
+    held.push(sym);
+    b.add('IFCRELASSIGNSTOPRODUCT', [ifcGuid(sg, 'assigned'), oh, 'Schematic symbol', null, [sym], null, o.ref]);
+    pset(sg, 'APK_SheetSeat', [['Sheet', label('Schematic')]], [sym]);
+  }
+
   // ---- the occurrences' own terminals (the IfcRelNests exportIfc wrote), by CAD port id
   const own = new Map<number, StepRef[]>();
   for (const e of b.entities) {
@@ -173,8 +232,9 @@ export function writeSchematic(t: SchematicIfcTargets, sch: SchematicSnapshot): 
   };
 
   // ---- connectors: IfcRelConnectsPorts, and the drawn route as a WIRE annotation
-  let graph: StepRef | null = null;
-  const graphCtx = () => graph ??= b.add('IFCGEOMETRICREPRESENTATIONSUBCONTEXT', ['Annotation', 'Plan', { kind: 'derived' }, { kind: 'derived' }, { kind: 'derived' }, { kind: 'derived' }, b.entity(t.annotationCtx).args[6] ?? null, null, E('GRAPH_VIEW'), null]);
+  const byId = new Map(sch.placements.map((p) => [p.id, p]));
+  const ckey = uniqueKeys(sch.connectors, (c) => connectorKey(c, byId));
+  const typedCables = new Map<number, StepRef[]>();
   const systems = new Map<string, StepRef[]>();
   const inSystem = (port: StepRef, ...members: StepRef[]) => {
     const st = b.entity(port).args[9];
@@ -182,9 +242,24 @@ export function writeSchematic(t: SchematicIfcTargets, sch: SchematicSnapshot): 
     const list = systems.get(st.value) ?? systems.set(st.value, []).get(st.value)!;
     for (const m of members) if (!list.includes(m)) list.push(m);
   };
+  /** The cable a wire is: an IfcCableSegment, the connection's RealizingElement. */
+  const writeCable = (connection: string, cable: ConnectorCable, name?: string): StepRef => {
+    const cg = ifcGuid(connection, 'cable');
+    const typed = cable.part ? t.types?.get(cable.part) : undefined;
+    const type = typed && typed.entity === CABLE_TYPE ? typed.type : undefined;
+    const seg = b.add('IFCCABLESEGMENT', [cg, oh, cable.tag ?? name ?? null, null, null, b.add('IFCLOCALPLACEMENT', [t.storeyPl, b.add('IFCAXIS2PLACEMENT3D', [b.once('IFCCARTESIANPOINT', [[R(0), R(0), R(0)]]), null, null])]), null, cable.tag ?? null, type ? null : E('CABLESEGMENT')]);
+    held.push(seg);
+    if (type) (typedCables.get(type.id) ?? typedCables.set(type.id, []).get(type.id)!).push(seg);
+    pset(cg, 'APK_Connection', [
+      ['Medium', label('wired')], ['CablePart', opt(cable.part, ident)], ['CableStatus', opt(cable.status, label)], ['CableColour', opt(cable.colour, label)],
+    ], [seg]);
+    t.qto?.(cg, 'Qto_CableSegmentBaseQuantities', [['Length', 'L', cable.length_mm]], [seg]);
+    return seg;
+  };
   for (const c of sch.connectors) {
     const a = occ.get(c.from.placementId), z = occ.get(c.to.placementId);
-    const wg = role('wire', c.id);
+    const key = ckey.get(c.id)!;
+    const wg = role('wire', key);
     let connection: string | undefined;
     let reversed = false;
     if (a && z) {
@@ -193,8 +268,9 @@ export function writeSchematic(t: SchematicIfcTargets, sch: SchematicSnapshot): 
       const [src, snk] = reversed ? [c.to, c.from] : [c.from, c.to];
       const relating = portFor(src.placementId, src.portId, true);
       const related = portFor(snk.placementId, snk.portId, false, relating);
-      connection = role('connector', c.id);
-      b.add('IFCRELCONNECTSPORTS', [connection, oh, c.label ?? null, null, relating, related, null]);
+      connection = role('connector', key);
+      const cable = c.cable ? writeCable(connection, c.cable, c.label) : null;
+      b.add('IFCRELCONNECTSPORTS', [connection, oh, c.label ?? null, null, relating, related, cable]);
       inSystem(relating, a.ref, z.ref);
       inSystem(related, a.ref, z.ref);
     }
@@ -213,7 +289,15 @@ export function writeSchematic(t: SchematicIfcTargets, sch: SchematicSnapshot): 
       // an end whose placement is not on the sheet has no port to join: said here instead
       ['FromPlacement', connection ? undefined : int(c.from.placementId)], ['FromPort', connection ? undefined : ident(c.from.portId)],
       ['ToPlacement', connection ? undefined : int(c.to.placementId)], ['ToPort', connection ? undefined : ident(c.to.portId)],
+      ['Cable', !connection && c.cable ? text(json(c.cable)) : undefined],
     ], [wire]);
+  }
+  for (const [typeId, cables] of typedCables) {
+    const typeRef: StepRef = { kind: 'ref', id: typeId };
+    // a type is typed-by once (IfcTypeObject.Types SET [0:1]): join exportIfc's relationship when it wrote one
+    const rel = b.entities.find((e) => e.type === 'IFCRELDEFINESBYTYPE' && isRef(e.args[5]) && e.args[5].id === typeRef.id);
+    if (rel) (rel.args[4] as StepValue[]).push(...cables);
+    else b.add('IFCRELDEFINESBYTYPE', [ifcGuid(String(b.entity(typeRef).args[0]), 'cables', doc), oh, null, null, cables, typeRef]);
   }
   for (const [ref, ports] of made) {
     b.add('IFCRELNESTS', [ifcGuid(String(b.entity({ kind: 'ref', id: ref }).args[0]), 'nests', 'schematic'), oh, 'Schematic ports', null, { kind: 'ref', id: ref }, ports]);
@@ -225,9 +309,10 @@ export function writeSchematic(t: SchematicIfcTargets, sch: SchematicSnapshot): 
 
   // ---- groups: assemblies (rack, kit) and logical groups, nested as the tree they are
   const groups = sch.groups ?? [];
+  const gkey = uniqueKeys(groups, groupKey);
   const gref = new Map<number, StepRef>();
   for (const g of groups) {
-    const gg = role('group', g.id);
+    const gg = role('group', gkey.get(g.id)!);
     const e = isAssembly(g)
       ? b.add('IFCELEMENTASSEMBLY', [gg, oh, g.name, null, g.source!.kind.toUpperCase(), null, null, null, E('SITE'), E('USERDEFINED')])
       : b.add('IFCGROUP', [gg, oh, g.name, null, g.source?.kind ?? null]);
@@ -242,8 +327,8 @@ export function writeSchematic(t: SchematicIfcTargets, sch: SchematicSnapshot): 
   for (const g of groups) {
     const held2 = [...g.members.map((m) => occ.get(m)?.ref), ...g.children.map((c) => gref.get(c))].filter((r): r is StepRef => !!r);
     if (!held2.length) continue;
-    if (isAssembly(g)) b.add('IFCRELAGGREGATES', [role('rel', 'assembly', g.id), oh, 'Holds', null, gref.get(g.id)!, held2]);
-    else b.add('IFCRELASSIGNSTOGROUP', [role('rel', 'group', g.id), oh, 'Holds', null, held2, null, gref.get(g.id)!]);
+    if (isAssembly(g)) b.add('IFCRELAGGREGATES', [role('rel', 'assembly', gkey.get(g.id)!), oh, 'Holds', null, gref.get(g.id)!, held2]);
+    else b.add('IFCRELASSIGNSTOGROUP', [role('rel', 'group', gkey.get(g.id)!), oh, 'Holds', null, held2, null, gref.get(g.id)!]);
   }
 
   t.inStorey.push(...held);
@@ -271,6 +356,21 @@ function placed(file: StepFile, product: StepEntity): { x: number; y: number } {
     pl = deref(file, pl.args[0]);
   }
   return { x, y };
+}
+
+/** The cable an IfcCableSegment realizing a connection is (Connector.cable). */
+function cableOf(file: StepFile, seg: StepEntity | undefined): ConnectorCable | undefined {
+  if (!seg || seg.type !== 'IFCCABLESEGMENT') return undefined;
+  const sets = getPsets(file, seg);
+  const conn = sets.APK_Connection ?? {};
+  const cable: ConnectorCable = {};
+  if (conn.CablePart !== undefined) cable.part = String(conn.CablePart);
+  if (typeof seg.args[7] === 'string') cable.tag = seg.args[7];
+  const len = num(sets.Qto_CableSegmentBaseQuantities?.Length);
+  if (len !== undefined) cable.length_mm = len;
+  if (conn.CableColour !== undefined) cable.colour = String(conn.CableColour);
+  if (conn.CableStatus !== undefined) cable.status = String(conn.CableStatus);
+  return cable;
 }
 
 /**
@@ -364,6 +464,8 @@ export function readSchematic(file: StepFile, u: (mm: number) => number, native:
       }
       if (w.Label !== undefined) c.label = String(w.Label);
       if (w.HostKey !== undefined) c.hostKey = String(w.HostKey);
+      const cable = rel ? cableOf(file, deref(file, rel.args[6])) : w.Cable !== undefined ? JSON.parse(String(w.Cable)) as ConnectorCable : undefined;
+      if (cable) c.cable = cable;
       connectors.push(c);
     }
   }

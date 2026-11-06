@@ -8,14 +8,17 @@ import { withViews } from './viewsIfc';
 import { sessionDocUnits } from '../browserStorage/sessionInMm';
 
 /**
- * The session's .ifc twin, with every placed part's own type fetched from the
- * BIM library (once per page). Offline, a part the library cannot give is a
+ * The session's .ifc twin, with every placed part's own type (and every
+ * cable's) fetched from the BIM library (once per page). Offline, a part the library cannot give is a
  * stub type that still names its part — the file is written either way.
  * `viewports` (the store's sheets and host spaces) become its view
  * subcontexts (viewsIfc.ts, cad-9).
  */
 export async function sessionIfc(session: SavedSession, fetcher?: typeof fetch, viewports: readonly CadViewport[] = []): Promise<string> {
-  const ids = (session.schematic?.placements ?? []).map(bimPartOf).filter((id): id is string => !!id);
+  const ids = [
+    ...(session.schematic?.placements ?? []).map(bimPartOf),
+    ...(session.schematic?.connectors ?? []).map((c) => c.cable?.part), // a wire that is a cable is typed by its part
+  ].filter((id): id is string => !!id);
   const types = ids.length ? await fetchPartTypes(ids, fetcher ?? globalThis.fetch?.bind(globalThis)) : {};
   return withViews(exportIfc(session, { types }), viewports, sessionDocUnits(session));
 }

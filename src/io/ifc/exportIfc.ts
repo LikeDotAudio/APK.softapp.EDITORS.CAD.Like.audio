@@ -543,6 +543,8 @@ export function exportIfc(session: SavedSession, opts: ExportIfcOptions = {}): s
   for (const [partId, occs] of typed2occ) {
     b.add('IFCRELDEFINESBYTYPE', [ifcGuid('rel', 'type', ifcGuid('part', partId), role('occurrences')), oh, null, null, occs, merged.get(partId)!.type]);
   }
+  // a wire that is a cable is typed by its cable part (schematicIfc), declared in the library with the rest
+  for (const c of session.schematic?.connectors ?? []) if (c.cable?.part && opts.types?.[c.cable.part]) typeFor(c.cable.part);
   if (libraryTypes.length) {
     library = b.add('IFCPROJECTLIBRARY', [role('library'), oh, 'BIM parts', 'The BIM library parts this drawing places', null, null, null, null, null]);
     b.add('IFCRELDECLARES', [role('rel', 'project-library'), oh, null, null, project, [library]]);
@@ -550,7 +552,7 @@ export function exportIfc(session: SavedSession, opts: ExportIfcOptions = {}): s
   }
 
   if (session.schematic) {
-    writeSchematic({ b, oh, doc, mm, pset, storeyPl, annotationCtx, occurrences: occByPlacement, inStorey }, session.schematic);
+    writeSchematic({ b, oh, doc, mm, pset, qto, storeyPl, annotationCtx, occurrences: occByPlacement, inStorey, types: merged }, session.schematic);
   }
 
   // ------------------------------------------------------------ containment, layers, the session's own state
