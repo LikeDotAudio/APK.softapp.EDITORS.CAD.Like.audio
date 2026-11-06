@@ -112,6 +112,12 @@ describe('host schematic — BIM parts placed as blocks with ports', () => {
     expect(moveHostSchematic(s as unknown as EditorStore, { key: 'other', items: [{ ref: 'U9', at: [0, 0] }] })).toBe(false);
   });
 
+  it('a host group keeps the room its host gives its name', () => {
+    const s = fakeStore();
+    applyHostSchematic(s as unknown as EditorStore, send('h1', { groups: [{ id: 'cast', name: 'Google and Apple', labelWidth: 2400 }] }));
+    expect(s.schematic.groups[0]!.labelWidth).toBe(2400);
+  });
+
   it('the published sample is understood', () => {
     const s = fakeStore();
     const sample = (samples.toCad as { type: string }[]).find((m) => m.type === 'schematic')!;

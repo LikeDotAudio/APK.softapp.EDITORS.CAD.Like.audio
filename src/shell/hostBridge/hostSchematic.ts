@@ -20,7 +20,8 @@ import type { EditorStore } from '@state/EditorStore';
  *               parts:       [apk.bim.part/1 …]            the parts, ports and all
  *               placements:  [{ ref, part, at: [x, y], group?, name?, ports? }]
  *               connections: [{ a: { ref, terminal }, b: { ref, terminal }, label? }]
- *               groups?:     [{ id, name, parent? }]
+ *               groups?:     [{ id, name, parent?, labelWidth? }]   labelWidth: drawing units
+ *                                                      kept clear for the group's name
  *               portals?:    { ref: { terminal: far } } }   far: "text" (a bay, grey)
  *                                                          | { text, wired } (another block, accent)
  *
@@ -45,7 +46,7 @@ import type { EditorStore } from '@state/EditorStore';
 type XY = [number, number];
 type End = { ref?: unknown; terminal?: unknown };
 interface HostPlacement { ref: string; part: string; at: XY; group?: string; name?: string; ports?: BimPort[]; size?: XY }
-interface HostGroup { id: string; name?: string; parent?: string }
+interface HostGroup { id: string; name?: string; parent?: string; labelWidth?: number }
 export interface HostSchematicMessage {
   key?: unknown; hash?: unknown; layer?: unknown; parts?: unknown; placements?: unknown;
   connections?: unknown; groups?: unknown; portals?: unknown;
@@ -183,7 +184,11 @@ export function applyHostSchematic(store: EditorStore, msg: HostSchematicMessage
     }
     return g;
   };
-  for (const g of declared) if (g && str(g.id)) groupFor(g.id, g.name);
+  for (const g of declared) {
+    if (!g || !str(g.id)) continue;
+    const made = groupFor(g.id, g.name);
+    if (num(g.labelWidth) && g.labelWidth > 0) made.labelWidth = g.labelWidth;
+  }
   for (const g of declared) {
     if (!g || !str(g.id) || !str(g.parent) || g.parent === g.id || !groups.has(g.parent)) continue;
     groups.get(g.parent)!.children.push(groups.get(g.id)!.id);

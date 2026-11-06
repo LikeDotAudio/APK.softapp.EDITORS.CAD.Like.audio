@@ -14,6 +14,35 @@
  */
 export const REFDES = { maxPx: 9, minPx: 5, ofWidth: 0.12, room: 1.3 } as const;
 
+/**
+ * A label of `px` that must fit in `roomPx`: as it is, else clipped with an
+ * ellipsis, else null — and null below REFDES.minPx, where nobody could read it.
+ */
+export function fitLabel(
+  text: string,
+  px: number,
+  roomPx: number,
+  measure: (text: string, px: number) => number,
+): { text: string; px: number } | null {
+  if (!text || px < REFDES.minPx) return null;
+  if (measure(text, px) <= roomPx) return { text, px };
+  let lo = 0;
+  let hi = text.length;
+  while (lo < hi) {
+    const mid = Math.ceil((lo + hi) / 2);
+    if (measure(`${text.slice(0, mid)}…`, px) <= roomPx) lo = mid;
+    else hi = mid - 1;
+  }
+  return lo > 0 ? { text: `${text.slice(0, lo)}…`, px } : null;
+}
+
+/** A host group's name: GROUP_LABEL_UNITS drawing units tall (mm on a mm sheet), at most the marker size, clipped to the group's width. */
+export const GROUP_LABEL_UNITS = 40;
+
+export function groupLabel(text: string, zoom: number, widthPx: number, measure: (text: string, px: number) => number) {
+  return fitLabel(text, Math.min(REFDES.maxPx, GROUP_LABEL_UNITS * zoom), widthPx, measure);
+}
+
 export function refdesLabel(
   text: string,
   blockWidthPx: number,

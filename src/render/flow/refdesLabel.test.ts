@@ -24,3 +24,15 @@ describe('a host block name sized by its block (ROAD-3563)', () => {
     expect(refdesLabel(name, 400, measure)).toEqual({ text: name, px: REFDES.maxPx });
   });
 });
+
+describe('a host group\'s one label, sized with the sheet', () => {
+  it('hidden at a far zoom, clipped to the frame when near, never above the marker size', async () => {
+    const { groupLabel, GROUP_LABEL_UNITS } = await import('./refdesLabel');
+    const label = 'AC Infinity · seeded — unverified · 2';
+    expect(groupLabel(label, 0.05, 400, measure)).toBeNull();
+    const near = groupLabel(label, 0.2, 60, measure)!;
+    expect(near.px).toBeCloseTo(GROUP_LABEL_UNITS * 0.2);
+    expect(near.text.endsWith('…')).toBe(true);
+    expect(groupLabel(label, 5, 2000, measure)).toEqual({ text: label, px: REFDES.maxPx });
+  });
+});

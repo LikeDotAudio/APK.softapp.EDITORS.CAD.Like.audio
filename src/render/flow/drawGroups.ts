@@ -2,7 +2,8 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { SchematicModel } from '../../core/types';
 import { depthOf, groupBounds, membersDeep } from '../../flow/groups';
-import { FONT } from '../palette';
+import { FONT, UI_FONT } from '../palette';
+import { groupLabel } from './refdesLabel';
 import type { Scene } from '../Scene';
 import { GROUP } from './flowColors';
 
@@ -58,10 +59,27 @@ export function drawGroups(scene: Scene, model: SchematicModel | undefined): voi
     ctx.stroke();
     ctx.setLineDash([]);
 
-    ctx.font = FONT.marker;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'bottom';
     ctx.fillStyle = GROUP.label;
+    if (group.hostKey) {
+      /* A host's group (a maker on Library Equipment, ROAD-3569): one label, sized with the
+         sheet — GROUP_LABEL_UNITS tall, clipped to the frame, gone when too small to read —
+         and no separate count: the host's name already says it. A fixed-size label over a
+         hundred small groups printed them over one another. */
+      const room = Math.max(w - 8, (group.labelWidth ?? 0) * view.zoom);
+      const label = groupLabel(group.name, view.zoom, room, (t, px) => {
+        ctx.font = `bold ${px}px ${UI_FONT}`;
+        return ctx.measureText(t).width;
+      });
+      if (label) {
+        ctx.font = `bold ${label.px}px ${UI_FONT}`;
+        ctx.fillText(label.text, x + 4, y - 3);
+      }
+      ctx.globalAlpha = 1;
+      continue;
+    }
+    ctx.font = FONT.marker;
     ctx.fillText(group.name, x + 4, y - 3);
 
     /* The count is the whole reason to fold one shut, so it is said whether or

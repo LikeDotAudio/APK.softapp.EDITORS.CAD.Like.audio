@@ -951,6 +951,9 @@
               },
               "parent": {
                 "type": "string"
+              },
+              "labelWidth": {
+                "type": "number"
               }
             }
           }

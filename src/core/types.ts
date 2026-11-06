@@ -487,6 +487,8 @@ export interface Group {
   source?: { kind: string; id: string };
   /** Made by a host's `schematic` under this key (hostSchematic.ts). */
   hostKey?: string;
+  /** Drawing units the host keeps clear to the right of the frame for the group's name (drawGroups). */
+  labelWidth?: number;
 }
 
 /** Everything on the sheet that is a thing rather than a stroke. */

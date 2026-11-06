@@ -2,7 +2,6 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { SchematicModel } from '../../core/types';
 import { routeWaterfallWire } from '../../flow/autoWire';
-import { groupBounds } from '../../flow/groups';
 import { outlineCorners } from '../../flow/placement';
 import { definitionFor, portOf, portsOf, portWorldPoint } from '../../flow/Schematic';
 import { FONT, UI_FONT } from '../palette';
@@ -23,35 +22,8 @@ export function drawSchematic(scene: Scene, model: SchematicModel | undefined): 
 
   ctx.save();
 
-  // 1. Group Containment Boundaries (drawn behind everything)
-  for (const group of model.groups) {
-    if (group.collapsed) continue;
-    const box = groupBounds(model, group.id);
-    if (!box) continue;
-
-    const p1 = view.toScreen(box.x1, box.y1);
-    const p2 = view.toScreen(box.x2, box.y2);
-    const w = p2.x - p1.x;
-    const h = p2.y - p1.y;
-
-    // Soft containment fill
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.025)';
-    ctx.fillRect(p1.x, p1.y, w, h);
-
-    // Group boundary border
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-    ctx.lineWidth = 1.0;
-    ctx.setLineDash([4, 4]);
-    ctx.strokeRect(p1.x, p1.y, w, h);
-    ctx.setLineDash([]);
-
-    // Group Title Header Tag
-    ctx.font = '10px monospace';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'bottom';
-    ctx.fillText(`⊞ ${group.name}`, p1.x + 6, p1.y - 4);
-  }
+  // 1. The groups are drawGroups.ts's, called just before this: drawing them here too
+  //    printed every group's name twice, one over the other (Library Equipment, 2026-11-06).
 
   // 2. Connectors: Auto-routed chamfered waterfall paths
   ctx.strokeStyle = FLOW.connector;
