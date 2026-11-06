@@ -1,6 +1,6 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
-import type { BlockPlacement, Connector, ConnectorCable, Group, Point } from '../../core/types';
+import type { BlockPlacement, BlockSize, Connector, ConnectorCable, Group, Point } from '../../core/types';
 import type { SchematicSnapshot } from '../../flow/Schematic';
 import { portId as cadPortId } from '../../flow/bimPart';
 import { deref, entitiesByType, getPsets, inverseIndex, isRef, unwrap, type StepEntity, type StepFile, type StepRef, type StepValue } from '../../vendor/ifc/step';
@@ -34,7 +34,9 @@ import { E, R, bool, ident, int, label, length, realv, text, type PropValue, typ
  *   APK_Connection {Medium wired, CablePart, CableStatus, CableColour} and
  *   Qto_CableSegmentBaseQuantities.Length (mm) on it.
  * - Every placement's symbol on the sheet is an IfcAnnotation (SYMBOL) in the
- *   GRAPH_VIEW subcontext, placed where the block is drawn and assigned to its
+ *   GRAPH_VIEW subcontext, placed where the block is drawn — its 2D outline
+ *   (Annotation, Curve2D: a closed IfcPolyline, the definition's size × the
+ *   placement's scale, mm, SchematicSnapshot.sizes) — and assigned to its
  *   occurrence by IfcRelAssignsToProduct (what ifcopenshell.api.drawing
  *   .assign_product writes); APK_SheetSeat.Sheet 'Schematic'. Derived from the
  *   placement, so the reader ignores it.
@@ -66,6 +68,8 @@ export interface NativeSchematic {
   nextGroupId?: number;
   /** cad-6 files: the session had a `groups` array (possibly empty). */
   hasGroups?: boolean;
+  /** The placed symbols' sizes (SchematicSnapshot.sizes), drawing units: what the SYMBOL outlines are drawn from. */
+  sizes?: Record<string, BlockSize>;
   /** Files before cad-6. */
   connectors?: Connector[];
   groups?: Group[];
@@ -135,6 +139,7 @@ export function schematicNative(sch: SchematicSnapshot): NativeSchematic {
     nextConnectorId: sch.nextConnectorId,
     ...(sch.nextGroupId !== undefined ? { nextGroupId: sch.nextGroupId } : {}),
     ...(sch.groups ? { hasGroups: true } : {}),
+    ...(sch.sizes ? { sizes: sch.sizes } : {}),
   };
 }
 
@@ -183,7 +188,18 @@ export function writeSchematic(t: SchematicIfcTargets, sch: SchematicSnapshot): 
   for (const p of sch.placements) {
     const o = occ.get(p.id)!;
     const sg = ifcGuid(o.gid, 'symbol');
-    const rep = b.add('IFCPRODUCTDEFINITIONSHAPE', [null, null, [b.add('IFCSHAPEREPRESENTATION', [graphCtx(), 'Annotation', 'Point', [b.once('IFCCARTESIANPOINT', [[R(0), R(0)]])]])]]);
+    // the block's outline as drawn (its definition's size × the placement's scale, mm, centred on where it
+    // stands, turned with it by the placement), else — a size the session did not keep — the point it stands at
+    const size = sch.sizes?.[p.definitionId];
+    const k = p.scale ?? 1;
+    const outline = size && size.w > 0 && size.h > 0
+      ? (() => {
+        const hw = mm((size.w * k) / 2), hh = mm((size.h * k) / 2);
+        const c = [[-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]].map(([x, y]) => b.add('IFCCARTESIANPOINT', [[R(x), R(y)]]));
+        return b.add('IFCSHAPEREPRESENTATION', [graphCtx(), 'Annotation', 'Curve2D', [b.add('IFCPOLYLINE', [[...c, c[0]]])]]);
+      })()
+      : b.add('IFCSHAPEREPRESENTATION', [graphCtx(), 'Annotation', 'Point', [b.once('IFCCARTESIANPOINT', [[R(0), R(0)]])]]);
+    const rep = b.add('IFCPRODUCTDEFINITIONSHAPE', [null, null, [outline]]);
     const sym = b.add('IFCANNOTATION', [sg, oh, p.refdes ?? p.definitionId, 'Its symbol on the schematic: where the block is drawn, not where the thing is', null, placementAt(mm(p.at.x), mm(p.at.y), p.rotation ?? 0), rep, E('SYMBOL')]);
     held.push(sym);
     b.add('IFCRELASSIGNSTOPRODUCT', [ifcGuid(sg, 'assigned'), oh, 'Schematic symbol', null, [sym], null, o.ref]);
@@ -507,5 +523,6 @@ export function readSchematic(file: StepFile, u: (mm: number) => number, native:
     nextPlacementId: native.nextPlacementId,
     nextConnectorId: native.nextConnectorId,
     ...(native.nextGroupId !== undefined ? { nextGroupId: native.nextGroupId } : {}),
+    ...(native.sizes ? { sizes: native.sizes } : {}),
   };
 }

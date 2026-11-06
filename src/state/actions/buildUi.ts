@@ -1,8 +1,9 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { EditorStore } from '../EditorStore';
-import type { GroupRowUi, UiState } from '../UiState';
+import type { CableUi, GroupRowUi, UiState } from '../UiState';
 import { membersDeep, rootGroups } from '../../flow/groups';
+import { wireTitle } from '../../flow/cables';
 
 /**
  * The group tree, flattened depth-first so a parent is always immediately
@@ -41,6 +42,24 @@ function groupRows(store: EditorStore): GroupRowUi[] {
      that cannot show it is a panel you cannot delete it from. */
   for (const group of model.groups) if (!seen.has(group.id)) walk(group.id, 0);
   return rows;
+}
+
+/** The cable editor's view of its wire, or null when it is closed (or the wire is gone). */
+function cableUi(store: EditorStore): CableUi | null {
+  if (store.cableEditId === null) return null;
+  const c = store.schematic.connectors.find((x) => x.id === store.cableEditId);
+  if (!c) return null;
+  const k = c.cable ?? {};
+  return {
+    connectorId: c.id,
+    title: wireTitle(store.schematic, c),
+    isCable: !!c.cable,
+    part: k.part ?? '',
+    tag: k.tag ?? '',
+    length_mm: k.length_mm !== undefined ? String(k.length_mm) : '',
+    colour: k.colour ?? '',
+    status: k.status ?? '',
+  };
 }
 
 export function buildUi(store: EditorStore): UiState {
@@ -111,5 +130,6 @@ export function buildUi(store: EditorStore): UiState {
           fit: store.paletteFit,
         }
       : null,
+    cable: cableUi(store),
   };
 }

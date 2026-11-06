@@ -3,9 +3,9 @@
 import type { Layer, SchematicModel } from '../../core/types';
 import { hostPicked } from '../../flow/hostSelection';
 import { hostLineWidth } from '../edges/layerStroke';
-import { routeWaterfallWire } from '../../flow/autoWire';
+import { wirePath } from '../../flow/cables';
 import { outlineCorners } from '../../flow/placement';
-import { definitionFor, portOf, portsOf, portWorldPoint } from '../../flow/Schematic';
+import { definitionFor, portsOf } from '../../flow/Schematic';
 import { FONT, UI_FONT } from '../palette';
 import { refdesLabel } from './refdesLabel';
 import type { Scene } from '../Scene';
@@ -32,40 +32,31 @@ export function drawSchematic(scene: Scene, model: SchematicModel | undefined, l
   ctx.lineWidth = 1.6;
 
   model.connectors.forEach((connector, connIdx) => {
-    const a = portWorldPoint(model, connector.from);
-    const b = portWorldPoint(model, connector.to);
-    if (!a || !b) return;
-
-    const fromPort = portOf(model, connector.from);
-    const toPort = portOf(model, connector.to);
-
-    // If no manual route is specified, use auto-routed chamfered waterfall
-    const worldRoute =
-      connector.route && connector.route.length > 0
-        ? [a, ...connector.route, b]
-        : routeWaterfallWire(a, b, {
-            sourceSide: fromPort?.side ?? 'output',
-            targetSide: toPort?.side ?? 'input',
-            laneIndex: connIdx % 4,
-          });
+    // its own route, else the auto-routed chamfered waterfall (flow/cables.ts wirePath, the hit test's too)
+    const worldRoute = wirePath(model, connector, connIdx);
+    if (!worldRoute) return;
 
     const points = worldRoute.map((p) => view.toScreen(p.x, p.y));
 
+    // a wire that is a real cable (Connector.cable) is drawn heavier, its label beside it
+    ctx.lineWidth = connector.cable ? 3 : 1.6;
     ctx.beginPath();
     points.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
     ctx.stroke();
 
-    // Wire label (if specified)
-    if (connector.label && points.length >= 2) {
+    // Wire label (if specified), and the cable's own label under it
+    const text = [connector.label, connector.cable?.tag].filter(Boolean).join(' · ');
+    if (text && points.length >= 2) {
       const midIdx = Math.floor(points.length / 2);
       const mid = points[midIdx];
       ctx.font = '9px monospace';
       ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'bottom';
-      ctx.fillText(connector.label, mid.x, mid.y - 2);
+      ctx.fillText(text, mid.x, mid.y - 2);
     }
   });
+  ctx.lineWidth = 1.6;
 
   // 3. Block Placements — a host's picked ones (hostSelection.ts) drawn picked
   const picked = new Set(hostPicked(model));

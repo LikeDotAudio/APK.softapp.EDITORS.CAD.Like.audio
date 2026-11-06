@@ -2,6 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type {
   BlockDefinition,
+  BlockSize,
   BoxIdentity,
   BlockPlacement,
   Connector,
@@ -297,9 +298,28 @@ export interface SchematicSnapshot {
   nextPlacementId: number;
   nextConnectorId: number;
   nextGroupId?: number;
+  /**
+   * How big each placed symbol was drawn when the session was saved (definition
+   * id → its size, drawing units). Not a definition and never read back into
+   * one: the .ifc draws each placement's symbol outline from it (cad-6
+   * schematicIfc.ts), and a reader without the catalogue still knows the box.
+   */
+  sizes?: Record<string, BlockSize>;
+}
+
+/** The size of every definition a placement uses, by id (sorted, so the same sheet saves the same bytes). */
+export function placedSizes(model: SchematicModel): Record<string, BlockSize> | undefined {
+  const ids = [...new Set(model.placements.map((p) => p.definitionId))].sort();
+  const out: Record<string, BlockSize> = {};
+  for (const id of ids) {
+    const def = definitionOf(model, id);
+    if (def && Number.isFinite(def.size?.w) && Number.isFinite(def.size?.h)) out[id] = { w: def.size.w, h: def.size.h };
+  }
+  return Object.keys(out).length ? out : undefined;
 }
 
 export function snapshotSchematic(model: SchematicModel): SchematicSnapshot {
+  const sizes = placedSizes(model);
   return {
     placements: model.placements.map((p) => ({ ...p, at: { ...p.at } })),
     connectors: model.connectors.map((c) => ({
@@ -317,6 +337,7 @@ export function snapshotSchematic(model: SchematicModel): SchematicSnapshot {
     nextPlacementId: model.nextPlacementId,
     nextConnectorId: model.nextConnectorId,
     nextGroupId: model.nextGroupId,
+    ...(sizes ? { sizes } : {}),
   };
 }
 

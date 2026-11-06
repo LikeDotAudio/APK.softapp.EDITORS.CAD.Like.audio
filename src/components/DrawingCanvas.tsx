@@ -1,6 +1,7 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { useEffect, useRef } from 'react';
+import { CableEditor } from './CableEditor';
 import { useEntrance } from '../shell/EntranceContext';
 import { useStore } from '../state/useStore';
 import { ContextMenu } from './contextmenu/ContextMenu';
@@ -60,6 +61,7 @@ export function DrawingCanvas() {
       <Hint />
       <ScaleBox />
       <DynInput />
+      <CableEditor />
       <ContextMenu />
     </div>
   );

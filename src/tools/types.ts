@@ -62,6 +62,8 @@ export interface ToolApi {
   /** Show the type-to-size box anchored at a client-space point. */
   openDynInput(anchor: Point): void;
   closeDynInput(): void;
+  /** Open the cable editor on wire `connectorId` (components/CableEditor.tsx); optional so test doubles need not. */
+  openCableEditor?(connectorId: number): void;
   redraw(): void;
   readonly mirror: VirtualMirrorState;
   setVirtualMirror(x: number, enabled?: boolean, selected?: boolean): void;

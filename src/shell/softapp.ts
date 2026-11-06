@@ -63,6 +63,7 @@ export function describeCad(): void {
       { name: 'Ctrl+N / Ctrl+O / Ctrl+S / Ctrl+W', how: 'new, open, download DXF, close file' },
       { name: 'Typed commands', how: 'the menu shortcuts (AL, AW, BE, CB, FH, FV, MM, MR, RM, SA, SYM, Y ...) and typed distances in the dynamic input' },
       { name: 'Mouse', how: 'click to pick and draw, double-click to edit, wheel to zoom' },
+      { name: 'Wire tool (W) on a wire', how: 'click a drawn wire to make it a cable: its BIM part (📚 library), label, length mm, colour, status; Not a cable clears it' },
     ],
     problems: ['bad_input', 'file_unreadable', 'save_failed', 'http_forbidden', 'storage_full', 'fetch_failed', 'script_error'],
   });

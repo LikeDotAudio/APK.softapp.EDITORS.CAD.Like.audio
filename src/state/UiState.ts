@@ -98,6 +98,21 @@ export interface LoadingUi {
   subtitle?: string;
 }
 
+/** The wire the cable editor is open on (flow/cables.ts): what cable it is, as the fields show it. */
+export interface CableUi {
+  connectorId: number;
+  /** Its two ends, `SMU1.OUT → SPK-L.IN`. */
+  title: string;
+  /** Whether the wire is a cable yet. */
+  isCable: boolean;
+  part: string;
+  tag: string;
+  /** mm, as text ('' when unknown). */
+  length_mm: string;
+  colour: string;
+  status: string;
+}
+
 /** The immutable view of editor state that React components render from. */
 export interface UiState {
   toolId: ToolId;
@@ -136,4 +151,6 @@ export interface UiState {
   zoom: number;
   /** Null until a host sends a palette — and with it, no Palette panel. */
   palette: PaletteUi | null;
+  /** Null unless the cable editor is open on a wire that is still there. */
+  cable: CableUi | null;
 }

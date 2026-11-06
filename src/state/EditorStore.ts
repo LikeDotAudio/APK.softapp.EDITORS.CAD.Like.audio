@@ -32,7 +32,7 @@
  * The body is 94 one-action modules under `actions/`, bound as methods here:
  * a 664-line class is easier to read as a table of contents than as a wall.
  */
-import type { CadSpace, CadViewport, Layer, LayerIfc, Point, SchematicModel, ToolId, Units, GridMode, ValidationResult } from '../core/types';
+import type { CadSpace, CadViewport, ConnectorCable, Layer, LayerIfc, Point, SchematicModel, ToolId, Units, GridMode, ValidationResult } from '../core/types';
 import { generateUuid } from '../core/generateUuid';
 import { DEFAULT_VIRTUAL_MIRROR, type VirtualMirrorState, type VirtualMirror } from '../core/mirror';
 import type { UserAuth, UserStatus } from '../core/userAuth';
@@ -90,6 +90,7 @@ import { deselectLayerEntities } from './actions/deselectLayerEntities';
 import { dynNumbers } from './actions/dynNumbers';
 import { edit } from './actions/edit';
 import { editFlow } from './actions/editFlow';
+import { setConnectorCable } from '../flow/cables';
 import { emit } from './actions/emit';
 import { explodeSelection } from './actions/explodeSelection';
 import { fileBigPicture } from './actions/fileBigPicture';
@@ -202,6 +203,8 @@ export class EditorStore {
    * `tile` lay blocks at true size across that region, as many as fit whole.
    */
   paletteFit: PaletteFit = 'place';
+  /** The wire the cable editor is open on (components/CableEditor.tsx), else null. */
+  cableEditId: number | null = null;
   /**
    * How this window stands with 06a's filed sheet — `APK:OS/system/big-picture.json`.
    * `digest` is what the last read or write saw on disk and is what the next
@@ -367,6 +370,7 @@ export class EditorStore {
       setCursor: (cursor) => this.setCursor(cursor),
       openDynInput: (anchor) => this.openDynInput(anchor),
       closeDynInput: () => this.closeDynInput(),
+      openCableEditor: (id) => this.openCableEditor(id),
       redraw: () => {
         this.requestDraw();
         this.emit();
@@ -459,6 +463,25 @@ export class EditorStore {
 
   editFlow(mutate: () => boolean): boolean {
     return editFlow(this, mutate);
+  }
+
+  /** Open the cable editor on a wire (the Wire tool, clicking a wire). */
+  openCableEditor(connectorId: number): void {
+    this.cableEditId = this.schematic.connectors.some((c) => c.id === connectorId) ? connectorId : null;
+    this.requestDraw();
+    this.emit();
+  }
+
+  closeCableEditor(): void {
+    if (this.cableEditId === null) return;
+    this.cableEditId = null;
+    this.requestDraw();
+    this.emit();
+  }
+
+  /** Make the open wire a cable (`cable`), or only a line again (null) — flow/cables.ts setConnectorCable. */
+  setCable(connectorId: number, cable: ConnectorCable | null): boolean {
+    return this.editFlow(() => setConnectorCable(this.schematic, connectorId, cable));
   }
 
   setFlowDefinition(id: string): void {

@@ -2,6 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { PortRef } from '../core/types';
 import { connectPorts, hitPortAt, portLabel, portsOf, portWorldPoint } from '../flow/Schematic';
+import { hitConnectorAt } from '../flow/cables';
 import { dot } from '../render/dot';
 import { FLOW, SIDE_COLOR } from '../render/flow/flowColors';
 import { FONT } from '../render/palette';
@@ -11,6 +12,10 @@ import type { Tool } from './types';
  * Wire two ports together. The result is a CONNECTOR - a graph edge - and the
  * line on the sheet is only how it is drawn; that is the whole reason this is
  * a tool of its own rather than the line tool with a snap.
+ *
+ * Clicking a WIRE (not a port) with nothing started opens the cable editor on
+ * it (components/CableEditor.tsx): mark the wire as a real cable and say which
+ * — its BIM part, label, length, colour, status (flow/cables.ts).
  */
 interface WireState {
   from: PortRef | null;
@@ -31,7 +36,7 @@ export const wireTool: Tool<WireState> = {
   label: 'Wire',
   shortcut: 'w',
   title: 'Wire ports (W)',
-  hint: 'Click a port, then click the port it connects to · Esc to cancel',
+  hint: 'Click a port, then click the port it connects to · click a wire to make it a cable · Esc to cancel',
   icon: Icon,
   cursor: 'crosshair',
   snaps: false,
@@ -43,6 +48,11 @@ export const wireTool: Tool<WireState> = {
     const tol = api.view.pxToWorld(HIT_PX);
     const hit = hitPortAt(api.schematic, input.rawWorld, tol);
     if (!hit) {
+      const wire = state.from ? null : hitConnectorAt(api.schematic, input.rawWorld, tol);
+      if (wire !== null && api.openCableEditor) {
+        api.openCableEditor(wire);
+        return;
+      }
       if (state.from) {
         state.from = null;
         api.showHint('Wire cancelled — that was not a port.', 2000);

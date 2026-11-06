@@ -193,6 +193,37 @@ describe('the Flow schematic as IFC entities (cad-6)', () => {
     });
   });
 
+  it('each symbol is drawn as its block outline: the definition size × scale, mm, a closed Curve2D polyline', () => {
+    const s = sheet();
+    s.schematic!.sizes = { 'bim.genelec/8050bpm': { w: 80, h: 40 }, 'flow.process': { w: 60, h: 30 }, 'conn.xlr3f': { w: 20, h: 20 } };
+    const txt = exportIfc(s, { types: TYPES });
+    emit('schematic-outlines.ifc', txt);
+    const g = parseStep(txt);
+    const symbols = entitiesByType(g, 'IFCANNOTATION').filter((a) => enumOf(a.args[7]) === 'SYMBOL');
+    const outline = (sym: StepEntity) => {
+      const rep = deref(g, (deref(g, sym.args[6])!.args[2] as StepValue[])[0])!;
+      const items = (rep.args[3] as StepValue[]).map((x) => deref(g, x)!);
+      return { id: rep.args[1], type: rep.args[2], items, pts: items[0]!.type === 'IFCPOLYLINE'
+        ? (items[0]!.args[0] as StepValue[]).map((p) => (deref(g, p)!.args[0] as StepValue[]).map((v) => enumOf(v))) : [] };
+    };
+    const byName = new Map(symbols.map((x) => [x.args[2], outline(x)]));
+    const spk = byName.get('SPK-L')!;
+    expect([spk.id, spk.type]).toEqual(['Annotation', 'Curve2D']);
+    expect(spk.pts).toEqual([[-40, -20], [40, -20], [40, 20], [-40, 20], [-40, -20]]);
+    expect(byName.get('DSP1')!.pts[1]).toEqual([60, -30]); // scale 2
+    // no size kept (an older session): the point it stands at
+    expect([byName.get('SMU1')!.type, byName.get('flow.source')!.type]).toEqual(['Point', 'Point']);
+    // the sizes come back with the session; in inches the outline is still mm
+    expect(importIfc(txt)).toEqual(s);
+    const inches = sheet('in', 1 / 25.4);
+    inches.schematic!.sizes = { 'bim.genelec/8050bpm': { w: 80 / 25.4, h: 40 / 25.4 } };
+    const h = parseStep(exportIfc(inches, { types: TYPES }));
+    const sym = entitiesByType(h, 'IFCANNOTATION').find((a) => enumOf(a.args[7]) === 'SYMBOL' && a.args[2] === 'SPK-L')!;
+    const rep = deref(h, (deref(h, sym.args[6])!.args[2] as StepValue[])[0])!;
+    const first = deref(h, (deref(h, (rep.args[3] as StepValue[])[0])!.args[0] as StepValue[])[0])!.args[0] as StepValue[];
+    expect(enumOf(first[0]) as number).toBeCloseTo(-40, 9);
+  });
+
   it("a host's resend keeps the GlobalIds of what it placed, wired and grouped", () => {
     const hosted = (shift: number): SavedSession => {
       const s = sheet();
