@@ -854,6 +854,9 @@
               "name": {
                 "type": "string"
               },
+              "size": {
+                "$ref": "#/$defs/xy"
+              },
               "ports": {
                 "type": "array",
                 "items": {
@@ -1601,6 +1604,27 @@
           },
           "minItems": 2,
           "maxItems": 2
+        },
+        "host": {
+          "description": "on one of the host's own schematic blocks: { key, ref, terminal? } (terminal: the caption of the port clicked), or { key, group } inside one of its groups (hostDrag.ts)",
+          "type": "object",
+          "required": [
+            "key"
+          ],
+          "properties": {
+            "key": {
+              "type": "string"
+            },
+            "ref": {
+              "type": "string"
+            },
+            "terminal": {
+              "type": "string"
+            },
+            "group": {
+              "type": "string"
+            }
+          }
         }
       }
     },

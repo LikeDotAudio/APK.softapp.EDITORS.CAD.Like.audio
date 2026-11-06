@@ -10,6 +10,7 @@ import { oppositeCorner } from '../render/selectionBox/oppositeCorner';
 import { hitEndpointGrip } from './select/hitEndpointGrip';
 import { hitMidpointGrip } from './select/hitMidpointGrip';
 import { netBounds } from './select/netBounds';
+import { dragHostPlacements, hostDragAt } from '../shell/hostBridge/hostDrag';
 import type { Point } from '../core/types';
 import type { Tool, ToolApi } from './types';
 
@@ -48,6 +49,8 @@ interface SelectState {
   edgeDrag: EdgeDrag | null;
   mirrorDrag: boolean;
   draggedMirrorId?: string;
+  /** A host's schematic blocks being dragged (hostDrag.ts), and where the pointer was. */
+  hostDrag?: { ids: number[]; last: Point } | null;
 }
 
 const Icon = (
@@ -93,6 +96,12 @@ export const selectTool: Tool<SelectState> = {
   }),
 
   onPointerMove(state, input, api) {
+    if (state.hostDrag) {
+      const { ids, last } = state.hostDrag;
+      if (dragHostPlacements(api.schematic, ids, input.rawWorld.x - last.x, input.rawWorld.y - last.y)) api.redraw();
+      state.hostDrag.last = input.rawWorld;
+      return;
+    }
     if (state.mirrorDrag) {
       if (state.draggedMirrorId && api.mirror.mirrors && api.mirror.mirrors.length > 0) {
         const target = api.mirror.mirrors.find((m) => m.id === state.draggedMirrorId);
@@ -292,6 +301,14 @@ export const selectTool: Tool<SelectState> = {
       return;
     }
 
+    // a host's BIM block (or its group) drags here; the host learns the seat on `geometry`
+    const hostIds = api.schematic ? hostDragAt(api.schematic, input.rawWorld) : [];
+    if (hostIds.length) {
+      state.hostDrag = { ids: hostIds, last: input.rawWorld };
+      api.setCursor('move');
+      return;
+    }
+
     const blockHit = blockUnder(api, input.rawWorld);
     if (blockHit !== null) {
       if (!api.selection.has(blockHit) && !input.shiftKey) {
@@ -344,6 +361,12 @@ export const selectTool: Tool<SelectState> = {
   },
 
   onPointerUp(state, _input, api) {
+    if (state.hostDrag) {
+      state.hostDrag = null;
+      api.setCursor('default');
+      api.redraw();
+      return;
+    }
     if (state.mirrorDrag) {
       state.mirrorDrag = false;
       state.draggedMirrorId = undefined;
@@ -420,6 +443,7 @@ export const selectTool: Tool<SelectState> = {
   },
 
   onEscape(state, api) {
+    state.hostDrag = null;
     state.isMoving = false;
     state.dragStartWorld = null;
     state.boxStartScreen = null;

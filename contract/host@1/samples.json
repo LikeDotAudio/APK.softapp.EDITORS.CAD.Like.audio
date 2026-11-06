@@ -280,7 +280,11 @@
             0
           ],
           "group": "cast",
-          "name": "Basement speaker"
+          "name": "Basement speaker",
+          "size": [
+            96,
+            96
+          ]
         },
         {
           "ref": "U10",
@@ -685,7 +689,12 @@
       "client": [
         412,
         288
-      ]
+      ],
+      "host": {
+        "key": "bench",
+        "ref": "U9",
+        "terminal": "AUDIO OUT"
+      }
     },
     {
       "protocol": "cad.like.audio/host@1",

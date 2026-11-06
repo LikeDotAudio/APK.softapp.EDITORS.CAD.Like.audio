@@ -24,6 +24,10 @@ import type { EditorStore } from '@state/EditorStore';
  *               portals?:    { ref: { terminal: far } } }   far: "text" (a bay, grey)
  *                                                          | { text, wired } (another block, accent)
  *
+ * `size` [w, h] on a placement is the seat the host's layout gives it (BIM's
+ * bench seat): the block is drawn at least that big, so the host's racks and
+ * columns do not overlap; the ports are still spread by the CAD.
+ *
  * `ports` on a placement are the terminals THAT instance showed beyond its part's
  * (BIM's bench keeps them per instance: 25 DNS-SD hosts, 25 sets); they give that
  * placement a definition of its own. A terminal is found by its port's caption,
@@ -40,7 +44,7 @@ import type { EditorStore } from '@state/EditorStore';
 
 type XY = [number, number];
 type End = { ref?: unknown; terminal?: unknown };
-interface HostPlacement { ref: string; part: string; at: XY; group?: string; name?: string; ports?: BimPort[] }
+interface HostPlacement { ref: string; part: string; at: XY; group?: string; name?: string; ports?: BimPort[]; size?: XY }
 interface HostGroup { id: string; name?: string; parent?: string }
 export interface HostSchematicMessage {
   key?: unknown; hash?: unknown; layer?: unknown; parts?: unknown; placements?: unknown;
@@ -91,11 +95,17 @@ export function portForTerminal(def: BlockDefinition, terminal: string): string 
   return (def.ports.find((p) => fold(p.label ?? '') === t) ?? def.ports.find((p) => p.id === portId(terminal)))?.id;
 }
 
-function definitionFor(part: BimPart, own: BimPort[] | undefined, key: string, ref: string): BlockDefinition {
+function definitionFor(part: BimPart, own: BimPort[] | undefined, key: string, ref: string, size?: XY): BlockDefinition {
   const have = new Set((part.ports ?? []).map((p) => `${p.side}|${fold(p.group ?? p.terminal ?? '')}`));
   const extra = (own ?? []).filter((p) => p && !have.has(`${p.side}|${fold(p.group ?? p.terminal ?? '')}`));
   const def = partToDefinition(extra.length ? { ...part, ports: [...(part.ports ?? []), ...extra] } : part);
-  return { ...def, ...(extra.length ? { id: `${def.id}@${key}:${ref}` } : {}), hostKey: key };
+  const grow = size && (size[0] > def.size.w || size[1] > def.size.h);
+  return {
+    ...def,
+    ...(extra.length || grow ? { id: `${def.id}@${key}:${ref}` } : {}),
+    ...(grow ? { size: { w: Math.max(def.size.w, size![0]), h: Math.max(def.size.h, size![1]) } } : {}),
+    hostKey: key,
+  };
 }
 
 function farOf(raw: unknown): PortPortal | null {
@@ -150,7 +160,7 @@ export function applyHostSchematic(store: EditorStore, msg: HostSchematicMessage
     if (!raw || !str(raw.ref) || !str(raw.part) || !xy(raw.at) || byRef.has(raw.ref)) continue;
     const part = parts.get(raw.part);
     if (!part) continue;
-    const def = definitionFor(part, Array.isArray(raw.ports) ? raw.ports : undefined, key, raw.ref);
+    const def = definitionFor(part, Array.isArray(raw.ports) ? raw.ports : undefined, key, raw.ref, xy(raw.size) ? raw.size : undefined);
     if (!model.definitions.some((d) => d.id === def.id)) model.definitions.push(def);
     const placement: BlockPlacement = {
       id: model.nextPlacementId++, definitionId: def.id, at: { x: raw.at[0], y: raw.at[1] }, layerId: layer,

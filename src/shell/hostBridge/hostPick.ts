@@ -5,6 +5,7 @@ import { buildDxf } from '@io/exportDxf/buildDxf';
 import { dxfFileName } from '@io/exportDxf/dxfFileName';
 import type { ToolId } from '../../core/types';
 import { getTool } from '../../tools/registry';
+import { hostPickAt } from './hostDrag';
 
 /**
  * A CLICK ON THE SHEET, FOR A HOST THAT KNOWS WHAT IS UNDER IT.
@@ -20,6 +21,9 @@ import { getTool } from '../../tools/registry';
  *   tool    the tool that was active; a host acts on 'select' only.
  *   client  [x, y] in this window's client pixels, to anchor a card near it
  *           (the host adds its iframe's offset).
+ *   host    on one of the host's own `schematic` blocks: { key, ref, terminal? }
+ *           (terminal: the caption of the port clicked), or { key, group } inside
+ *           one of its groups — the CAD knows its ports, so it says (hostDrag.ts).
  *
  * A press that travelled more than a few pixels before it was released was a
  * drag (a block moved, a marquee), not a click, and says nothing.
@@ -27,13 +31,15 @@ import { getTool } from '../../tools/registry';
 export const PICK_SLOP_PX = 4;
 
 export function pickForHost(
-  store: Pick<EditorStore, 'view' | 'tool'>,
+  store: Pick<EditorStore, 'view' | 'tool'> & Partial<Pick<EditorStore, 'schematic'>>,
   rect: { left: number; top: number },
   e: Pick<MouseEvent, 'clientX' | 'clientY' | 'shiftKey' | 'ctrlKey' | 'metaKey'>,
   count: 1 | 2,
 ) {
   const w = store.view.toWorld(e.clientX - rect.left, e.clientY - rect.top);
+  const host = store.schematic ? hostPickAt(store.schematic, w, (PICK_SLOP_PX + 2) / (store.view.zoom || 1)) : null;
   return {
+    ...(host ? { host } : {}),
     at: [w.x, w.y],
     count,
     tool: String(store.tool.id),
