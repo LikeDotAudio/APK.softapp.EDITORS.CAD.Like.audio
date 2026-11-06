@@ -30,7 +30,7 @@ export async function saveIfcFile(store: EditorStore): Promise<void> {
   }
   const name = ifcFileName(store.currentFileName);
   try {
-    const blob = new Blob([await sessionIfc(buildSavedSession(store))], { type: 'application/x-step' });
+    const blob = new Blob([await sessionIfc(buildSavedSession(store), undefined, store.viewports)], { type: 'application/x-step' });
     const picker = (window as unknown as SaveFilePickerWindow).showSaveFilePicker;
     if (picker) {
       try {

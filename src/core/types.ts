@@ -23,11 +23,18 @@ export interface BBox {
 }
 
 /** A named drawing sheet or viewport window onto the Model Space. */
+/** What a view is, as IfcGeometricProjectionEnum names it (cad-9, viewsIfc.ts). */
+export type ViewProjection = 'PLAN_VIEW' | 'ELEVATION_VIEW' | 'SECTION_VIEW' | 'REFLECTED_PLAN_VIEW' | 'MODEL_VIEW' | 'SKETCH_VIEW' | 'GRAPH_VIEW';
+
 export interface CadViewport {
   id: string;
   name: string;
   subtitle?: string;
   bounds: BBox;
+  /** Plan, elevation, section …: its IFC view subcontext's TargetView. Absent: read from its name (projectionOf). */
+  projection?: ViewProjection;
+  /** The ratio it prints at (1:50 is 0.02): the subcontext's TargetScale. */
+  scale?: number;
   /**
    * Named by a host (bridge `spaces`) rather than found in the drawing: one of
    * its drawings — a plan, an elevation, a set of cut-aways — as a model
@@ -232,6 +239,8 @@ export interface CadBlockDefinition {
   circles: Array<{ cx: number; cy: number; r: number; layerId?: string }>;
   texts?: Array<{ text: string; x: number; y: number; height: number; rotation?: number; layerId?: string }>;
   fills?: Array<{ points: Point[]; color?: string; opacity?: number; layerId?: string; hatchPattern?: string }>;
+  /** The block editor's own document, whole, as it saved it (blockDoc.ts): what the next toEditor.load hands back. */
+  doc?: Record<string, unknown>;
 }
 
 export interface CadBlockInstance {

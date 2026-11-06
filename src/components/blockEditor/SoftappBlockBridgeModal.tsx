@@ -4,6 +4,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from '@state/useStore';
 import { blockEditorMessage, postToEditor, toEditor } from '../../shell/hostBridge/blockHost';
+import { blockForEditor, blockFromEditor } from './blockDoc';
 
 export interface SoftappDef {
   id: string;
@@ -66,9 +67,7 @@ export function SoftappBlockBridgeModal({
   // The block to edit, as toEditor.load carries it (host@1, blockHost.ts).
   const loadMessage = () => {
     const name = initialBlockName || 'CUSTOM_BLOCK';
-    const block: Record<string, unknown> = initialBlockName && store.doc.blocks.has(initialBlockName)
-      ? JSON.parse(JSON.stringify(store.doc.blocks.get(initialBlockName)))
-      : { name, type: selectedApp.id, timestamp: Date.now() };
+    const block = blockForEditor(initialBlockName ? store.doc.blocks.get(initialBlockName) : undefined, name, selectedApp.id);
     return toEditor('load', {
       block,
       meta: { source: 'CAD.Like.audio', blockName: name, title: `${selectedApp.name}: ${initialBlockName || 'Block'}` },
@@ -95,17 +94,8 @@ export function SoftappBlockBridgeModal({
 
         store.edit(() => {
           if (returnedBlock) {
-            // Update or register block in CAD document
-            store.doc.blocks.set(blockName, {
-              name: blockName,
-              description: returnedBlock.description || returnedBlock.name,
-              basePoint: returnedBlock.basePoint || { x: 0, y: 0 },
-              lines: returnedBlock.lines || [],
-              arcs: returnedBlock.arcs || [],
-              circles: returnedBlock.circles || [],
-              texts: returnedBlock.texts || [],
-              fills: returnedBlock.fills || [],
-            });
+            // Update or register block in CAD document — the editor's whole document kept under doc
+            store.doc.blocks.set(blockName, blockFromEditor(blockName, returnedBlock));
             return true;
           }
           return false;
