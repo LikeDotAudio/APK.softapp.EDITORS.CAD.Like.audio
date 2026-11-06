@@ -19,6 +19,7 @@ import { RecentFilesSubmenu } from './file/RecentFilesSubmenu';
 import { useRecentFiles } from './file/useRecentFiles';
 import { loadRecentFileData } from '@io/recentFiles/recentFileDataStore';
 import { showProblem } from '../../../shell/softapp';
+import { openModelFile } from '@state/actions/ifcFile';
 
 /**
  * File ▾ — open, import, recent files, DXF export, the IFC model in and out, and 06a's filed sheet.
@@ -106,7 +107,7 @@ export function FileMenu({ open, onToggle, onClose }: MenuProps) {
           />
           <MenuItem
             icon="🏗️"
-            label="Open .ifc..."
+            label="Open Model (.ifc / .json)..."
             onSelect={() => {
               onClose();
               ifcInput.current?.click();
@@ -174,7 +175,7 @@ export function FileMenu({ open, onToggle, onClose }: MenuProps) {
           />
           <MenuItem
             icon="🏗️"
-            label="Save .ifc"
+            label="Save Model (.ifc + .json)"
             disabled={!canExport}
             onSelect={() => {
               onClose();
@@ -190,7 +191,7 @@ export function FileMenu({ open, onToggle, onClose }: MenuProps) {
       <input
         ref={ifcInput}
         type="file"
-        accept=".ifc"
+        accept=".ifc,.json"
         hidden
         onChange={async (e) => {
           const file = e.target.files?.[0];
@@ -198,9 +199,8 @@ export function FileMenu({ open, onToggle, onClose }: MenuProps) {
           if (!file) return;
           await store.showLoading('Opening drawings', `Reading ${file.name}...`);
           try {
-            const text = await file.text();
             store.hideLoading();
-            await store.openIfcText(text, file.name);
+            await openModelFile(store, file);
           } finally {
             store.hideLoading();
           }
