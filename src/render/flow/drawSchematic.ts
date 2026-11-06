@@ -1,6 +1,8 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
-import type { SchematicModel } from '../../core/types';
+import type { Layer, SchematicModel } from '../../core/types';
+import { hostPicked } from '../../flow/hostSelection';
+import { hostLineWidth } from '../edges/layerStroke';
 import { routeWaterfallWire } from '../../flow/autoWire';
 import { outlineCorners } from '../../flow/placement';
 import { definitionFor, portOf, portsOf, portWorldPoint } from '../../flow/Schematic';
@@ -16,7 +18,7 @@ const PORT_PX = 4;
  * Paint the schematic layer: group containment cards, auto-routed chamfered
  * Manhattan waterfall wires, block outlines, glyphs, ports, and refdes badges.
  */
-export function drawSchematic(scene: Scene, model: SchematicModel | undefined): void {
+export function drawSchematic(scene: Scene, model: SchematicModel | undefined, layers?: ReadonlyMap<string, Layer>): void {
   if (!model || (model.placements.length === 0 && model.connectors.length === 0 && model.groups.length === 0)) return;
   const { ctx, view } = scene;
 
@@ -65,7 +67,8 @@ export function drawSchematic(scene: Scene, model: SchematicModel | undefined): 
     }
   });
 
-  // 3. Block Placements
+  // 3. Block Placements — a host's picked ones (hostSelection.ts) drawn picked
+  const picked = new Set(hostPicked(model));
   for (const placement of model.placements) {
     const def = definitionFor(model, placement);
     if (!def) continue;
@@ -74,10 +77,12 @@ export function drawSchematic(scene: Scene, model: SchematicModel | undefined): 
     ctx.beginPath();
     corners.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
     ctx.closePath();
-    ctx.fillStyle = FLOW.outlineFill;
+    const isPicked = picked.has(placement.id);
+    ctx.fillStyle = isPicked ? FLOW.pickedFill : FLOW.outlineFill;
     ctx.fill();
-    ctx.strokeStyle = FLOW.outline;
-    ctx.lineWidth = 1.4;
+    ctx.strokeStyle = isPicked ? FLOW.picked : FLOW.outline;
+    // the layer's lineweight (a host's WEIGHT knob, host@1 `layer` { lineweight })
+    ctx.lineWidth = isPicked ? Math.max(2.5, hostLineWidth(layers?.get(placement.layerId), 1.4) + 1) : hostLineWidth(layers?.get(placement.layerId), 1.4);
     ctx.stroke();
 
     ctx.strokeStyle = FLOW.glyph;

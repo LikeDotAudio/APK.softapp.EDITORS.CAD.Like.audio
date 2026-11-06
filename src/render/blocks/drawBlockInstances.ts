@@ -2,6 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { Layer, Point } from '../../core/types';
 import { isDarkColor } from '../edges/isDarkColor';
+import { hostLineWidth } from '../edges/layerStroke';
 import type { Scene } from '../Scene';
 import { strokeHatch } from '../fills/strokeHatch';
 import { COLORS } from '../../colorsStyle';
@@ -42,21 +43,27 @@ export function drawBlockInstances(
     ctx.save();
     ctx.strokeStyle = color;
     ctx.fillStyle = color;
-    ctx.lineWidth = isSelected ? 2 : 1.4;
+    // a layer's lineweight thickens or thins its line work (a host's WEIGHT knob)
+    const baseWidth = isSelected ? 2 : hostLineWidth(layer, 1.4);
+    ctx.lineWidth = baseWidth;
 
     // Draw lines
     for (const l of def.lines) {
       const p1 = transform({ x: l.x1, y: l.y1 });
       const p2 = transform({ x: l.x2, y: l.y2 });
       // A line on a layer of its own (a host's cut-away, coloured by face) takes that layer's colour.
-      const own = l.layerId && !isSelected ? options?.layers?.get(l.layerId)?.color : undefined;
+      const ownLayer = l.layerId ? options?.layers?.get(l.layerId) : undefined;
+      const own = !isSelected ? ownLayer?.color : undefined;
       ctx.strokeStyle = own ?? color;
+      ctx.lineWidth = isSelected ? 2 : ownLayer?.lineweight !== undefined ? hostLineWidth(ownLayer, 1.4) : baseWidth;
       ctx.beginPath();
       ctx.moveTo(p1.x, p1.y);
       ctx.lineTo(p2.x, p2.y);
       ctx.stroke();
     }
 
+    ctx.strokeStyle = color;
+    ctx.lineWidth = baseWidth;
     // Draw circles
     for (const c of def.circles) {
       const cp = transform({ x: c.cx, y: c.cy });

@@ -53,20 +53,47 @@ export class Viewport {
     return px / this.zoom;
   }
 
-  zoomToFit(bbox: { x1: number; y1: number; x2: number; y2: number } | null): void {
+  /**
+   * Zoom so `bbox` fills the canvas. `inset` (px) is canvas a host keeps covered
+   * — Library Equipment's sash over the left — so the box is framed in what is
+   * left of it. `minZoom` (px per drawing unit) is the least zoom that keeps the
+   * host's blocks legible: a box that would need less is shown from its
+   * top-left corner at that zoom instead of whole and unreadable.
+   */
+  zoomToFit(
+    bbox: { x1: number; y1: number; x2: number; y2: number } | null,
+    opts?: { inset?: { left?: number; top?: number; right?: number; bottom?: number }; minZoom?: number },
+  ): void {
     if (!bbox || !this.width || !this.height) return;
     const bw = bbox.x2 - bbox.x1;
     const bh = bbox.y2 - bbox.y1;
     if (bw <= 0 || bh <= 0) return;
 
-    const margin = 0.8;
-    const zx = (this.width * margin) / bw;
-    const zy = (this.height * margin) / bh;
-    this.zoom = clamp(Math.min(zx, zy), MIN_ZOOM, MAX_ZOOM);
+    const px = (v: number | undefined) => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : 0);
+    let l = px(opts?.inset?.left);
+    let t = px(opts?.inset?.top);
+    let w = this.width - l - px(opts?.inset?.right);
+    let h = this.height - t - px(opts?.inset?.bottom);
+    // an inset that leaves almost nothing is ignored rather than obeyed
+    if (w < 80 || h < 80) { l = 0; t = 0; w = this.width; h = this.height; }
 
+    const margin = 0.8;
+    const zx = (w * margin) / bw;
+    const zy = (h * margin) / bh;
+    const fit = Math.min(zx, zy);
+    const least = typeof opts?.minZoom === 'number' && Number.isFinite(opts.minZoom) && opts.minZoom > 0 ? opts.minZoom : 0;
+    this.zoom = clamp(Math.max(fit, least), MIN_ZOOM, MAX_ZOOM);
+
+    if (least > fit) {
+      // too big to read whole: its top-left corner at the visible area's top-left
+      const air = (Math.min(w, h) * (1 - margin)) / 2;
+      this.panX = l + air - bbox.x1 * this.zoom;
+      this.panY = t + air + bbox.y2 * this.zoom;
+      return;
+    }
     const cx = (bbox.x1 + bbox.x2) / 2;
     const cy = (bbox.y1 + bbox.y2) / 2;
-    this.panX = this.width / 2 - cx * this.zoom;
-    this.panY = this.height / 2 + cy * this.zoom;
+    this.panX = l + w / 2 - cx * this.zoom;
+    this.panY = t + h / 2 + cy * this.zoom;
   }
 }

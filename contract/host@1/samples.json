@@ -7,7 +7,17 @@
     },
     {
       "protocol": "cad.like.audio/host@1",
-      "type": "fit"
+      "type": "fit",
+      "box": {
+        "x1": 0,
+        "y1": -400,
+        "x2": 1200,
+        "y2": 0
+      },
+      "inset": {
+        "left": 400
+      },
+      "minZoom": 0.5
     },
     {
       "protocol": "cad.like.audio/host@1",
@@ -98,7 +108,8 @@
       "type": "layer",
       "name": "Ceiling",
       "color": "#e5e7eb",
-      "finish": "carpet-heavy"
+      "finish": "carpet-heavy",
+      "lineweight": 35
     },
     {
       "protocol": "cad.like.audio/host@1",
@@ -175,6 +186,12 @@
       ],
       "blocks": [
         "block:7"
+      ],
+      "host": [
+        {
+          "key": "sim-bench",
+          "ref": "U12"
+        }
       ]
     },
     {
@@ -671,6 +688,12 @@
           "attributes": {
             "paletteId": "panel-1200x600"
           }
+        }
+      ],
+      "host": [
+        {
+          "key": "sim-bench",
+          "ref": "U12"
         }
       ]
     },

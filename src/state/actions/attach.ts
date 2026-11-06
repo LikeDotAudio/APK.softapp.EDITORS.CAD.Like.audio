@@ -1,6 +1,7 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { EditorStore } from '../EditorStore';
+import { BIM_DRAG_MIME, bimPartOfDrop, placeBimPart } from './dropBimPart';
 
 export function attach(store: EditorStore, canvas: HTMLCanvasElement): () => void {
   store.canvas = canvas;
@@ -31,9 +32,18 @@ export function attach(store: EditorStore, canvas: HTMLCanvasElement): () => voi
 
   const onDragOver = (e: DragEvent) => {
     e.preventDefault();
+    if (e.dataTransfer && [...(e.dataTransfer.types ?? [])].includes(BIM_DRAG_MIME)) e.dataTransfer.dropEffect = 'copy';
   };
   const onDrop = (e: DragEvent) => {
     e.preventDefault();
+    // a part dragged in from the BIM library: placed where it was let go (dropBimPart.ts)
+    const part = bimPartOfDrop(e.dataTransfer?.getData(BIM_DRAG_MIME));
+    if (part) {
+      const r = canvas.getBoundingClientRect();
+      const w = store.view.toWorld(e.clientX - r.left, e.clientY - r.top);
+      placeBimPart(store, part, { x: w.x, y: w.y });
+      return;
+    }
     const file = e.dataTransfer?.files?.[0];
     if (file && file.name.toLowerCase().endsWith('.dxf')) {
       void file.text().then((text) => {

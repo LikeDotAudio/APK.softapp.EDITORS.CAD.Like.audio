@@ -63,7 +63,7 @@ export function renderScene(scene: Scene, frame: FrameState): void {
 
   // Containers behind their contents: a group is the ground a block sits on.
   drawGroups(scene, scene.schematic);
-  drawSchematic(scene, scene.schematic);
+  drawSchematic(scene, scene.schematic, frame.layers);
   drawVirtualMirror(scene, frame.mirror);
 
   if (frame.shapeMode) {

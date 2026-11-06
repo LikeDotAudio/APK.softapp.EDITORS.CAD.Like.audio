@@ -46,3 +46,16 @@ export function layerStroke(layer: Layer | undefined, units: Units, zoom: number
   const period = even.reduce((sum, v) => sum + v, 0);
   return { width, dash: period < MIN_PERIOD_PX ? [] : even };
 }
+
+/**
+ * The on-screen width of a host's block line work on a layer that carries a
+ * lineweight (host@1 `layer` { lineweight }): proportional through the whole
+ * range, thinner than the default too — a host's WEIGHT knob turned down reads
+ * lighter, where a DXF layer under 0.25 mm keeps the normal line. `fallback`
+ * when the layer has none.
+ */
+export function hostLineWidth(layer: Pick<Layer, 'lineweight'> | undefined, fallback: number): number {
+  const weight = layer?.lineweight;
+  if (weight === undefined || !Number.isFinite(weight) || weight < 0) return fallback;
+  return Math.max(0.5, Math.min(12, (fallback * weight) / DEFAULT_WEIGHT));
+}

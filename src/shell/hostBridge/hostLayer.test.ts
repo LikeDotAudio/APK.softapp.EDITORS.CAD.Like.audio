@@ -41,4 +41,15 @@ describe('a host keeps a layer', () => {
     expect(s.layers.get('Room · A · Finishes')!.color).toBe('#444');
     expect(ensureHostLayer(s as unknown as EditorStore, { name: 'Room · A · Finishes', color: '#444' })).toBe(false);
   });
+
+  it('takes a lineweight: snapped to a DXF step, null back to Default (the Simulation\'s WEIGHT knob)', () => {
+    const s = fakeStore();
+    ensureHostLayer(s as unknown as EditorStore, { name: 'Simulation · wires', color: '#888' });
+    expect(ensureHostLayer(s as unknown as EditorStore, { name: 'Simulation · wires', lineweight: 52 })).toBe(true);
+    expect(s.layers.get('Simulation · wires')!.lineweight).toBe(53);
+    expect(ensureHostLayer(s as unknown as EditorStore, { name: 'Simulation · wires', lineweight: 53 })).toBe(false);
+    expect(ensureHostLayer(s as unknown as EditorStore, { name: 'Simulation · wires', lineweight: null })).toBe(true);
+    expect('lineweight' in s.layers.get('Simulation · wires')!).toBe(false);
+    expect(ensureHostLayer(s as unknown as EditorStore, { name: 'Simulation · wires', lineweight: 'heavy' })).toBe(false);
+  });
 });

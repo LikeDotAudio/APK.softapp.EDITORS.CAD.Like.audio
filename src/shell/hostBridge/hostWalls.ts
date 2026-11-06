@@ -1,6 +1,7 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { EditorStore } from '@state/EditorStore';
+import { hostPicked, pickHost } from '../../flow/hostSelection';
 
 /**
  * A HOST GRIPS THE WALLS
@@ -121,8 +122,16 @@ export function applyHostLayers(store: EditorStore, msg: { visible?: unknown }):
  * placed products ('block:<n>') here — what the overlay picked, called out
  * on the sheet too. An empty message clears the selection.
  */
-export function applyHostSelect(store: EditorStore, msg: { edges?: unknown; blocks?: unknown }): void {
+export function applyHostSelect(store: EditorStore, msg: { edges?: unknown; blocks?: unknown; host?: unknown }): void {
   store.selection.clear();
+  // `host` [{ key, ref }]: the host's own BIM blocks to show picked (hostSelection.ts) — the
+  // part a host's list or tree chose; absent leaves what is picked alone
+  if (Array.isArray(msg.host) && store.schematic) {
+    const want = new Set((msg.host as { key?: unknown; ref?: unknown }[])
+      .filter((h) => h && typeof h.key === 'string' && typeof h.ref === 'string').map((h) => `${h.key}\u0000${h.ref}`));
+    pickHost(store.schematic, store.schematic.placements
+      .filter((p) => p.hostKey && p.hostRef && want.has(`${p.hostKey}\u0000${p.hostRef}`)).map((p) => p.id));
+  }
   for (const id of Array.isArray(msg.edges) ? msg.edges : []) if (typeof id === 'number' && store.doc.edge(id)) store.selection.add(id);
   for (const ref of Array.isArray(msg.blocks) ? msg.blocks : []) {
     const m = typeof ref === 'string' ? /^block:(\d+)$/.exec(ref) : null;
@@ -138,7 +147,7 @@ export function applyHostSelect(store: EditorStore, msg: { edges?: unknown; bloc
  * { id: 'block:<n>', paletteId?, attributes } — so the overlay can call out
  * the speaker, seat, product or surface the user picked here.
  */
-export function selectionForHost(store: EditorStore): { edges: number[]; blocks: { id: string; paletteId?: string; attributes: Record<string, string> }[] } {
+export function selectionForHost(store: EditorStore): { edges: number[]; blocks: { id: string; paletteId?: string; attributes: Record<string, string> }[]; host?: { key: string; ref: string }[] } {
   const edges: number[] = [];
   const blocks: { id: string; paletteId?: string; attributes: Record<string, string> }[] = [];
   for (const id of store.selection) {
@@ -146,7 +155,12 @@ export function selectionForHost(store: EditorStore): { edges: number[]; blocks:
     const b = store.doc.blockInstances.get(id);
     if (b) blocks.push({ id: `block:${id}`, ...(b.attributes?.paletteId ? { paletteId: b.attributes.paletteId } : {}), attributes: { ...(b.attributes ?? {}) } });
   }
-  return { edges, blocks };
+  // the host's own BIM blocks picked here (hostSelection.ts), by the names the host gave them
+  const model = store.schematic;
+  if (!model) return { edges, blocks };
+  const ids = new Set(hostPicked(model));
+  const host = model.placements.filter((p) => ids.has(p.id) && p.hostKey && p.hostRef).map((p) => ({ key: p.hostKey!, ref: p.hostRef! }));
+  return host.length ? { edges, blocks, host } : { edges, blocks };
 }
 
 /**

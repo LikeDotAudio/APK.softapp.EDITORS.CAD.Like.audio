@@ -19,6 +19,9 @@ export const SIDE_COLOR: Record<PortSide, string> = {
 export const FLOW = {
   outline: '#9ca3af',
   outlineFill: 'rgba(148,163,184,0.08)',
+  /** A host block the user picked (hostSelection.ts): the selection colour block instances use. */
+  picked: '#38bdf8',
+  pickedFill: 'rgba(56,189,248,0.16)',
   glyph: '#e5e7eb',
   refdes: COLORS.accent,
   connector: '#22d3ee',

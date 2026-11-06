@@ -11,6 +11,7 @@ import { hitEndpointGrip } from './select/hitEndpointGrip';
 import { hitMidpointGrip } from './select/hitMidpointGrip';
 import { netBounds } from './select/netBounds';
 import { dragHostPlacements, hostDragAt } from '../shell/hostBridge/hostDrag';
+import { hostPicked, hostSelection, pickHost } from '../flow/hostSelection';
 import type { Point } from '../core/types';
 import type { Tool, ToolApi } from './types';
 
@@ -304,10 +305,20 @@ export const selectTool: Tool<SelectState> = {
     // a host's BIM block (or its group) drags here; the host learns the seat on `geometry`
     const hostIds = api.schematic ? hostDragAt(api.schematic, input.rawWorld) : [];
     if (hostIds.length) {
-      state.hostDrag = { ids: hostIds, last: input.rawWorld };
+      // the press PICKS it too (drawn picked, named to the host on `selection`); a press on a
+      // block already picked drags everything picked; shift adds or takes away
+      const already = hostIds.every((id) => hostSelection(api.schematic).has(id));
+      if (input.shiftKey) pickHost(api.schematic, hostIds, true);
+      else if (!already) pickHost(api.schematic, hostIds);
+      api.selection.clear();
+      const ids = already && !input.shiftKey ? hostPicked(api.schematic) : hostIds;
+      state.hostDrag = { ids, last: input.rawWorld };
       api.setCursor('move');
+      api.redraw();
       return;
     }
+    // anything else pressed without shift lets go of the host's picked blocks
+    if (!input.shiftKey && api.schematic) pickHost(api.schematic, []);
 
     const blockHit = blockUnder(api, input.rawWorld);
     if (blockHit !== null) {

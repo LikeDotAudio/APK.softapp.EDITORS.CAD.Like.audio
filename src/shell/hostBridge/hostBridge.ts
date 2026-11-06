@@ -17,6 +17,7 @@ import { applyHostSpaces } from './hostSpaces';
 import { applyHostLayers, applyHostSelect, applyHostWalls, selectionForHost } from './hostWalls';
 import { pickedOutline, sceneForHost, wallsForHost } from './sceneForHost';
 import { applyHostTool, dxfForHost, installHostPick } from './hostPick';
+import { hostPicked } from '../../flow/hostSelection';
 
 /**
  * THE DOOR FOR SOFTAPPS BUILT ON THIS ONE
@@ -82,6 +83,15 @@ import { applyHostTool, dxfForHost, installHostPick } from './hostPick';
  * `hostPlacements` [{ key, ref, at, ports }], so a block dragged here is a seat
  * the host learns, and where its ports are; `schematicMove` { key, items } sets
  * seats without rebuilding the blocks.
+ *
+ * TOUCHING A HOST'S BLOCKS (the owner, 2026-11-06). Select pressed on one of
+ * the host's schematic blocks PICKS it (drawn picked, flow/hostSelection.ts)
+ * and drags it; `selection` names the picked ones as `host` [{ key, ref }], and
+ * `select` { host } picks from the host's side (a part chosen in its list).
+ * `fit` takes `inset` (px of canvas the host covers — a sash) and `minZoom` (px
+ * per drawing unit, the least its blocks read at). `layer` takes `lineweight`.
+ * A part dragged in from the BIM library (`application/x-apk-bim`) is placed
+ * where it drops (state/actions/dropBimPart.ts).
  *
  * CLICKS AND THE DXF (hostPick.ts). Every click and double-click on the
  * sheet goes out as `pick` { at, count, tool, shift, ctrl, client }, so a host
@@ -180,13 +190,16 @@ export const HOST_HANDLERS: Record<string, (store: EditorStore, msg: HostMessage
   },
   // `box` { x1, y1, x2, y2 } in drawing units frames that rectangle — the
   // Library Equipment tree flies to one device on the whole-bench sheet.
-  fit: (store, { box }) => {
-    const b = box as Record<string, unknown> | undefined;
+  // `inset` { left, top, right, bottom } px: canvas the host keeps covered (Library Equipment's
+  // sash), framed around; `minZoom` px per drawing unit: the least zoom its blocks read at
+  fit: (store, { box, inset, minZoom }) => {
+    const b = (box as Record<string, unknown> | undefined) ?? (store.doc.extent() as Record<string, unknown> | null) ?? undefined;
     const ok = b && ['x1', 'y1', 'x2', 'y2'].every((k) => typeof b[k] === 'number' && Number.isFinite(b[k] as number));
     if (!ok) { store.zoomToFit(); return; }
     const r = b as { x1: number; y1: number; x2: number; y2: number };
     if (r.x2 <= r.x1 || r.y2 <= r.y1) { store.zoomToFit(); return; }
-    store.view.zoomToFit(r);
+    const pad = inset && typeof inset === 'object' ? inset as { left?: number; top?: number; right?: number; bottom?: number } : undefined;
+    store.view.zoomToFit(r, { inset: pad, minZoom: typeof minZoom === 'number' ? minZoom : undefined });
     store.requestDraw();
     store.emit();
   },
@@ -330,7 +343,7 @@ export function publishToHost(store: EditorStore): void {
   }
 
   // a selection that closes a loop is remembered as walls
-  const selKey = [...store.selection].sort((a, b) => a - b).join();
+  const selKey = `${[...store.selection].sort((a, b) => a - b).join()}|${hostPicked(store.schematic).join()}`;
   if (selKey !== lastSelection) {
     lastSelection = selKey;
     const ids = [...store.selection].filter((id) => store.doc.edge(id));
