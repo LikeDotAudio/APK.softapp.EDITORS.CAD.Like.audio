@@ -4,6 +4,7 @@ import type { EditorStore } from '../EditorStore';
 import { BIM_DRAG_MIME, bimPartOfDrop, occurrenceOfDrop, placeBimPart } from './dropBimPart';
 import { offerBimDropToHost } from '../../shell/hostBridge/hostBridge';
 import { currentSheet } from '../../shell/bimProjects';
+import { installPuck } from '../../viewport/puck/installPuck';
 
 export function attach(store: EditorStore, canvas: HTMLCanvasElement): () => void {
   store.canvas = canvas;
@@ -71,6 +72,8 @@ export function attach(store: EditorStore, canvas: HTMLCanvasElement): () => voi
   window.addEventListener('keydown', onKeyDown);
   window.addEventListener('keyup', onKeyUp);
   window.addEventListener('blur', onBlur);
+  // the SpaceMouse, posted in by the OS shell: pans and zooms the sheet (viewport/puck)
+  const detachPuck = installPuck(store);
 
   return () => {
     canvas.removeEventListener('mousemove', onMove);
@@ -84,6 +87,7 @@ export function attach(store: EditorStore, canvas: HTMLCanvasElement): () => voi
     window.removeEventListener('keydown', onKeyDown);
     window.removeEventListener('keyup', onKeyUp);
     window.removeEventListener('blur', onBlur);
+    detachPuck();
     if (store.frameHandle) cancelAnimationFrame(store.frameHandle);
     store.frameHandle = 0;
     store.canvas = null;
