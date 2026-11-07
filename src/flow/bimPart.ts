@@ -9,6 +9,7 @@
  * last), its domain kept for the Terminals table. Pure: no DOM, no store.
  */
 import type { BimRef, BlockDefinition, BoxIdentity, Port, PortSide } from '../core/types';
+import { ifcGuid } from '../vendor/ifc/guid';
 
 export interface BimPort { group?: string; terminal?: string; side?: string; domain?: string; count?: number; labels?: string[] }
 export interface BimPart { id: string; manufacturer?: string; model?: string; name?: string; description?: string; ports?: BimPort[]; ref?: Partial<BimRef> }
@@ -29,12 +30,24 @@ export function bimDefinitionId(part: BimPart): string {
 
 /**
  * The BIM reference a block keeps (ROAD-3572): the pick's `ref`, else the one a full part
- * carries (/api/bim/parts/…), else none. Only {part, url, rev} (+ globalId once ROAD-3579 fills it).
+ * carries (/api/bim/parts/…), else none. Only {part, url, rev, globalId} — see withGlobalId.
  */
 export function bimRefOf(part: BimPart, ref?: Partial<BimRef> | null): BimRef | undefined {
   const r = ref ?? part.ref;
   if (!r || !r.part) return undefined;
-  return { part: String(r.part), url: String(r.url ?? ''), rev: String(r.rev ?? ''), ...(r.globalId ? { globalId: String(r.globalId) } : {}) };
+  return withGlobalId({ part: String(r.part), url: String(r.url ?? ''), rev: String(r.rev ?? ''), ...(r.globalId ? { globalId: String(r.globalId) } : {}) });
+}
+
+/**
+ * The part's IFC type GlobalId (ROAD-3576): the one GlobalId rule of the roles part/<id>
+ * (vendor/ifc/guid.ts = DATABASE.server.BIM ifc.guid), the id the part's .ifc twin and this
+ * drawing's IfcRelDefinesByType carry. Every live answer and the snapshot send it in `ref`;
+ * a ref from before (a saved drawing, an old snapshot) gets it here by the same rule, so a
+ * placed element always resolves back to its BIM type. The occurrence's own GlobalId is the
+ * IFC writer's (exportIfc occRole) and is never stored in the ref.
+ */
+export function withGlobalId(ref: BimRef): BimRef {
+  return ref.globalId || !ref.part ? ref : { ...ref, globalId: ifcGuid('part', ref.part) };
 }
 
 export function partToDefinition(part: BimPart, ref?: Partial<BimRef> | null): BlockDefinition {

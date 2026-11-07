@@ -64,7 +64,7 @@ describe('a BIM block keeps its BIM reference (ROAD-3572)', () => {
   const DMM = { id: 'keysight/34401a', manufacturer: 'Keysight', model: '34401A', ports: [{ group: 'GPIB', side: 'connection', domain: 'control' }] };
   it('the definition carries the pick\'s ref, and every placement of it a copy', () => {
     const d = partToDefinition(DMM, REF);
-    expect(d.bimRef).toEqual({ part: 'keysight/34401a', url: REF.url, rev: REF.rev });
+    expect(d.bimRef).toEqual({ part: 'keysight/34401a', url: REF.url, rev: REF.rev, globalId: '1QkKnL3MfIRgtDc4$PFq_I' });   // the part's IFC type GlobalId (ROAD-3576)
     const s = createSchematic();
     s.definitions.push(d);
     const p = placeBlock(s, d.id, { x: 0, y: 0 });

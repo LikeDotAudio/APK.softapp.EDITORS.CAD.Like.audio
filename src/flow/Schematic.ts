@@ -14,6 +14,7 @@ import type {
 } from '../core/types';
 import { terminalKey } from '../core/types';
 import { ensureConnectorDefinitionsFor } from '../connectors/connectorBlock';
+import { withGlobalId } from './bimPart';
 import { CONCEPTS } from './concepts';
 import { forgetPlacement } from './groups';
 import { placementPoint } from './placement';
@@ -75,7 +76,7 @@ export function placeBlock(
     layerId,
     refdes: refdes ?? `${def.name}${existing + 1}`,
   };
-  if (def.bimRef) placement.bimRef = { ...def.bimRef };   // every placed BIM block points back to BIM (ROAD-3572)
+  if (def.bimRef) placement.bimRef = withGlobalId({ ...def.bimRef });   // every placed BIM block points back to BIM (ROAD-3572), by IFC too (ROAD-3576)
   const box = nextLiveBox(model, def);
   if (box?.serial) placement.serial = box.serial;
   if (box?.mac) placement.mac = box.mac;

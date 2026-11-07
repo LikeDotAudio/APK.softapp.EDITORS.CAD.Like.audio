@@ -1,7 +1,7 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { BlockDefinition, BlockPlacement, Group, PortPortal, SchematicModel } from '../../core/types';
-import { partToDefinition, portId, type BimPart, type BimPort } from '../../flow/bimPart';
+import { partToDefinition, portId, withGlobalId, type BimPart, type BimPort } from '../../flow/bimPart';
 import { connectPorts, definitionFor as defOfPlacement, portsOf, removePlacement } from '../../flow/Schematic';
 import { outlineCorners } from '../../flow/placement';
 import type { EditorStore } from '@state/EditorStore';
@@ -217,6 +217,8 @@ export function applyHostSchematic(store: EditorStore, msg: HostSchematicMessage
     const placement: BlockPlacement = {
       id: model.nextPlacementId++, definitionId: def.id, at: { x: raw.at[0], y: raw.at[1] }, layerId: layer,
       refdes: str(raw.name) ? raw.name : raw.ref, hostKey: key, hostHash: hash, hostRef: raw.ref,
+      // a host's box points back to BIM like a picked one (ROAD-3576) — when its part came with a ref
+      ...(def.bimRef ? { bimRef: withGlobalId({ ...def.bimRef }) } : {}),
     };
     const own: Record<string, PortPortal> = {};
     for (const [terminal, far] of Object.entries(portals[raw.ref] ?? {})) {
