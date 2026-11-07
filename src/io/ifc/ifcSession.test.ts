@@ -190,6 +190,16 @@ describe('placed BIM blocks are occurrences of their part type (cad-5)', () => {
   const f = parseStep(exportIfc(drawing(), { types: TYPES }));
   const part = parseStep(TYPES['keithley/2400']);
 
+  it('a placed project instance is written under its BIM occurrence GlobalId (ROAD-3577)', () => {
+    const s = drawing();
+    const gid = ifcGuid('bench', 'stadium', 'inst', 'D1');   // DATABASE.server.BIM projects.py's rule
+    s.schematic!.placements[4]!.occurrence = { project: 'stadium', instance: 'D1', globalId: gid, sheet: 'Model' };
+    const g = parseStep(exportIfc(s, { types: TYPES }));
+    const occ = entitiesByType(g, 'IFCBUILDINGELEMENTPROXY').filter((e) => e.args[0] === gid);
+    expect(occ).toHaveLength(1);
+    expect(exportIfc(drawing(), { types: TYPES })).not.toContain(gid);
+  });
+
   it('the type is the library type, same GlobalId, declared in the project library', () => {
     const t = entitiesByType(f, 'IFCFLOWINSTRUMENTTYPE')[0]!;
     expect(t.args[0]).toBe(partTypeEntity(part)!.args[0]);

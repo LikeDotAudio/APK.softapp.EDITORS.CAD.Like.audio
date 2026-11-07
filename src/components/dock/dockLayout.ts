@@ -2,7 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 
 /** Every panel the side rails can hold. */
-export type PanelId = 'flow' | 'groups' | 'palette' | 'layers' | 'properties';
+export type PanelId = 'flow' | 'blocks' | 'groups' | 'palette' | 'layers' | 'properties';
 export type RailSide = 'left' | 'right';
 /** Panels one under the other, or one at a time behind tabs. */
 export type RailMode = 'stack' | 'tabs';
@@ -36,9 +36,10 @@ export const PANEL_MIN_HEIGHT = 48;
 const KEY = 'cad.dockLayout.v1';
 
 export const DEFAULT_LAYOUT: DockLayout = {
-  order: ['flow', 'groups', 'palette', 'layers', 'properties'],
+  order: ['flow', 'blocks', 'groups', 'palette', 'layers', 'properties'],
   panels: {
     flow: { side: 'right', collapsed: false, size: 280, popped: false },
+    blocks: { side: 'left', collapsed: false, size: 420, popped: false },   // 🧱 the DesignCenter palette (ROAD-3577)
     groups: { side: 'right', collapsed: false, size: 180, popped: false },
     palette: { side: 'right', collapsed: false, size: 260, popped: false },
     layers: { side: 'right', collapsed: false, size: 260, popped: false },

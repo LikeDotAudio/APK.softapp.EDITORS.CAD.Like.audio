@@ -44,7 +44,8 @@ export function DockProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const available = useMemo(() => {
-    const ids = new Set<PanelId>(['layers', 'properties']);
+    // 🧱 Blocks (ROAD-3577) in both entrances: a plan places a project's devices as much as a schematic does
+    const ids = new Set<PanelId>(['layers', 'properties', 'blocks']);
     if (showsFlowPanel) ids.add('flow').add('groups');
     if (palette) ids.add('palette');
     return ids;

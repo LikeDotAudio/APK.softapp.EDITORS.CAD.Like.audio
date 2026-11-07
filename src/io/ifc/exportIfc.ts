@@ -487,7 +487,8 @@ export function exportIfc(session: SavedSession, opts: ExportIfcOptions = {}): s
     const firstOfIdentity = identity && !seenIdentity.has(identity);
     if (identity) seenIdentity.add(identity);
     const occRole = firstOfIdentity ? ['inst', identity!] : ['cad', doc, 'occ', p.hostKey && p.hostRef ? `host:${p.hostKey}:${p.hostRef}` : `placement:${p.id}`];
-    const g = ifcGuid(...occRole);
+    // a BIM occurrence placed from its project (ROAD-3577) is written under ITS GlobalId: this element is it
+    const g = p.occurrence?.globalId ?? ifcGuid(...occRole);
     const at = { x: mm(p.at.x), y: mm(p.at.y) };
     const room = spaceRefs.find((s) => inside(at, s.points));
     const relTo = room ? room.pl : storeyPl;

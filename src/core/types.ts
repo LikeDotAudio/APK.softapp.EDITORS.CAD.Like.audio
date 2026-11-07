@@ -413,6 +413,18 @@ export interface BimRef {
 }
 
 /**
+ * A BIM occurrence (DATABASE.server.BIM bim/projects.py, ROAD-3577): instance `instance` of
+ * project `project` (the bench is project `bench`), known in IFC by `globalId`; `sheet` is
+ * the sheet of this drawing it was placed on.
+ */
+export interface BimOccurrence {
+  project: string;
+  instance: string;
+  globalId: string;
+  sheet?: string;
+}
+
+/**
  * What names ONE box: its serial, else its MAC, else its fixed GPIB address as a
  * VISA resource — never a bare IP (WEB.OsApi osapi/identity.py, ROAD-3537). The
  * OS Schematic joins a Big Picture placement to the discovered box by these, and
@@ -464,6 +476,12 @@ export interface BlockPlacement {
   hostRef?: string;
   /** The BIM reference of the part placed here (ROAD-3572): copied from its definition's bimRef. */
   bimRef?: BimRef;
+  /**
+   * The BIM OCCURRENCE this placement is (ROAD-3577): a project's instance dragged in from the
+   * 📦 Project palette. Its GlobalId is the occurrence's in BIM's model (bench.ifc, or the
+   * project's .ifc), and this drawing's IFC writes the placement under that same GlobalId.
+   */
+  occurrence?: BimOccurrence;
   /** The box this placement stands for (BoxIdentity): set from the definition's liveBoxes. */
   serial?: string;
   mac?: string;
