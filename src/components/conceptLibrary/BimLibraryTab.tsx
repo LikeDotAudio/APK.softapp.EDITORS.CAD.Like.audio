@@ -114,6 +114,10 @@ export function conceptDefinition(part: { id?: string; model?: string; descripti
 export function LibrarySash({ open, onClose, lens = 'part' }: { open: boolean; onClose: () => void; lens?: LibraryLens }) {
   const store = useStore();
   const frame = useRef<HTMLIFrameElement | null>(null);
+  /* the library popped out into its own window (⧉): it answers through window.opener
+     (library.html), and a part clicked there is placed straight away */
+  const popped = useRef<Window | null>(null);
+  const placeRef = useRef<(p: LibraryPart) => void>(() => {});
   const [src, setSrc] = useState('');
   const [live, setLive] = useState<boolean | null>(null);
   const [part, setPart] = useState<LibraryPart | null>(null);
@@ -145,12 +149,16 @@ export function LibrarySash({ open, onClose, lens = 'part' }: { open: boolean; o
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
       const msg = e.data as { protocol?: string; type?: string; part?: LibraryPart; bim?: LibraryPart; ref?: LibraryPart['ref'] } | null;
-      if (!frame.current || e.source !== frame.current.contentWindow) return;
-      if (msg && msg.protocol === 'apk.bim.library@1' && msg.type === 'wide') { setWide((msg as { on?: boolean }).on === true); return; }
+      const fromPopup = !!popped.current && e.source === popped.current;
+      if (!fromPopup && (!frame.current || e.source !== frame.current.contentWindow)) return;
+      if (!fromPopup && msg && msg.protocol === 'apk.bim.library@1' && msg.type === 'wide') { setWide((msg as { on?: boolean }).on === true); return; }
       if (!msg || msg.protocol !== 'apk.bim.library@1' || msg.type !== 'part') return;
       const got = msg.bim ?? msg.part;
       // the part with its BIM reference: what is placed from it keeps the ref (ROAD-3572)
-      if (got?.id) setPart(msg.ref?.part ? { ...got, ref: msg.ref } : got);
+      if (!got?.id) return;
+      const withRef = msg.ref?.part ? { ...got, ref: msg.ref } : got;
+      if (fromPopup) placeRef.current(withRef);
+      else setPart(withRef);
     };
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && open) onClose(); };
     window.addEventListener('message', onMessage);
@@ -175,8 +183,18 @@ export function LibrarySash({ open, onClose, lens = 'part' }: { open: boolean; o
     window.addEventListener('pointerup', up);
   };
 
-  const place = () => {
-    if (!part) return;
+  /* ⧉ pop out: the same lens in a window of its own, the sash closes. Reusing the
+     window name brings an open one forward rather than opening a second. */
+  const popOut = () => {
+    void bimLibraryUrl().then(({ url }) => {
+      const w = window.open(libraryFrameUrl(url, lens), 'apk-bim-library', 'popup,width=560,height=900');
+      if (w) { popped.current = w; w.focus(); onClose(); }
+    });
+  };
+
+  const place = () => { if (part) placePart(part); };
+  placeRef.current = (p: LibraryPart) => placePart(p);
+  const placePart = (part: LibraryPart) => {
     const def = conceptDefinition(part) ?? partToDefinition(part);
     const known = store.schematic.definitions.find((d) => d.id === def.id);
     if (!known) store.schematic.definitions.push(def);
@@ -212,6 +230,7 @@ export function LibrarySash({ open, onClose, lens = 'part' }: { open: boolean; o
         <span className="font-semibold">{lens === 'catalog' ? '📖 Catalog' : '📚 Library'}</span>
         <span className="text-[#858585]">{live === false ? 'published snapshot — no BIM here' : live ? 'live BIM' : '…'}</span>
         <span className="flex-1" />
+        <button className="library-sash-popout rounded px-2 hover:bg-[#333]" title="Pop out — the library in a window of its own; a part clicked there is placed here" onClick={popOut}>⧉</button>
         <button className="library-sash-close rounded px-2 hover:bg-[#333]" title="Close (Esc)" onClick={onClose}>✕</button>
       </div>
       <div className="relative flex-1 min-h-0">
