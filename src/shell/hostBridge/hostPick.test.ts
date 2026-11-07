@@ -6,7 +6,9 @@ import schema from '../../../contract/host@1/host.schema.json';
 import { validateMessage } from '../../../contract/validate.mjs';
 import { Doc } from '../../model/Doc';
 import { Viewport } from '../../viewport/Viewport';
-import { dxfForHost, pickForHost } from './hostPick';
+import { dxfForHost, dxfForHostWithIfc, pickForHost } from './hostPick';
+import { EditorStore } from '@state/EditorStore';
+import { IFC_DXF_LAYER, readIfcDxf } from '../../vendor/ifc/dxf';
 import { HOST_PROTOCOL } from './hostBridge';
 
 describe('pick: a click on the sheet says where it landed, in drawing units', () => {
@@ -32,6 +34,23 @@ describe('dxf: the sheet as Download DXF writes it', () => {
     expect(body.text.trim().endsWith('EOF')).toBe(true);
     expect(body.fileName).toMatch(/\.dxf$/);
     expect(validateMessage(schema, 'toHost', { protocol: HOST_PROTOCOL, type: 'dxf', ...body })).toEqual([]);
+  });
+});
+
+describe('dxf: a host hand-off carries the drawing\'s IFC on the hidden layer (ROAD-3598 answer 2)', () => {
+  it('answers with the same .ifc Save Model writes, on APK_IFC, and still validates as toHost.dxf', async () => {
+    const store = new EditorStore();
+    store.doc.addLine({ x: 0, y: 0 }, { x: 254, y: 0 });
+    store.doc.addLine({ x: 254, y: 0 }, { x: 254, y: 127 });
+    const body = await dxfForHostWithIfc(store);
+    expect(body.text).toContain(IFC_DXF_LAYER);
+    const blobs = readIfcDxf(body.text);
+    expect(blobs.length).toBeGreaterThan(0);
+    expect(blobs.some((b) => /IFCPROJECT/.test(JSON.stringify(b)))).toBe(true);
+    expect(body.text.trim().endsWith('EOF')).toBe(true);
+    expect(validateMessage(schema, 'toHost', { protocol: HOST_PROTOCOL, type: 'dxf', ...body })).toEqual([]);
+    // the plain writer is the drawing alone
+    expect(dxfForHost(store).text).not.toContain(IFC_DXF_LAYER);
   });
 });
 

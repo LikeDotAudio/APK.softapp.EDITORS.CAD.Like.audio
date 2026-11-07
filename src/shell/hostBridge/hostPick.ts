@@ -7,6 +7,8 @@ import type { ToolId } from '../../core/types';
 import { getTool } from '../../tools/registry';
 import { hostPickAt } from './hostDrag';
 import { DOC_UNITS } from '../../model/units/docUnits';
+import { sessionIfc } from '@io/ifc/sessionIfc';
+import { buildSavedSession } from '@state/actions/autoSaveSession';
 
 /**
  * A CLICK ON THE SHEET, FOR A HOST THAT KNOWS WHAT IS UNDER IT.
@@ -71,11 +73,31 @@ export function installHostPick(store: EditorStore, post: (body: ReturnType<type
  * gets `dxf` { fileName, text } back — so a host's own "dxf" button exports
  * what is on the CAD sheet (where the blocks are now), not a copy it keeps.
  */
-export function dxfForHost(store: Pick<EditorStore, 'doc' | 'units' | 'layers' | 'schematic' | 'currentFileName'>) {
+export function dxfForHost(
+  store: Pick<EditorStore, 'doc' | 'units' | 'layers' | 'schematic' | 'currentFileName'>,
+  ifc?: string,
+) {
   return {
     fileName: dxfFileName(DOC_UNITS, store.currentFileName),
-    text: buildDxf(store.doc, DOC_UNITS, store.layers.values(), store.schematic), // in mm, $INSUNITS 4 (cad-1)
+    // in mm, $INSUNITS 4 (cad-1); with `ifc` its objects ride on the hidden APK_IFC layer (ROAD-3598)
+    text: buildDxf(store.doc, DOC_UNITS, store.layers.values(), store.schematic, ifc),
   };
+}
+
+/**
+ * The host@1 `dxf` answer: the sheet as Download DXF writes it, WITH the drawing's model
+ * (the same .ifc Save Model writes) on the hidden APK_IFC layer — so a host's own "dxf"
+ * button (the Simulation's) hands over what File › Download DXF would (ROAD-3598 answer 2).
+ * A model that cannot be made leaves the DXF the drawing alone.
+ */
+export async function dxfForHostWithIfc(store: EditorStore): Promise<ReturnType<typeof dxfForHost>> {
+  let ifc: string | undefined;
+  try {
+    ifc = await sessionIfc(buildSavedSession(store), undefined, store.viewports);
+  } catch {
+    ifc = undefined;
+  }
+  return dxfForHost(store, ifc);
 }
 
 /**

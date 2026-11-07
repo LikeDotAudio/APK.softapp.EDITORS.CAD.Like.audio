@@ -18,7 +18,7 @@ import { showHostSheet } from './hostSheet';
 import { applyHostSpaces } from './hostSpaces';
 import { applyHostLayers, applyHostSelect, applyHostWalls, selectionForHost } from './hostWalls';
 import { pickedOutline, sceneForHost, wallsForHost } from './sceneForHost';
-import { applyHostTool, dxfForHost, installHostPick } from './hostPick';
+import { applyHostTool, dxfForHostWithIfc, installHostPick } from './hostPick';
 import { hostPicked } from '../../flow/hostSelection';
 
 /**
@@ -270,8 +270,9 @@ export const HOST_HANDLERS: Record<string, (store: EditorStore, msg: HostMessage
     const s = session as SavedSession | undefined;
     if (s && Array.isArray(s.docSnapshot?.edges)) void openSession(store, s);
   },
-  // the sheet as Download DXF writes it, answered with `dxf` { fileName, text } (hostPick.ts)
-  dxf: (store) => post('dxf', dxfForHost(store)),
+  // the sheet as Download DXF writes it — the drawing's IFC on its hidden APK_IFC layer too —
+  // answered with `dxf` { fileName, text } (hostPick.ts)
+  dxf: (store) => void dxfForHostWithIfc(store).then((body) => post('dxf', body)),
   // put a tool in the user's hand: the Simulation reads its sheet, so it asks for 'select' (hostPick.ts)
   tool: (store, msg) => void applyHostTool(store, msg),
   floorplan: (store, { file }) => {
