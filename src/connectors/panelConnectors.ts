@@ -14,8 +14,7 @@
  * (networked audio, ST 2110, NMOS, codecs, media formats, dataflow ports) is not here at all: that is
  * contracts/ifc/signal-formats.json (signalFormats.ts).
  *
- * Every code must resolve in connectors.json or be named in NOT_IN_VOCABULARY_YET
- * (panelConnectors.test.ts) — those wait on the IFC vocabulary to take them.
+ * Every code must resolve in connectors.json (panelConnectors.test.ts); since ROAD-3599 every one does.
  *
  * (Was the physical half of the old connector table in ConnectorLookup.ts; its changelog is in git.)
  */

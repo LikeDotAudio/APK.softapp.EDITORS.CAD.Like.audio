@@ -975,6 +975,7 @@
     "3.5 mm TRS female",
     "earphone jack",
     "headphone jack",
+    "KEY-3.5mm",
     "stereo 3.5 mm mini jack female"
    ]
   },
@@ -1301,6 +1302,7 @@
     "Sleeve Gnd"
    ],
    "aliases": [
+    "KEY-RCA",
     "RCA female",
     "RCA jack"
    ]
@@ -1982,6 +1984,78 @@
    ]
   },
   {
+   "id": "OPTICALCON-LITE-2",
+   "subtype": "opticalCON LITE 2-fibre",
+   "family": "Fibre",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": 2,
+   "pinout": null,
+   "cad": "OCL2",
+   "kind": "fibre",
+   "note": "Neutrik opticalCON LITE, as the CAD names it; pins counts the fibres (as for opticalCON). Fibre: no electrical pinout.",
+   "aliases": [
+    "Neutrik opticalCON LITE 2",
+    "OCL2",
+    "opticalCON LITE 2",
+    "OpticalCon Lite Fiber - 2 strand"
+   ]
+  },
+  {
+   "id": "OPTICALCON-LITE-4",
+   "subtype": "opticalCON LITE 4-fibre",
+   "family": "Fibre",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": 4,
+   "pinout": null,
+   "cad": "OCL4",
+   "kind": "fibre",
+   "note": "Neutrik opticalCON LITE, as the CAD names it; pins counts the fibres (as for opticalCON). Fibre: no electrical pinout.",
+   "aliases": [
+    "Neutrik opticalCON LITE 4",
+    "OCL4",
+    "opticalCON LITE 4",
+    "OpticalCon Lite Fiber - 4 strand"
+   ]
+  },
+  {
+   "id": "OPTICALCON-LITE-12",
+   "subtype": "opticalCON LITE MTP 12-fibre",
+   "family": "Fibre",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": 12,
+   "pinout": null,
+   "cad": "OCL12",
+   "kind": "fibre",
+   "note": "Neutrik opticalCON LITE, as the CAD names it; pins counts the fibres (as for opticalCON). Fibre: no electrical pinout.",
+   "aliases": [
+    "Neutrik opticalCON LITE 12",
+    "OCL12",
+    "opticalCON LITE 12",
+    "OpticalCon Lite MTP Fiber - 12 strand"
+   ]
+  },
+  {
+   "id": "OPTICALCON-LITE-24",
+   "subtype": "opticalCON LITE MTP 24-fibre",
+   "family": "Fibre",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": 24,
+   "pinout": null,
+   "cad": "OCL24",
+   "kind": "fibre",
+   "note": "Neutrik opticalCON LITE, as the CAD names it; pins counts the fibres (as for opticalCON). Fibre: no electrical pinout.",
+   "aliases": [
+    "Neutrik opticalCON LITE 24",
+    "OCL24",
+    "opticalCON LITE 24",
+    "OpticalCon Lite MTP Fiber - 24 strand"
+   ]
+  },
+  {
    "id": "RJ45",
    "subtype": "RJ45 (8P8C)",
    "family": "RJ",
@@ -2083,6 +2157,249 @@
    "aliases": [
     "RJ45 male",
     "RJ45 plug"
+   ]
+  },
+  {
+   "id": "AES72-1E",
+   "subtype": "AES72 Type 1E (RJ45)",
+   "family": "RJ",
+   "ElectricalConnectionType": "RJ",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": 8,
+   "pinout": [
+    "1 Link 1 -",
+    "2 Link 1 +",
+    "3 Link 2 -",
+    "4 Link 3 +",
+    "5 Link 3 -",
+    "6 Link 2 +",
+    "7 Link 4 -",
+    "8 Link 4 +"
+   ],
+   "cad": "AES72 Type 1E",
+   "standard": "AES72-2019",
+   "note": "AES72-2019 Table 1, type 1E (Even = +): four balanced analog links on one RJ45; the number is the link-to-pair assignment, the letter the polarity (§4.2). The types are not interchangeable (Annex C), and §4.4 puts the descriptor on the equipment. T568A pairs: L1 green, L2 orange, L3 blue, L4 brown. Gender is not stated by the CAD code.",
+   "aliases": [
+    "AES72 1E",
+    "AES72 Type 1E",
+    "AES72 Type 1E RJ45",
+    "AES72-Type 1E"
+   ]
+  },
+  {
+   "id": "AES72-1O",
+   "subtype": "AES72 Type 1O (RJ45)",
+   "family": "RJ",
+   "ElectricalConnectionType": "RJ",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": 8,
+   "pinout": [
+    "1 Link 1 +",
+    "2 Link 1 -",
+    "3 Link 2 +",
+    "4 Link 3 -",
+    "5 Link 3 +",
+    "6 Link 2 -",
+    "7 Link 4 +",
+    "8 Link 4 -"
+   ],
+   "cad": "AES72 Type 1O",
+   "standard": "AES72-2019",
+   "note": "AES72-2019 Table 1, type 1O (Odd = +): four balanced analog links on one RJ45; the number is the link-to-pair assignment, the letter the polarity (§4.2). The types are not interchangeable (Annex C), and §4.4 puts the descriptor on the equipment. T568A pairs: L1 green, L2 orange, L3 blue, L4 brown. Gender is not stated by the CAD code.",
+   "aliases": [
+    "AES72 1O",
+    "AES72 Type 1O",
+    "AES72 Type 1O RJ45",
+    "AES72-Type 1O"
+   ]
+  },
+  {
+   "id": "AES72-1M",
+   "subtype": "AES72 Type 1M (RJ45)",
+   "family": "RJ",
+   "ElectricalConnectionType": "RJ",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": 8,
+   "pinout": [
+    "1 Link 1 +",
+    "2 Link 1 -",
+    "3 Link 2 +",
+    "4 Link 3 +",
+    "5 Link 3 -",
+    "6 Link 2 -",
+    "7 Link 4 +",
+    "8 Link 4 -"
+   ],
+   "cad": "AES72 Type 1M",
+   "standard": "AES72-2019",
+   "note": "AES72-2019 Table 1, type 1M (Mixed): four balanced analog links on one RJ45; the number is the link-to-pair assignment, the letter the polarity (§4.2). The types are not interchangeable (Annex C), and §4.4 puts the descriptor on the equipment. T568A pairs: L1 green, L2 orange, L3 blue, L4 brown. Gender is not stated by the CAD code.",
+   "aliases": [
+    "AES72 1M",
+    "AES72 Type 1M",
+    "AES72 Type 1M RJ45",
+    "AES72-Type 1M"
+   ]
+  },
+  {
+   "id": "AES72-2O",
+   "subtype": "AES72 Type 2O (RJ45)",
+   "family": "RJ",
+   "ElectricalConnectionType": "RJ",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": 8,
+   "pinout": [
+    "1 Link 2 +",
+    "2 Link 2 -",
+    "3 Link 3 +",
+    "4 Link 1 -",
+    "5 Link 1 +",
+    "6 Link 3 -",
+    "7 Link 4 +",
+    "8 Link 4 -"
+   ],
+   "cad": "AES72 Type 2O",
+   "standard": "AES72-2019",
+   "note": "AES72-2019 Table 1, type 2O (Odd = +): four balanced analog links on one RJ45; the number is the link-to-pair assignment, the letter the polarity (§4.2). The types are not interchangeable (Annex C), and §4.4 puts the descriptor on the equipment. T568A pairs: L1 blue, L2 green, L3 orange, L4 brown. Gender is not stated by the CAD code.",
+   "aliases": [
+    "AES72 2O",
+    "AES72 Type 2O",
+    "AES72 Type 2O RJ45",
+    "AES72-Type 2O"
+   ]
+  },
+  {
+   "id": "AES72-3E",
+   "subtype": "AES72 Type 3E (RJ45)",
+   "family": "RJ",
+   "ElectricalConnectionType": "RJ",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": 8,
+   "pinout": [
+    "1 Link 3 -",
+    "2 Link 3 +",
+    "3 Link 2 -",
+    "4 Link 1 +",
+    "5 Link 1 -",
+    "6 Link 2 +",
+    "7 Link 4 -",
+    "8 Link 4 +"
+   ],
+   "cad": "AES72 Type 3E",
+   "standard": "AES72-2019",
+   "note": "AES72-2019 Table 1, type 3E (Even = +): four balanced analog links on one RJ45; the number is the link-to-pair assignment, the letter the polarity (§4.2). The types are not interchangeable (Annex C), and §4.4 puts the descriptor on the equipment. T568A pairs: L1 blue, L2 orange, L3 green, L4 brown. Gender is not stated by the CAD code.",
+   "aliases": [
+    "AES72 3E",
+    "AES72 Type 3E",
+    "AES72 Type 3E RJ45",
+    "AES72-Type 3E"
+   ]
+  },
+  {
+   "id": "AES72-3M",
+   "subtype": "AES72 Type 3M (RJ45)",
+   "family": "RJ",
+   "ElectricalConnectionType": "RJ",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": 8,
+   "pinout": [
+    "1 Link 3 +",
+    "2 Link 3 -",
+    "3 Link 2 +",
+    "4 Link 1 +",
+    "5 Link 1 -",
+    "6 Link 2 -",
+    "7 Link 4 +",
+    "8 Link 4 -"
+   ],
+   "cad": "AES72 Type 3M",
+   "standard": "AES72-2019",
+   "note": "AES72-2019 Table 1, type 3M (Mixed): four balanced analog links on one RJ45; the number is the link-to-pair assignment, the letter the polarity (§4.2). The types are not interchangeable (Annex C), and §4.4 puts the descriptor on the equipment. T568A pairs: L1 blue, L2 orange, L3 green, L4 brown. Gender is not stated by the CAD code.",
+   "aliases": [
+    "AES72 3M",
+    "AES72 Type 3M",
+    "AES72 Type 3M RJ45",
+    "AES72-Type 3M"
+   ]
+  },
+  {
+   "id": "AES72-4E",
+   "subtype": "AES72 Type 4E (RJ45)",
+   "family": "RJ",
+   "ElectricalConnectionType": "RJ",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": 8,
+   "pinout": [
+    "1 Link 1 -",
+    "2 Link 1 +",
+    "3 Link 3 -",
+    "4 Link 2 +",
+    "5 Link 2 -",
+    "6 Link 3 +",
+    "7 Link 4 -",
+    "8 Link 4 +"
+   ],
+   "cad": "AES72 Type 4E",
+   "standard": "AES72-2019",
+   "note": "AES72-2019 Table 1, type 4E (Even = +): four balanced analog links on one RJ45; the number is the link-to-pair assignment, the letter the polarity (§4.2). The types are not interchangeable (Annex C), and §4.4 puts the descriptor on the equipment. T568A pairs: L1 green, L2 blue, L3 orange, L4 brown. Gender is not stated by the CAD code. The house default: two Type 4E jacks break out one 8-channel AES59 DB25; phantom power needs shielded jacks and cable (§4.3); label \"AES72 Type 4E\" (\"..., not grounded\" if no ground, §4.4); mates link-for-link only with Type 4 kit, AES3 links ignore the letter (§4.5); a crossover cable aligns it with Type 2, all links inverted (Annex C).",
+   "aliases": [
+    "AES72 4E",
+    "AES72 Type 4E",
+    "AES72 Type 4E RJ45",
+    "AES72-Type 4E"
+   ]
+  },
+  {
+   "id": "AES72-5E",
+   "subtype": "AES72 Type 5E (RJ45)",
+   "family": "RJ",
+   "ElectricalConnectionType": "RJ",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": 8,
+   "pinout": [
+    "1 Link 3 -",
+    "2 Link 3 +",
+    "3 Link 4 -",
+    "4 Link 1 +",
+    "5 Link 1 -",
+    "6 Link 4 +",
+    "7 Link 2 -",
+    "8 Link 2 +"
+   ],
+   "cad": "AES72 Type 5E",
+   "standard": "AES72-2019",
+   "note": "AES72-2019 Table 1, type 5E (Even = +): four balanced analog links on one RJ45; the number is the link-to-pair assignment, the letter the polarity (§4.2). The types are not interchangeable (Annex C), and §4.4 puts the descriptor on the equipment. T568A pairs: L1 blue, L2 brown, L3 green, L4 orange. Gender is not stated by the CAD code.",
+   "aliases": [
+    "AES72 5E",
+    "AES72 Type 5E",
+    "AES72 Type 5E RJ45",
+    "AES72-Type 5E"
+   ]
+  },
+  {
+   "id": "AES72-6E",
+   "subtype": "AES72 Type 6E (RJ45)",
+   "family": "RJ",
+   "ElectricalConnectionType": "RJ",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": 8,
+   "pinout": [
+    "1 Link 4 -",
+    "2 Link 4 +",
+    "3 Link 3 -",
+    "4 Link 2 +",
+    "5 Link 2 -",
+    "6 Link 3 +",
+    "7 Link 1 -",
+    "8 Link 1 +"
+   ],
+   "cad": "AES72 Type 6E",
+   "standard": "AES72-2019",
+   "note": "AES72-2019 Table 1, type 6E (Even = +): four balanced analog links on one RJ45; the number is the link-to-pair assignment, the letter the polarity (§4.2). The types are not interchangeable (Annex C), and §4.4 puts the descriptor on the equipment. T568A pairs: L1 brown, L2 blue, L3 orange, L4 green. Gender is not stated by the CAD code.",
+   "aliases": [
+    "AES72 6E",
+    "AES72 Type 6E",
+    "AES72 Type 6E RJ45",
+    "AES72-Type 6E"
    ]
   },
   {
@@ -2874,7 +3191,8 @@
    "cad": "TRXP",
    "aliases": [
     "triax male",
-    "TRXP"
+    "TRXP",
+    "TRXP-FL"
    ]
   },
   {
@@ -2892,7 +3210,8 @@
    "cad": "TRXS",
    "aliases": [
     "triax female",
-    "TRXS"
+    "TRXS",
+    "TRXS-FL"
    ]
   },
   {
@@ -2920,7 +3239,8 @@
    "pinout": null,
    "cad": "SMPTEP",
    "aliases": [
-    "SMPTEP"
+    "SMPTEP",
+    "SMPTEP-TH"
    ]
   },
   {
@@ -2948,7 +3268,8 @@
    "pinout": null,
    "cad": "SMPTES",
    "aliases": [
-    "SMPTES"
+    "SMPTES",
+    "SMPTES-TH"
    ]
   },
   {
@@ -3470,6 +3791,158 @@
     "D25",
     "DB-25",
     "DB25"
+   ]
+  },
+  {
+   "id": "AES59-DB25-M",
+   "subtype": "D-sub 25-pin (AES59 / TASCAM)",
+   "family": "D-sub",
+   "ElectricalConnectionType": "DSUB",
+   "ConnectionGender": "MALE",
+   "pins": 25,
+   "pinout": [
+    "Ch8 +",
+    "Ch8 Shield",
+    "Ch7 -",
+    "Ch6 +",
+    "Ch6 Shield",
+    "Ch5 -",
+    "Ch4 +",
+    "Ch4 Shield",
+    "Ch3 -",
+    "Ch2 +",
+    "Ch2 Shield",
+    "Ch1 -",
+    "n/c",
+    "Ch8 -",
+    "Ch7 +",
+    "Ch7 Shield",
+    "Ch6 -",
+    "Ch5 +",
+    "Ch5 Shield",
+    "Ch4 -",
+    "Ch3 +",
+    "Ch3 Shield",
+    "Ch2 -",
+    "Ch1 +",
+    "Ch1 Shield"
+   ],
+   "pinout_variants": {
+    "aes3": [
+     "AES3 Out 8 +",
+     "AES3 Out 8 Shield",
+     "AES3 Out 7 -",
+     "AES3 Out 6 +",
+     "AES3 Out 6 Shield",
+     "AES3 Out 5 -",
+     "AES3 In 4 +",
+     "AES3 In 4 Shield",
+     "AES3 In 3 -",
+     "AES3 In 2 +",
+     "AES3 In 2 Shield",
+     "AES3 In 1 -",
+     "n/c",
+     "AES3 Out 8 -",
+     "AES3 Out 7 +",
+     "AES3 Out 7 Shield",
+     "AES3 Out 6 -",
+     "AES3 Out 5 +",
+     "AES3 Out 5 Shield",
+     "AES3 In 4 -",
+     "AES3 In 3 +",
+     "AES3 In 3 Shield",
+     "AES3 In 2 -",
+     "AES3 In 1 +",
+     "AES3 In 1 Shield"
+    ]
+   },
+   "cad": "A59P",
+   "standard": "AES59-2012",
+   "note": "AES59-2012 Annex C (the TASCAM DA-88 analog layout): per circuit positive / return / shield, pin 13 not used, 4/40 UNC jackscrews. §4.1: equipment is always the female socket, cables always male (the reverse of AES14's XLR rule). Annex D digital combined I/O keeps the pins: circuits 1-4 AES3 receive, 5-8 AES3 transmit (pinout_variants.aes3). Yamaha's DB25 is a different wiring and does not mate.",
+   "aliases": [
+    "A59P",
+    "AES59 DB25 male",
+    "AES59 M",
+    "AES59 male",
+    "AES59 plug",
+    "DB25 AES59 male",
+    "TASCAM DB25 male"
+   ]
+  },
+  {
+   "id": "AES59-DB25-F",
+   "subtype": "D-sub 25-pin (AES59 / TASCAM)",
+   "family": "D-sub",
+   "ElectricalConnectionType": "DSUB",
+   "ConnectionGender": "FEMALE",
+   "pins": 25,
+   "pinout": [
+    "Ch8 +",
+    "Ch8 Shield",
+    "Ch7 -",
+    "Ch6 +",
+    "Ch6 Shield",
+    "Ch5 -",
+    "Ch4 +",
+    "Ch4 Shield",
+    "Ch3 -",
+    "Ch2 +",
+    "Ch2 Shield",
+    "Ch1 -",
+    "n/c",
+    "Ch8 -",
+    "Ch7 +",
+    "Ch7 Shield",
+    "Ch6 -",
+    "Ch5 +",
+    "Ch5 Shield",
+    "Ch4 -",
+    "Ch3 +",
+    "Ch3 Shield",
+    "Ch2 -",
+    "Ch1 +",
+    "Ch1 Shield"
+   ],
+   "pinout_variants": {
+    "aes3": [
+     "AES3 Out 8 +",
+     "AES3 Out 8 Shield",
+     "AES3 Out 7 -",
+     "AES3 Out 6 +",
+     "AES3 Out 6 Shield",
+     "AES3 Out 5 -",
+     "AES3 In 4 +",
+     "AES3 In 4 Shield",
+     "AES3 In 3 -",
+     "AES3 In 2 +",
+     "AES3 In 2 Shield",
+     "AES3 In 1 -",
+     "n/c",
+     "AES3 Out 8 -",
+     "AES3 Out 7 +",
+     "AES3 Out 7 Shield",
+     "AES3 Out 6 -",
+     "AES3 Out 5 +",
+     "AES3 Out 5 Shield",
+     "AES3 In 4 -",
+     "AES3 In 3 +",
+     "AES3 In 3 Shield",
+     "AES3 In 2 -",
+     "AES3 In 1 +",
+     "AES3 In 1 Shield"
+    ]
+   },
+   "cad": "A59S",
+   "standard": "AES59-2012",
+   "note": "AES59-2012 Annex C (the TASCAM DA-88 analog layout): per circuit positive / return / shield, pin 13 not used, 4/40 UNC jackscrews. §4.1: equipment is always the female socket, cables always male (the reverse of AES14's XLR rule). Annex D digital combined I/O keeps the pins: circuits 1-4 AES3 receive, 5-8 AES3 transmit (pinout_variants.aes3). Yamaha's DB25 is a different wiring and does not mate.",
+   "aliases": [
+    "A59S",
+    "AES59 DB25 female",
+    "AES59 F",
+    "AES59 female",
+    "AES59 socket",
+    "DB25 AES59 female",
+    "TASCAM DB25 female"
    ]
   },
   {
@@ -4245,6 +4718,42 @@
    ]
   },
   {
+   "id": "FIBRE-LC-MM-OM1-SIMPLEX",
+   "subtype": "LC multimode OM1 simplex",
+   "family": "Fibre",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": null,
+   "pinout": null,
+   "cad": "LCM1S",
+   "kind": "fibre",
+   "note": "Fibre: no electrical pins, so no pinout (pins stays null, as for the other fibre entries).",
+   "aliases": [
+    "LC multimode OM1 simplex",
+    "LC OM1 simplex",
+    "LCM1S",
+    "OM1 LC multimode simplex"
+   ]
+  },
+  {
+   "id": "FIBRE-LC-MM-OM3-SIMPLEX",
+   "subtype": "LC multimode OM3 simplex",
+   "family": "Fibre",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": null,
+   "pinout": null,
+   "cad": "LCM3S",
+   "kind": "fibre",
+   "note": "Fibre: no electrical pins, so no pinout (pins stays null, as for the other fibre entries).",
+   "aliases": [
+    "LC multimode OM3 simplex",
+    "LC OM3 simplex",
+    "LCM3S",
+    "OM3 LC multimode simplex"
+   ]
+  },
+  {
    "id": "FIBRE-SC",
    "subtype": "SC",
    "family": "Fibre",
@@ -4317,6 +4826,132 @@
    ]
   },
   {
+   "id": "FIBRE-SC-MM-OM1-DUPLEX",
+   "subtype": "SC multimode OM1 duplex",
+   "family": "Fibre",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": null,
+   "pinout": null,
+   "cad": "SCM1D",
+   "kind": "fibre",
+   "note": "Fibre: no electrical pins, so no pinout (pins stays null, as for the other fibre entries).",
+   "aliases": [
+    "OM1 SC multimode duplex",
+    "SC multimode OM1 duplex",
+    "SC OM1 duplex",
+    "SCM1D"
+   ]
+  },
+  {
+   "id": "FIBRE-SC-MM-OM1-SIMPLEX",
+   "subtype": "SC multimode OM1 simplex",
+   "family": "Fibre",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": null,
+   "pinout": null,
+   "cad": "SCM1S",
+   "kind": "fibre",
+   "note": "Fibre: no electrical pins, so no pinout (pins stays null, as for the other fibre entries).",
+   "aliases": [
+    "OM1 SC multimode simplex",
+    "SC multimode OM1 simplex",
+    "SC OM1 simplex",
+    "SCM1S"
+   ]
+  },
+  {
+   "id": "FIBRE-SC-MM-OM3-DUPLEX",
+   "subtype": "SC multimode OM3 duplex",
+   "family": "Fibre",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": null,
+   "pinout": null,
+   "cad": "SCM3D",
+   "kind": "fibre",
+   "note": "Fibre: no electrical pins, so no pinout (pins stays null, as for the other fibre entries).",
+   "aliases": [
+    "OM3 SC multimode duplex",
+    "SC multimode OM3 duplex",
+    "SC OM3 duplex",
+    "SCM3D"
+   ]
+  },
+  {
+   "id": "FIBRE-SC-MM-OM3-SIMPLEX",
+   "subtype": "SC multimode OM3 simplex",
+   "family": "Fibre",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": null,
+   "pinout": null,
+   "cad": "SCM3S",
+   "kind": "fibre",
+   "note": "Fibre: no electrical pins, so no pinout (pins stays null, as for the other fibre entries).",
+   "aliases": [
+    "OM3 SC multimode simplex",
+    "SC multimode OM3 simplex",
+    "SC OM3 simplex",
+    "SCM3S"
+   ]
+  },
+  {
+   "id": "FIBRE-SC-MM-OM4-DUPLEX",
+   "subtype": "SC multimode OM4 duplex",
+   "family": "Fibre",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": null,
+   "pinout": null,
+   "cad": "SCM4D",
+   "kind": "fibre",
+   "note": "Fibre: no electrical pins, so no pinout (pins stays null, as for the other fibre entries).",
+   "aliases": [
+    "OM4 SC multimode duplex",
+    "SC multimode OM4 duplex",
+    "SC OM4 duplex",
+    "SCM4D"
+   ]
+  },
+  {
+   "id": "FIBRE-SC-MM-OM4-SIMPLEX",
+   "subtype": "SC multimode OM4 simplex",
+   "family": "Fibre",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": null,
+   "pinout": null,
+   "cad": "SCM4S",
+   "kind": "fibre",
+   "note": "Fibre: no electrical pins, so no pinout (pins stays null, as for the other fibre entries).",
+   "aliases": [
+    "OM4 SC multimode simplex",
+    "SC multimode OM4 simplex",
+    "SC OM4 simplex",
+    "SCM4S"
+   ]
+  },
+  {
+   "id": "FIBRE-PLX-SC-MM-DUPLEX",
+   "subtype": "PLX duplex SC multimode",
+   "family": "Fibre",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": null,
+   "pinout": null,
+   "cad": "PLX-MM",
+   "kind": "fibre",
+   "note": "Fibre: no electrical pins, so no pinout (pins stays null, as for the other fibre entries).",
+   "aliases": [
+    "Fiber PLX duplex SC multimode",
+    "PLX duplex SC",
+    "PLX duplex SC multimode",
+    "PLX-MM"
+   ]
+  },
+  {
    "id": "FIBRE-ST",
    "subtype": "ST",
    "family": "Fibre",
@@ -4360,6 +4995,94 @@
    ]
   },
   {
+   "id": "FIBRE-ST-APC-DUPLEX",
+   "subtype": "ST/APC singlemode duplex",
+   "family": "Fibre",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": null,
+   "pinout": null,
+   "cad": "STA-D",
+   "kind": "fibre",
+   "note": "Fibre: no electrical pins, so no pinout (pins stays null, as for the other fibre entries).",
+   "aliases": [
+    "ST APC singlemode duplex",
+    "ST/APC duplex",
+    "STA-D"
+   ]
+  },
+  {
+   "id": "FIBRE-ST-APC-SIMPLEX",
+   "subtype": "ST/APC singlemode simplex",
+   "family": "Fibre",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": null,
+   "pinout": null,
+   "cad": "STA-S",
+   "kind": "fibre",
+   "note": "Fibre: no electrical pins, so no pinout (pins stays null, as for the other fibre entries).",
+   "aliases": [
+    "ST APC singlemode simplex",
+    "ST/APC simplex",
+    "STA-S"
+   ]
+  },
+  {
+   "id": "FIBRE-ST-MM-OM1-DUPLEX",
+   "subtype": "ST multimode OM1 duplex",
+   "family": "Fibre",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": null,
+   "pinout": null,
+   "cad": "STM1-D",
+   "kind": "fibre",
+   "note": "Fibre: no electrical pins, so no pinout (pins stays null, as for the other fibre entries).",
+   "aliases": [
+    "OM1 ST multimode duplex",
+    "ST multimode OM1 duplex",
+    "ST OM1 duplex",
+    "STM1-D"
+   ]
+  },
+  {
+   "id": "FIBRE-ST-MM-OM3-DUPLEX",
+   "subtype": "ST multimode OM3 duplex",
+   "family": "Fibre",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": null,
+   "pinout": null,
+   "cad": "STM3-D",
+   "kind": "fibre",
+   "note": "Fibre: no electrical pins, so no pinout (pins stays null, as for the other fibre entries).",
+   "aliases": [
+    "OM3 ST multimode duplex",
+    "ST multimode OM3 duplex",
+    "ST OM3 duplex",
+    "STM3-D"
+   ]
+  },
+  {
+   "id": "FIBRE-ST-MM-OM4-DUPLEX",
+   "subtype": "ST multimode OM4 duplex",
+   "family": "Fibre",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": null,
+   "pinout": null,
+   "cad": "STM4-D",
+   "kind": "fibre",
+   "note": "Fibre: no electrical pins, so no pinout (pins stays null, as for the other fibre entries).",
+   "aliases": [
+    "OM4 ST multimode duplex",
+    "ST multimode OM4 duplex",
+    "ST OM4 duplex",
+    "STM4-D"
+   ]
+  },
+  {
    "id": "FIBRE-FC",
    "subtype": "FC",
    "family": "Fibre",
@@ -4372,6 +5095,114 @@
     "FC",
     "FCS-D",
     "FCS-S"
+   ]
+  },
+  {
+   "id": "FIBRE-FC-MM-OM1-DUPLEX",
+   "subtype": "FC multimode OM1 duplex",
+   "family": "Fibre",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": null,
+   "pinout": null,
+   "cad": "FCM1D",
+   "kind": "fibre",
+   "note": "Fibre: no electrical pins, so no pinout (pins stays null, as for the other fibre entries).",
+   "aliases": [
+    "FC multimode OM1 duplex",
+    "FC OM1 duplex",
+    "FCM1D",
+    "OM1 FC multimode duplex"
+   ]
+  },
+  {
+   "id": "FIBRE-FC-MM-OM1-SIMPLEX",
+   "subtype": "FC multimode OM1 simplex",
+   "family": "Fibre",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": null,
+   "pinout": null,
+   "cad": "FCM1S",
+   "kind": "fibre",
+   "note": "Fibre: no electrical pins, so no pinout (pins stays null, as for the other fibre entries).",
+   "aliases": [
+    "FC multimode OM1 simplex",
+    "FC OM1 simplex",
+    "FCM1S",
+    "OM1 FC multimode simplex"
+   ]
+  },
+  {
+   "id": "FIBRE-FC-MM-OM3-DUPLEX",
+   "subtype": "FC multimode OM3 duplex",
+   "family": "Fibre",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": null,
+   "pinout": null,
+   "cad": "FCM3D",
+   "kind": "fibre",
+   "note": "Fibre: no electrical pins, so no pinout (pins stays null, as for the other fibre entries).",
+   "aliases": [
+    "FC multimode OM3 duplex",
+    "FC OM3 duplex",
+    "FCM3D",
+    "OM3 FC multimode duplex"
+   ]
+  },
+  {
+   "id": "FIBRE-FC-MM-OM3-SIMPLEX",
+   "subtype": "FC multimode OM3 simplex",
+   "family": "Fibre",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": null,
+   "pinout": null,
+   "cad": "FCM3S",
+   "kind": "fibre",
+   "note": "Fibre: no electrical pins, so no pinout (pins stays null, as for the other fibre entries).",
+   "aliases": [
+    "FC multimode OM3 simplex",
+    "FC OM3 simplex",
+    "FCM3S",
+    "OM3 FC multimode simplex"
+   ]
+  },
+  {
+   "id": "FIBRE-FC-MM-OM4-DUPLEX",
+   "subtype": "FC multimode OM4 duplex",
+   "family": "Fibre",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": null,
+   "pinout": null,
+   "cad": "FCM4D",
+   "kind": "fibre",
+   "note": "Fibre: no electrical pins, so no pinout (pins stays null, as for the other fibre entries).",
+   "aliases": [
+    "FC multimode OM4 duplex",
+    "FC OM4 duplex",
+    "FCM4D",
+    "OM4 FC multimode duplex"
+   ]
+  },
+  {
+   "id": "FIBRE-FC-MM-OM4-SIMPLEX",
+   "subtype": "FC multimode OM4 simplex",
+   "family": "Fibre",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": null,
+   "pinout": null,
+   "cad": "FCM4S",
+   "kind": "fibre",
+   "note": "Fibre: no electrical pins, so no pinout (pins stays null, as for the other fibre entries).",
+   "aliases": [
+    "FC multimode OM4 simplex",
+    "FC OM4 simplex",
+    "FCM4S",
+    "OM4 FC multimode simplex"
    ]
   },
   {
@@ -7588,6 +8419,27 @@
    ]
   },
   {
+   "id": "EUROBLOCK-M",
+   "subtype": "Phoenix plug (pins not stated)",
+   "family": "Terminal block",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "MALE",
+   "pins": null,
+   "pinout": null,
+   "cad": "TB##P",
+   "kind": "terminal",
+   "note": "The CAD's template TB##P: the # in the code is the pin count, which is the part's; with it the part is the counted entry. No default pinout without a pin count.",
+   "aliases": [
+    "Euroblock male",
+    "Euroblock plug",
+    "Phoenix male",
+    "Phoenix plug",
+    "TB##P",
+    "terminal block male",
+    "terminal block plug"
+   ]
+  },
+  {
    "id": "BARRIER-STRIP",
    "subtype": "Barrier strip (screw terminals)",
    "family": "Terminal block",
@@ -7743,6 +8595,40 @@
     "BAN2",
     "Banana (pair)",
     "dual banana"
+   ]
+  },
+  {
+   "id": "BINDING-POST-PAIR-HD",
+   "subtype": "Binding post pair, 5-way heavy duty",
+   "family": "Banana",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "FEMALE",
+   "pins": 2,
+   "pinout": null,
+   "cad": "BAN2-HD",
+   "note": "Two heavy-duty 5-way binding posts (they take a banana plug, so FEMALE as BINDING-POST). Pinout null: the CAD names no polarity or spacing for the pair.",
+   "aliases": [
+    "BAN2-HD",
+    "Banana dual 5-way heavy duty",
+    "dual 5-way binding post",
+    "heavy duty binding post pair"
+   ]
+  },
+  {
+   "id": "BANANA-PAIR-F",
+   "subtype": "Banana 4 mm socket pair",
+   "family": "Banana",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "FEMALE",
+   "pins": 2,
+   "pinout": null,
+   "cad": "BAN2-SK",
+   "note": "Pinout null: the CAD names no polarity or spacing for the pair.",
+   "aliases": [
+    "BAN2-SK",
+    "Banana dual socket",
+    "banana socket pair",
+    "dual banana socket"
    ]
   },
   {
@@ -8626,6 +9512,42 @@
    ]
   },
   {
+   "id": "CIRCULAR-M",
+   "subtype": "Circular (pins not stated)",
+   "family": "Circular",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "MALE",
+   "pins": null,
+   "pinout": null,
+   "cad": "CIR##P",
+   "note": "The CAD's template CIR##P: the # in the code is the pin count, which is the part's; with it the part is the counted entry. No default pinout without a pin count.",
+   "aliases": [
+    "CIR##P",
+    "circular generic male",
+    "circular generic plug",
+    "circular male",
+    "circular plug"
+   ]
+  },
+  {
+   "id": "CIRCULAR-F",
+   "subtype": "Circular (pins not stated)",
+   "family": "Circular",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "FEMALE",
+   "pins": null,
+   "pinout": null,
+   "cad": "CIR##S",
+   "note": "The CAD's template CIR##S: the # in the code is the pin count, which is the part's; with it the part is the counted entry. No default pinout without a pin count.",
+   "aliases": [
+    "CIR##S",
+    "circular female",
+    "circular generic female",
+    "circular generic socket",
+    "circular socket"
+   ]
+  },
+  {
    "id": "HIROSE-4-M",
    "subtype": "Hirose HR10 4-pin",
    "family": "Circular",
@@ -8774,6 +9696,42 @@
    "aliases": [
     "Hirose 20-pin female",
     "HR20S"
+   ]
+  },
+  {
+   "id": "HIROSE-M",
+   "subtype": "Hirose-style circular (pins not stated)",
+   "family": "Circular",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "MALE",
+   "pins": null,
+   "pinout": null,
+   "cad": "HR##P",
+   "note": "The CAD's template HR##P: the # in the code is the pin count, which is the part's; with it the part is the counted entry. No default pinout without a pin count.",
+   "aliases": [
+    "Hirose male",
+    "Hirose plug",
+    "Hirose-style male",
+    "Hirose-style plug",
+    "HR##P"
+   ]
+  },
+  {
+   "id": "HIROSE-F",
+   "subtype": "Hirose-style circular (pins not stated)",
+   "family": "Circular",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "FEMALE",
+   "pins": null,
+   "pinout": null,
+   "cad": "HR##S",
+   "note": "The CAD's template HR##S: the # in the code is the pin count, which is the part's; with it the part is the counted entry. No default pinout without a pin count.",
+   "aliases": [
+    "Hirose female",
+    "Hirose socket",
+    "Hirose-style female",
+    "Hirose-style socket",
+    "HR##S"
    ]
   },
   {
@@ -9407,6 +10365,80 @@
    ]
   },
   {
+   "id": "DIN-M",
+   "subtype": "DIN (pins not stated)",
+   "family": "DIN",
+   "ElectricalConnectionType": "DIN",
+   "ConnectionGender": "MALE",
+   "pins": null,
+   "pinout": null,
+   "cad": "DIN#P",
+   "standard": "IEC 60130-9",
+   "note": "The CAD's template DIN#P: the # in the code is the pin count, which is the part's; with it the part is the counted entry. No default pinout without a pin count.",
+   "aliases": [
+    "DIN male",
+    "DIN plug",
+    "DIN#P",
+    "DIN-style male",
+    "DIN-style plug"
+   ]
+  },
+  {
+   "id": "DIN-F",
+   "subtype": "DIN (pins not stated)",
+   "family": "DIN",
+   "ElectricalConnectionType": "DIN",
+   "ConnectionGender": "FEMALE",
+   "pins": null,
+   "pinout": null,
+   "cad": "DIN#S",
+   "standard": "IEC 60130-9",
+   "note": "The CAD's template DIN#S: the # in the code is the pin count, which is the part's; with it the part is the counted entry. No default pinout without a pin count.",
+   "aliases": [
+    "DIN female",
+    "DIN socket",
+    "DIN#S",
+    "DIN-style female",
+    "DIN-style socket"
+   ]
+  },
+  {
+   "id": "MINIDIN-M",
+   "subtype": "Mini-DIN (pins not stated)",
+   "family": "DIN",
+   "ElectricalConnectionType": "DIN",
+   "ConnectionGender": "MALE",
+   "pins": null,
+   "pinout": null,
+   "cad": "MDIN#P",
+   "note": "The CAD's template MDIN#P: the # in the code is the pin count, which is the part's; with it the part is the counted entry. No default pinout without a pin count.",
+   "aliases": [
+    "MDIN#P",
+    "mini-DIN male",
+    "mini-DIN plug",
+    "mini-DIN-style male",
+    "mini-DIN-style plug"
+   ]
+  },
+  {
+   "id": "MINIDIN-F",
+   "subtype": "Mini-DIN (pins not stated)",
+   "family": "DIN",
+   "ElectricalConnectionType": "DIN",
+   "ConnectionGender": "FEMALE",
+   "pins": null,
+   "pinout": null,
+   "cad": "MDIN#S",
+   "note": "The CAD's template MDIN#S: the # in the code is the pin count, which is the part's; with it the part is the counted entry. No default pinout without a pin count.",
+   "aliases": [
+    "MDIN#S",
+    "mini-DIN female",
+    "mini-DIN socket",
+    "mini-DIN-style female",
+    "mini-DIN-style socket"
+   ]
+  },
+  {
    "id": "TAJIMI-3-M",
    "subtype": "Tajimi 3-pin",
    "family": "Circular",
@@ -9664,6 +10696,42 @@
    "cad": "TJ16S",
    "aliases": [
     "TJ16S"
+   ]
+  },
+  {
+   "id": "TAJIMI-M",
+   "subtype": "Tajimi (pins not stated)",
+   "family": "Circular",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "MALE",
+   "pins": null,
+   "pinout": null,
+   "cad": "TJ##P",
+   "note": "The CAD's template TJ##P: the # in the code is the pin count, which is the part's; with it the part is the counted entry. No default pinout without a pin count.",
+   "aliases": [
+    "Tajimi male",
+    "Tajimi plug",
+    "Tajimi-style male",
+    "Tajimi-style plug",
+    "TJ##P"
+   ]
+  },
+  {
+   "id": "TAJIMI-F",
+   "subtype": "Tajimi (pins not stated)",
+   "family": "Circular",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "FEMALE",
+   "pins": null,
+   "pinout": null,
+   "cad": "TJ##S",
+   "note": "The CAD's template TJ##S: the # in the code is the pin count, which is the part's; with it the part is the counted entry. No default pinout without a pin count.",
+   "aliases": [
+    "Tajimi female",
+    "Tajimi socket",
+    "Tajimi-style female",
+    "Tajimi-style socket",
+    "TJ##S"
    ]
   },
   {
@@ -10315,6 +11383,23 @@
     "option slot",
     "slot",
     "VXIbus P1/P2"
+   ]
+  },
+  {
+   "id": "KEYSTONE",
+   "subtype": "Keystone (insert not stated)",
+   "family": "Keystone",
+   "ElectricalConnectionType": "OTHER",
+   "ConnectionGender": "NOTKNOWN",
+   "pins": null,
+   "pinout": null,
+   "cad": "KEY-GEN",
+   "note": "A keystone position whose snap-in insert the drawing leaves open (the CAD's \"Keystone generic / configurable\"). Once the insert is chosen the port is that connector (KEY-Cat6 is RJ45, KEY-LC fiber LC duplex ...); until then no pins and no pinout.",
+   "aliases": [
+    "generic keystone",
+    "KEY-GEN",
+    "Keystone generic",
+    "Keystone generic / configurable"
    ]
   },
   {

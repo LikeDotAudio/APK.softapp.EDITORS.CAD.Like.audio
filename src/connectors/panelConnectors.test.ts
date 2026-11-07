@@ -9,33 +9,25 @@ import { ICONS } from './index';
 
 /*
  * ROAD-3588: the CAD keeps no vocabulary of its own. Every panel code it draws is a
- * connectors.json connector — except the codes below, which the vocabulary does not
- * have yet (the IFC session's to add: ROAD item filed with ROAD-3588's close). A code
- * that leaves this list by landing in connectors.json fails the second test, so the
- * list only shrinks.
+ * connectors.json connector — its `cad` code, or an alias of the connector it mounts
+ * (KEY-3.5mm, TRXP-FL, SMPTEP-TH). ROAD-3599 added the last 55, so there is no
+ * not-yet list: a new panel code lands in contracts/ifc/connectors.json first.
  */
-const NOT_IN_VOCABULARY_YET = new Set([
-  'KEY-3.5mm', 'KEY-RCA', 'KEY-GEN', 'A59P', 'A59S',
-  'AES72 Type 1E', 'AES72 Type 1O', 'AES72 Type 1M', 'AES72 Type 2O', 'AES72 Type 3E', 'AES72 Type 3M',
-  'AES72 Type 4E', 'AES72 Type 5E', 'AES72 Type 6E',
-  'TB##P', 'BAN2-HD', 'BAN2-SK',
-  'FCM1D', 'FCM1S', 'FCM3D', 'FCM3S', 'FCM4D', 'FCM4S', 'LCM1S', 'LCM3S',
-  'CIR##P', 'CIR##S', 'DIN#P', 'DIN#S', 'HR##P', 'HR##S', 'MDIN#P', 'MDIN#S', 'TJ##P', 'TJ##S',
-  'OCL2', 'OCL4', 'OCL12', 'OCL24',
-  'SCM1D', 'SCM1S', 'SCM3D', 'SCM3S', 'SCM4D', 'SCM4S', 'PLX-MM',
-  'SMPTEP-TH', 'SMPTES-TH', 'STA-D', 'STA-S', 'STM1-D', 'STM3-D', 'STM4-D', 'TRXP-FL', 'TRXS-FL',
-]);
 
 const codes = PANEL_CONNECTOR_SHELVES.flatMap((g) => g.connectors.map((c) => c.abbreviation));
 
 describe('panel connectors are the vocabulary\'s', () => {
-  it('every code resolves to a connectors.json entry, or is listed as not there yet', () => {
-    const missing = codes.filter((c) => !NOT_IN_VOCABULARY_YET.has(c) && !lookupConnector(c)?.ifc);
+  it('every code resolves to a connectors.json entry', () => {
+    const missing = codes.filter((c) => !lookupConnector(c)?.ifc);
     expect(missing).toEqual([]);
   });
 
-  it('no listed code has meanwhile landed in connectors.json', () => {
-    expect([...NOT_IN_VOCABULARY_YET].filter((c) => resolveIfcConnector(c))).toEqual([]);
+  it('the 55 codes ROAD-3599 added resolve with their IFC words', () => {
+    expect(resolveIfcConnector('A59S')?.ConnectionGender).toBe('FEMALE');
+    expect(lookupConnector('AES72 Type 4E')?.ifc?.id).toBe('AES72-4E');
+    expect(lookupConnector('CIR##P')?.ifc?.ConnectionGender).toBe('MALE');
+    expect(lookupConnector('KEY-3.5mm')?.ifc?.id).toBe('TRS-3.5-F');
+    expect(lookupConnectorLoose('FC multimode OM1 duplex')?.abbreviation).toBe('FCM1D');
   });
 
   it('no panel code is also a signal format', () => {
