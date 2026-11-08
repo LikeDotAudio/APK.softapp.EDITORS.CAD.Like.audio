@@ -52,7 +52,7 @@ function sheet(units: SavedSession['units'] = 'mm', k = 1): SavedSession {
         { id: 1, from: { placementId: 1, portId: 'INPUT_OUTPUT_HI' }, to: { placementId: 2, portId: 'ANALOG_INPUT' }, layerId: 'Flow', route: [{ x: 1500 * k, y: 1000 * k }, { x: 2500 * k, y: 1000 * k }], label: 'drive L',
           cable: { part: 'hosa/cmr-206', tag: 'W-001', length_mm: 1800, colour: 'black', status: 'made' } },
         // drawn sink → source: RelatingPort is still the SOURCE side
-        { id: 2, from: { placementId: 3, portId: 'ANALOG_INPUT' }, to: { placementId: 1, portId: 'INPUT_OUTPUT_LO' }, layerId: 'Flow', route: [] },
+        { id: 2, from: { placementId: 3, portId: 'ANALOG_INPUT' }, to: { placementId: 1, portId: 'INPUT_OUTPUT_LO' }, layerId: 'Flow', route: [], fly: true },
         // a fan-out from the same terminal: IFC lets a port be RelatingPort once, so a second port carries it
         { id: 3, from: { placementId: 1, portId: 'INPUT_OUTPUT_HI' }, to: { placementId: 4, portId: 'IN' }, layerId: 'Flow', route: [{ x: 1800 * k, y: 700 * k }] },
         // catalogue to catalogue, ports made for them

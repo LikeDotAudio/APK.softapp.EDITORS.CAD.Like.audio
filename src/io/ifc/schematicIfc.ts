@@ -302,6 +302,7 @@ export function writeSchematic(t: SchematicIfcTargets, sch: SchematicSnapshot): 
     pset(wg, 'APK_SchematicWire', [
       ['ConnectorId', int(c.id)], ['Connection', opt(connection, ident)], ['Label', opt(c.label, label)], ['Layer', ident(c.layerId)],
       ['Reversed', reversed ? bool(true) : undefined], ['RoutePoints', route ? int(route.length) : undefined], ['HostKey', opt(c.hostKey, ident)],
+      ['Fly', c.fly ? bool(true) : undefined],   // drawn as a fly-off / fly-on pair (flow/fly.ts)
       // an end whose placement is not on the sheet has no port to join: said here instead
       ['FromPlacement', connection ? undefined : int(c.from.placementId)], ['FromPort', connection ? undefined : ident(c.from.portId)],
       ['ToPlacement', connection ? undefined : int(c.to.placementId)], ['ToPort', connection ? undefined : ident(c.to.portId)],
@@ -480,6 +481,7 @@ export function readSchematic(file: StepFile, u: (mm: number) => number, native:
       }
       if (w.Label !== undefined) c.label = String(w.Label);
       if (w.HostKey !== undefined) c.hostKey = String(w.HostKey);
+      if (w.Fly === true || w.Fly === '.T.' || String(w.Fly) === 'true') c.fly = true;
       const cable = rel ? cableOf(file, deref(file, rel.args[6])) : w.Cable !== undefined ? JSON.parse(String(w.Cable)) as ConnectorCable : undefined;
       if (cable) c.cable = cable;
       connectors.push(c);

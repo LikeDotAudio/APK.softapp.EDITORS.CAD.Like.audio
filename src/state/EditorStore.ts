@@ -33,6 +33,7 @@
  * a 664-line class is easier to read as a table of contents than as a wall.
  */
 import { refreshBimDefinitions } from './actions/refreshBimDefinitions';
+import { installFlyClick, toggleFlyOfPicked } from './actions/flyClick';
 import type { CadSpace, CadViewport, ConnectorCable, Layer, LayerIfc, Point, SchematicModel, ToolId, Units, GridMode, ValidationResult } from '../core/types';
 import { generateUuid } from '../core/generateUuid';
 import { DEFAULT_VIRTUAL_MIRROR, type VirtualMirrorState, type VirtualMirror } from '../core/mirror';
@@ -398,6 +399,7 @@ export class EditorStore {
       void this.restoreBrowserSession().then(() => this.openBigPicture()).then(() => refreshBimDefinitions(this));
     }
     if (typeof window !== 'undefined' && resumeFromHash(window.location.hash)) void resumeFromHost(this, window.location.hash);
+    installFlyClick(this);   // a click on a fly-off / fly-on capsule goes to its far end (flow/fly.ts)
     this.showHint(entrance.hint, 8000);
   }
 
@@ -440,6 +442,11 @@ export class EditorStore {
   /** Read 06a's filed sheet onto this canvas. */
   async openBigPicture(): Promise<void> {
     return await openBigPicture(this);
+  }
+
+  /** Modify › the picked blocks' wires as fly-off / fly-on pairs, or lines again (flow/fly.ts). */
+  toggleFlyOfPicked(): void {
+    toggleFlyOfPicked(this);
   }
 
   /** Write this canvas to 06a's filed sheet. Explicit; never on a timer. */

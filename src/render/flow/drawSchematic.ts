@@ -11,6 +11,7 @@ import { refdesLabel } from './refdesLabel';
 import type { Scene } from '../Scene';
 import { drawConnectors, wordsBelowPx, PORT_DRAW } from './drawConnectors';
 import { drawHat } from './drawHat';
+import { clearFlyHits } from './flyHits';
 import { FLOW, portColor } from './flowColors';
 
 const PORT_PX = 4;
@@ -32,7 +33,9 @@ export function drawSchematic(scene: Scene, model: SchematicModel | undefined, l
   ctx.strokeStyle = FLOW.connector;
   ctx.lineWidth = 1.6;
 
+  clearFlyHits();
   model.connectors.forEach((connector, connIdx) => {
+    if (connector.fly) return;   // a fly pair: its two capsules say it (drawConnectors, flow/fly.ts)
     // its own route, else the auto-routed chamfered waterfall (flow/cables.ts wirePath, the hit test's too)
     const worldRoute = wirePath(model, connector, connIdx);
     if (!worldRoute) return;

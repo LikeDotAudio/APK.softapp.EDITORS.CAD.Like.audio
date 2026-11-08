@@ -38,6 +38,12 @@ export function ModifyMenu({ open, onToggle, onClose }: MenuProps) {
           />
           <MenuDivider />
           <MenuItem
+            icon="🪁"
+            label="Wires ⇄ Fly-off / Fly-on"
+            shortcut="FLY"
+            onSelect={run(() => store.toggleFlyOfPicked())}
+          />          <MenuDivider />
+          <MenuItem
             icon="🪞"
             label="Place Virtual Mirror..."
             shortcut="Y"

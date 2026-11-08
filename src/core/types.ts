@@ -473,6 +473,12 @@ export interface BoxIdentity {
 export interface PortPortal {
   text: string;
   wired?: boolean;
+  /**
+   * Where the far end is (flow/fly.ts): a placement on this sheet (`placementId`, or
+   * `refdes`), its port, or another drawing by name. Absent, the far end is read
+   * from `text` (`U106 fabric 91`).
+   */
+  to?: { placementId?: number; refdes?: string; port?: string; drawing?: string };
 }
 
 /** One placement of a definition - a DXF `INSERT`. */
@@ -553,6 +559,11 @@ export interface Connector {
    * BIM cable part when the drawing has the part's file (schematicIfc.ts).
    */
   cable?: ConnectorCable;
+  /**
+   * Drawn as a FLY-OFF / FLY-ON pair instead of a line (flow/fly.ts): the same
+   * connection, a named capsule at each end, a click on one goes to the other.
+   */
+  fly?: boolean;
 }
 
 /** The cable a wire is (Connector.cable). Every field optional: a cable whose part is not known is still a cable. */

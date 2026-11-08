@@ -22,16 +22,27 @@ const sized = (v: number, lo: number) => Math.max(v, lo);
 /** The header's depth in drawing units. */
 export const hatDepth = (def: BlockDefinition): number => (def.hat ? def.hat.height ?? HAT.depth : 0);
 
-/** Clip text to `w` px with an ellipsis. */
-export function fit(ctx: CanvasRenderingContext2D, text: string, w: number): string {
-  if (w <= 0) return '';
-  if (ctx.measureText(text).width <= w) return text;
-  let lo = 0, hi = text.length;
+/**
+ * WORDS THAT OPEN UP AS YOU ZOOM IN (the owner, 2026-11-07: "start with words 5 chars
+ * then do a ... until you can see the whole things nicely"). A name never shows fewer
+ * than its first FIRST_CHARS characters and "…"; as the room it has grows with the
+ * zoom it shows more, until the whole name fits. Pure: the measurer is passed in.
+ */
+export const FIRST_CHARS = 5;
+
+export function reveal(text: string, roomPx: number, measure: (t: string) => number): string {
+  if (text.length <= FIRST_CHARS || measure(text) <= roomPx) return text;
+  let lo = FIRST_CHARS, hi = text.length - 1;
   while (lo < hi) {
     const mid = (lo + hi + 1) >> 1;
-    if (ctx.measureText(`${text.slice(0, mid)}…`).width <= w) lo = mid; else hi = mid - 1;
+    if (measure(`${text.slice(0, mid)}…`) <= roomPx) lo = mid; else hi = mid - 1;
   }
-  return lo ? `${text.slice(0, lo)}…` : '';
+  return `${text.slice(0, lo).trimEnd()}…`;
+}
+
+/** `reveal` with the canvas's current font. */
+export function fit(ctx: CanvasRenderingContext2D, text: string, w: number): string {
+  return reveal(text, w, (t) => ctx.measureText(t).width);
 }
 
 /** Draw `def`'s header inside the box whose screen outline is `corners`; `picked` borrows the selection colour. */

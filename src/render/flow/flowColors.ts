@@ -42,8 +42,10 @@ export const FLOW = {
   hatWarn: '#f59e0b',
   hatRule: '#d946ef',
   /** A run of ports sharing a group, bracketed inside the box with its VIRTUAL NAME (drawConnectors). */
-  bracket: '#6b7280',
-  bracketText: '#9ca3af',
+  bracket: '#9ca3af',
+  bracketText: '#e5e7eb',
+  /** A port's name beside its dot, inside the box: bright, so it reads (drawConnectors). */
+  portWord: '#e5e7eb',
   /** A portal whose far end is another block (drawConnectors). */
   portalWired: COLORS.accent,
   /** A portal whose far end is a patch-bay position. */

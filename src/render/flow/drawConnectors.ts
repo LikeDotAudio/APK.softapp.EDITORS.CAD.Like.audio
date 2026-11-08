@@ -8,6 +8,8 @@ import type { Scene } from '../Scene';
 import { UI_FONT } from '../palette';
 import { fit } from './drawHat';
 import { FLOW, portColor } from './flowColors';
+import { recordFlyHit } from './flyHits';
+import { flyPortals } from '../../flow/fly';
 
 /**
  * A PORT, END TO END (the owner's sheet, 2026-11-07, and: "I want to see the connector
@@ -26,9 +28,11 @@ import { FLOW, portColor } from './flowColors';
  * portal arrow. Geometry in drawing units (mm), words never smaller than WORDS_MIN_PX:
  * the tab grows to hold its word; words step aside only when the ports are too close.
  */
-export const PORT_DRAW = { dot: 1.3, tab: 14, tabH: 3.4, stub: 6, gap: 1.2, text: 2.4 } as const;
+export const PORT_DRAW = { dot: 1.4, tab: 16, tabH: 3.8, stub: 6, gap: 1.2, text: 3.0, farRoom: 44 } as const;
 /** The smallest the words are drawn, in screen px. */
-export const WORDS_MIN_PX = 7;
+export const WORDS_MIN_PX = 10;
+/* Stronger words (the owner, 2026-11-07: "stronger more meaningful"): bright and semi-bold. */
+const WORD_FONT = (px: number) => `600 ${Math.round(px)}px ${UI_FONT}`;
 const LUG = '#22c55e';
 const PORTAL_ARROW = '#facc15';
 
@@ -56,7 +60,7 @@ export function wordsPx(def: BlockDefinition, side: Port['side'], z: number): nu
 }
 
 /** A plug tab's length in px for its word. */
-const tabPx = (word: string, px: number, z: number) => Math.max(PORT_DRAW.tab * z, word.length * px * 0.62 + 8);
+const tabPx = (word: string, px: number, z: number) => Math.max(PORT_DRAW.tab * z, Math.min(word.length * px * 0.62, PORT_DRAW.tab * z * 1.5) + 8);
 
 /** How far below the box (screen px) the bottom ports' plugs reach, so the block's own label sits past them. */
 export function wordsBelowPx(def: BlockDefinition, z: number): number {
@@ -71,12 +75,23 @@ export function wordsBelowPx(def: BlockDefinition, z: number): number {
 interface Frame { colour: string; px: number; spacing: number; z: number; flip: boolean }
 
 /** The portal past the wire stub: a capsule naming another block's port, or a patch-bay arrow. */
-function drawFarEnd(ctx: CanvasRenderingContext2D, far: PortPortal, x: number, f: Frame, inward: boolean): void {
+function drawFarEnd(ctx: CanvasRenderingContext2D, far: PortPortal, x: number, f: Frame, inward: boolean, hit: { placementId: number; portId: string }): void {
   const px = Math.max(f.px, WORDS_MIN_PX);
-  const text = far.wired ? `${far.text}  ${inward ? '(FLY IN)' : '(FLY OFF)'}` : far.text;
-  ctx.font = `${Math.round(px)}px ${UI_FONT}`;
+  ctx.font = WORD_FONT(px);
+  const room = Math.max(PORT_DRAW.farRoom * f.z, 70);
+  const name = fit(ctx, far.text, room);
+  const text = far.wired ? `${name}  ${inward ? '(FLY IN)' : '(FLY OFF)'}` : name;
+  const where = far.to?.drawing ? ` ⧉ ${far.to.drawing}` : '';
   const w = ctx.measureText(text).width + px * 1.6;
   const h = Math.min(px + 6, Math.max(f.spacing * 0.9, px + 2));
+  {
+    // where it landed on the canvas, for a click (flyClick.ts): the box's corners through the current transform
+    const m = ctx.getTransform();
+    const pts = [[x, -h / 2], [x + w + h, -h / 2], [x, h / 2], [x + w + h, h / 2]].map(([px2, py2]) => ({
+      x: (m.a * px2! + m.c * py2! + m.e), y: (m.b * px2! + m.d * py2! + m.f) }));
+    recordFlyHit({ x1: Math.min(...pts.map((p) => p.x)), y1: Math.min(...pts.map((p) => p.y)), x2: Math.max(...pts.map((p) => p.x)),
+                   y2: Math.max(...pts.map((p) => p.y)), ...hit, far });
+  }
   ctx.beginPath();
   if (far.wired) {
     ctx.roundRect(x, -h / 2, w, h, h / 2);
@@ -101,38 +116,39 @@ function drawFarEnd(ctx: CanvasRenderingContext2D, far: PortPortal, x: number, f
   if (f.flip) ctx.rotate(Math.PI);
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillStyle = far.wired ? FLOW.hatTitle : '#111827';
-  ctx.fillText(text, 0, 0);
+  ctx.fillStyle = far.wired ? '#ffffff' : '#111827';
+  ctx.fillText(text + where, 0, 0);
   ctx.restore();
 }
 
 /** One port, in its own frame: origin on the dot, +x out of the box. */
-function drawPort(ctx: CanvasRenderingContext2D, port: Port, far: PortPortal | undefined, f: Frame, insideRoom: number): void {
+function drawPort(ctx: CanvasRenderingContext2D, port: Port, far: PortPortal | undefined, f: Frame, insideRoom: number, placementId: number, flyOff?: boolean): void {
   const z = f.z;
   const r = clamp(PORT_DRAW.dot * z, 2.2, Math.max(2.2, f.spacing * 0.42));
   const th = clamp(PORT_DRAW.tabH * z, Math.max(3, f.px + 3), Math.max(3, f.spacing * 0.85));
   let x = r;
-  ctx.font = `${Math.round(Math.max(f.px, 1))}px ${UI_FONT}`;
+  ctx.font = WORD_FONT(Math.max(f.px, 1));
   if (port.connector) {
-    // the plug's tab, naming its connector
-    const len = f.px ? tabPx(port.connector, f.px, z) : PORT_DRAW.tab * z;
+    // the plug's tab, naming its connector — its first letters, all of it once there is room
+    const plug = f.px ? fit(ctx, port.connector, Math.max(PORT_DRAW.tab * z * 1.5, 40) - 8) : '';
+    const len = f.px ? Math.max(PORT_DRAW.tab * z, ctx.measureText(plug).width + 8) : PORT_DRAW.tab * z;
     ctx.beginPath();
     ctx.rect(x, -th / 2, len, th);
-    ctx.globalAlpha = 0.45;
+    ctx.globalAlpha = 0.6;
     ctx.fillStyle = f.colour;
     ctx.fill();
     ctx.globalAlpha = 1;
     ctx.strokeStyle = f.colour;
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 1.4;
     ctx.stroke();
     if (f.px) {
       ctx.save();
       ctx.translate(x + len / 2, 0);
       if (f.flip) ctx.rotate(Math.PI);
-      ctx.fillStyle = FLOW.hatTitle;
+      ctx.fillStyle = '#ffffff';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(port.connector, 0, 0);
+      ctx.fillText(plug, 0, 0);
       ctx.restore();
     }
     x += len;
@@ -151,7 +167,7 @@ function drawPort(ctx: CanvasRenderingContext2D, port: Port, far: PortPortal | u
   ctx.lineWidth = Math.max(1.2, Math.min(3, 0.6 * z));
   ctx.stroke();
   x += stub;
-  if (far) drawFarEnd(ctx, far, x + 2, f, port.side === 'input');
+  if (far) drawFarEnd(ctx, far, x + 2, f, flyOff === undefined ? port.side === 'input' : !flyOff, { placementId, portId: port.id });
   // the dot, on the edge
   ctx.beginPath();
   ctx.arc(0, 0, r, 0, Math.PI * 2);
@@ -160,7 +176,8 @@ function drawPort(ctx: CanvasRenderingContext2D, port: Port, far: PortPortal | u
   // its name, inside the box
   if (f.px) {
     ctx.save();
-    ctx.fillStyle = FLOW.portLabel;
+    ctx.font = WORD_FONT(f.px);
+    ctx.fillStyle = FLOW.portWord;
     ctx.textBaseline = 'middle';
     const at = r + PORT_DRAW.gap * z + 2;
     const word = fit(ctx, portWords(port), insideRoom);
@@ -187,6 +204,7 @@ export function drawConnectors(scene: Scene, model: SchematicModel, placement: B
   const z = view.zoom * (placement.scale ?? 1);
   if (PORT_DRAW.dot * z < 0.6) return;   // too small to tell one port from the next
   const resolved = portsOf(model, placement.id);
+  const fly = flyPortals(model, placement.id);   // wires drawn as fly pairs (flow/fly.ts)
   const insideRoom = (side: Port['side']) => (side === 'input' || side === 'output' ? def.size.w * z * 0.42 : def.size.h * z * 0.3);
   for (const side of ['input', 'output', 'control', 'power'] as const) {
     const on = resolved.filter((r) => r.port.side === side);
@@ -204,9 +222,11 @@ export function drawConnectors(scene: Scene, model: SchematicModel, placement: B
       ctx.save();
       ctx.translate(at.x, at.y);
       ctx.rotate(angle);
-      drawPort(ctx, r.port, placement.portals?.[r.port.id], { colour, px, spacing: Number.isFinite(spacing) ? spacing : 40, z, flip }, insideRoom(side));
+      const flown = fly.get(r.port.id);
+      drawPort(ctx, r.port, placement.portals?.[r.port.id] ?? flown?.far, { colour, px, spacing: Number.isFinite(spacing) ? spacing : 40, z, flip },
+               insideRoom(side), placement.id, placement.portals?.[r.port.id] ? undefined : flown?.off);
       ctx.restore();
-      if (px) { ctx.font = `${Math.round(px)}px ${UI_FONT}`; widest = Math.max(widest, Math.min(ctx.measureText(portWords(r.port)).width, insideRoom(side))); }
+      if (px) { ctx.font = WORD_FONT(px); widest = Math.max(widest, Math.min(ctx.measureText(portWords(r.port)).width, insideRoom(side))); }
     }
     // a run sharing a group: bracketed inside, beyond the names, with its VIRTUAL NAME
     if (side !== 'input' && side !== 'output') continue;
@@ -228,7 +248,7 @@ export function drawConnectors(scene: Scene, model: SchematicModel, placement: B
       if (px) {
         const mx = (a.x + b.x) / 2 - sn.x * (d + 5);
         const my = (a.y + b.y) / 2 - sn.y * (d + 5);
-        ctx.font = `${Math.round(px)}px ${UI_FONT}`;
+        ctx.font = `bold ${Math.round(px)}px ${UI_FONT}`;
         ctx.fillStyle = FLOW.bracketText;
         ctx.textBaseline = 'middle';
         ctx.textAlign = sn.x > 0 ? 'right' : 'left';
