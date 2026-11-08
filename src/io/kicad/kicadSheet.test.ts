@@ -80,6 +80,7 @@ describe('the sheet as a KiCad project', () => {
     const { model, def } = sheet();
     model.connectors.length = 0;
     model.placements[0]!.hostRef = 'U8';
+    model.placements[0]!.refdes = 'U8 · Meyer';
     model.placements[1]!.hostRef = 'U9';
     const thru = def.ports.find((p) => p.label?.includes('THRU-2'))!.label!;
     const into = def.ports.filter((p) => p.side === 'input')[2]!.label!;
@@ -91,5 +92,6 @@ describe('the sheet as a KiCad project', () => {
     const p = kicadProject(model, 'bench', { connections: extra });
     expect(p.nets).toBe(1);
     expect(p.files['bench.kicad_sch']).toContain('(label "MON_2"');
+    expect(p.files['bench.kicad_sch']).toContain('(reference "U8")');
   });
 });

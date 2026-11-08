@@ -113,7 +113,8 @@ export function kicadProject(model: SchematicModel, name: string, { target = 'ki
     const sym = def && symbolOf.get(def.id);
     if (!def || !sym) { skipped.push(`${pl.refdes ?? `#${pl.id}`}: ${def ? 'no ports' : 'no definition'}`); continue; }
     const prefix = sym.properties.find((p) => p.name === 'Reference')?.value || 'A';
-    let ref = pl.refdes ? refSafe(pl.refdes) : '';
+    // the bench's own ref (a host's: 'U19') before the sheet's caption ('U19 · 3235')
+    let ref = pl.hostRef ? refSafe(String(pl.hostRef)) : pl.refdes ? refSafe(pl.refdes) : '';
     if (!ref || usedRefs.has(ref) || !/^[A-Za-z#]/.test(ref)) {
       let k = 1;
       while (usedRefs.has(`${prefix}${k}`)) k++;
