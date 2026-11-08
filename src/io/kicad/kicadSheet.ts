@@ -215,11 +215,14 @@ export function kicadProject(model: SchematicModel, name: string,
     title: name || stem, project: stem, symbols, instances, nets, target, groups,
     comment: 'exported from CAD.like.audio — symbols by the KiCad Library Conventions, BIM parts in APK_ fields',
   });
-  const files: Record<string, string> = { [`${stem}.kicad_sch`]: sheet.text, [`${stem}.kicad_pro`]: kicadPro(stem) };
+  // in the order a reader needs them: the table and its libraries before the sheet, the project file last —
+  // a project opened before its sym-lib-table had landed reads a half-written table
   const libs = new Map<string, KicadSymbol[]>();
   for (const s of symbols) { if (!libs.has(s.library)) libs.set(s.library, []); libs.get(s.library)!.push(s); }
+  const files: Record<string, string> = { 'sym-lib-table': projectSymLibTable([...libs.keys()]) };
   for (const [lib, list] of libs) files[`${lib}.kicad_sym`] = writeSymbolLib(list, { target });
-  files['sym-lib-table'] = projectSymLibTable([...libs.keys()]);
+  files[`${stem}.kicad_sch`] = sheet.text;
+  files[`${stem}.kicad_pro`] = kicadPro(stem);
   return { name: stem, files, placed: sheet.placed, nets: nets.length, skipped: [...skipped, ...sheet.skipped] };
 }
 

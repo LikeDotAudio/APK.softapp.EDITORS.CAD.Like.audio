@@ -5,6 +5,15 @@ import { parsePalette } from '../../model/palette/parsePalette';
 import type { SavedSession } from '@io/browserStorage/SavedSession';
 import { sessionIfc } from '@io/ifc/sessionIfc';
 import { kicadProjectWithPanels } from '@io/kicad/kicadSheet';
+import { zipFiles } from '../../vendor/kicad/kicadLibrary.js';
+
+/** The project's files as one .zip, base64 (a host with no folder to write downloads it as one file). */
+function zipBase64(files: Record<string, string>): string {
+  const bytes = zipFiles(files);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
 import { bimWriteBase } from '../bimProjects';
 import { buildSavedSession } from '@state/actions/autoSaveSession';
 import { DOC_UNITS } from '../../model/units/docUnits';
@@ -282,7 +291,7 @@ export const HOST_HANDLERS: Record<string, (store: EditorStore, msg: HostMessage
     const hostGroups = (Array.isArray(groups) ? groups : []).filter((g) => g && typeof g.name === 'string' && Array.isArray(g.refs))
       .map((g) => ({ name: g.name as string, refs: (g.refs as unknown[]).map(String) }));
     void kicadProjectWithPanels(store.schematic, stem, { connections: resolveHostConnections(store.schematic, connections), hostGroups }, { api: bimWriteBase() })
-      .then((p) => post('kicad', { name: p.name, files: p.files, placed: p.placed, nets: p.nets, skipped: p.skipped }));
+      .then((p) => post('kicad', { name: p.name, files: p.files, zip: zipBase64(p.files), placed: p.placed, nets: p.nets, skipped: p.skipped }));
   },
   // put a tool in the user's hand: the Simulation reads its sheet, so it asks for 'select' (hostPick.ts)
   tool: (store, msg) => void applyHostTool(store, msg),

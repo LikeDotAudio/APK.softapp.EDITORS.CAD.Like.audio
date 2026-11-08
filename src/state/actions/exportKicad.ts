@@ -3,6 +3,7 @@
 import type { EditorStore } from '../EditorStore';
 import { canUserSave } from '../../core/userAuth';
 import { kicadProjectWithPanels } from '@io/kicad/kicadSheet';
+import { zipFiles } from '../../vendor/kicad/kicadLibrary.js';
 import { bimWriteBase } from '../../shell/bimProjects';
 import { showProblem } from '../../shell/softapp';
 
@@ -51,16 +52,14 @@ export async function exportKicad(store: EditorStore): Promise<void> {
     }
   }
   try {
-    for (const [file, text] of Object.entries(project.files)) {
-      // a name with no extension (sym-lib-table) as octet-stream: as text/plain the browser saves it as .txt
-      const url = URL.createObjectURL(new Blob([text], { type: /\.[a-z_]+$/i.test(file) ? 'text/plain' : 'application/octet-stream' }));
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = file;
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 5000);
-    }
-    store.showHint(`KiCad project ${project.name}: ${Object.keys(project.files).length} files downloaded — keep them in one folder · ${said}`, 6000);
+    // one download, one file: the project as a .zip (several downloads land one by one, and a browser stops a page after a few)
+    const url = URL.createObjectURL(new Blob([zipFiles(project.files) as BlobPart], { type: 'application/zip' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${project.name}-kicad.zip`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    store.showHint(`KiCad project ${project.name}-kicad.zip downloaded — unzip it, open ${project.name}.kicad_pro · ${said}`, 6000);
   } catch (err) {
     showProblem('save_failed', { subject: `${project.name}.kicad_sch`, detail: String((err as Error)?.message ?? err), onRetry: () => void exportKicad(store) });
   }

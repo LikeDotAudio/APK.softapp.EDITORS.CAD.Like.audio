@@ -27,3 +27,4 @@ export function writeSchematic(opts: {
 }): { text: string; placed: number; labelled: number; wired: number; skipped: string[] };
 export function projectSymLibTable(libraries: string[]): string;
 export function stableUuid(key: string): string;
+export function zipFiles(files: Record<string, string>): Uint8Array;
