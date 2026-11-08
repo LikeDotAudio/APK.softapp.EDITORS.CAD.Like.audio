@@ -22,7 +22,7 @@ import { showProblem } from '../../../shell/softapp';
 import { openModelFile } from '@state/actions/ifcFile';
 
 /**
- * File ▾ — open, import, recent files, DXF export, the IFC model in and out, and 06a's filed sheet.
+ * File ▾ — open, import, recent files, DXF export, KiCad export, the IFC model in and out, and 06a's filed sheet.
  *
  * The two Big Picture verbs are shown at that entrance only. 07b · Drawing is a
  * sketch board: handing it "save to the bench model" would file a sketch as the
@@ -171,6 +171,15 @@ export function FileMenu({ open, onToggle, onClose }: MenuProps) {
             onSelect={() => {
               onClose();
               void store.exportDxf();
+            }}
+          />
+          <MenuItem
+            icon="🔌"
+            label="Export KiCad (.kicad_sch + symbols)"
+            disabled={!canExport}
+            onSelect={() => {
+              onClose();
+              void store.exportKicad();
             }}
           />
           <MenuItem

@@ -97,6 +97,7 @@ import { emit } from './actions/emit';
 import { explodeSelection } from './actions/explodeSelection';
 import { fileBigPicture } from './actions/fileBigPicture';
 import { exportDxf } from './actions/exportDxf';
+import { exportKicad } from './actions/exportKicad';
 import { openIfcText, saveIfcFile } from './actions/ifcFile';
 import { finishBasePointPick } from './actions/finishBasePointPick';
 import { flipHorizontalSelection } from './actions/flipHorizontalSelection';
@@ -721,6 +722,11 @@ export class EditorStore {
 
   async exportDxf(): Promise<void> {
     return await exportDxf(this);
+  }
+
+  /** File › Export KiCad: the sheet as a KiCad 9/10 project (.kicad_sch, KLC symbols, sym-lib-table). */
+  async exportKicad(): Promise<void> {
+    return await exportKicad(this);
   }
 
   /** File → Save .ifc: the drawing as IFC4X3_ADD2 (src/io/ifc). */

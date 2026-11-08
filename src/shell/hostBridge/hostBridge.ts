@@ -4,6 +4,7 @@ import type { EditorStore } from '@state/EditorStore';
 import { parsePalette } from '../../model/palette/parsePalette';
 import type { SavedSession } from '@io/browserStorage/SavedSession';
 import { sessionIfc } from '@io/ifc/sessionIfc';
+import { kicadProject } from '@io/kicad/kicadSheet';
 import { buildSavedSession } from '@state/actions/autoSaveSession';
 import { DOC_UNITS } from '../../model/units/docUnits';
 import { applySavedSession } from '@state/actions/restoreBrowserSession';
@@ -160,7 +161,7 @@ export const HOST_PROTOCOL = 'cad.like.audio/host@1';
  */
 
 /** What this side sends a host. */
-export const HOST_OUTBOUND_TYPES = ['ready', 'view', 'selection', 'geometry', 'mirror', 'session', 'pick', 'dxf', 'bimDrop', 'library'] as const;
+export const HOST_OUTBOUND_TYPES = ['ready', 'view', 'selection', 'geometry', 'mirror', 'session', 'pick', 'dxf', 'kicad', 'bimDrop', 'library'] as const;
 export type HostOutboundType = (typeof HOST_OUTBOUND_TYPES)[number];
 
 let installed = false;
@@ -273,6 +274,11 @@ export const HOST_HANDLERS: Record<string, (store: EditorStore, msg: HostMessage
   // the sheet as Download DXF writes it — the drawing's IFC on its hidden APK_IFC layer too —
   // answered with `dxf` { fileName, text } (hostPick.ts)
   dxf: (store) => void dxfForHostWithIfc(store).then((body) => post('dxf', body)),
+  // the sheet as File › Export KiCad writes it: a KiCad 9/10 project, its files by name (src/io/kicad/kicadSheet.ts)
+  kicad: (store) => {
+    const p = kicadProject(store.schematic, (store.currentFileName ?? 'drawing').replace(/\.(dxf|ifc|json)$/i, ''));
+    post('kicad', { name: p.name, files: p.files, placed: p.placed, nets: p.nets, skipped: p.skipped });
+  },
   // put a tool in the user's hand: the Simulation reads its sheet, so it asks for 'select' (hostPick.ts)
   tool: (store, msg) => void applyHostTool(store, msg),
   floorplan: (store, { file }) => {
