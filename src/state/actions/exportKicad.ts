@@ -50,7 +50,8 @@ export async function exportKicad(store: EditorStore): Promise<void> {
   }
   try {
     for (const [file, text] of Object.entries(project.files)) {
-      const url = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
+      // a name with no extension (sym-lib-table) as octet-stream: as text/plain the browser saves it as .txt
+      const url = URL.createObjectURL(new Blob([text], { type: /\.[a-z_]+$/i.test(file) ? 'text/plain' : 'application/octet-stream' }));
       const a = document.createElement('a');
       a.href = url;
       a.download = file;
