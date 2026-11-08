@@ -11,7 +11,7 @@ import { applySavedSession } from '@state/actions/restoreBrowserSession';
 import { currentHost } from '../entrance';
 import { handoverFromHash, offerHandover, receiveHandover } from './hostHandover';
 import { applyHostMarks, marksInDoc } from './hostMarks';
-import { applyHostSchematic, hostPlacementsOf, hostPlacesKey, moveHostSchematic, schematicInModel } from './hostSchematic';
+import { resolveHostConnections, applyHostSchematic, hostPlacementsOf, hostPlacesKey, moveHostSchematic, schematicInModel } from './hostSchematic';
 import { placeHostItems } from './hostPlace';
 import { moveHostItems, removeHostItems, repaintHostItems } from './hostMove';
 import { ensureHostLayer } from './hostLayer';
@@ -275,8 +275,10 @@ export const HOST_HANDLERS: Record<string, (store: EditorStore, msg: HostMessage
   // answered with `dxf` { fileName, text } (hostPick.ts)
   dxf: (store) => void dxfForHostWithIfc(store).then((body) => post('dxf', body)),
   // the sheet as File › Export KiCad writes it: a KiCad 9/10 project, its files by name (src/io/kicad/kicadSheet.ts)
-  kicad: (store) => {
-    const p = kicadProject(store.schematic, (store.currentFileName ?? 'drawing').replace(/\.(dxf|ifc|json)$/i, ''));
+  // `connections` (the schematic shape): wires the host keeps as its own line work, joined into the nets
+  kicad: (store, { connections, name }) => {
+    const stem = typeof name === 'string' && name.trim() ? name : (store.currentFileName ?? 'drawing').replace(/\.(dxf|ifc|json)$/i, '');
+    const p = kicadProject(store.schematic, stem, { connections: resolveHostConnections(store.schematic, connections) });
     post('kicad', { name: p.name, files: p.files, placed: p.placed, nets: p.nets, skipped: p.skipped });
   },
   // put a tool in the user's hand: the Simulation reads its sheet, so it asks for 'select' (hostPick.ts)

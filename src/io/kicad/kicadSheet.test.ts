@@ -8,6 +8,7 @@ import { connectPorts, createSchematic, placeBlock } from '../../flow/Schematic'
 import { klcCheck } from '../../vendor/kicad/kicadLibrary.js';
 import { symbolFromPart } from '../../vendor/kicad/kicadLibrary.js';
 import { KICAD_PER_CAD, kicadProject, partOfDefinition } from './kicadSheet';
+import { resolveHostConnections } from '../../shell/hostBridge/hostSchematic';
 
 /* The Meyer Sound 09.314.001.01 as the BIM library gives it (DATABASE.server.BIM library/meyer-sound). */
 const MEYER: BimPart = {
@@ -49,17 +50,17 @@ describe('the sheet as a KiCad project', () => {
   it('writes the sheet, a library per KLC library name, and a sym-lib-table', () => {
     const { model } = sheet();
     const p = kicadProject(model, 'bench');
-    expect(Object.keys(p.files).sort()).toEqual(['Audio_MeyerSound.kicad_sym', 'bench.kicad_pro', 'bench.kicad_sch', 'sym-lib-table']);
+    expect(Object.keys(p.files).sort()).toEqual(['bench.kicad_pro', 'bench.kicad_sch', 'bench.kicad_sym', 'sym-lib-table']);
     expect(p.placed).toBe(2);
     expect(p.nets).toBe(1);
     expect(p.skipped).toEqual([]);
     const sch = p.files['bench.kicad_sch']!;
     expect(sch).toMatch(/\(version 20250114\)/);
-    expect(sch).toContain('(lib_id "Audio_MeyerSound:09.314.001.01")');
+    expect(sch).toContain('(lib_id "bench:09.314.001.01")');
     expect(sch).toContain('(reference "U8")');
     expect(sch).toContain('(label "U8_THRU-1"');
-    expect(p.files['Audio_MeyerSound.kicad_sym']).toContain('(name "AC_MAINS"');
-    expect(p.files['sym-lib-table']).toContain('${KIPRJMOD}/Audio_MeyerSound.kicad_sym');
+    expect(p.files['bench.kicad_sym']).toContain('(name "AC_MAINS"');
+    expect(p.files['sym-lib-table']).toContain('${KIPRJMOD}/bench.kicad_sym');
     expect(KICAD_PER_CAD).toBeCloseTo(0.254);
     // the same sheet writes the same bytes
     expect(kicadProject(model, 'bench').files['bench.kicad_sch']).toBe(sch);
@@ -73,5 +74,22 @@ describe('the sheet as a KiCad project', () => {
     const { model } = sheet();
     model.connectors[0]!.label = 'FOH LEFT';
     expect(kicadProject(model, 'bench').files['bench.kicad_sch']).toContain('(label "FOH_LEFT"');
+  });
+
+  it('a host\'s own wires (the Simulation\'s routes) join the nets, found by ref and terminal', () => {
+    const { model, def } = sheet();
+    model.connectors.length = 0;
+    model.placements[0]!.hostRef = 'U8';
+    model.placements[1]!.hostRef = 'U9';
+    const thru = def.ports.find((p) => p.label?.includes('THRU-2'))!.label!;
+    const into = def.ports.filter((p) => p.side === 'input')[2]!.label!;
+    const extra = resolveHostConnections(model, [
+      { a: { ref: 'U8', terminal: thru }, b: { ref: 'U9', terminal: into }, label: 'MON 2' },
+      { a: { ref: 'U8', terminal: thru }, b: { ref: 'NOWHERE', terminal: into } },
+    ]);
+    expect(extra.length).toBe(1);
+    const p = kicadProject(model, 'bench', { connections: extra });
+    expect(p.nets).toBe(1);
+    expect(p.files['bench.kicad_sch']).toContain('(label "MON_2"');
   });
 });

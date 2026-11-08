@@ -138,6 +138,31 @@ export function clearHostSchematic(model: SchematicModel, key: string): boolean 
   return model.placements.length + model.connectors.length + model.groups.length + model.definitions.length !== before;
 }
 
+/**
+ * A host's connections ({ a: { ref, terminal }, b: { ref, terminal }, label? }, the `schematic` shape) on the sheet as
+ * it is now: each end the placement the host named `ref` and the port its terminal names. An end the sheet does not
+ * have is dropped with its connection. For a host that keeps its wires as its own line work (the Simulation) and
+ * still wants them in an export (toCad.kicad).
+ */
+export function resolveHostConnections(model: SchematicModel, raw: unknown): { from: { placementId: number; portId: string }; to: { placementId: number; portId: string }; label?: string }[] {
+  const byRef = new Map<string, { placement: BlockPlacement; def: BlockDefinition }>();
+  for (const placement of model.placements) {
+    const def = placement.hostRef ? defOfPlacement(model, placement) : undefined;
+    if (def && !byRef.has(placement.hostRef!)) byRef.set(placement.hostRef!, { placement, def });
+  }
+  const out = [];
+  for (const c of (Array.isArray(raw) ? raw : []) as { a?: End; b?: End; label?: unknown }[]) {
+    const end = (e: End | undefined) => {
+      const at = e && str(e.ref) ? byRef.get(e.ref) : undefined;
+      const port = at && str(e!.terminal) ? portForTerminal(at.def, e!.terminal) : undefined;
+      return at && port ? { placementId: at.placement.id, portId: port } : null;
+    };
+    const a = end(c?.a), b = end(c?.b);
+    if (a && b) out.push({ from: a, to: b, ...(str(c.label) ? { label: c.label } : {}) });
+  }
+  return out;
+}
+
 /** The port a terminal names on a definition: by caption, then by port id. */
 export function portForTerminal(def: BlockDefinition, terminal: string): string | undefined {
   const t = fold(terminal);

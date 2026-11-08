@@ -20,8 +20,9 @@ import {
  * - every set of ports joined by wires is one net, named by a wire's label when it has one, drawn as a
  *   wire stub and a net label on each pin (KiCad joins by label exactly as by wire).
  *
- * Files: <name>.kicad_sch, <name>.kicad_pro, one <Library>.kicad_sym per symbol library (KLC S1.1) and
- * the sym-lib-table naming them — a project folder KiCad 9 and 10 open as is.
+ * Files: <name>.kicad_sch, <name>.kicad_pro, <name>.kicad_sym (the project's symbol library: four files, not one
+ * per kind of part — a browser lets a page download only a handful) and the sym-lib-table naming it — a project
+ * folder KiCad 9 and 10 open as is. The stock-library shape (KLC S1.1 libraries) is DATATYPE.KiCad's ⬆ export.
  */
 
 export const KICAD_PER_CAD = 2.54 / BLOCK.pitch;
@@ -82,14 +83,19 @@ export interface KicadProject {
 }
 
 /** The schematic as a KiCad project. `name` is the file stem; target KiCad 9 opens in 9 and 10. */
-export function kicadProject(model: SchematicModel, name: string, { target = 'kicad9' as KicadTarget } = {}): KicadProject {
+export interface ExtraConnection { from: { placementId: number; portId: string }; to: { placementId: number; portId: string }; label?: string }
+
+/** The schematic as a KiCad project. `name` is the file stem; target KiCad 9 opens in 9 and 10. `connections` are wires a
+ *  host keeps as its own line work (the Simulation's routes), joined into the nets with the sheet's own connectors. */
+export function kicadProject(model: SchematicModel, name: string, { target = 'kicad9' as KicadTarget, connections = [] as ExtraConnection[] } = {}): KicadProject {
   const stem = safeName(name || 'drawing');
   const symbolOf = new Map<string, KicadSymbol>();
   const taken = new Set<string>();
   for (const pl of model.placements) {
     const def = definitionFor(model, pl);
     if (!def || symbolOf.has(def.id) || !def.ports.length) continue;
-    const sym = symbolFromPart(partOfDefinition(def));
+    // one project library, named for the project (KiCad's own way for a project's symbols; KLC S1.1 names the stock ones)
+    const sym = symbolFromPart(partOfDefinition(def), { library: stem });
     let n = 2;
     const base = sym.name;
     while (taken.has(`${sym.library}:${sym.name}`)) sym.name = `${base}_${n++}`;
@@ -128,9 +134,10 @@ export function kicadProject(model: SchematicModel, name: string, { target = 'ki
   const key = (r: { placementId: number; portId: string }) => `${r.placementId}|${r.portId}`;
   const find = (k: string): string => { let r = k; while (parent.get(r) !== r) r = parent.get(r)!; parent.set(k, r); return r; };
   const add = (k: string) => { if (!parent.has(k)) parent.set(k, k); };
-  for (const c of model.connectors) { add(key(c.from)); add(key(c.to)); parent.set(find(key(c.from)), find(key(c.to))); }
+  const wires = [...model.connectors, ...connections];
+  for (const c of wires) { add(key(c.from)); add(key(c.to)); parent.set(find(key(c.from)), find(key(c.to))); }
   const label = new Map<string, string>();
-  for (const c of model.connectors) if (c.label && !label.has(find(key(c.from)))) label.set(find(key(c.from)), c.label);
+  for (const c of wires) if (c.label && !label.has(find(key(c.from)))) label.set(find(key(c.from)), c.label);
   const sets = new Map<string, string[]>();
   for (const k of parent.keys()) { const r = find(k); if (!sets.has(r)) sets.set(r, []); sets.get(r)!.push(k); }
   const names = new Set<string>();
