@@ -20,19 +20,22 @@ describe('a host block name sized by its block (ROAD-3563)', () => {
     expect(measure(l.text, l.px)).toBeLessThanOrEqual(60 * REFDES.room);
   });
 
-  it('zoomed in, the whole name at the usual marker size', () => {
-    expect(refdesLabel(name, 400, measure)).toEqual({ text: name, px: REFDES.maxPx });
+  it('zoomed in, the whole name, and closer still it keeps growing', () => {
+    expect(refdesLabel(name, 160, measure)!.px).toBe(REFDES.maxPx);
+    expect(refdesLabel(name, 400, measure)!.px).toBeCloseTo(400 * REFDES.growOfWidth);
+    expect(refdesLabel(name, 1600, measure)!.px).toBeGreaterThan(refdesLabel(name, 400, measure)!.px);
   });
 });
 
 describe('a host group\'s one label, sized with the sheet', () => {
-  it('hidden at a far zoom, clipped to the frame when near, never above the marker size', async () => {
+  it('hidden at a far zoom, clipped to the frame when near, growing as the view closes in', async () => {
     const { groupLabel, GROUP_LABEL_UNITS } = await import('./refdesLabel');
     const label = 'AC Infinity · seeded — unverified · 2';
     expect(groupLabel(label, 0.05, 400, measure)).toBeNull();
     const near = groupLabel(label, 0.2, 60, measure)!;
     expect(near.px).toBeCloseTo(GROUP_LABEL_UNITS * 0.2);
     expect(near.text.endsWith('…')).toBe(true);
-    expect(groupLabel(label, 5, 2000, measure)).toEqual({ text: label, px: REFDES.maxPx });
+    expect(groupLabel(label, 0.5, 2000, measure)).toEqual({ text: label, px: REFDES.maxPx });
+    expect(groupLabel(label, 5, 20000, measure)!.px).toBeCloseTo(GROUP_LABEL_UNITS * 5 * 0.3);
   });
 });

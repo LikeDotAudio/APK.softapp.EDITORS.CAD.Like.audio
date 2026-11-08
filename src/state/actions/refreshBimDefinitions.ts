@@ -1,0 +1,53 @@
+// Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
+// MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
+import type { BlockDefinition } from '../../core/types';
+import { partToDefinition, type BimPart } from '../../flow/bimPart';
+
+/**
+ * BIM blocks saved before the connectors, the words and the top hat (2026-11-07)
+ * carry none of them: a definition is stored WITH the sheet (browser session, Big
+ * Picture's IFC), so it keeps the shape it was placed with. After a sheet loads,
+ * each BIM block that has no hat is rebuilt from its part on this origin's
+ * /api/bim/parts/<id> — same id and ports (partToDefinition is deterministic), now
+ * with connectors, power and control out the bottom, and its hat. A host's block
+ * (hostKey) is the host's to resend and is left alone; a part BIM cannot answer
+ * for keeps the block it had.
+ */
+export const bimPartIdOf = (def: BlockDefinition): string =>
+  def.bimRef?.part || (def.id.startsWith('bim.') ? def.id.slice(4).split('@')[0]! : '');
+
+export function staleBimDefinitions(defs: BlockDefinition[]): BlockDefinition[] {
+  return defs.filter((d) => !d.hostKey && !d.hat && bimPartIdOf(d));
+}
+
+/** Rebuild `def` in place from `part`, keeping its id and BIM reference. */
+export function refreshDefinition(def: BlockDefinition, part: BimPart): void {
+  const fresh = partToDefinition(part, def.bimRef ?? null);
+  def.ports = fresh.ports;
+  def.size = { w: Math.max(def.size.w, fresh.size.w), h: Math.max(def.size.h, fresh.size.h) };
+  def.hat = fresh.hat;
+  if (!def.description) def.description = fresh.description;
+  if (!def.bimRef && fresh.bimRef) def.bimRef = fresh.bimRef;
+}
+
+export async function refreshBimDefinitions(
+  store: { schematic: { definitions: BlockDefinition[] }; requestDraw(): void; emit(): void },
+  fetcher: (url: string) => Promise<Response> = (url) => fetch(url, { cache: 'no-store' }),
+): Promise<number> {
+  const stale = staleBimDefinitions(store.schematic.definitions);
+  if (!stale.length) return 0;
+  let done = 0;
+  await Promise.all(stale.map(async (def) => {
+    try {
+      const id = bimPartIdOf(def);
+      const res = await fetcher(`/api/bim/parts/${id.split('/').map(encodeURIComponent).join('/')}`);
+      if (!res.ok) return;
+      const part = (await res.json()) as BimPart;
+      if (!part || part.id !== id) return;
+      refreshDefinition(def, part);
+      done += 1;
+    } catch { /* BIM not reachable here: the block keeps the shape it was saved with */ }
+  }));
+  if (done) { store.requestDraw(); store.emit(); }
+  return done;
+}

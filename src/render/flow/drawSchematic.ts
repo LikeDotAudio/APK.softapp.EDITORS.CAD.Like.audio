@@ -9,8 +9,9 @@ import { definitionFor, portsOf } from '../../flow/Schematic';
 import { FONT, UI_FONT } from '../palette';
 import { refdesLabel } from './refdesLabel';
 import type { Scene } from '../Scene';
-import { drawPortals } from './drawPortals';
-import { FLOW, SIDE_COLOR } from './flowColors';
+import { drawConnectors, wordsBelowPx, PORT_DRAW } from './drawConnectors';
+import { drawHat } from './drawHat';
+import { FLOW, portColor } from './flowColors';
 
 const PORT_PX = 4;
 
@@ -94,12 +95,16 @@ export function drawSchematic(scene: Scene, model: SchematicModel | undefined, l
       ctx.stroke();
     }
 
-    for (const resolved of portsOf(model, placement.id)) {
-      const s = view.toScreen(resolved.world.x, resolved.world.y);
-      ctx.fillStyle = SIDE_COLOR[resolved.port.side];
-      ctx.fillRect(s.x - PORT_PX / 2, s.y - PORT_PX / 2, PORT_PX, PORT_PX);
+    // the header inside the box, then each port end to end — dot, name, plug, lug, wire, far end (drawConnectors)
+    drawHat(scene, def, corners, view.zoom * (placement.scale ?? 1), isPicked);
+    if (PORT_DRAW.dot * view.zoom * (placement.scale ?? 1) >= 0.6) drawConnectors(scene, model, placement, def);
+    else {
+      for (const resolved of portsOf(model, placement.id)) {
+        const s = view.toScreen(resolved.world.x, resolved.world.y);
+        ctx.fillStyle = portColor(resolved.port);
+        ctx.fillRect(s.x - PORT_PX / 2, s.y - PORT_PX / 2, PORT_PX, PORT_PX);
+      }
     }
-    drawPortals(scene, model, placement);
 
     const centre = view.toScreen(placement.at.x, placement.at.y);
     if (placement.refdes && placement.hostKey) {
@@ -114,14 +119,15 @@ export function drawSchematic(scene: Scene, model: SchematicModel | undefined, l
         ctx.fillStyle = FLOW.refdes;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
-        ctx.fillText(label.text, centre.x, centre.y + (def.size.h / 2) * scale + label.px * 0.4);
+        ctx.fillText(label.text, centre.x, centre.y + (def.size.h / 2) * scale + wordsBelowPx(def, scale) + label.px * 0.4);
       }
     } else if (placement.refdes) {
       ctx.font = FONT.marker;
       ctx.fillStyle = FLOW.refdes;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
-      const half = (def.size.h / 2) * view.zoom * (placement.scale ?? 1);
+      const z = view.zoom * (placement.scale ?? 1);
+      const half = (def.size.h / 2) * z + wordsBelowPx(def, z);
       ctx.fillText(placement.refdes, centre.x, centre.y + half + 4);
     }
   }

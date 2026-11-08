@@ -4,7 +4,6 @@ import { describe, expect, it } from 'vitest';
 import samples from '../../../contract/host@1/samples.json';
 import { createSchematic } from '../../flow/Schematic';
 import { groupBounds } from '../../flow/groups';
-import { portalPoints } from '../../render/flow/drawPortals';
 import type { EditorStore } from '@state/EditorStore';
 import { HOST_HANDLERS } from './hostBridge';
 import { applyHostSchematic, hostPlacementsOf, moveHostSchematic, schematicInModel } from './hostSchematic';
@@ -126,11 +125,5 @@ describe('host schematic — BIM parts placed as blocks with ports', () => {
     expect(s.schematic.connectors).toHaveLength(1);
     expect(s.schematic.placements.flatMap((p) => Object.keys(p.portals ?? {}))).toHaveLength(2);
     expect(s.layers.has('Bench')).toBe(true);
-  });
-
-  it('a portal sits beyond its port along the side\'s normal', () => {
-    const { centre, text } = portalPoints({ x: 10, y: 0 }, { x: 1, y: 0 });
-    expect(centre.x).toBeGreaterThan(10);
-    expect(text.x).toBeGreaterThan(centre.x);
   });
 });

@@ -12,7 +12,15 @@
  * to that width with an ellipsis, and is not drawn at all below a size anyone
  * could read. Pure: the measurer is passed in.
  */
-export const REFDES = { maxPx: 9, minPx: 5, ofWidth: 0.12, room: 1.3 } as const;
+export const REFDES = { maxPx: 9, minPx: 5, ofWidth: 0.12, room: 1.3, growOfWidth: 0.05 } as const;
+
+/*
+ * ZOOMING IN MAKES IT CLEARER, NOT SMALLER (the owner, 2026-11-07: "when i zoom in
+ * things should become more clear not just become smaller"). Up to the marker size a
+ * name follows the block as before; past it, it keeps growing with the block
+ * (growOfWidth of its drawn width), so a closer look is a bigger, clearer name.
+ */
+const grown = (shrunk: number, grownPx: number) => Math.max(shrunk, grownPx);
 
 /**
  * A label of `px` that must fit in `roomPx`: as it is, else clipped with an
@@ -36,11 +44,11 @@ export function fitLabel(
   return lo > 0 ? { text: `${text.slice(0, lo)}…`, px } : null;
 }
 
-/** A host group's name: GROUP_LABEL_UNITS drawing units tall (mm on a mm sheet), at most the marker size, clipped to the group's width. */
+/** A host group's name: GROUP_LABEL_UNITS drawing units tall (mm on a mm sheet), growing past the marker size as the view closes in, clipped to the group's width. */
 export const GROUP_LABEL_UNITS = 40;
 
 export function groupLabel(text: string, zoom: number, widthPx: number, measure: (text: string, px: number) => number) {
-  return fitLabel(text, Math.min(REFDES.maxPx, GROUP_LABEL_UNITS * zoom), widthPx, measure);
+  return fitLabel(text, grown(Math.min(REFDES.maxPx, GROUP_LABEL_UNITS * zoom), GROUP_LABEL_UNITS * zoom * 0.3), widthPx, measure);
 }
 
 export function refdesLabel(
@@ -48,7 +56,7 @@ export function refdesLabel(
   blockWidthPx: number,
   measure: (text: string, px: number) => number,
 ): { text: string; px: number } | null {
-  const px = Math.min(REFDES.maxPx, blockWidthPx * REFDES.ofWidth);
+  const px = grown(Math.min(REFDES.maxPx, blockWidthPx * REFDES.ofWidth), blockWidthPx * REFDES.growOfWidth);
   if (!text || px < REFDES.minPx) return null;
   const room = blockWidthPx * REFDES.room;
   if (measure(text, px) <= room) return { text, px };

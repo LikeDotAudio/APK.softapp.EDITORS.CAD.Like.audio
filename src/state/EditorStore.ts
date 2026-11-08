@@ -32,6 +32,7 @@
  * The body is 94 one-action modules under `actions/`, bound as methods here:
  * a 664-line class is easier to read as a table of contents than as a wall.
  */
+import { refreshBimDefinitions } from './actions/refreshBimDefinitions';
 import type { CadSpace, CadViewport, ConnectorCable, Layer, LayerIfc, Point, SchematicModel, ToolId, Units, GridMode, ValidationResult } from '../core/types';
 import { generateUuid } from '../core/generateUuid';
 import { DEFAULT_VIRTUAL_MIRROR, type VirtualMirrorState, type VirtualMirror } from '../core/mirror';
@@ -394,7 +395,7 @@ export class EditorStore {
        For CAD / Drawing, the StartupModal prompts the user on startup —
        unless a host moved us between its iframe and a window (`&resume`). */
     if (this.entrance.entrance === 'big-picture') {
-      void this.restoreBrowserSession().then(() => this.openBigPicture());
+      void this.restoreBrowserSession().then(() => this.openBigPicture()).then(() => refreshBimDefinitions(this));
     }
     if (typeof window !== 'undefined' && resumeFromHash(window.location.hash)) void resumeFromHost(this, window.location.hash);
     this.showHint(entrance.hint, 8000);
@@ -432,7 +433,8 @@ export class EditorStore {
   }
 
   async restoreBrowserSession(): Promise<void> {
-    return await restoreBrowserSession(this);
+    await restoreBrowserSession(this);
+    void refreshBimDefinitions(this);   // BIM blocks saved before connectors + top hats catch up
   }
 
   /** Read 06a's filed sheet onto this canvas. */

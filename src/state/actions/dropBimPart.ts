@@ -3,6 +3,7 @@
 import { partToDefinition, type BimPart } from '../../flow/bimPart';
 import type { BimOccurrence, BimRef } from '../../core/types';
 import { placeBlock } from '../../flow/Schematic';
+import { refreshDefinition } from './refreshBimDefinitions';
 import type { BlockPlacement, Point } from '../../core/types';
 import type { EditorStore } from '../EditorStore';
 
@@ -66,6 +67,7 @@ export function placeBimPart(
   const known = store.schematic.definitions.find((d) => d.id === def.id);
   if (!known) store.schematic.definitions.push(def);
   else if (!known.bimRef && def.bimRef) known.bimRef = def.bimRef;   // a block from before ROAD-3572 learns its reference
+  if (known && !known.hostKey && !known.hat) refreshDefinition(known, part);   // a block from before 2026-11-07 gets its connectors + hat
   let placed: BlockPlacement | null = null;
   store.editFlow(() => {
     placed = placeBlock(store.schematic, def.id, at, store.activeLayerId);

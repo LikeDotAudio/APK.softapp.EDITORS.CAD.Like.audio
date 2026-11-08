@@ -22,7 +22,8 @@ describe('a BIM library part as a CAD block', () => {
     expect(d.id).toBe(bimDefinitionId(CORE));
     expect(d.id).toBe('bim.qsc/core-110f');
     expect(d.ports.filter((p) => p.side === 'input')).toHaveLength(8);
-    expect(d.ports.find((p) => p.label === 'GPIO')?.side).toBe('control');
+    expect(d.ports.find((p) => p.label === 'GPIO')?.side).toBe('power');   // control out the bottom too
+    expect(d.ports.find((p) => p.label === 'GPIO')?.domain).toBe('control');
     expect(d.ports.find((p) => p.label === 'Mains')?.side).toBe('power');
     expect(d.ports.filter((p) => p.label?.startsWith('LAN')).map((p) => p.label)).toEqual(['LAN A', 'LAN B']);
     const ch = d.ports.filter((p) => p.label?.startsWith('Ch '));
@@ -30,6 +31,11 @@ describe('a BIM library part as a CAD block', () => {
     expect(ch.at(-1)?.label).toMatch(/\+24$/);
     expect(new Set(d.ports.map((p) => p.id)).size).toBe(d.ports.length);
     expect(d.ports[0]?.domain).toBe('audio');
+  });
+  it('each port carries the connector its part names', () => {
+    const d = partToDefinition({ id: 'a/b', ports: [{ group: 'Out', side: 'output', connector: 'XLR3-M' }, { group: 'In', side: 'input' }] });
+    expect(d.ports[0]?.connector).toBe('XLR3-M');
+    expect(d.ports[1]?.connector).toBeUndefined();
   });
   it('a DXF-safe block name and a size that fits its ports', () => {
     const d = partToDefinition(CORE);

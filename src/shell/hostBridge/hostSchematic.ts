@@ -146,12 +146,15 @@ export function portForTerminal(def: BlockDefinition, terminal: string): string 
 function definitionFor(part: BimPart, own: BimPort[] | undefined, key: string, ref: string, size?: XY): BlockDefinition {
   const have = new Set((part.ports ?? []).map((p) => `${p.side}|${fold(p.group ?? p.terminal ?? '')}`));
   const extra = (own ?? []).filter((p) => p && !have.has(`${p.side}|${fold(p.group ?? p.terminal ?? '')}`));
-  const def = partToDefinition(extra.length ? { ...part, ports: [...(part.ports ?? []), ...extra] } : part);
+  const whole = extra.length ? { ...part, ports: [...(part.ports ?? []), ...extra] } : part;
+  const def = partToDefinition(whole);
   const grow = size && (size[0] > def.size.w || size[1] > def.size.h);
+  // a bigger seat: laid out again in it, ports kept under the header on their pitch, the room at the bottom
+  const laid = grow ? partToDefinition(whole, null, { w: size![0], h: size![1] }) : def;
   return {
-    ...def,
+    ...laid,
+    ...(def.bimRef ? { bimRef: def.bimRef } : {}),
     ...(extra.length || grow ? { id: `${def.id}@${key}:${ref}` } : {}),
-    ...(grow ? { size: { w: Math.max(def.size.w, size![0]), h: Math.max(def.size.h, size![1]) } } : {}),
     hostKey: key,
   };
 }

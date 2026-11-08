@@ -1,6 +1,6 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
-import type { PortSide } from '../../core/types';
+import type { Port, PortSide } from '../../core/types';
 import { COLORS, ACCENT_RGB } from '../../colorsStyle';
 
 /**
@@ -16,6 +16,14 @@ export const SIDE_COLOR: Record<PortSide, string> = {
   power: '#ef4444',
 };
 
+/**
+ * A port's dot — and its connector — colour: its side's, except a control port
+ * keeps amber wherever it sits (a BIM part puts control out the bottom, beside power).
+ */
+export function portColor(port: Pick<Port, 'side' | 'domain'>): string {
+  return port.domain === 'control' ? SIDE_COLOR.control : SIDE_COLOR[port.side];
+}
+
 export const FLOW = {
   outline: '#9ca3af',
   outlineFill: 'rgba(148,163,184,0.08)',
@@ -27,7 +35,16 @@ export const FLOW = {
   connector: '#22d3ee',
   connectorPending: '#facc15',
   portLabel: '#9ca3af',
-  /** A portal whose far end is another block (drawPortals). */
+  /** The top hat (drawHat.ts). */
+  hatFill: 'rgba(30,41,59,0.92)',
+  hatTitle: '#f1f5f9',
+  hatText: '#cbd5e1',
+  hatWarn: '#f59e0b',
+  hatRule: '#d946ef',
+  /** A run of ports sharing a group, bracketed inside the box with its VIRTUAL NAME (drawConnectors). */
+  bracket: '#6b7280',
+  bracketText: '#9ca3af',
+  /** A portal whose far end is another block (drawConnectors). */
   portalWired: COLORS.accent,
   /** A portal whose far end is a patch-bay position. */
   portalBay: '#7c8594',

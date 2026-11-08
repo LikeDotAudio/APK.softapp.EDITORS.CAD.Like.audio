@@ -359,7 +359,18 @@ export interface Port {
    */
   offset?: number;
   /** `network`, `audio`, `clock`, `usb` - matches the Terminals `domain` column. */
-  domain?: string;
+  domain?: string;  /**
+   * The physical connector at this port (`XLR3-M`, `RJ45`, `COAX-BNC`…), as the
+   * BIM part names it. Drawn outside the box in the port's colour, named.
+   */
+  connector?: string;
+  /**
+   * The VIRTUAL NAME this port shares with its neighbours (a BIM port group of more
+   * than one: `Ch`, `Mic In`) — drawn as a bracket inside the box over the run — and
+   * its own name within it (`1`, `A`), drawn beside its dot.
+   */
+  group?: string;
+  member?: string;
 }
 
 /** A block's outline, in block-local units. The origin is its centre. */
@@ -398,6 +409,24 @@ export interface BlockDefinition {
   liveBoxes?: BoxIdentity[];
   /** The BIM reference of the part this block draws (ROAD-3572, apk.bim.library@1 `ref`): set when it came from the library. */
   bimRef?: BimRef;
+  /**
+   * The TOP HAT (the owner, 2026-11-07: "top hats on these with descriptions and
+   * details"): a band sitting on the block's top edge — its title, then a line each
+   * of details and description. A BIM part's comes from the part (bimPart.ts).
+   */
+  hat?: BlockHat;
+}
+
+export interface BlockHat {
+  title: string;
+  lines: string[];
+  /** Under the title, left and right corners (the owner's sheet: LOCATION · Owner). */
+  left?: string;
+  right?: string;
+  /** Along the bottom inside the box (the owner's sheet: IP ADDRESS). */
+  foot?: string;
+  /** The header's height in drawing units: it sits INSIDE the box, the ports start below it. */
+  height?: number;
 }
 
 /**
