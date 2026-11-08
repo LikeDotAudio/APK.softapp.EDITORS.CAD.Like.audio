@@ -56,7 +56,8 @@ export function partOfDefinition(def: BlockDefinition): BimPartLike {
     id,
     ...(maker && model ? { manufacturer: maker, model } : { model: title }),
     name: title,
-    description: (def.description ?? '').replace(/^.*?— from the BIM library \([^)]*\):?\s*/, '') || hat?.lines?.at(-1) || '',
+    // what it is: the part's own description, else its hat's sentence (lines: maker · model, ports, the sentence)
+    description: (def.description ?? '').replace(/^.*?— from the BIM library \([^)]*\):?\s*/, '').replace(/^.*?— from the BIM library \([^)]*\)\s*$/, '') || hat?.lines?.[2] || title,
     ...(category ? { category } : {}), ...(klass ? { class: klass } : {}),
     ...(hat?.right ? { stage: UNVERIFIED.test(hat.right) ? 'seeded' : hat.right } : {}),
     ports: rows,
@@ -87,15 +88,28 @@ export interface ExtraConnection { from: { placementId: number; portId: string }
 
 /** The schematic as a KiCad project. `name` is the file stem; target KiCad 9 opens in 9 and 10. `connections` are wires a
  *  host keeps as its own line work (the Simulation's routes), joined into the nets with the sheet's own connectors. */
-export function kicadProject(model: SchematicModel, name: string, { target = 'kicad9' as KicadTarget, connections = [] as ExtraConnection[] } = {}): KicadProject {
+/** A host's own groups (the Simulation's frames), named by the refs it placed. */
+export interface HostGroupRow { name: string; refs: string[] }
+
+export function kicadProject(model: SchematicModel, name: string,
+  { target = 'kicad9' as KicadTarget, connections = [] as ExtraConnection[], hostGroups = [] as HostGroupRow[], panels = new Map<string, unknown>() } = {}): KicadProject {
   const stem = safeName(name || 'drawing');
   const symbolOf = new Map<string, KicadSymbol>();
   const taken = new Set<string>();
+  const same = new Map<string, KicadSymbol>(); // a symbol's content → the symbol: equal boxes share one
+  const content = (s: KicadSymbol) => JSON.stringify([s.name, s.units.map((u) => u.name), s.pins.map((p) => [p.unit, p.number, p.name, p.type, p.at]), s.properties.filter((p) => p.name !== 'APK_Ports').map((p) => [p.name, p.value])]);
   for (const pl of model.placements) {
     const def = definitionFor(model, pl);
-    if (!def || symbolOf.has(def.id) || !def.ports.length) continue;
-    // one project library, named for the project (KiCad's own way for a project's symbols; KLC S1.1 names the stock ones)
-    const sym = symbolFromPart(partOfDefinition(def), { library: stem });
+    if (!def || symbolOf.has(def.id)) continue;
+    const part = partOfDefinition(def);
+    const panel = part.id ? panels.get(part.id) : undefined;
+    if (!def.ports.length && !panel) continue;
+    // one project library, named for the project (KiCad's own way for a project's symbols; KLC S1.1 names the stock ones);
+    // a part with a touch panel: each page one more unit, its controls pins (kicadLibrary symbolFromPart)
+    const sym = symbolFromPart(part, { library: stem, ...(panel ? { panel } : {}) });
+    const twin = same.get(content(sym));
+    if (twin) { symbolOf.set(def.id, twin); continue; }
+    same.set(content(sym), sym);
     let n = 2;
     const base = sym.name;
     while (taken.has(`${sym.library}:${sym.name}`)) sym.name = `${base}_${n++}`;
@@ -107,7 +121,8 @@ export function kicadProject(model: SchematicModel, name: string, { target = 'ki
   const skipped: string[] = [];
   const refOf = new Map<number, string>();
   const usedRefs = new Set<string>();
-  const instances = [];
+  const instances: Parameters<typeof writeSchematic>[0]['instances'] = [];
+  const panelGroups: { name: string; refs: string[] }[] = [];
   for (const pl of [...model.placements].sort((a, b) => a.id - b.id)) {
     const def = definitionFor(model, pl);
     const sym = def && symbolOf.get(def.id);
@@ -122,12 +137,26 @@ export function kicadProject(model: SchematicModel, name: string, { target = 'ki
     }
     usedRefs.add(ref);
     refOf.set(pl.id, ref);
-    instances.push({
-      libId: `${sym.library}:${sym.name}`, ref, uuidKey: `${stem}|${pl.id}`,
-      at: [pl.at.x * KICAD_PER_CAD, -pl.at.y * KICAD_PER_CAD] as [number, number],
-      rotation: pl.rotation ?? 0,
-      fields: placementFields(pl),
+    const at: [number, number] = [pl.at.x * KICAD_PER_CAD, -pl.at.y * KICAD_PER_CAD];
+    const named = deviceName(pl, def);
+    const fields = { ...placementFields(pl), Value: named || sym.name };
+    const drawn = sym.units.filter((u) => u.unit > 0);
+    // one instance per unit: the device's own I/O where the box is, its touch panel's pages in a row to its right
+    let x = at[0];
+    let prevHalf = 0;
+    drawn.forEach((u, k) => {
+      const half = unitHalfWidth(u);
+      if (k) x += prevHalf + half + 10.16;
+      prevHalf = half;
+      const page = u.name && u.name !== 'Device' ? u.name : '';
+      instances.push({
+        libId: `${sym.library}:${sym.name}`, ref, unit: u.unit, uuidKey: `${stem}|${pl.id}`,
+        at: [x, at[1]] as [number, number], rotation: k ? 0 : pl.rotation ?? 0, fields,
+        // the device's own name is the Value; under it the symbol it is (and on a panel page, the page)
+        shown: { ...(named && named !== sym.name ? { Part: sym.name } : {}), ...(page ? { Page: page } : {}) },
+      });
     });
+    if (drawn.some((u) => u.name && u.name !== 'Device')) panelGroups.push({ name: `${ref}${named ? ` · ${named}` : ''} — touch panel`, refs: [ref] });
   }
 
   // nets: ports joined by connectors, union–find
@@ -165,9 +194,25 @@ export function kicadProject(model: SchematicModel, name: string, { target = 'ki
     nets.push({ name: nm, nodes: nodes.map(({ ref, pin }) => ({ ref, pin })) });
   }
 
-  const symbols = [...symbolOf.values()];
+  // groups: the sheet's own (members and every child group's), then a host's (its refs), as KiCad refs
+  const groups: { name: string; refs: string[] }[] = [];
+  const byGroup = new Map(model.groups.map((g) => [g.id, g]));
+  const membersOf = (g: { members: number[]; children: number[] }, seen = new Set<number>()): number[] =>
+    [...g.members, ...g.children.flatMap((c) => (seen.has(c) || !byGroup.has(c) ? [] : (seen.add(c), membersOf(byGroup.get(c)!, seen))))];
+  for (const g of model.groups) {
+    const refs = membersOf(g).map((id) => refOf.get(id)).filter((r): r is string => !!r);
+    if (refs.length) groups.push({ name: g.name, refs });
+  }
+  const byHost = new Map(model.placements.filter((p) => p.hostRef).map((p) => [String(p.hostRef), p.id]));
+  for (const g of hostGroups) {
+    const refs = (g.refs ?? []).map((r) => refOf.get(byHost.get(String(r)) ?? -1)).filter((r): r is string => !!r);
+    if (refs.length && g.name) groups.push({ name: String(g.name), refs });
+  }
+
+  groups.push(...panelGroups);
+  const symbols = [...new Set(symbolOf.values())];
   const sheet = writeSchematic({
-    title: name || stem, project: stem, symbols, instances, nets, target,
+    title: name || stem, project: stem, symbols, instances, nets, target, groups,
     comment: 'exported from CAD.like.audio — symbols by the KiCad Library Conventions, BIM parts in APK_ fields',
   });
   const files: Record<string, string> = { [`${stem}.kicad_sch`]: sheet.text, [`${stem}.kicad_pro`]: kicadPro(stem) };
@@ -176,6 +221,24 @@ export function kicadProject(model: SchematicModel, name: string, { target = 'ki
   for (const [lib, list] of libs) files[`${lib}.kicad_sym`] = writeSymbolLib(list, { target });
   files['sym-lib-table'] = projectSymLibTable([...libs.keys()]);
   return { name: stem, files, placed: sheet.placed, nets: nets.length, skipped: [...skipped, ...sheet.skipped] };
+}
+
+/** Half a unit's body width (its rectangle), mm: how far apart a device's units stand in a row. */
+function unitHalfWidth(u: { graphics: unknown[]; pins: { at: [number, number, number]; length: number }[] }): number {
+  for (const g of u.graphics) {
+    if (!Array.isArray(g) || g[0] !== 'rectangle') continue;
+    const st = g[1] as [string, number, number], en = g[2] as [string, number, number];
+    return Math.abs(Number(en[1]) - Number(st[1])) / 2 + 7.62;
+  }
+  return Math.max(10, ...u.pins.map((p) => Math.abs(p.at[0]) + 2.54));
+}
+
+/** What the box is called on the sheet: its caption without the ref ('U19 · HP 3235' → 'HP 3235'), else its part's title. */
+function deviceName(pl: BlockPlacement, def: BlockDefinition): string {
+  const caption = String(pl.refdes ?? '').trim();
+  const own = pl.hostRef && caption.startsWith(String(pl.hostRef)) ? caption.slice(String(pl.hostRef).length).replace(/^\s*[·:|-]\s*/, '') : caption;
+  // a caption that is only a ref ('U8') names nothing: the part's title then
+  return own && own !== pl.hostRef && !/^[A-Za-z#]+\d+$/.test(own) ? own : (def.hat?.title || '');
 }
 
 /** The placement's own words a KiCad user wants on the instance: its BIM reference and the box it stands for. */
@@ -190,4 +253,28 @@ function placementFields(pl: BlockPlacement): Record<string, string> {
 /** The smallest project file KiCad opens: it fills every setting it is not given. */
 function kicadPro(stem: string): string {
   return `${JSON.stringify({ meta: { filename: `${stem}.kicad_pro`, version: 1 }, sheets: [], boards: [], text_variables: {} }, null, 2)}\n`;
+}
+
+/**
+ * The project with every BIM part's touch panel (GET <api>/parts/<maker>/<model>: the part, `panel` included), each
+ * part asked once. A part the API does not give, or a panel it has not got, exports without one.
+ */
+export async function kicadProjectWithPanels(model: SchematicModel, name: string, opts: Omit<Parameters<typeof kicadProject>[2] & object, 'panels'> = {},
+  { api, fetchFn = globalThis.fetch }: { api: string; fetchFn?: typeof fetch }): Promise<KicadProject> {
+  const ids = new Set<string>();
+  for (const pl of model.placements) {
+    const def = definitionFor(model, pl);
+    const id = def ? partOfDefinition(def).id : undefined;
+    if (id && /^[\w.-]+\/[\w.-]+$/.test(id)) ids.add(id);
+  }
+  const panels = new Map<string, unknown>();
+  await Promise.all([...ids].map(async (id) => {
+    try {
+      const r = await fetchFn(`${api.replace(/\/$/, '')}/parts/${id.split('/').map(encodeURIComponent).join('/')}`);
+      if (!r.ok) return;
+      const part = await r.json() as { panel?: unknown };
+      if (part && part.panel) panels.set(id, part.panel);
+    } catch { /* no API, no panel: the device exports with its own I/O */ }
+  }));
+  return kicadProject(model, name, { ...opts, panels });
 }

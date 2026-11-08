@@ -7,7 +7,7 @@ import { partToDefinition, type BimPart } from '../../flow/bimPart';
 import { connectPorts, createSchematic, placeBlock } from '../../flow/Schematic';
 import { klcCheck } from '../../vendor/kicad/kicadLibrary.js';
 import { symbolFromPart } from '../../vendor/kicad/kicadLibrary.js';
-import { KICAD_PER_CAD, kicadProject, partOfDefinition } from './kicadSheet';
+import { KICAD_PER_CAD, kicadProject, kicadProjectWithPanels, partOfDefinition } from './kicadSheet';
 import { resolveHostConnections } from '../../shell/hostBridge/hostSchematic';
 
 /* The Meyer Sound 09.314.001.01 as the BIM library gives it (DATABASE.server.BIM library/meyer-sound). */
@@ -93,5 +93,31 @@ describe('the sheet as a KiCad project', () => {
     expect(p.nets).toBe(1);
     expect(p.files['bench.kicad_sch']).toContain('(label "MON_2"');
     expect(p.files['bench.kicad_sch']).toContain('(reference "U8")');
+    // one symbol for both boxes; each box's own name is its Value, the symbol under it
+    expect((p.files['bench.kicad_sym'].match(/\(symbol "09\.314\.001\.01"/g) || []).length).toBe(1);
+    expect(p.files['bench.kicad_sch']).toContain('(property "Value" "Meyer"');
+    expect(p.files['bench.kicad_sch']).toContain('(property "Part" "09.314.001.01"');
+    expect(p.files['bench.kicad_sch']).toMatch(/\(wire\s+\(pts\s+\(xy [-\d.]+ [-\d.]+\) \(xy [-\d.]+ [-\d.]+\)\s+\)/);
+  });
+
+  it('a part\'s touch panel: each page one more unit, its controls pins, the device and its pages one group', async () => {
+    const { model } = sheet();
+    const panel = { frames: { 'Main.json': { Bin: { type: 'OcaBin', blocks: { Levels: { type: 'OcaBlock', description: { En: 'Levels' }, fields: {
+      gain: { type: '_GuiKnob', label: { En: 'Gain' }, komand_handler: { enable: true, komand_type: 'set', command: 'Set_Gain' } },
+      meter: { type: '_NeedleVUMeter', label: { En: 'Level' } } } } } } } } };
+    const asked: string[] = [];
+    const fetchFn = (async (url: string) => { asked.push(url); return { ok: true, json: async () => ({ panel }) }; }) as unknown as typeof fetch;
+    const p = await kicadProjectWithPanels(model, 'bench', {}, { api: 'http://x/api/bim', fetchFn });
+    expect(asked).toEqual(['http://x/api/bim/parts/meyer-sound/09-314-001-01']);
+    const sym = p.files['bench.kicad_sym']!;
+    expect(sym).toContain('(unit_name "Main")');
+    expect(sym).toContain('(name "Gain"');
+    expect(sym).toContain('\\"domain\\":\\"control\\"'); // inside the KiCad string, quotes escaped
+    const sch = p.files['bench.kicad_sch']!;
+    expect(sch).toMatch(/\(unit 2\)/);
+    expect(sch).toContain('(property "Page" "Main"');
+    expect(sch).toContain('U8 · Meyer Sound 09.314.001.01 — touch panel');
+    expect(p.nets).toBe(1);
+    if (process.env.KICAD_OUT) for (const [f, t] of Object.entries(p.files)) writeFileSync(join(process.env.KICAD_OUT, `panel-${f}`), t);
   });
 });

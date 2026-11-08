@@ -2,7 +2,8 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { EditorStore } from '../EditorStore';
 import { canUserSave } from '../../core/userAuth';
-import { kicadProject } from '@io/kicad/kicadSheet';
+import { kicadProjectWithPanels } from '@io/kicad/kicadSheet';
+import { bimWriteBase } from '../../shell/bimProjects';
 import { showProblem } from '../../shell/softapp';
 
 interface DirectoryPickerWindow {
@@ -22,7 +23,8 @@ export async function exportKicad(store: EditorStore): Promise<void> {
     }
   }
   const name = (store.currentFileName ?? 'drawing').replace(/\.(dxf|ifc|json)$/i, '');
-  const project = kicadProject(store.schematic, name);
+  // each BIM part's touch panel comes along: its pages as more units of the symbol (kicadSheet.ts)
+  const project = await kicadProjectWithPanels(store.schematic, name, {}, { api: bimWriteBase() });
   if (!project.placed) {
     showProblem('bad_input', {
       subject: 'Export KiCad',

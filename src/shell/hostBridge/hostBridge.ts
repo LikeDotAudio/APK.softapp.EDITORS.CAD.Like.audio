@@ -4,7 +4,8 @@ import type { EditorStore } from '@state/EditorStore';
 import { parsePalette } from '../../model/palette/parsePalette';
 import type { SavedSession } from '@io/browserStorage/SavedSession';
 import { sessionIfc } from '@io/ifc/sessionIfc';
-import { kicadProject } from '@io/kicad/kicadSheet';
+import { kicadProjectWithPanels } from '@io/kicad/kicadSheet';
+import { bimWriteBase } from '../bimProjects';
 import { buildSavedSession } from '@state/actions/autoSaveSession';
 import { DOC_UNITS } from '../../model/units/docUnits';
 import { applySavedSession } from '@state/actions/restoreBrowserSession';
@@ -276,10 +277,12 @@ export const HOST_HANDLERS: Record<string, (store: EditorStore, msg: HostMessage
   dxf: (store) => void dxfForHostWithIfc(store).then((body) => post('dxf', body)),
   // the sheet as File › Export KiCad writes it: a KiCad 9/10 project, its files by name (src/io/kicad/kicadSheet.ts)
   // `connections` (the schematic shape): wires the host keeps as its own line work, joined into the nets
-  kicad: (store, { connections, name }) => {
+  kicad: (store, { connections, name, groups }) => {
     const stem = typeof name === 'string' && name.trim() ? name : (store.currentFileName ?? 'drawing').replace(/\.(dxf|ifc|json)$/i, '');
-    const p = kicadProject(store.schematic, stem, { connections: resolveHostConnections(store.schematic, connections) });
-    post('kicad', { name: p.name, files: p.files, placed: p.placed, nets: p.nets, skipped: p.skipped });
+    const hostGroups = (Array.isArray(groups) ? groups : []).filter((g) => g && typeof g.name === 'string' && Array.isArray(g.refs))
+      .map((g) => ({ name: g.name as string, refs: (g.refs as unknown[]).map(String) }));
+    void kicadProjectWithPanels(store.schematic, stem, { connections: resolveHostConnections(store.schematic, connections), hostGroups }, { api: bimWriteBase() })
+      .then((p) => post('kicad', { name: p.name, files: p.files, placed: p.placed, nets: p.nets, skipped: p.skipped }));
   },
   // put a tool in the user's hand: the Simulation reads its sheet, so it asks for 'select' (hostPick.ts)
   tool: (store, msg) => void applyHostTool(store, msg),
