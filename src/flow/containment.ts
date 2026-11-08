@@ -1,6 +1,7 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 
+import { nudgeOnGrid } from './onGrid';
 import type { Group, SchematicModel } from '../core/types';
 import { groupBounds, rootGroups } from './groups';
 
@@ -74,10 +75,7 @@ export function shiftGroupPlacements(
 ): void {
   for (const pId of group.members) {
     const p = model.placements.find((item) => item.id === pId);
-    if (p) {
-      p.at.x += dx;
-      p.at.y += dy;
-    }
+    if (p) nudgeOnGrid(p, dx, dy);   // in grid steps (onGrid.ts)
   }
 
   for (const childId of group.children) {

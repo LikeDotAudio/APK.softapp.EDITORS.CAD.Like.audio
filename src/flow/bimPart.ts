@@ -12,7 +12,7 @@
 import type { BimRef, BlockDefinition, BlockHat, BoxIdentity, Port, PortSide } from '../core/types';
 import { ifcGuid } from '../vendor/ifc/guid';
 
-export interface BimPort { group?: string; terminal?: string; side?: string; domain?: string; connector?: string; count?: number; labels?: string[] }
+export interface BimPort { group?: string; terminal?: string; side?: string; domain?: string; connector?: string; connector_guess?: boolean; count?: number; labels?: string[]; block?: string }
 export interface BimPart {
   id: string; manufacturer?: string; model?: string; name?: string; description?: string; ports?: BimPort[]; ref?: Partial<BimRef>;
   category?: string; class?: string; stage?: string; ru?: number;
@@ -42,7 +42,7 @@ export function partHat(part: BimPart): BlockHat {
   ].filter(Boolean);
   const left = [part.category, part.class].filter(Boolean).join(' › ');
   const right = part.stage === 'seeded' ? '⚠ seeded — unverified' : part.stage ?? '';
-  return { title, lines, ...(left ? { left } : {}), ...(right ? { right } : {}), height: 24 };
+  return { title, lines, ...(left ? { left } : {}), ...(right ? { right } : {}), height: 24, footer: 14 };
 }
 
 export const PORTS_PER_GROUP = 16;
@@ -87,18 +87,47 @@ export function withGlobalId(ref: BimRef): BimRef {
  * by a gap, power and control along the bottom. In drawing units (mm).
  * DATABASE.server.BIM's blockSize (apk-bim-library.js) keeps the same numbers.
  */
-export const BLOCK = { minW: 120, perBottomPort: 14, pitch: 10, groupGap: 5, pad: 6, header: 24, minBody: 20 } as const;
+export const BLOCK = { minW: 120, perBottomPort: 20, pitch: 10, groupGap: 10, pad: 6, header: 24, footer: 14, minBody: 20, step: 20 } as const;
+/* ON THE GRID (flow/onGrid.ts, 10 mm): the header and its pad put the first port 30 below the top;
+   ports 10 apart, a band gap of 10; width and height whole multiples of `step` (20) so, with the
+   centre on the grid, every edge and every port is too; the bottom ports 20 apart, centred. */
+const up = (v: number) => Math.ceil(v / BLOCK.step - 1e-9) * BLOCK.step;
+/* THE FOOTER (the owner, 2026-11-07: "the ac in … needs that same footer space like the header,
+   something that is always the same size … the freedom to be the same size all the time and not
+   worry about spacing or crowding"): a band along the bottom, BLOCK.footer deep on every block
+   whether it has bottom ports or not; power and control come out of it, named inside it. */
 
-interface Run { side: PortSide; ports: Port[]; grouped: boolean }
+interface Run { side: PortSide; ports: Port[]; band: Band | null }
+/** A band of rows: a functional block's ports (its inputs left, its outputs right, side by side), or a run of loose ones. */
+interface Band { key: string; runs: Run[]; domain?: string; group?: boolean }
 
 export function partToDefinition(part: BimPart, ref?: Partial<BimRef> | null, minSize?: { w: number; h: number }): BlockDefinition {
   const runs: Run[] = [];
+  const bands: Band[] = [];
+  const byKey = new Map<string, Band>();
   const used = new Set<string>();
   for (const p of part.ports ?? []) {
     const n = Math.max(1, p.count ?? 1);
     const shown = Math.min(n, PORTS_PER_GROUP);
     const group = p.group || p.terminal || 'PORT';
-    const run: Run = { side: sideOf(p), ports: [], grouped: n > 1 };
+    const side = sideOf(p);
+    /* its BRACKET (VIRTUAL NAME): the part's functional block (the owner, 2026-11-07: "Digital in
+       and digital thru aligned vertically and bracketed"), else a group of more than one */
+    const bracket = p.block || (n > 1 ? group : '');
+    const run: Run = { side, ports: [], band: null };
+    if (side === 'input' || side === 'output') {
+      const key = p.block ? `b:${p.block}` : n > 1 ? `g:${group}:${runs.length}` : '';
+      let band = key ? byKey.get(key) : bands.at(-1)?.key === '' ? bands.at(-1) : undefined;
+      /* a group with no block pairs with an earlier group of the same domain whose band has nothing
+         on this side yet — AUDIO INPUT 1-8 beside AUDIO THRU 1-8 (the owner: "the audio and audio
+         should align") */
+      if (!band && !p.block && n > 1) {
+        band = bands.find((b) => b.group && b.domain === (p.domain ?? '') && !b.runs.some((r) => r.side === side));
+      }
+      if (!band) { band = { key, runs: [], domain: p.domain ?? '', group: !p.block && n > 1 }; bands.push(band); if (key) byKey.set(key, band); }
+      band.runs.push(run);
+      run.band = band;
+    }
     for (let i = 0; i < shown; i++) {
       const member = n === 1 ? '' : p.labels?.[i] ? p.labels[i]! : `${i + 1}${i === shown - 1 && n > shown ? ` +${n - shown}` : ''}`;
       const label = member ? `${group} ${member}` : group;
@@ -106,31 +135,39 @@ export function partToDefinition(part: BimPart, ref?: Partial<BimRef> | null, mi
       while (used.has(id)) id += '_';
       used.add(id);
       run.ports.push({
-        id, side: run.side, label, ...(p.domain ? { domain: p.domain } : {}), ...(p.connector ? { connector: p.connector } : {}),
-        ...(member ? { group, member } : {}),
+        id, side, label, ...(p.domain ? { domain: p.domain } : {}), ...(p.connector ? { connector: p.connector } : {}), ...(p.connector && p.connector_guess ? { connectorGuess: true } : {}),
+        ...(bracket ? { group: bracket, member: member ? (p.block && !p.labels?.[i] ? `${group} ${member}` : member) : group } : {}),
       });
     }
     runs.push(run);
   }
-  // each side's ports top-down, in mm from the box top: header, pad, pitch, a gap where a group starts or ends
+  /* each band's rows top-down, in mm from the box top: header, pad, then per band its inputs and
+     its outputs side by side from the band's first row (a block's IN beside its THRU), the band
+     as tall as its taller side, a gap between bands where either is a block or a group */
   const ys = new Map<Port, number>();
-  let body: number = BLOCK.minBody;
-  for (const side of ['input', 'output'] as const) {
-    let y = BLOCK.header + BLOCK.pad;
-    let last: Run | null = null;
-    let any = false;
-    for (const run of runs.filter((r) => r.side === side)) {
-      if (last && (last.grouped || run.grouped)) y += BLOCK.groupGap;
-      for (const port of run.ports) { ys.set(port, y); y += BLOCK.pitch; any = true; }
-      last = run;
+  let y = BLOCK.header + BLOCK.pad;
+  let prev: Band | null = null;
+  let rows = 0;
+  for (const band of bands) {
+    if (prev && (prev.key || band.key)) y += BLOCK.groupGap;
+    let tall = 0;
+    for (const side of ['input', 'output'] as const) {
+      let row = 0;
+      for (const run of band.runs.filter((r) => r.side === side)) for (const port of run.ports) ys.set(port, y + BLOCK.pitch * row++);
+      tall = Math.max(tall, row);
     }
-    if (any) body = Math.max(body, y - BLOCK.pitch + BLOCK.pad - BLOCK.header);
+    y += tall * BLOCK.pitch;
+    rows += tall;
+    prev = band;
   }
+  const body = rows ? Math.max(BLOCK.minBody, y - BLOCK.pitch + BLOCK.pad - BLOCK.header) : BLOCK.minBody;
   const ports = runs.flatMap((r) => r.ports);
   const bottom = ports.filter((p) => p.side === 'power').length;
-  const w = Math.max(BLOCK.minW, Math.max(bottom, 3) * BLOCK.perBottomPort, minSize?.w ?? 0);
-  const h = Math.max(BLOCK.header + body + (bottom ? BLOCK.pad : 0), minSize?.h ?? 0);
+  const w = up(Math.max(BLOCK.minW, (bottom + 1) * BLOCK.perBottomPort, minSize?.w ?? 0));
+  const h = up(Math.max(BLOCK.header + body + BLOCK.footer, minSize?.h ?? 0));
   for (const port of ports) { const y = ys.get(port); if (y !== undefined) port.offset = y / h; }
+  // the bottom ports: 20 apart, centred on the block, each on the grid
+  ports.filter((p) => p.side === 'power').forEach((port, i) => { port.offset = (w / 2 + (i - (bottom - 1) / 2) * BLOCK.perBottomPort) / w; });
   const title = part.name || `${part.manufacturer ?? ''} ${part.model ?? ''}`.trim() || part.id;
   return {
     id: bimDefinitionId(part),

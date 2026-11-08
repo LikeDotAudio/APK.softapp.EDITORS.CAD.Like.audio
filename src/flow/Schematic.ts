@@ -1,5 +1,6 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
+import { snapAt } from './onGrid';
 import type {
   BlockDefinition,
   BlockSize,
@@ -72,7 +73,7 @@ export function placeBlock(
   const placement: BlockPlacement = {
     id: model.nextPlacementId++,
     definitionId,
-    at: { ...at },
+    at: snapAt(at),   // nothing off the grid (onGrid.ts)
     layerId,
     refdes: refdes ?? `${def.name}${existing + 1}`,
   };

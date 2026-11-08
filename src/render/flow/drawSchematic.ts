@@ -73,11 +73,16 @@ export function drawSchematic(scene: Scene, model: SchematicModel | undefined, l
     corners.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
     ctx.closePath();
     const isPicked = picked.has(placement.id);
-    ctx.fillStyle = isPicked ? FLOW.pickedFill : FLOW.outlineFill;
+    // a BIM block (it has a header) is solid, not see-through, and outlined heavier (the owner, 2026-11-07:
+    // "should be a solid colour", "not translucent", "thicker borders")
+    const solid = Boolean(def.hat);
+    ctx.fillStyle = solid ? (isPicked ? FLOW.bodyPicked : FLOW.body) : isPicked ? FLOW.pickedFill : FLOW.outlineFill;
     ctx.fill();
     ctx.strokeStyle = isPicked ? FLOW.picked : FLOW.outline;
     // the layer's lineweight (a host's WEIGHT knob, host@1 `layer` { lineweight })
-    ctx.lineWidth = isPicked ? Math.max(2.5, hostLineWidth(layers?.get(placement.layerId), 1.4) + 1) : hostLineWidth(layers?.get(placement.layerId), 1.4);
+    const weight = hostLineWidth(layers?.get(placement.layerId), 1.4);
+    ctx.lineWidth = solid ? (isPicked ? Math.max(4, weight + 2.5) : Math.max(3, weight + 1.5))
+      : isPicked ? Math.max(2.5, weight + 1) : weight;
     ctx.stroke();
 
     ctx.strokeStyle = FLOW.glyph;

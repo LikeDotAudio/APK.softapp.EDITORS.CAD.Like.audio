@@ -60,7 +60,7 @@ export function drawHat(scene: Scene, def: BlockDefinition, corners: { x: number
   const pad = Math.max(HAT.pad * z, 3);
   ctx.save();
   // the header's ground and the rule under it
-  ctx.fillStyle = picked ? FLOW.pickedFill : FLOW.hatFill;
+  ctx.fillStyle = picked ? FLOW.hatPicked : FLOW.hatFill;
   ctx.fillRect(left, top, w, h);
   ctx.beginPath();
   ctx.moveTo(left, top + h);
@@ -111,8 +111,22 @@ export function drawHat(scene: Scene, def: BlockDefinition, corners: { x: number
   }
   ctx.restore();
 
-  // the foot (IP ADDRESS), inside the box along its bottom
-  if (hat.foot) {
+  // the footer: a band of the same depth on every block, ruled off, where power and control come out
+  const fh = Math.min((hat.footer ?? 0) * z, (bottom - top) - h);
+  if (fh >= 6) {
+    ctx.save();
+    ctx.fillStyle = picked ? FLOW.hatPicked : FLOW.footFill;
+    ctx.fillRect(left, bottom - fh, w, fh);
+    ctx.beginPath();
+    ctx.moveTo(left, bottom - fh);
+    ctx.lineTo(right, bottom - fh);
+    ctx.strokeStyle = picked ? FLOW.picked : FLOW.hatRule;
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+    ctx.restore();
+  }
+  // the foot (IP ADDRESS), inside the box along its bottom — when no port names sit there
+  if (hat.foot && !def.ports.some((p) => p.side === 'power' || p.side === 'control')) {
     ctx.save();
     ctx.font = `${Math.round(c)}px ${UI_FONT}`;
     ctx.textAlign = 'center';

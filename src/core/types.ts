@@ -364,6 +364,8 @@ export interface Port {
    * BIM part names it. Drawn outside the box in the port's colour, named.
    */
   connector?: string;
+  /** The connector is the library's best guess (DATABASE.server.BIM part.guess_connector), not the part's word: drawn dashed, with a `?`. */
+  connectorGuess?: boolean;
   /**
    * The VIRTUAL NAME this port shares with its neighbours (a BIM port group of more
    * than one: `Ch`, `Mic In`) — drawn as a bracket inside the box over the run — and
@@ -427,6 +429,8 @@ export interface BlockHat {
   foot?: string;
   /** The header's height in drawing units: it sits INSIDE the box, the ports start below it. */
   height?: number;
+  /** The footer's height in drawing units: a band along the bottom, always the same, where power and control come out. */
+  footer?: number;
 }
 
 /**

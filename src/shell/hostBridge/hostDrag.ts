@@ -1,5 +1,6 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
+import { nudgeOnGrid } from '../../flow/onGrid';
 import type { Point, SchematicModel } from '../../core/types';
 import { groupById, hitGroupAt, membersDeep } from '../../flow/groups';
 import { hitPlacementAt, hitPortAt, placementOf } from '../../flow/Schematic';
@@ -33,7 +34,7 @@ export function dragHostPlacements(model: SchematicModel, ids: readonly number[]
   for (const id of ids) {
     const p = placementOf(model, id);
     if (!p || !p.hostKey) continue;
-    p.at = { x: p.at.x + dx, y: p.at.y + dy };
+    nudgeOnGrid(p, dx, dy);   // it moves in grid steps (flow/onGrid.ts)
     moved = true;
   }
   return moved;

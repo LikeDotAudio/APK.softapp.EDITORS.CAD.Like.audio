@@ -36,7 +36,13 @@ export const FLOW = {
   connectorPending: '#facc15',
   portLabel: '#9ca3af',
   /** The top hat (drawHat.ts). */
-  hatFill: 'rgba(30,41,59,0.92)',
+  hatFill: '#1e293b',
+  hatPicked: '#164e63',
+  /** The footer band (drawHat). */
+  footFill: '#232833',
+  /** A BIM block's body: solid, so nothing under it shows through (drawSchematic). */
+  body: '#2a2f37',
+  bodyPicked: '#1f3b47',
   hatTitle: '#f1f5f9',
   hatText: '#cbd5e1',
   hatWarn: '#f59e0b',

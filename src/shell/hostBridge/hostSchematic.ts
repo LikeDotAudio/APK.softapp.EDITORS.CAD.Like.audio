@@ -1,5 +1,6 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
+import { snap, snapAt } from '../../flow/onGrid';
 import type { BlockDefinition, BlockPlacement, Group, PortPortal, SchematicModel } from '../../core/types';
 import { partToDefinition, portId, withGlobalId, type BimPart, type BimPort } from '../../flow/bimPart';
 import { connectPorts, definitionFor as defOfPlacement, portsOf, removePlacement } from '../../flow/Schematic';
@@ -106,8 +107,8 @@ export function moveHostSchematic(store: Pick<EditorStore, 'schematic' | 'markDo
   for (const it of msg.items as { ref?: unknown; at?: unknown }[]) {
     const p = it && str(it.ref) ? byRef.get(it.ref) : undefined;
     if (!p || !xy(it.at)) continue;
-    if (p.at.x === it.at[0] && p.at.y === it.at[1]) continue;
-    p.at = { x: it.at[0], y: it.at[1] };
+    if (p.at.x === snap(it.at[0]) && p.at.y === snap(it.at[1])) continue;
+    p.at = snapAt({ x: it.at[0], y: it.at[1] });   // a host's seat, on the grid (flow/onGrid.ts)
     moved = true;
   }
   if (moved) {
@@ -218,7 +219,7 @@ export function applyHostSchematic(store: EditorStore, msg: HostSchematicMessage
     const def = definitionFor(part, Array.isArray(raw.ports) ? raw.ports : undefined, key, raw.ref, xy(raw.size) ? raw.size : undefined);
     if (!model.definitions.some((d) => d.id === def.id)) model.definitions.push(def);
     const placement: BlockPlacement = {
-      id: model.nextPlacementId++, definitionId: def.id, at: { x: raw.at[0], y: raw.at[1] }, layerId: layer,
+      id: model.nextPlacementId++, definitionId: def.id, at: snapAt({ x: raw.at[0], y: raw.at[1] }), layerId: layer,
       refdes: str(raw.name) ? raw.name : raw.ref, hostKey: key, hostHash: hash, hostRef: raw.ref,
       // a host's box points back to BIM like a picked one (ROAD-3576) — when its part came with a ref
       ...(def.bimRef ? { bimRef: withGlobalId({ ...def.bimRef }) } : {}),

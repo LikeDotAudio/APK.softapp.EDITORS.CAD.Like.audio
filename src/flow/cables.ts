@@ -1,5 +1,6 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
+import { snapAt, wireEndPoint } from './onGrid';
 import type { Connector, ConnectorCable, Point, SchematicModel } from '../core/types';
 import { routeWaterfallWire } from './autoWire';
 import { portOf, portWorldPoint } from './Schematic';
@@ -17,16 +18,30 @@ import { portOf, portWorldPoint } from './Schematic';
 export const CABLE_STATUSES = ['planned', 'made', 'tested', 'faulty'] as const;
 
 /** The wire as drawn, world points end to end: its own route, else the auto-routed one (drawSchematic's). */
+/**
+ * Where a wire meets a port: a BIM block's (it has a header, bimPart.ts) at the end of its
+ * port's plug and lug, on the grid (onGrid.wireEndPoint); any other symbol's at the port.
+ */
+function wireEnd(model: SchematicModel, ref: Connector['from']): Point | null {
+  const placement = model.placements.find((p) => p.id === ref.placementId);
+  const def = placement ? model.definitions.find((d) => d.id === placement.definitionId) : undefined;
+  const port = def?.ports.find((p) => p.id === ref.portId);
+  if (placement && def?.hat && port) return wireEndPoint(placement, def, port);
+  return portWorldPoint(model, ref);
+}
+
 export function wirePath(model: SchematicModel, connector: Connector, index: number): Point[] | null {
-  const a = portWorldPoint(model, connector.from);
-  const b = portWorldPoint(model, connector.to);
+  const a = wireEnd(model, connector.from);
+  const b = wireEnd(model, connector.to);
   if (!a || !b) return null;
   if (connector.route && connector.route.length > 0) return [a, ...connector.route, b];
-  return routeWaterfallWire(a, b, {
+  const path = routeWaterfallWire(a, b, {
     sourceSide: portOf(model, connector.from)?.side ?? 'output',
     targetSide: portOf(model, connector.to)?.side ?? 'input',
     laneIndex: index % 4,
   });
+  // its corners on the grid too: a coordinate shared by two corners snaps the same way, so it stays square
+  return path && path.length > 2 ? [path[0]!, ...path.slice(1, -1).map(snapAt), path.at(-1)!] : path;
 }
 
 function distToSegment(p: Point, a: Point, b: Point): number {

@@ -32,6 +32,7 @@
  *             inch sheet too.
  */
 
+import { snapAt } from '../flow/onGrid';
 import type { BlockDefinition, BlockPlacement, Point, Port, PortSide, SchematicModel, Units } from '../core/types';
 import { unitFactor } from '../model/units/unitFactor';
 import { lookupConnectorLoose } from './ConnectorLookup';
@@ -205,7 +206,7 @@ export function placeConnectorBlock(
     const placement: BlockPlacement = {
         id: model.nextPlacementId++,
         definitionId: id,
-        at: { ...at },
+        at: snapAt(at),   // nothing off the grid (flow/onGrid.ts)
         layerId,
         refdes: `${canonical(abbreviation)}-${existing + 1}`,
         scale: connectorPlacementScale(units),

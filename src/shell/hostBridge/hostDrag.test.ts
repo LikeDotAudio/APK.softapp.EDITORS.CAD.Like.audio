@@ -37,8 +37,13 @@ describe('host blocks under Select', () => {
   it('a drag moves the seat geometry reports, and never a placement of the user\'s own', () => {
     const { schematic: m } = store();
     m.placements.push({ id: 99, definitionId: m.placements[0]!.definitionId, at: { x: 0, y: 0 }, layerId: '0' });
-    expect(dragHostPlacements(m, hostDragAt(m, { x: 150, y: 0 }).concat([99]), 10, -5)).toBe(true);
-    expect(hostPlacementsOf(m).map(({ key, ref, at }) => ({ key, ref, at }))).toEqual([{ key: 'bench', ref: 'U1', at: [10, -5] }, { key: 'bench', ref: 'U2', at: [310, -5] }]);
+    expect(dragHostPlacements(m, hostDragAt(m, { x: 150, y: 0 }).concat([99]), 10, -10)).toBe(true);
+    expect(hostPlacementsOf(m).map(({ key, ref, at }) => ({ key, ref, at }))).toEqual([{ key: 'bench', ref: 'U1', at: [10, -10] }, { key: 'bench', ref: 'U2', at: [310, -10] }]);
+    // nothing off the grid (flow/onGrid.ts): small steps add up, the seat moves a grid step at a time
+    dragHostPlacements(m, hostDragAt(m, { x: 160, y: -10 }), 0, -4);
+    expect(m.placements[0]!.at.y).toBe(-10);
+    dragHostPlacements(m, hostDragAt(m, { x: 160, y: -10 }), 0, -3);
+    expect(m.placements[0]!.at.y).toBe(-20);
     expect(m.placements.find((p) => p.id === 99)!.at).toEqual({ x: 0, y: 0 });
   });
 
