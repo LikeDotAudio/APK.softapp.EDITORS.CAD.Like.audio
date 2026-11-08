@@ -41,6 +41,8 @@ export interface CadViewport {
    * space of its own. Host spaces all open at one scale.
    */
   host?: boolean;
+  /** A host space that frames itself (bridge `spaces` fit 'own': a Simulation group), not at the shared host scale. */
+  fitOwn?: boolean;
 }
 
 export interface Layer {

@@ -11,7 +11,8 @@ import type { EditorStore } from '@state/EditorStore';
  * overlay's plan, each wall's elevation, its blow-up, cut-aways and
  * construction sections) as tabs beside ALL, in front of the sheets found in
  * the drawing. Opening one frames it at the scale they share — the one that
- * fits the largest — so they read as one set of drawings at one scale. A bad
+ * fits the largest — so they read as one set of drawings at one scale; an item
+ * with `fit: 'own'` (a Simulation group: one tab per group) frames itself. A bad
  * row is dropped; an empty list takes them away. Returns how many it kept.
  */
 export function parseHostSpaces(msg: { items?: unknown }): CadViewport[] {
@@ -19,13 +20,13 @@ export function parseHostSpaces(msg: { items?: unknown }): CadViewport[] {
   const num = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
   const seen = new Set<string>();
   const out: CadViewport[] = [];
-  for (const it of msg.items as { id?: unknown; name?: unknown; subtitle?: unknown; bounds?: unknown }[]) {
+  for (const it of msg.items as { id?: unknown; name?: unknown; subtitle?: unknown; bounds?: unknown; fit?: unknown }[]) {
     const b = it?.bounds;
     if (typeof it?.id !== 'string' || !it.id || seen.has(it.id) || typeof it.name !== 'string' || !Array.isArray(b) || b.length !== 4 || !b.every(num)) continue;
     const [x1, y1, x2, y2] = b as number[];
     if (!(x2 > x1 && y2 > y1)) continue;
     seen.add(it.id);
-    out.push({ id: it.id, name: it.name, ...(typeof it.subtitle === 'string' && it.subtitle ? { subtitle: it.subtitle } : {}), bounds: { x1, y1, x2, y2 } });
+    out.push({ id: it.id, name: it.name, ...(typeof it.subtitle === 'string' && it.subtitle ? { subtitle: it.subtitle } : {}), bounds: { x1, y1, x2, y2 }, ...(it.fit === 'own' ? { fitOwn: true } : {}) });
   }
   return out;
 }

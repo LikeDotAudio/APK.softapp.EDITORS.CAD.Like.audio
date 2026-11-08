@@ -854,7 +854,7 @@ export class EditorStore {
       if (vp) {
         this.view.zoomToFit(vp.bounds);
         // a host's spaces share one scale — the one that fits the largest — so a metre is the same size in each
-        if (vp.host) {
+        if (vp.host && !vp.fitOwn) {
           const z = this.hostScale();
           if (z) {
             const cx = (vp.bounds.x1 + vp.bounds.x2) / 2;
@@ -874,8 +874,9 @@ export class EditorStore {
   hostScale(): number | null {
     const w = this.view.width;
     const h = this.view.height;
-    if (!w || !h || !this.hostSpaces.length) return null;
-    return Math.min(...this.hostSpaces.map((v) => Math.min((w * 0.8) / Math.max(1e-9, v.bounds.x2 - v.bounds.x1), (h * 0.8) / Math.max(1e-9, v.bounds.y2 - v.bounds.y1))));
+    const shared = this.hostSpaces.filter((v) => !v.fitOwn);
+    if (!w || !h || !shared.length) return null;
+    return Math.min(...shared.map((v) => Math.min((w * 0.8) / Math.max(1e-9, v.bounds.x2 - v.bounds.x1), (h * 0.8) / Math.max(1e-9, v.bounds.y2 - v.bounds.y1))));
   }
 
   discoverViewports(): void {

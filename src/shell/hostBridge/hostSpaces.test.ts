@@ -22,3 +22,14 @@ describe('a host names its drawings as model spaces', () => {
     expect(parseHostSpaces({ items: 'no' })).toEqual([]);
   });
 });
+
+describe('a Simulation group is a tab that frames itself (fit: own)', () => {
+  it('keeps fit own as fitOwn; a space without it shares the host scale', () => {
+    const s = parseHostSpaces({ items: [
+      { id: 'sim-group:lab', name: 'Lab', subtitle: '12 devices', fit: 'own', bounds: [0, 0, 100, 50] },
+      { id: 'plan', name: 'Plan', bounds: [0, 0, 10, 10] },
+    ] });
+    expect(s[0]).toMatchObject({ id: 'sim-group:lab', fitOwn: true });
+    expect(s[1]!.fitOwn).toBeUndefined();
+  });
+});
