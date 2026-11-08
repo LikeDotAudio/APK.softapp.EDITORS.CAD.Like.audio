@@ -234,20 +234,27 @@ export function drawConnectors(scene: Scene, model: SchematicModel, placement: B
       ctx.restore();
       if (px) { ctx.font = WORD_FONT(px); widest = Math.max(widest, Math.min(ctx.measureText(portWords(r.port)).width, insideRoom(side))); }
     }
-    // the footer's ports: named straight across inside the footer band, centred on their dots —
-    // the band is the same depth on every block, so a name never crowds the body (bimPart BLOCK.footer)
+    // the footer's ports: named at 90° — each name reads inward (up from the bottom edge) from its own dot, so names
+    // 20 mm apart never run into each other however long they are (the owner, 2026-11-07: "the bottom should be 90
+    // degrees"); as tall as the dot spacing allows, as long as nearly half the body (its middle is free)
     if (footer && side === 'power' && px) {
       const sn = { x: n.x, y: -n.y };
-      const into = footer * z * 0.5;
-      const room = Math.max(spacing * 0.95, 30);
+      const inset = PORT_DRAW.dot * z + 3;
+      const room = def.size.h * z * 0.45;
+      const turn = Math.atan2(-sn.y, -sn.x);           // pointing into the body
+      const back = Math.cos(turn) < -0.5;               // would read upside down: turn it round, read from the far end
       ctx.save();
-      ctx.font = WORD_FONT(Math.min(px, footer * z * 0.6));
+      ctx.font = WORD_FONT(Math.max(4, Math.min(px, (Number.isFinite(spacing) ? spacing : 40) * 0.8)));
       ctx.fillStyle = FLOW.portWord;
-      ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       for (const r of on) {
         const at = view.toScreen(r.world.x, r.world.y);
-        ctx.fillText(fit(ctx, portWords(r.port), Number.isFinite(room) ? room : 200), at.x - sn.x * into, at.y - sn.y * into);
+        ctx.save();
+        ctx.translate(at.x - sn.x * inset, at.y - sn.y * inset);
+        ctx.rotate(back ? turn + Math.PI : turn);
+        ctx.textAlign = back ? 'right' : 'left';
+        ctx.fillText(fit(ctx, portWords(r.port), room), 0, 0);
+        ctx.restore();
       }
       ctx.restore();
     }

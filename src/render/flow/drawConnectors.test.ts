@@ -138,3 +138,35 @@ describe('nothing off the grid (the owner, 2026-11-07)', () => {
     }
   });
 });
+
+describe('the footer\'s names at 90° (the owner, 2026-11-07: "the bottom should be 90 degrees")', () => {
+  it('each bottom port\'s name is drawn turned a quarter, reading up into the body from its own dot', async () => {
+    const { drawConnectors } = await import('./drawConnectors');
+    const part = { id: 'x/rack', name: 'RACK', ports: [
+      { group: 'IN', side: 'input', count: 2 },
+      ...['VXI BACKPLANE', 'GPIB', 'MAINS IN', 'GP11', 'GP12'].map((g) => ({ group: g, side: 'connection', domain: 'control' })),
+    ] };
+    const d = partToDefinition(part);
+    const model = createSchematic([d]);
+    const pl = placeBlock(model, d.id, { x: 0, y: 0 })!;
+    let turn = 0;
+    const stack: number[] = [];
+    const drawn: { text: string; turn: number }[] = [];
+    const ctx = new Proxy({} as Record<string, unknown>, {
+      get: (_t, k) => {
+        if (k === 'save') return () => stack.push(turn);
+        if (k === 'restore') return () => { turn = stack.pop() ?? 0; };
+        if (k === 'rotate') return (a: number) => { turn += a; };
+        if (k === 'fillText') return (text: string) => drawn.push({ text, turn });
+        if (k === 'measureText') return (t: string) => ({ width: t.length * 5 });
+        return () => undefined;
+      },
+      set: () => true,
+    });
+    const view = { zoom: 3, toScreen: (x: number, y: number) => ({ x: x * 3, y: -y * 3 }) };
+    drawConnectors({ ctx, view } as never, model, pl, d);
+    const footer = drawn.filter((w) => /VXI|GPIB|MAINS|GP1/.test(w.text) && Math.abs(Math.abs(w.turn) - Math.PI / 2) < 1e-6);
+    expect(footer.map((w) => w.text.slice(0, 4)).sort()).toEqual(['GP11', 'GP12', 'GPIB', 'MAIN', 'VXI ']);
+    expect(footer.every((w) => Math.abs(w.turn + Math.PI / 2) < 1e-6)).toBe(true);   // −90°: reading upward
+  });
+});
