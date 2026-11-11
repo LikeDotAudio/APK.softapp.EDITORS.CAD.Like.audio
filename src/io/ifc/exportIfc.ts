@@ -524,6 +524,7 @@ export function exportIfc(session: SavedSession, opts: ExportIfcOptions = {}): s
       ['PortLabels', p.portLabels ? text(json(p.portLabels)) : undefined], ['Portals', p.portals ? text(json(p.portals)) : undefined],
       ['MountedOnEdge', opt(p.mountedOn?.edgeId, int)], ['MirrorOf', opt(p.mirrorOf, int)],
       ['BimRef', p.bimRef ? text(json(p.bimRef)) : undefined],
+      ['Occurrence', p.occurrence ? text(json(p.occurrence)) : undefined],
     ], [occ]);
   }
   for (const [, o] of occByPlacement) {

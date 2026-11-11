@@ -200,6 +200,16 @@ describe('placed BIM blocks are occurrences of their part type (cad-5)', () => {
     expect(exportIfc(drawing(), { types: TYPES })).not.toContain(gid);
   });
 
+  it('the placed project instance comes back from IFC with its project and instance (ROAD-3619)', () => {
+    const s = drawing();
+    const gid = ifcGuid('bench', 'stadium', 'inst', 'D1');
+    s.schematic!.placements[4]!.occurrence = { project: 'stadium', instance: 'D1', globalId: gid, sheet: 'Model' };
+    const back = importIfc(exportIfc(s, { types: TYPES }));
+    expect(back.schematic!.placements.find((p) => p.id === s.schematic!.placements[4]!.id)!.occurrence)
+      .toEqual({ project: 'stadium', instance: 'D1', globalId: gid, sheet: 'Model' });
+    expect(back).toEqual(s);
+  });
+
   it('the type is the library type, same GlobalId, declared in the project library', () => {
     const t = entitiesByType(f, 'IFCFLOWINSTRUMENTTYPE')[0]!;
     expect(t.args[0]).toBe(partTypeEntity(part)!.args[0]);

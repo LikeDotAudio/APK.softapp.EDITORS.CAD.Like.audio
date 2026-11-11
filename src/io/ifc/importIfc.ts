@@ -287,6 +287,7 @@ export function importIfc(textIn: string): SavedSession {
     if (p.MountedOnEdge !== undefined) bp.mountedOn = { edgeId: p.MountedOnEdge as number };
     if (p.MirrorOf !== undefined) bp.mirrorOf = p.MirrorOf as number;
     if (p.BimRef !== undefined) bp.bimRef = JSON.parse(String(p.BimRef));
+    if (p.Occurrence !== undefined) bp.occurrence = JSON.parse(String(p.Occurrence));
     placed.set(bp.id, bp);
   }
 
