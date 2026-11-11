@@ -7,7 +7,10 @@
  * about 60 times a second while it is deflected. `pan` is CSS px in VIEW terms
  * (+dx: the view moves right, the drawing slides left; +dy: the view moves up,
  * the drawing slides down); `zoom` multiplies (>1 in). The sheet is 2D, so
- * `orbit` is ignored. `consumers.cad === false` is the bench switching us off.
+ * `orbit` is ignored. `consumers.cad === false` is the bench switching us off;
+ * on the Big Picture door (#/big-picture, the desktop's 🔌 Schematics) the
+ * switch is `consumers.schematic` instead (ROAD-3624), the SpaceMouse window's
+ * "Schematic canvas" — so the two can be flown or left alone apart.
  */
 import type { Viewport } from '../Viewport';
 
@@ -20,12 +23,14 @@ export interface PuckMove {
 const num = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
 
 /** The pan/zoom of one `move` frame, or null for anything else (malformed, a status, switched off). */
-export function puckMoveOf(data: unknown): PuckMove | null {
+export type PuckConsumer = 'cad' | 'schematic';
+
+export function puckMoveOf(data: unknown, consumer: PuckConsumer = 'cad'): PuckMove | null {
   if (!data || typeof data !== 'object') return null;
   const m = data as Record<string, unknown>;
   if (m.apkos !== 'puck' || m.action !== 'move') return null;
   const consumers = m.consumers as Record<string, unknown> | undefined;
-  if (consumers && typeof consumers === 'object' && consumers.cad === false) return null;
+  if (consumers && typeof consumers === 'object' && consumers[consumer] === false) return null;
   const pan = (m.pan && typeof m.pan === 'object' ? m.pan : {}) as Record<string, unknown>;
   const dx = num(pan.dx) ? pan.dx : 0;
   const dy = num(pan.dy) ? pan.dy : 0;

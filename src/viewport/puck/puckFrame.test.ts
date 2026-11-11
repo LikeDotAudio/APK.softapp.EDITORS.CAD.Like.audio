@@ -23,6 +23,13 @@ describe('puck frames', () => {
     expect(puckMoveOf(frame({ pan: { dx: 2, dy: -1 }, zoom: 1.1, consumers: { cad: true } }))).toEqual({ dx: 2, dy: -1, zoom: 1.1 });
   });
 
+  it('the Big Picture door answers to consumers.schematic, the drawing board to consumers.cad', () => {
+    const f = frame({ pan: { dx: 3, dy: 0 }, consumers: { cad: false, schematic: true } });
+    expect(puckMoveOf(f)).toBeNull();
+    expect(puckMoveOf(f, 'schematic')).toEqual({ dx: 3, dy: 0, zoom: 1 });
+    expect(puckMoveOf(frame({ pan: { dx: 3, dy: 0 }, consumers: { cad: true, schematic: false } }), 'schematic')).toBeNull();
+  });
+
   it('folds frames: pans add, zooms multiply', () => {
     const f = foldPuck(foldPuck(null, { dx: 1, dy: 2, zoom: 2 }), { dx: 3, dy: -1, zoom: 1.5 });
     expect(f).toEqual({ dx: 4, dy: 1, zoom: 3 });

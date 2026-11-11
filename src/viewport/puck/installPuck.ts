@@ -9,7 +9,9 @@ import { applyPuck, foldPuck, puckMoveOf, type PuckMove } from './puckFrame';
  * is listened to. Frames fold until the next animation frame, then the view
  * changes once and draws once, as a wheel turn does. Returns the detach.
  */
-export function installPuck(store: Pick<EditorStore, 'view' | 'requestDraw' | 'emit'>): () => void {
+export function installPuck(store: Pick<EditorStore, 'view' | 'requestDraw' | 'emit'> & Partial<Pick<EditorStore, 'entrance'>>): () => void {
+  // the Big Picture door is the schematic canvas: its own switch (ROAD-3624)
+  const consumer = store.entrance?.entrance === 'big-picture' ? 'schematic' : 'cad';
   let pending: PuckMove | null = null;
   let frame = 0;
   const flush = () => {
@@ -23,7 +25,7 @@ export function installPuck(store: Pick<EditorStore, 'view' | 'requestDraw' | 'e
   };
   const onMessage = (e: MessageEvent) => {
     if (window.parent === window || (e.source !== window.parent && e.source !== window.top)) return;
-    const move = puckMoveOf(e.data);
+    const move = puckMoveOf(e.data, consumer);
     if (!move) return;
     pending = foldPuck(pending, move);
     if (!frame) frame = requestAnimationFrame(flush);
