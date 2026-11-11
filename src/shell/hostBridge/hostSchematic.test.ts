@@ -44,6 +44,15 @@ const send = (hash: string, extra: object = {}) => ({
 });
 
 describe('host schematic — BIM parts placed as blocks with ports', () => {
+  it('a portal whose far end is on another drawing keeps it, so its capsule can open it (ROAD-3666)', () => {
+    const s = fakeStore();
+    applyHostSchematic(s as unknown as EditorStore, send('h-to', {
+      portals: { U9: { 'AUDIO OUT': { text: 'U30 LAN', wired: true, to: { drawing: 'Network', refdes: 'U30', port: 'LAN', junk: 1 } } } },
+    }));
+    const far = Object.values(s.schematic.placements.find((p) => p.refdes?.startsWith('U9'))!.portals ?? {})[0]!;
+    expect(far).toEqual({ text: 'U30 LAN', wired: true, to: { drawing: 'Network', refdes: 'U30', port: 'LAN' } });
+  });
+
   it('one part, two placements, one connection: two placements, one connector and two portals', () => {
     const s = fakeStore();
     applyHostSchematic(s as unknown as EditorStore, send('h1'));

@@ -4,12 +4,13 @@ import { definitionFor } from '../../flow/Schematic';
 import { endName, resolvePortal, toggleFly } from '../../flow/fly';
 import { hostPicked, pickHost } from '../../flow/hostSelection';
 import { flyHitAt } from '../../render/flow/flyHits';
+import { offerDrawingToHost } from '../../shell/hostBridge/hostBridge';
 import type { EditorStore } from '../EditorStore';
 
 /**
  * A CLICK ON A FLY CAPSULE GOES TO ITS FAR END (flow/fly.ts). On this sheet: the
  * view closes in on the far block and picks it, and says which port. On another
- * drawing: says which — opening it from here is the Simulation's pages (ROAD-3666).
+ * drawing: a host with pages opens it (host@1 `drawing`, the Simulation's pages, ROAD-3666), else says which.
  * A press that travelled was a pan or a drag, not a click.
  */
 type Store = Pick<EditorStore, 'schematic' | 'view' | 'canvas' | 'requestDraw' | 'emit' | 'showHint'>;
@@ -19,7 +20,12 @@ export function goToFlyAt(store: Store, x: number, y: number): boolean {
   if (!hit) return false;
   const target = resolvePortal(store.schematic, hit.far);
   if (!target) { store.showHint(`${hit.far.text}: not on this drawing.`, 4000); return true; }
-  if (target.drawing) { store.showHint(`${hit.far.text} — on the drawing “${target.drawing}”.`, 5000); return true; }
+  if (target.drawing) {
+    // a host with pages (the Simulation, ROAD-3666) opens that drawing; alone, the CAD says where it is
+    const opened = offerDrawingToHost(target.drawing, { refdes: hit.far.to?.refdes, port: target.portId });
+    store.showHint(opened ? `→ ${target.drawing}: ${hit.far.text}` : `${hit.far.text} — on the drawing “${target.drawing}”.`, 5000);
+    return true;
+  }
   const placement = store.schematic.placements.find((p) => p.id === target.placementId);
   const def = placement ? definitionFor(store.schematic, placement) : undefined;
   if (!placement || !def) return true;

@@ -25,7 +25,9 @@ import type { EditorStore } from '@state/EditorStore';
  *               groups?:     [{ id, name, parent?, labelWidth? }]   labelWidth: drawing units
  *                                                      kept clear for the group's name
  *               portals?:    { ref: { terminal: far } } }   far: "text" (a bay, grey)
- *                                                          | { text, wired } (another block, accent)
+ *                                                          | { text, wired, to? } (another block, accent;
+ *                                                            to { drawing, refdes?, port? }: on another
+ *                                                            drawing — a click asks the host, `drawing`)
  *
  * `size` [w, h] on a placement is the seat the host's layout gives it (BIM's
  * bench seat): the block is drawn at least that big, so the host's racks and
@@ -188,7 +190,13 @@ function definitionFor(part: BimPart, own: BimPort[] | undefined, key: string, r
 function farOf(raw: unknown): PortPortal | null {
   if (str(raw)) return { text: raw, wired: false };
   if (raw && typeof raw === 'object' && str((raw as PortPortal).text)) {
-    return { text: (raw as PortPortal).text, wired: (raw as PortPortal).wired === true };
+    const far: PortPortal = { text: (raw as PortPortal).text, wired: (raw as PortPortal).wired === true };
+    // the far end on another drawing (ROAD-3666): the capsule names it, a click asks the host to open it
+    const to = (raw as PortPortal).to;
+    if (to && typeof to === 'object' && str(to.drawing)) {
+      far.to = { drawing: to.drawing, ...(str(to.refdes) ? { refdes: to.refdes } : {}), ...(str(to.port) ? { port: to.port } : {}) };
+    }
+    return far;
   }
   return null;
 }

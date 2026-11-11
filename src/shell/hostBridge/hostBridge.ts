@@ -171,7 +171,7 @@ export const HOST_PROTOCOL = 'cad.like.audio/host@1';
  */
 
 /** What this side sends a host. */
-export const HOST_OUTBOUND_TYPES = ['ready', 'view', 'selection', 'geometry', 'mirror', 'session', 'pick', 'dxf', 'kicad', 'bimDrop', 'library'] as const;
+export const HOST_OUTBOUND_TYPES = ['ready', 'view', 'selection', 'geometry', 'mirror', 'session', 'pick', 'dxf', 'kicad', 'bimDrop', 'library', 'drawing'] as const;
 export type HostOutboundType = (typeof HOST_OUTBOUND_TYPES)[number];
 
 let installed = false;
@@ -190,6 +190,16 @@ let hostOwnsLibrary = false;
 export function offerLibraryToHost(lens: 'part' | 'catalog'): boolean {
   if (!hostOwnsLibrary || !host()) return false;
   post('library', { lens });
+  return true;
+}
+
+/**
+ * A fly capsule naming another drawing was clicked (flyClick.ts, ROAD-3666): a host that has
+ * pages opens it — `drawing` { name, refdes?, port? } and true. False: no host; the CAD says where it is.
+ */
+export function offerDrawingToHost(name: string, far?: { refdes?: string; port?: string }): boolean {
+  if (!host()) return false;
+  post('drawing', { name, ...(far?.refdes ? { refdes: far.refdes } : {}), ...(far?.port ? { port: far.port } : {}) });
   return true;
 }
 
