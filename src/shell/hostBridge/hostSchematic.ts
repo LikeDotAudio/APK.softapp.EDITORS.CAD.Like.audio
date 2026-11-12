@@ -209,6 +209,9 @@ export function applyHostSchematic(store: EditorStore, msg: HostSchematicMessage
   const placements = (Array.isArray(msg.placements) ? msg.placements : []) as HostPlacement[];
   if (onSheet === hash || (onSheet === undefined && !placements.length)) return;
 
+  // the connectors dropped on a host's device (flow/dropConnector.ts) are the user's: kept across the resend, by the host's ref
+  const dropped = new Map(model.placements.filter((p) => p.hostKey === key && p.hostRef && (p.ports || p.portConnectors))
+    .map((p) => [p.hostRef!, { ports: p.ports, portConnectors: p.portConnectors }]));
   clearHostSchematic(model, key);
   const layer = str(msg.layer) ? msg.layer : '0';
   if (!store.layers.has(layer)) {
@@ -264,6 +267,9 @@ export function applyHostSchematic(store: EditorStore, msg: HostSchematicMessage
       if (id && p) own[id] = p;
     }
     if (Object.keys(own).length) placement.portals = own;
+    const kept = dropped.get(raw.ref);
+    if (kept?.ports) placement.ports = kept.ports;
+    if (kept?.portConnectors) placement.portConnectors = kept.portConnectors;
     model.placements.push(placement);
     byRef.set(raw.ref, { placement, def });
     if (str(raw.group)) groupFor(raw.group).members.push(placement.id);

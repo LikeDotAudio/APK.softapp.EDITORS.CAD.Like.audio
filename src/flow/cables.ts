@@ -3,7 +3,7 @@
 import { snapAt, wireEndPoint } from './onGrid';
 import type { Connector, ConnectorCable, Point, SchematicModel } from '../core/types';
 import { routeWaterfallWire } from './autoWire';
-import { portOf, portWorldPoint } from './Schematic';
+import { definitionFor, portOf, portWorldPoint } from './Schematic';
 
 /**
  * A DRAWN WIRE AS A CABLE (ROAD-3582 r4). A connector is a line on the sheet;
@@ -24,7 +24,7 @@ export const CABLE_STATUSES = ['planned', 'made', 'tested', 'faulty'] as const;
  */
 function wireEnd(model: SchematicModel, ref: Connector['from']): Point | null {
   const placement = model.placements.find((p) => p.id === ref.placementId);
-  const def = placement ? model.definitions.find((d) => d.id === placement.definitionId) : undefined;
+  const def = placement ? definitionFor(model, placement) : undefined;
   const port = def?.ports.find((p) => p.id === ref.portId);
   if (placement && def?.hat && port) return wireEndPoint(placement, def, port);
   return portWorldPoint(model, ref);

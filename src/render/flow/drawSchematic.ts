@@ -4,6 +4,8 @@ import type { Layer, SchematicModel } from '../../core/types';
 import { hostPicked } from '../../flow/hostSelection';
 import { hostLineWidth } from '../edges/layerStroke';
 import { wirePath } from '../../flow/cables';
+import { nets } from '../../flow/wires';
+import { selectedWire } from '../../flow/wireSelection';
 import { outlineCorners } from '../../flow/placement';
 import { definitionFor, portsOf } from '../../flow/Schematic';
 import { FONT, UI_FONT } from '../palette';
@@ -34,6 +36,10 @@ export function drawSchematic(scene: Scene, model: SchematicModel | undefined, l
   ctx.lineWidth = 1.6;
 
   clearFlyHits();
+  // every wire is on a NET (flow/wires.ts): its name rides on the wire; the selected wire is drawn whole, its bends gripped
+  const netName = new Map<number, string>();
+  for (const n of nets(model)) for (const w of n.wires) netName.set(w, n.name);
+  const chosen = selectedWire(model);
   model.connectors.forEach((connector, connIdx) => {
     if (connector.fly) return;   // a fly pair: its two capsules say it (drawConnectors, flow/fly.ts)
     // its own route, else the auto-routed chamfered waterfall (flow/cables.ts wirePath, the hit test's too)
@@ -43,18 +49,40 @@ export function drawSchematic(scene: Scene, model: SchematicModel | undefined, l
     const points = worldRoute.map((p) => view.toScreen(p.x, p.y));
 
     // a wire that is a real cable (Connector.cable) is drawn heavier, its label beside it
+    const isChosen = connector.id === chosen;
+    if (isChosen) {
+      ctx.save();
+      ctx.strokeStyle = FLOW.picked;
+      ctx.globalAlpha = 0.35;
+      ctx.lineWidth = 8;
+      ctx.beginPath();
+      points.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
+      ctx.stroke();
+      ctx.restore();
+    }
     ctx.lineWidth = connector.cable ? 3 : 1.6;
     ctx.beginPath();
     points.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
     ctx.stroke();
+    if (isChosen) {
+      // its bends: the corners a drag moves (select/wireEdit.ts)
+      ctx.save();
+      ctx.fillStyle = FLOW.picked;
+      for (const p of (connector.route ?? []).map((q) => view.toScreen(q.x, q.y))) ctx.fillRect(p.x - 3.5, p.y - 3.5, 7, 7);
+      ctx.restore();
+    }
 
-    // Wire label (if specified), and the cable's own label under it
-    const text = [connector.label, connector.cable?.tag].filter(Boolean).join(' · ');
+    // its NET on the longest run, then the wire's label and the cable's own label
+    const text = [netName.get(connector.id), connector.label, connector.cable?.tag].filter(Boolean).join(' · ');
     if (text && points.length >= 2) {
-      const midIdx = Math.floor(points.length / 2);
-      const mid = points[midIdx];
+      let k = 0, best = -1;
+      for (let i = 0; i + 1 < points.length; i++) {
+        const d = Math.hypot(points[i + 1]!.x - points[i]!.x, points[i + 1]!.y - points[i]!.y);
+        if (d > best) { best = d; k = i; }
+      }
+      const mid = { x: (points[k]!.x + points[k + 1]!.x) / 2, y: (points[k]!.y + points[k + 1]!.y) / 2 };
       ctx.font = '9px monospace';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+      ctx.fillStyle = isChosen ? FLOW.picked : 'rgba(255, 255, 255, 0.7)';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'bottom';
       ctx.fillText(text, mid.x, mid.y - 2);

@@ -6,6 +6,7 @@ import { useUi } from '@state/useUi';
 import { CONCEPTS, DEFAULT_FLOW_DEFINITION } from '../../flow/concepts';
 import { groupOf, parentOf } from '../../flow/groups';
 import { ApkTable, h, inputNode, numberNode, selectNode, buttonNode, checkNode } from '../common/ApkTable';
+import { WireManagerTab } from './WireManagerTab';
 
 /* THE ONE TABLE (ROAD-3494): the four sheets are APKTables (cad-sheet-placements /
    -connectors / -groups / -bom; ../common/ApkTable). A field commits when it is
@@ -57,7 +58,6 @@ export function SpreadsheetModal({ onClose, initialTab = 'placements' }: Spreads
 
   const schematic = store.schematic;
   const layerIds = Array.from(layers.values()).map((l) => ({ value: l.id, label: l.id }));
-  const placementOptions = schematic.placements.map((p) => ({ value: String(p.id), label: `${p.refdes || `Block ${p.id}`} (#${p.id})` }));
   /** One undoable flow edit from a sheet cell. */
   const flow = (fn: () => void) => store.editFlow(() => { fn(); return true; });
 
@@ -544,7 +544,7 @@ export function SpreadsheetModal({ onClose, initialTab = 'placements' }: Spreads
                   : 'bg-[#1e1e1e] text-[#aaa] hover:bg-[#333] hover:text-white'
               }`}
             >
-              🔌 Connection Table ({schematic.connectors.length})
+              🧵 Wires ({schematic.connectors.length})
             </button>
             <button
               type="button"
@@ -687,28 +687,8 @@ export function SpreadsheetModal({ onClose, initialTab = 'placements' }: Spreads
             </>
           )}
 
-          {/* TAB 2: CONNECTORS (WIRES) SPREADSHEET TABLE */}
-          {activeTab === 'connectors' && (
-            <>
-            <SelectAll ids={filteredConnectors.map((c) => c.id)} selectedIds={selectedIds} onToggle={toggleSelectAll} />
-            <ApkTable
-              id="cad-sheet-connectors"
-              className="cad-apk cad-sheet text-xs font-mono"
-              rows={filteredConnectors}
-              rowClass={(c) => (selectedIds.has(c.id) ? 'cad-row-on' : '')}
-              columns={[
-                { key: 'sel', label: '✓', width: '32px', value: (c) => (selectedIds.has(c.id) ? 1 : 0), node: (c) => checkNode(selectedIds.has(c.id), () => toggleSelect(c.id)) },
-                { key: 'id', label: 'Wire ID', width: '64px', align: 'center', style: () => ({ fontWeight: '700', color: '#888' }) },
-                { key: 'from', label: 'From Block', value: (c) => c.from.placementId, node: (c) => selectNode(placementOptions, String(c.from.placementId), (v) => flow(() => { c.from.placementId = Number(v); }), `${CELL} text-white`) },
-                { key: 'fromPort', label: 'From Port', width: '112px', value: (c) => c.from.portId, node: (c) => inputNode(c.from.portId, (v) => flow(() => { c.from.portId = v; }), `${CELL} text-white`) },
-                { key: 'to', label: 'To Block', value: (c) => c.to.placementId, node: (c) => selectNode(placementOptions, String(c.to.placementId), (v) => flow(() => { c.to.placementId = Number(v); }), `${CELL} text-white`) },
-                { key: 'toPort', label: 'To Port', width: '112px', value: (c) => c.to.portId, node: (c) => inputNode(c.to.portId, (v) => flow(() => { c.to.portId = v; }), `${CELL} text-white`) },
-                { key: 'label', label: 'Signal Label', value: (c) => c.label || '', node: (c) => inputNode(c.label || '', (v) => flow(() => { c.label = v || undefined; }), `${CELL} text-white`) },
-                { key: 'layerId', label: 'Layer', width: '96px', value: (c) => c.layerId || '0', node: (c) => selectNode(layerIds, c.layerId || '0', (v) => flow(() => { c.layerId = v; }), `${CELL} text-[#aaa]`) },
-              ]}
-            />
-            </>
-          )}
+          {/* TAB 2: THE WIRE MANAGER — every wire From → To with its net, and the drawn lines that are wires in fact (WireManagerTab.tsx) */}
+          {activeTab === 'connectors' && <WireManagerTab search={search} onFrame={onClose} />}
 
           {/* TAB 3: GROUPS SPREADSHEET TABLE */}
           {activeTab === 'groups' && (

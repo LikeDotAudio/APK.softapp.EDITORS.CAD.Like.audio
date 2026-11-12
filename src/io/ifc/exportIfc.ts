@@ -525,6 +525,9 @@ export function exportIfc(session: SavedSession, opts: ExportIfcOptions = {}): s
       ['MountedOnEdge', opt(p.mountedOn?.edgeId, int)], ['MirrorOf', opt(p.mirrorOf, int)],
       ['BimRef', p.bimRef ? text(json(p.bimRef)) : undefined],
       ['Occurrence', p.occurrence ? text(json(p.occurrence)) : undefined],
+      // connectors dropped on this device (flow/dropConnector.ts): the ports it gained, the connectors it was given
+      ['Ports', p.ports?.length ? text(json(p.ports)) : undefined],
+      ['PortConnectors', p.portConnectors && Object.keys(p.portConnectors).length ? text(json(p.portConnectors)) : undefined],
     ], [occ]);
   }
   for (const [, o] of occByPlacement) {

@@ -14,6 +14,9 @@ import { dragHostPlacements, hostDragAt } from '../shell/hostBridge/hostDrag';
 import { hostPicked, hostSelection, pickHost } from '../flow/hostSelection';
 import type { Point } from '../core/types';
 import type { Tool, ToolApi } from './types';
+import { wireDelete, wireDoubleClick, wirePointerDown, wirePointerMove, type WireDrag } from './select/wireEdit';
+import { selectWire } from '../flow/wireSelection';
+import { followDevice, wireEndsOf } from '../flow/wires';
 
 interface ScaleDrag {
   /** Corner the drag is anchored to — stays put while the opposite corner follows the cursor. */
@@ -52,6 +55,8 @@ interface SelectState {
   draggedMirrorId?: string;
   /** A host's schematic blocks being dragged (hostDrag.ts), and where the pointer was. */
   hostDrag?: { ids: number[]; last: Point } | null;
+  /** A wire's bend or run, or the user's own device, being dragged (select/wireEdit.ts). */
+  wireDrag?: WireDrag | null;
 }
 
 const Icon = (
@@ -97,9 +102,18 @@ export const selectTool: Tool<SelectState> = {
   }),
 
   onPointerMove(state, input, api) {
+    if (state.wireDrag) {
+      wirePointerMove(state.wireDrag, input, api);
+      return;
+    }
     if (state.hostDrag) {
       const { ids, last } = state.hostDrag;
-      if (dragHostPlacements(api.schematic, ids, input.rawWorld.x - last.x, input.rawWorld.y - last.y)) api.redraw();
+      // the wires on a moved device keep their ends on its pins and their runs square (flow/wires.ts)
+      const before = new Map(ids.map((id) => [id, wireEndsOf(api.schematic, id)]));
+      if (dragHostPlacements(api.schematic, ids, input.rawWorld.x - last.x, input.rawWorld.y - last.y)) {
+        for (const id of ids) followDevice(api.schematic, id, before.get(id)!);
+        api.redraw();
+      }
       state.hostDrag.last = input.rawWorld;
       return;
     }
@@ -302,6 +316,15 @@ export const selectTool: Tool<SelectState> = {
       return;
     }
 
+    // a wire: selected whole; on the selected one a bend or a run drags; the user's own device drags with its wires
+    const wd = api.schematic ? wirePointerDown(input, api) : false;
+    if (wd !== false) {
+      state.wireDrag = wd;
+      if (wd) api.setCursor('move');
+      api.redraw();
+      return;
+    }
+
     // a host's BIM block (or its group) drags here; the host learns the seat on `geometry`
     const hostIds = api.schematic ? hostDragAt(api.schematic, input.rawWorld) : [];
     if (hostIds.length) {
@@ -372,6 +395,14 @@ export const selectTool: Tool<SelectState> = {
   },
 
   onPointerUp(state, _input, api) {
+    if (state.wireDrag !== undefined && state.wireDrag !== null) {
+      state.wireDrag = null;
+      api.setMeasurement(null);
+      api.setCursor('default');
+      api.redraw();
+      return;
+    }
+    state.wireDrag = null;
     if (state.hostDrag) {
       state.hostDrag = null;
       api.setCursor('default');
@@ -453,8 +484,14 @@ export const selectTool: Tool<SelectState> = {
     api.redraw();
   },
 
+  onDoubleClick(_state, input, api) {
+    wireDoubleClick(input, api);
+  },
+
   onEscape(state, api) {
     state.hostDrag = null;
+    state.wireDrag = null;
+    if (api.schematic) selectWire(api.schematic, null);
     state.isMoving = false;
     state.dragStartWorld = null;
     state.boxStartScreen = null;
@@ -468,6 +505,7 @@ export const selectTool: Tool<SelectState> = {
   },
 
   onDelete(_state, api) {
+    if (api.schematic && wireDelete(api)) return;
     if (!api.selection.size) return;
     api.edit(() => {
       for (const id of api.selection) api.doc.removeEdge(id);

@@ -505,6 +505,14 @@ export interface BlockPlacement {
   refdes?: string;
   /** Per-instance CAPTION overrides, by port id. Never adds or removes a port. */
   portLabels?: Record<string, string>;
+  /**
+   * The ports THIS DEVICE gained beyond its type's — a connector from the Connectors palette
+   * dropped on it (flow/dropConnector.ts). Same `Port` shape as the definition's, never an
+   * offset: where each sits is derived (flow/placementPorts.ts effectiveDefinition).
+   */
+  ports?: Port[];
+  /** The connector this device has at a port its type left unknown or guessed (`RJ45?`), by port id. */
+  portConnectors?: Record<string, string>;
   /** The far end of each port, by port id, drawn as a portal (drawSchematic). */
   portals?: Record<string, PortPortal>;
   /**
@@ -559,6 +567,11 @@ export interface Connector {
   label?: string;
   /** Drawn by a host's `schematic` under this key (hostSchematic.ts). */
   hostKey?: string;
+  /**
+   * The NET this wire belongs to (flow/wires.ts): every pin joined by wires is one net, and
+   * the net's name is the oldest wire's. Written by `connect`; the nets themselves are derived.
+   */
+  net?: string;
   /**
    * The wire is a real cable, not only a line on the sheet: in IFC an
    * IfcCableSegment that is the connection's RealizingElement, typed by its

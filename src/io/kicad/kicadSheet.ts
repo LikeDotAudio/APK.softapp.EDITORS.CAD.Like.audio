@@ -3,6 +3,7 @@
 import type { BlockDefinition, BlockPlacement, Port, SchematicModel } from '../../core/types';
 import { BLOCK } from '../../flow/bimPart';
 import { definitionFor } from '../../flow/Schematic';
+import { nets as drawingNets } from '../../flow/wires';
 import {
   projectSymLibTable, safeName, symbolFromPart, writeSchematic, writeSymbolLib,
   type BimPartLike, type BimPortRow, type KicadSymbol, type KicadTarget,
@@ -159,17 +160,16 @@ export function kicadProject(model: SchematicModel, name: string,
     if (drawn.some((u) => u.name && u.name !== 'Device')) panelGroups.push({ name: `${ref}${named ? ` · ${named}` : ''} — touch panel`, refs: [ref] });
   }
 
-  // nets: ports joined by connectors, union–find
-  const parent = new Map<string, string>();
-  const key = (r: { placementId: number; portId: string }) => `${r.placementId}|${r.portId}`;
-  const find = (k: string): string => { let r = k; while (parent.get(r) !== r) r = parent.get(r)!; parent.set(k, r); return r; };
-  const add = (k: string) => { if (!parent.has(k)) parent.set(k, k); };
-  const wires = [...model.connectors, ...connections];
-  for (const c of wires) { add(key(c.from)); add(key(c.to)); parent.set(find(key(c.from)), find(key(c.to))); }
-  const label = new Map<string, string>();
-  for (const c of wires) if (c.label && !label.has(find(key(c.from)))) label.set(find(key(c.from)), c.label);
+  // nets: the drawing's own (flow/wires.ts — one net model), joined by the panel links too
   const sets = new Map<string, string[]>();
-  for (const k of parent.keys()) { const r = find(k); if (!sets.has(r)) sets.set(r, []); sets.get(r)!.push(k); }
+  const label = new Map<string, string>();
+  for (const n of drawingNets(model, connections)) {
+    const root = n.name;
+    sets.set(root, n.pins.map((p) => `${p.placementId}|${p.portId}`));
+    const on = model.connectors.filter((c) => n.wires.includes(c.id));
+    const declared = on.some((c) => c.net) ? n.name : on.find((c) => c.label)?.label ?? connections.find((c) => c.label && n.pins.some((p) => p.placementId === c.from.placementId && p.portId === c.from.portId))?.label;
+    if (declared) label.set(root, declared);
+  }
   const names = new Set<string>();
   const nets = [];
   for (const [root, members] of sets) {

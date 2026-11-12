@@ -288,6 +288,8 @@ export function importIfc(textIn: string): SavedSession {
     if (p.MirrorOf !== undefined) bp.mirrorOf = p.MirrorOf as number;
     if (p.BimRef !== undefined) bp.bimRef = JSON.parse(String(p.BimRef));
     if (p.Occurrence !== undefined) bp.occurrence = JSON.parse(String(p.Occurrence));
+    if (p.Ports !== undefined) bp.ports = JSON.parse(String(p.Ports));
+    if (p.PortConnectors !== undefined) bp.portConnectors = JSON.parse(String(p.PortConnectors));
     placed.set(bp.id, bp);
   }
 

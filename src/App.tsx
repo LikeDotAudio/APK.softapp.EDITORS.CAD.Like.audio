@@ -107,6 +107,7 @@ export default function App() {
           <MenuBar
             onOpenSpreadsheet={() => handleOpenSpreadsheet('placements')}
             onOpenBom={() => handleOpenSpreadsheet('bom')}
+            onOpenWireManager={() => handleOpenSpreadsheet('connectors')}
             onOpenElementsEditor={() => setShowElementsEditor(true)}
             onOpenBlockEditor={() => handleOpenBlockEditor()}
             onOpenConceptLibrary={() => openLibrary('part')}

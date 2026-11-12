@@ -1,6 +1,6 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
-import type { CadBlockDefinition, CadBlockInstance, Edge, FillEntity, GroupPrimitive, TextEntity, Vertex } from '../../core/types';
+import type { CadBlockDefinition, CadBlockInstance, Edge, FillEntity, GroupPrimitive, SchematicModel, TextEntity, Vertex } from '../../core/types';
 
 /** A deep copy of the document, cheap enough to push on every edit. */
 export interface DocSnapshot {
@@ -18,4 +18,9 @@ export interface DocSnapshot {
   nextTextId?: number;
   nextFillId?: number;
   nextBlockInstanceId?: number;
+  /**
+   * The schematic as it was (devices, their ports, wires and nets), when the step was a
+   * schematic edit (editFlow): undo puts it back too. A deep copy, never the live model.
+   */
+  schematic?: SchematicModel;
 }

@@ -127,7 +127,8 @@ export const ConnectorItem = React.memo(function ConnectorItem({
   }, []);
 
   const handleDrag = (e: React.DragEvent) => {
-    e.dataTransfer.setData('application/app-connector', type);
+    e.dataTransfer.setData('application/app-connector', type);   // CONNECTOR_DRAG_MIME: dropped on a device it gives it this connector
+    e.dataTransfer.effectAllowed = 'copy';
     e.dataTransfer.setData('text/plain', type);
     if (onDragStart) onDragStart(e, type);
   };

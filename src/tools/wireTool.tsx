@@ -1,7 +1,8 @@
 // Part of the APK.audio project — http://APK.audio — made by Anthony Kuzub
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import type { PortRef } from '../core/types';
-import { connectPorts, hitPortAt, portLabel, portsOf, portWorldPoint } from '../flow/Schematic';
+import { hitPortAt, portLabel, portsOf, portWorldPoint } from '../flow/Schematic';
+import { connect, netOfWire } from '../flow/wires';
 import { hitConnectorAt } from '../flow/cables';
 import { dot } from '../render/dot';
 import { FLOW, SIDE_COLOR } from '../render/flow/flowColors';
@@ -68,10 +69,12 @@ export const wireTool: Tool<WireState> = {
     }
     const from = state.from;
     state.from = null;
-    const made = api.editFlow(() => connectPorts(api.schematic, from, hit, api.activeLayerId) !== null);
+    // a wire, FROM → TO, on a net: the net its pins were on, two nets merged under the older name (flow/wires.ts)
+    let wire: number | null = null;
+    const made = api.editFlow(() => (wire = connect(api.schematic, from, hit, api.activeLayerId)?.id ?? null) !== null);
     api.showHint(
       made
-        ? `Connected ${portLabel(api.schematic, from)} → ${portLabel(api.schematic, hit)}.`
+        ? `Connected ${portLabel(api.schematic, from)} → ${portLabel(api.schematic, hit)} · net ${netOfWire(api.schematic, wire!)?.name ?? ''}.`
         : 'Not connected — a port cannot wire to itself, and a pair is only connected once.',
       3000,
     );

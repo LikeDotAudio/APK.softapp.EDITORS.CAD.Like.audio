@@ -26,7 +26,8 @@ import { E, R, bool, ident, int, label, length, realv, text, type PropValue, typ
  *   Every port a connector uses carries APK_SchematicPort.PortId, the CAD id.
  * - Its drawn route is an IfcAnnotation 'WIRE' (Curve2D in a GRAPH_VIEW
  *   subcontext) with APK_SchematicWire {ConnectorId, Connection = the
- *   relationship's GlobalId, Label, Layer, Reversed, RoutePoints, HostKey}.
+ *   relationship's GlobalId, Label, Layer, Reversed, RoutePoints, HostKey, Net}
+ *   — Net the name of the net the wire is on (flow/wires.ts).
  * - A wire that is a real cable (Connector.cable) is also an IfcCableSegment,
  *   the relationship's RealizingElement: Tag = the cable's label, typed by its
  *   BIM cable part (IfcRelDefinesByType) when the drawing has the part's file
@@ -303,6 +304,7 @@ export function writeSchematic(t: SchematicIfcTargets, sch: SchematicSnapshot): 
       ['ConnectorId', int(c.id)], ['Connection', opt(connection, ident)], ['Label', opt(c.label, label)], ['Layer', ident(c.layerId)],
       ['Reversed', reversed ? bool(true) : undefined], ['RoutePoints', route ? int(route.length) : undefined], ['HostKey', opt(c.hostKey, ident)],
       ['Fly', c.fly ? bool(true) : undefined],   // drawn as a fly-off / fly-on pair (flow/fly.ts)
+      ['Net', opt(c.net, label)],   // the net it is on (flow/wires.ts): every pin joined by wires, the oldest wire's name
       // an end whose placement is not on the sheet has no port to join: said here instead
       ['FromPlacement', connection ? undefined : int(c.from.placementId)], ['FromPort', connection ? undefined : ident(c.from.portId)],
       ['ToPlacement', connection ? undefined : int(c.to.placementId)], ['ToPort', connection ? undefined : ident(c.to.portId)],
@@ -482,6 +484,7 @@ export function readSchematic(file: StepFile, u: (mm: number) => number, native:
       if (w.Label !== undefined) c.label = String(w.Label);
       if (w.HostKey !== undefined) c.hostKey = String(w.HostKey);
       if (w.Fly === true || w.Fly === '.T.' || String(w.Fly) === 'true') c.fly = true;
+      if (w.Net !== undefined) c.net = String(w.Net);
       const cable = rel ? cableOf(file, deref(file, rel.args[6])) : w.Cable !== undefined ? JSON.parse(String(w.Cable)) as ConnectorCable : undefined;
       if (cable) c.cable = cable;
       connectors.push(c);

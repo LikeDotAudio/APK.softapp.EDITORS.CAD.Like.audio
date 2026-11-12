@@ -210,6 +210,22 @@ describe('placed BIM blocks are occurrences of their part type (cad-5)', () => {
     expect(back).toEqual(s);
   });
 
+  it('connectors dropped on devices and the wires\' nets come back from IFC (2026-11-11)', () => {
+    const s = drawing();
+    const sch = s.schematic!;
+    // a BIM device given a connector at a guessed port and a new port; a catalogue block a new port too
+    sch.placements[4]!.portConnectors = { LAN: 'RJ45' };
+    sch.placements[4]!.ports = [{ id: 'RECEIVER_1', side: 'input', label: 'RECEIVER 1', connector: 'DANTE-RX2', domain: 'audio' }];
+    sch.placements[1]!.ports = [{ id: 'RJ45_1', side: 'output', label: 'RJ45 1', connector: 'RJ45', domain: 'network' }];
+    sch.connectors[0]!.net = 'SIG-A';
+    sch.connectors.push({ id: 2, from: { placementId: 2, portId: 'RJ45_1' }, to: { placementId: 5, portId: 'RECEIVER_1' }, layerId: '0', net: 'SIG-B', fly: true, route: [{ x: 10, y: 20 }, { x: 10, y: 40 }] });
+    sch.nextConnectorId = 3;
+    const text = exportIfc(s, { types: TYPES });
+    expect(text).toContain("'SIG-B'");
+    expect(importIfc(text)).toEqual(s);
+    expect(importIfc(exportIfc(s))).toEqual(s);
+  });
+
   it('the type is the library type, same GlobalId, declared in the project library', () => {
     const t = entitiesByType(f, 'IFCFLOWINSTRUMENTTYPE')[0]!;
     expect(t.args[0]).toBe(partTypeEntity(part)!.args[0]);

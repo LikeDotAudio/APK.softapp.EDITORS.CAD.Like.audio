@@ -20,6 +20,7 @@ import { CONCEPTS } from './concepts';
 import { forgetPlacement } from './groups';
 import { placementPoint } from './placement';
 import { portLocalPoint } from './portLocalPoint';
+import { effectiveDefinition } from './placementPorts';
 
 /**
  * The operations on the schematic model. Everything here is a plain function
@@ -56,7 +57,9 @@ export function definitionFor(
   model: SchematicModel,
   placement: BlockPlacement,
 ): BlockDefinition | undefined {
-  return definitionOf(model, placement.definitionId);
+  const def = definitionOf(model, placement.definitionId);
+  // the device as it now is: its type's ports and the connectors dropped on it (placementPorts.ts)
+  return def && effectiveDefinition(def, placement);
 }
 
 /** Place a definition on the sheet. `refdes` defaults to a per-definition counter. */

@@ -3,7 +3,7 @@
 import { nudgeOnGrid } from '../../flow/onGrid';
 import type { Point, SchematicModel } from '../../core/types';
 import { groupById, hitGroupAt, membersDeep } from '../../flow/groups';
-import { hitPlacementAt, hitPortAt, placementOf } from '../../flow/Schematic';
+import { definitionFor, hitPlacementAt, hitPortAt, placementOf } from '../../flow/Schematic';
 
 /**
  * A HOST'S BLOCKS UNDER THE SELECT TOOL (ROAD-3529)
@@ -52,7 +52,7 @@ export function hostPickAt(model: SchematicModel, world: Point, tol: number): Ho
   const port = hitPortAt(model, world, tol);
   const at = port ? placementOf(model, port.placementId) : hitPlacementAt(model, world);
   if (at?.hostKey && at.hostRef) {
-    const def = model.definitions.find((d) => d.id === at.definitionId);
+    const def = definitionFor(model, at);
     const label = port ? def?.ports.find((p) => p.id === port.portId)?.label : undefined;
     return { key: at.hostKey, ref: at.hostRef, ...(label ? { terminal: label } : {}) };
   }

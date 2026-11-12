@@ -10,6 +10,7 @@ import { LayerProperty } from './LayerProperty';
 import { ProtectedProperty } from './ProtectedProperty';
 import { SelectionSummary } from './SelectionSummary';
 import { StyleProperties } from './StyleProperties';
+import { WireProperties } from './WireProperties';
 
 /** Properties of whatever is selected. */
 export function PropertyEditorSection() {
@@ -29,6 +30,9 @@ export function PropertyEditorSection() {
 
       <div className="flex-1 space-y-3 overflow-y-auto overflow-x-hidden p-3 text-[11px]">
         <SelectionSummary />
+
+        {/* The selected wire: From → To, its net, length and bends (flow/wires.ts) */}
+        <WireProperties />
 
         {/* Selected Text Annotations Inspector with X, Y Positioning */}
         {selectedTexts.map((text) => (

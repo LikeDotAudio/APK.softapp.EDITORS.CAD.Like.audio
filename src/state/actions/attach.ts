@@ -5,6 +5,7 @@ import { BIM_DRAG_MIME, bimPartOfDrop, occurrenceOfDrop, placeBimPart } from './
 import { offerBimDropToHost } from '../../shell/hostBridge/hostBridge';
 import { currentSheet } from '../../shell/bimProjects';
 import { installPuck } from '../../viewport/puck/installPuck';
+import { CONNECTOR_DRAG_MIME, dropConnectorAt } from './dropConnector';
 
 export function attach(store: EditorStore, canvas: HTMLCanvasElement): () => void {
   store.canvas = canvas;
@@ -35,7 +36,8 @@ export function attach(store: EditorStore, canvas: HTMLCanvasElement): () => voi
 
   const onDragOver = (e: DragEvent) => {
     e.preventDefault();
-    if (e.dataTransfer && [...(e.dataTransfer.types ?? [])].includes(BIM_DRAG_MIME)) e.dataTransfer.dropEffect = 'copy';
+    const types = [...(e.dataTransfer?.types ?? [])];
+    if (e.dataTransfer && (types.includes(BIM_DRAG_MIME) || types.includes(CONNECTOR_DRAG_MIME))) e.dataTransfer.dropEffect = 'copy';
   };
   const onDrop = (e: DragEvent) => {
     e.preventDefault();
@@ -51,6 +53,14 @@ export function attach(store: EditorStore, canvas: HTMLCanvasElement): () => voi
       const { ref, ...bim } = part;
       if (!occurrence && ref?.part && offerBimDropToHost({ bim, ref: { ...ref, part: ref.part } }, w)) return;
       placeBimPart(store, part, { x: w.x, y: w.y }, occurrence && { ...occurrence, sheet: currentSheet(store) });
+      return;
+    }
+    // a connector from the Connectors palette: given to the device it lands on (dropConnector.ts)
+    const connector = e.dataTransfer?.getData(CONNECTOR_DRAG_MIME);
+    if (connector) {
+      const r = canvas.getBoundingClientRect();
+      const w = store.view.toWorld(e.clientX - r.left, e.clientY - r.top);
+      dropConnectorAt(store, connector, { x: w.x, y: w.y });
       return;
     }
     const file = e.dataTransfer?.files?.[0];
