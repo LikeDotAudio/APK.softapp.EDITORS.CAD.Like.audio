@@ -112,9 +112,15 @@ function inside(p: Point, poly: Point[]): boolean {
   return c;
 }
 
-/** The part id of a BIM block placement, or null for a catalogue / connector block. */
-export const bimPartOf = (p: Pick<BlockPlacement, 'definitionId'>): string | null =>
-  p.definitionId.startsWith('bim.') && p.definitionId.length > 4 ? p.definitionId.slice(4) : null;
+/** The part id of a BIM block placement, or null for a catalogue / connector block. The
+ *  per-block suffix (`bim.keysight/3235@sim-bench:U19`) is not part of the id — cut at the `@`
+ *  as refreshBimDefinitions does, or every export asks /api/bim/parts/<part>@….ifc and 404s
+ *  (383 a Simulation load, 2026-11-11) and the IFC twin gets stub types. */
+export const bimPartOf = (p: Pick<BlockPlacement, 'definitionId'>): string | null => {
+  if (!p.definitionId.startsWith('bim.')) return null;
+  const part = p.definitionId.slice(4).split('@')[0] ?? '';
+  return part ? part : null;
+};
 
 export function exportIfc(session: SavedSession, opts: ExportIfcOptions = {}): string {
   // the session's numbers are mm from version 2 on (cad-1); a version 1 one is in its `units`
