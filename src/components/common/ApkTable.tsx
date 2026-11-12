@@ -120,7 +120,10 @@ export function ApkTable<R>(props: ApkTableProps<R>) {
   useEffect(() => {
     handle.current?.setRows(apkRows(props.columns, props.rows));
   });
-  return <div ref={host} className={'apk-table-host ' + (props.className || '')} style={props.style} />;
+  /* NOT `apk-table-host`: that is APKTable's own server-rendered placeholder, which its css hides
+     (`.apk-table-host { display: none }`) until adopted — on this wrapper it hid every CellHell and
+     Elements table since ROAD-3494 */
+  return <div ref={host} className={'cad-apk-host ' + (props.className || '')} style={props.style} />;
 }
 
 /** A <select> for a cell; `onChange` gets the chosen value. */
