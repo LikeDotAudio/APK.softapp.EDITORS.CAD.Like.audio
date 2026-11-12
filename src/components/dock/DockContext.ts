@@ -13,6 +13,10 @@ export interface DockApi {
   toggleCollapsed(id: PanelId): void;
   /** Onto `side`, ahead of `before` (or at the end). */
   moveTo(id: PanelId, side: RailSide, before?: PanelId): void;
+  /** Show a panel that is off the rails (unfolded, its rail's tab), or take it off — Elements: ▾. */
+  toggleShown(id: PanelId): void;
+  /** On a rail or in a window, unfolded or not. */
+  isShown(id: PanelId): boolean;
   popOut(id: PanelId): void;
   dockBack(id: PanelId): void;
   setSize(id: PanelId, px: number): void;

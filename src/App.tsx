@@ -101,8 +101,9 @@ export default function App() {
   return (
     <EntranceContext.Provider value={entrance}>
       <EditorContext.Provider value={store}>
+        <DockProvider>
         <div className="flex h-full flex-col overflow-hidden bg-[#1e1e1e]">
-          {/* Top CAD Header Bar */}
+          {/* Top CAD Header Bar — Elements: ▾ reaches the dock's panels, so it sits inside the DockProvider */}
           <MenuBar
             onOpenSpreadsheet={() => handleOpenSpreadsheet('placements')}
             onOpenBom={() => handleOpenSpreadsheet('bom')}
@@ -110,10 +111,11 @@ export default function App() {
             onOpenBlockEditor={() => handleOpenBlockEditor()}
             onOpenConceptLibrary={() => openLibrary('part')}
             onOpenCatalog={() => openLibrary('catalog')}
+            connectorsOpen={showConnectorsDock}
+            onToggleConnectors={() => setShowConnectorsDock((prev) => !prev)}
           />
 
           {/* Main Work Area: Left Toolbar + docked panels either side of the Canvas */}
-          <DockProvider>
             <div className="flex flex-1 overflow-hidden relative">
               <VerticalToolbar />
               <DockRail side="left" />
@@ -125,7 +127,6 @@ export default function App() {
               </div>
               <DockRail side="right" />
             </div>
-          </DockProvider>
 
           {/* Connectors Bottom Dock Bar (Exact OneScope Palette) */}
           <ConnectorsDock
@@ -137,10 +138,7 @@ export default function App() {
           <ViewportTabs />
 
           {/* Bottom Status Bar */}
-          <StatusBar
-            isConnectorsOpen={showConnectorsDock}
-            onToggleConnectors={() => setShowConnectorsDock((prev) => !prev)}
-          />
+          <StatusBar />
 
           {/* Spreadsheet Modal */}
           {showSpreadsheet && (
@@ -183,6 +181,7 @@ export default function App() {
           {/* Loading Screen Overlay ("Opening drawings") */}
           <LoadingOverlay />
         </div>
+        </DockProvider>
       </EditorContext.Provider>
     </EntranceContext.Provider>
   );

@@ -84,6 +84,17 @@ export function DockProvider({ children }: { children: ReactNode }) {
             rails: { ...l.rails, [side]: { ...l.rails[side], tab: id } },
           };
         }),
+      toggleShown: (id) =>
+        setLayout((l) => {
+          const place = l.panels[id];
+          const show = !!place.hidden || place.collapsed;
+          return {
+            ...l,
+            panels: { ...l.panels, [id]: { ...place, hidden: !show, collapsed: show ? false : place.collapsed } },
+            rails: show ? { ...l.rails, [place.side]: { ...l.rails[place.side], tab: id } } : l.rails,
+          };
+        }),
+      isShown: (id) => available.has(id) && !layout.panels[id].hidden,
       popOut: (id) => {
         // Opened here, inside the click, or a popup blocker eats it.
         const rail = layout.rails[layout.panels[id].side];
@@ -110,7 +121,7 @@ export function DockProvider({ children }: { children: ReactNode }) {
     [layout, available, dragging, patch, dockBack],
   );
 
-  const popped = layout.order.filter((id) => layout.panels[id].popped && available.has(id));
+  const popped = layout.order.filter((id) => layout.panels[id].popped && !layout.panels[id].hidden && available.has(id));
 
   return (
     <DockContext.Provider value={api}>

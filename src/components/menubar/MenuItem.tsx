@@ -9,15 +9,18 @@ export interface MenuItemProps {
   /** Right-aligned shortcut or command alias, e.g. "Ctrl+C" or "RO". */
   shortcut?: string;
   disabled?: boolean;
+  /** Tooltip: what the row opens. */
+  title?: string;
   onSelect: () => void;
 }
 
 /** One clickable row inside a dropdown. Every menu builds its rows from this. */
-export function MenuItem({ icon, label, shortcut, disabled = false, onSelect }: MenuItemProps) {
+export function MenuItem({ icon, label, shortcut, disabled = false, title, onSelect }: MenuItemProps) {
   return (
     <button
       type="button"
       disabled={disabled}
+      title={title}
       onClick={onSelect}
       className={
         'flex w-full items-center justify-between rounded px-3 py-1.5 text-left text-[12px] transition-colors ' +

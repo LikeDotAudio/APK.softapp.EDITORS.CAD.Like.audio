@@ -40,13 +40,6 @@ export function FlowCatalogSection() {
           <span className="font-mono text-[10px] text-[#777]">
             {flow.placements} blk · {flow.connectors} wire
           </span>
-          <button
-            onClick={() => store.triggerOpenConceptLibrary()}
-            className="rounded bg-[#007acc] px-1.5 py-0.5 text-[9px] font-semibold text-white hover:bg-[#1188dd] transition-colors"
-            title="Open Full Part & Concept Library"
-          >
-            📚 Library
-          </button>
         </div>
       </PanelSectionTitle>
 

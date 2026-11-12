@@ -10,7 +10,7 @@
  *   📄 This drawing        the BIM blocks placed here, the project's instances first (with counts)
  *   📦 Project · unplaced  a project's instances (make, model, name, location) on no drawing yet —
  *                          the bench is project #1; another is imported from its device list
- *   📚 Library             every part (the library app's search), and the full 📚 Library sash
+ *   📚 Library             every part (the library app's search); the full sash opens from Elements: ▾ 📚 Library
  *
  * Every row drags `application/x-apk-bim` { bim, ref[, occurrence] } onto the sheet, where it is
  * placed as its BIM block (dropBimPart.ts). Placing an instance marks it assigned to this drawing
@@ -230,7 +230,6 @@ export function BlocksPaletteSection() {
         <div className="flex min-h-0 flex-1 flex-col">
           <div className="flex items-center gap-1 border-b border-[#2d2d30] px-2 py-1">
             <input className="blocks-search flex-1 bg-[#252526] px-1 text-xs" placeholder="Search every part…" value={q} onChange={(e) => setQ(e.target.value)} />
-            <button className="rounded bg-[#007acc] px-1.5 py-0.5 text-[10px] text-white" onClick={() => store.triggerOpenConceptLibrary()}>📚 Full</button>
           </div>
           <div className="min-h-0 flex-1 overflow-auto">
             {libRows.map((r) => (

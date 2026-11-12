@@ -89,14 +89,6 @@ export function ModifyMenu({ open, onToggle, onClose }: MenuProps) {
           <MenuDivider />
           <MenuItem icon="💥" label="Explode Groups" shortcut="XP" onSelect={run(() => store.explodeSelection())} />
           <MenuItem
-            icon="🧱"
-            label="Block Editor..."
-            shortcut="BE"
-            onSelect={run(() => {
-              store.triggerOpenBlockEditor();
-            })}
-          />
-          <MenuItem
             icon="⚡"
             label="Edit in Standalone Softapp..."
             shortcut="SA"

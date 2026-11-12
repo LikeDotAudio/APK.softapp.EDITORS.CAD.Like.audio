@@ -60,7 +60,7 @@ export function DockRail({ side }: { side: RailSide }) {
     () => rail.width,
   );
 
-  const ids = layout.order.filter((id) => available.has(id) && !layout.panels[id].popped && layout.panels[id].side === side);
+  const ids = layout.order.filter((id) => available.has(id) && !layout.panels[id].hidden && !layout.panels[id].popped && layout.panels[id].side === side);
   if (ids.length === 0 && !dock.dragging) return null;
 
   const tab = rail.tab && ids.includes(rail.tab) ? rail.tab : ids[0];

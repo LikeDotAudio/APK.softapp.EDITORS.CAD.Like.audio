@@ -10,4 +10,4 @@ export interface MenuProps {
 }
 
 /** Identifies which header menu is currently open. */
-export type MenuId = 'file' | 'edit' | 'modify' | 'dimension' | 'drawing';
+export type MenuId = 'file' | 'edit' | 'modify' | 'dimension' | 'drawing' | 'elements';

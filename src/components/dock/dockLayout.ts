@@ -15,6 +15,8 @@ export interface PanelPlace {
   size: number;
   /** Out in its own browser window. */
   popped: boolean;
+  /** Off the rails: shown again from the menu bar's Elements: ▾ (the one way in to blocks and elements). */
+  hidden?: boolean;
 }
 
 export interface RailState {
@@ -41,7 +43,7 @@ export const DEFAULT_LAYOUT: DockLayout = {
     flow: { side: 'right', collapsed: false, size: 280, popped: false },
     blocks: { side: 'left', collapsed: false, size: 420, popped: false },   // 🧱 the DesignCenter palette (ROAD-3577)
     groups: { side: 'right', collapsed: false, size: 180, popped: false },
-    palette: { side: 'right', collapsed: false, size: 260, popped: false },
+    palette: { side: 'right', collapsed: false, size: 260, popped: false, hidden: true },   // 🔊 Acoustics: opened from Elements: ▾, not a tab of its own
     layers: { side: 'right', collapsed: false, size: 260, popped: false },
     properties: { side: 'right', collapsed: false, size: 320, popped: false },
   },

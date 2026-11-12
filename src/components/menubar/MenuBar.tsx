@@ -9,21 +9,15 @@ import { DrawingMenu } from './menus/DrawingMenu';
 import { EditMenu } from './menus/EditMenu';
 import { FileMenu } from './menus/FileMenu';
 import { ModifyMenu } from './menus/ModifyMenu';
+import { ElementsMenu, type ElementsActions } from './menus/ElementsMenu';
 
-interface MenuBarProps {
-  onOpenSpreadsheet?: () => void;
-  onOpenBom?: () => void;
-  onOpenElementsEditor?: () => void;
-  onOpenBlockEditor?: () => void;
-  onOpenConceptLibrary?: () => void;
-  onOpenCatalog?: () => void;
-}
+type MenuBarProps = ElementsActions;
 
 /**
  * The application header. It owns only "which menu is open" — every dropdown
  * lives in its own file under `menus/`.
  */
-export function MenuBar({ onOpenSpreadsheet, onOpenBom, onOpenElementsEditor, onOpenBlockEditor, onOpenConceptLibrary, onOpenCatalog }: MenuBarProps) {
+export function MenuBar(actions: MenuBarProps) {
   const [openMenu, setOpenMenu] = useState<MenuId | null>(null);
   const close = useCallback(() => setOpenMenu(null), []);
   useMenuDismiss(close);
@@ -44,57 +38,9 @@ export function MenuBar({ onOpenSpreadsheet, onOpenBom, onOpenElementsEditor, on
           <ModifyMenu {...menu('modify')} />
           <DimensionMenu {...menu('dimension')} />
           <DrawingMenu {...menu('drawing')} />
+          {/* the blocks and elements live here, and only here (the owner, 2026-11-11) */}
+          <ElementsMenu {...menu('elements')} {...actions} />
         </div>
-      </div>
-      <div className="flex items-center gap-2">
-        <button
-          onClick={onOpenConceptLibrary}
-          className="flex items-center gap-1.5 rounded bg-[#007acc] px-2.5 py-1 text-xs font-semibold text-white hover:bg-[#1188dd] transition-colors font-mono tracking-wide"
-          title="The BIM library: parts, the CAD's concepts and the connector vocabulary — a sash over the drawing (Ctrl+Shift+L; Esc closes)"
-        >
-          <span>📚</span>
-          <span>Library</span>
-        </button>
-        <button
-          onClick={onOpenCatalog}
-          className="flex items-center gap-1.5 rounded bg-[#2d6a4f] px-2.5 py-1 text-xs font-semibold text-white hover:bg-[#3a8763] transition-colors font-mono tracking-wide"
-          title="The BIM library as an engineering catalogue: category › class, a Visual Catalog or an Engineering Specs Table (ROAD-3603)"
-        >
-          <span>📖</span>
-          <span>Catalog</span>
-        </button>
-        <button
-          onClick={onOpenBlockEditor}
-          className="flex items-center gap-1.5 rounded bg-go px-2.5 py-1 text-xs font-semibold text-white hover:bg-go-hover transition-colors font-mono tracking-wide"
-          title="Open CAD Block Editor (BEDIT) to design and edit reusable component symbols"
-        >
-          <span>🧱</span>
-          <span>Block Editor</span>
-        </button>
-        <button
-          onClick={onOpenElementsEditor}
-          className="flex items-center gap-1.5 rounded bg-accent px-2.5 py-1 text-xs font-semibold text-black hover:bg-[#ffa552] transition-colors font-mono tracking-wide"
-          title="Open CAD Elements Editor for text annotations, block symbols, and fill patterns"
-        >
-          <span>🔲</span>
-          <span>Elements</span>
-        </button>
-        <button
-          onClick={onOpenBom}
-          className="flex items-center gap-1.5 rounded bg-[#9333ea] px-2.5 py-1 text-xs font-semibold text-white hover:bg-[#a855f7] transition-colors font-mono tracking-wide"
-          title="Open interactive Bill of Materials (BOM) to link, inspect, and export component parts"
-        >
-          <span>📋</span>
-          <span>BOM</span>
-        </button>
-        <button
-          onClick={onOpenSpreadsheet}
-          className="flex items-center gap-1.5 rounded bg-[#0e639c] px-2.5 py-1 text-xs font-semibold text-white hover:bg-[#1177bb] transition-colors font-mono tracking-wide"
-          title="Open CellHell spreadsheet matrix editor for connections, placements, and groups"
-        >
-          <span>🔥</span>
-          <span>CellHell</span>
-        </button>
       </div>
     </div>
   );
