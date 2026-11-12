@@ -69,6 +69,14 @@ From this repository's own commits (the commit message is the record):
 - ROAD-3709, ROAD-3716: a drawing reopened from its own .ifc has its BIM blocks' ports offline; the fly capsule fits its words (`5be2f84`)
 - ROAD-3708: the Blocks palette's Project view shows an occurrence's own ports (`17ed15b`)
 - re-vendor apk-contracts web bundle: contracts 2.4.0 retires APK.audio/Tests/{suite} (ROAD-3729) (`dbb8409`)
+- wiki: lanes, README and smoke result refreshed (wiki.py + smoke.py) (`2f192c8`)
+- docs(smoke): pass — results in the wiki (`ade36b6`)
+- vendor: apk-contracts re-vendored (contracts gained the youtube_audio problem codes, root f013ba68a) (`d1560b3`)
+- vendor/apk-contracts: refresh to contracts/generated/web after ROAD-3759 (contracts split; CHAT_TOPIC origin note) (`4efc50f`)
+- BlockEditorModal split: state and handlers in useBlockEditor, geometry in useBlockGeometry, one component per panel (ROAD-3764) (`05bd6be`)
+- EditorStore split into method slices bound onto the class (ROAD-3764) (`4809643`)
+- vendor/kicad: refreshed from DATATYPE.KiCad 533a129 (kicadLibrary.js split in six); dist rebuilt (ROAD-3764) (`f407af8`)
+- vendor: apk-softapp / apk-table re-joined from their parts (one GENERATED banner line; ROAD-3762) (`715eaba`)
 
 ## Releases
 - **Released `2.0.0`, tag `v2.0.0`** (2026-11-01, ROAD-3452, the owner's V2) — no SDK pin; every manifest says 2.0.0; GitHub release `v2.0.0`.
