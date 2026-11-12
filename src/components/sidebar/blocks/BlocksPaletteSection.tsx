@@ -29,7 +29,7 @@ import type { BimPart } from '../../../flow/bimPart';
 import type { BimRef, BlockPlacement } from '../../../core/types';
 import {
   assign, bimWriteBase, diffOccurrences, dragPayload, drawingName, free, importBody, importProject,
-  libraryEndpoints, listProjects, occurrencesOn, readProject,
+  libraryEndpoints, listProjects, occurrencesOn, ownPortsLine, readProject,
   type ProjectListing, type ProjectRow, type ProjectView,
 } from '../../../shell/bimProjects';
 
@@ -213,13 +213,14 @@ export function BlocksPaletteSection() {
                    title={i.unresolved ?? `Drag onto the sheet: ${i.part}`}>
                 <div className="truncate text-[#e5e5e5]">{i.name}</div>
                 <div className="truncate text-[10px] text-[#858585]">{i.make} {i.model}{i.location ? ` · 📍 ${i.location}` : ''}</div>
+                {ownPortsLine(i) && <div className="blocks-own-ports truncate text-[10px] text-[#9cdcfe]" title={ownPortsLine(i)!}>{ownPortsLine(i)}</div>}
               </div>
             ))}
             {view && unplaced.length === 0 && <div className="px-2 py-2 text-[#858585]">Every instance of {view.name} is placed.</div>}
             {placedElsewhere.length > 0 && (
               <details className="px-2 py-1 text-[10px] text-[#858585]">
                 <summary>{placedElsewhere.length} on other drawings</summary>
-                {placedElsewhere.map((i) => <div key={i.id}>{i.name} — {i.assigned!.drawing} · {i.assigned!.sheet}</div>)}
+                {placedElsewhere.map((i) => <div key={i.id}>{i.name} — {i.assigned!.drawing} · {i.assigned!.sheet}{ownPortsLine(i) ? ` · ${ownPortsLine(i)}` : ''}</div>)}
               </details>
             )}
           </div>

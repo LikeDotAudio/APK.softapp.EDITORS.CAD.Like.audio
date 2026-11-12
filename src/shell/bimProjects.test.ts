@@ -2,7 +2,7 @@
 // MIT Licence. Free, for everyone, for ever. Full text in LICENSE at the root.
 import { describe, expect, it } from 'vitest';
 import type { BlockPlacement } from '../core/types';
-import { currentSheet, diffOccurrences, dragPayload, importBody, installInstancePortsSync, libraryEndpoints, occurrencesOn, portWrites } from './bimProjects';
+import { currentSheet, diffOccurrences, dragPayload, importBody, installInstancePortsSync, libraryEndpoints, occurrencesOn, ownPortsLine, portWrites } from './bimProjects';
 import { bimPartOfDrop, occurrenceOfDrop } from '../state/actions/dropBimPart';
 
 const occ = (instance: string) => ({ project: 'stadium', instance, globalId: `G-${instance}` });
@@ -70,5 +70,15 @@ describe('ROAD-3688 an occurrence\'s own ports written back to BIM', () => {
     expect(calls[0]![1]).toMatchObject({ method: 'PUT' });
     expect(JSON.parse(String(calls[0]![1]!.body))).toEqual({ ports: [], port_connectors: { R0: 'DANTE-RX2' } });
     off();
+  });
+});
+
+describe('ROAD-3708 an occurrence\'s own ports in the palette\'s Project view', () => {
+  it('a row with own ports says so; one with only its type\'s says nothing', () => {
+    expect(ownPortsLine({})).toBeNull();
+    expect(ownPortsLine({ ports: [], port_connectors: {} })).toBeNull();
+    expect(ownPortsLine({ ports: [{ id: 'RECEIVER_1', side: 'input', label: 'RECEIVER 1' }, { id: 'TX', side: 'output' }],
+      port_connectors: { RECEIVER_0: 'DANTE-RX2' } }))
+      .toBe('🔌 +2 own: RECEIVER 1, TX · RECEIVER_0 → DANTE-RX2');
   });
 });

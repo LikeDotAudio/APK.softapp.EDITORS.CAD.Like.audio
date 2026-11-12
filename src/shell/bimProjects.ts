@@ -25,6 +25,8 @@ export interface ProjectRow {
   bim?: BimPart; ref?: BimRef;
   occurrence: BimOccurrence;
   assigned: { drawing: string; sheet: string; placement?: string; at?: string } | null;
+  /** Its OWN ports, BIM's instance-ports record (ROAD-3688), on the row since ROAD-3708. */
+  ports?: Port[]; port_connectors?: Record<string, string>;
 }
 export interface ProjectView {
   id: string; name: string; builtin: boolean; total: number; placed: number; available: number; unresolved: number;
@@ -121,6 +123,20 @@ export async function importProject(base: string, id: string, body: Record<strin
   return answer(await f(`${base}/projects/${encodeURIComponent(id)}`, {
     method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
   }), `import ${id}`);
+}
+
+/**
+ * The palette's line for a row's own ports (ROAD-3708): `🔌 +2 own: RECEIVER 1, RECEIVER 2 · RECEIVER_0 → DANTE-RX2`,
+ * or null when the occurrence has only its type's ports.
+ */
+export function ownPortsLine(row: Pick<ProjectRow, 'ports' | 'port_connectors'>): string | null {
+  const ports = row.ports ?? [];
+  const pc = Object.entries(row.port_connectors ?? {});
+  if (!ports.length && !pc.length) return null;
+  const bits: string[] = [];
+  if (ports.length) bits.push(`+${ports.length} own: ${ports.map((p) => p.label || p.id).join(', ')}`);
+  if (pc.length) bits.push(pc.map(([id, c]) => `${id} → ${c}`).join(', '));
+  return `🔌 ${bits.join(' · ')}`;
 }
 
 /** ONE instance's own ports (ROAD-3688): what connectors dropped on it gave it, never its part type. */
