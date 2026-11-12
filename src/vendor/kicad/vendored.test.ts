@@ -5,8 +5,9 @@ import { dirname, join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 /*
- * src/vendor/kicad/{kicadLibrary,klcRules}.js are BYTE copies of DATATYPE.KiCad js/ — the one KiCad
- * symbol / sheet writer and the KLC rule index (DATA.KICAD SRC/Reference/KLC), vendored so this repo
+ * src/vendor/kicad/{kicadLibrary,kicadSexp,kicadSymbolIo,kicadSymbol,kicadKlc,kicadSvg,kicadSchematic,klcRules}.js are
+ * BYTE copies of DATATYPE.KiCad js/ — the one KiCad symbol / sheet writer (kicadLibrary.js and the files it
+ * re-exports) and the KLC rule index (DATA.KICAD SRC/Reference/KLC), vendored so this repo
  * builds on its own. Inside an APK.audio checkout this fails on any difference and prints the cp that
  * fixes it; a standalone checkout has nothing to compare against and skips.
  */
@@ -20,7 +21,7 @@ for (let dir = resolve(__dirname, '../../..'); ; dir = dirname(dir)) {
 }
 
 describe.skipIf(!source)('the vendored KiCad library is DATATYPE.KiCad\'s', () => {
-  for (const name of ['kicadLibrary.js', 'klcRules.js']) {
+  for (const name of ['kicadLibrary.js', 'kicadSexp.js', 'kicadSymbolIo.js', 'kicadSymbol.js', 'kicadKlc.js', 'kicadSvg.js', 'kicadSchematic.js', 'klcRules.js']) {
     it(name, () => {
       const mine = readFileSync(join(__dirname, name), 'utf8');
       const theirs = readFileSync(join(source!, name), 'utf8');
