@@ -76,7 +76,9 @@ function drawFarEnd(ctx: CanvasRenderingContext2D, far: PortPortal, x: number, f
   const name = fit(ctx, far.text, room);
   const text = far.wired ? `${name}  ${inward ? '(FLY IN)' : '(FLY OFF)'}` : name;
   const where = far.to?.drawing ? ` ⧉ ${far.to.drawing}` : '';
-  const w = ctx.measureText(text).width + px * 1.6;
+  // sized from the words it draws — the drawing it flies to too (ROAD-3716: '⧉ RF' ran past the pill)
+  const label = text + where;
+  const w = ctx.measureText(label).width + px * 1.6;
   const h = Math.min(px + 6, Math.max(f.spacing * 0.9, px + 2));
   {
     // where it landed on the canvas, for a click (flyClick.ts): the box's corners through the current transform
@@ -111,7 +113,7 @@ function drawFarEnd(ctx: CanvasRenderingContext2D, far: PortPortal, x: number, f
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillStyle = far.wired ? '#ffffff' : '#111827';
-  ctx.fillText(text + where, 0, 0);
+  ctx.fillText(label, 0, 0);
   ctx.restore();
 }
 

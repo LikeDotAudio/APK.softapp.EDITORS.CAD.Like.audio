@@ -170,3 +170,31 @@ describe('the footer\'s names at 90° (the owner, 2026-11-07: "the bottom should
     expect(footer.every((w) => Math.abs(w.turn + Math.PI / 2) < 1e-6)).toBe(true);   // −90°: reading upward
   });
 });
+
+describe('ROAD-3716: a fly-off capsule fits its words', () => {
+  it('the pill is as wide as everything written in it, the drawing it flies to too', async () => {
+    const { drawConnectors } = await import('./drawConnectors');
+    const d = partToDefinition({ id: 'x/box', name: 'BOX', ports: [{ group: 'X0-R10', side: 'output' }] });
+    const model = createSchematic([d]);
+    const pl = placeBlock(model, d.id, { x: 0, y: 0 })!;
+    const port = d.ports[0]!.id;
+    pl.portals = { [port]: { text: 'U19 X0-R10', wired: true, to: { refdes: 'U19', port: 'X0-R10', drawing: 'RF' } } };
+    const pills: number[] = [];
+    const words: number[] = [];
+    const ctx = new Proxy({} as Record<string, unknown>, {
+      get: (_t, k) => {
+        if (k === 'roundRect') return (_x: number, _y: number, w: number) => pills.push(w);
+        if (k === 'fillText') return (t: string) => { if (t.includes('FLY OFF')) words.push(t.length * 5); };
+        if (k === 'measureText') return (t: string) => ({ width: t.length * 5 });
+        if (k === 'getTransform') return () => ({ a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 });
+        return () => undefined;
+      },
+      set: () => true,
+    });
+    const view = { zoom: 3, toScreen: (x: number, y: number) => ({ x: x * 3, y: -y * 3 }) };
+    drawConnectors({ ctx, view } as never, model, pl, d);
+    expect(words.length).toBe(1);
+    expect(pills.length).toBe(1);
+    expect(pills[0]!).toBeGreaterThan(words[0]!);
+  });
+});

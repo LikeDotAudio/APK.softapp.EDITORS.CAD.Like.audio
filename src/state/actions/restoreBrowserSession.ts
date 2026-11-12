@@ -37,7 +37,11 @@ export async function applySavedSession(store: EditorStore, saved: SavedSession)
   store.currentFileName = session.currentFileName ?? null;
   if (session.schematic) restoreSchematic(store.schematic, session.schematic);
   // its BIM blocks' definitions: stand-ins now, rebuilt from their parts (ROAD-3689)
-  if (session.schematic && standInBimDefinitions(store.schematic, session.schematic.sizes).length) void refreshBimDefinitions(store);
+  // (ROAD-3709) those whose part type the opened .ifc carries are built from it first, ports and all
+  if (session.schematic) {
+    const added = standInBimDefinitions(store.schematic, session.schematic.sizes, session.bimParts);
+    if (added.length) void refreshBimDefinitions(store, undefined, added);
+  }
   store.units = session.units || 'in';
   store.gridSize = session.gridSize || 6.35; // mm
   store.gridMode = session.gridMode || 'lines';

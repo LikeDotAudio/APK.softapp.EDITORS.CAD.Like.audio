@@ -5,6 +5,8 @@ import { SESSION_MM_VERSION } from '../../model/units/docUnits';
 import type { SavedSession } from '../browserStorage/SavedSession';
 import { parseStep, type StepFile } from '../../vendor/ifc/step';
 import { importIfc, IfcImportError } from './importIfc';
+import { partsInIfc } from './partsInIfc';
+import type { BimPart } from '../../flow/bimPart';
 
 /**
  * A FOREIGN .ifc (ROAD-3598, answer 1)
@@ -189,6 +191,8 @@ export interface ForeignOpen {
   products?: number;
   truncated?: boolean;
   schema?: string;
+  /** Ours: the BIM part types the file carries, by part id — its blocks' ports while BIM is offline (ROAD-3709). */
+  parts?: Record<string, BimPart>;
 }
 
 /**
@@ -199,7 +203,11 @@ export interface ForeignOpen {
  */
 export async function openAnyIfc(text: string, engine: () => Promise<WebIfcEngine>): Promise<ForeignOpen> {
   const { origin, file } = ifcOrigin(text);
-  if (origin !== 'foreign') return { session: importIfc(text), via: 'codec', origin };
+  if (origin !== 'foreign') {
+    const session = importIfc(text);
+    const parts = file && session.schematic?.placements.some((p) => p.definitionId.startsWith('bim.')) ? partsInIfc(file) : {};
+    return { session, via: 'codec', origin, ...(Object.keys(parts).length ? { parts } : {}) };
+  }
   const project = projectName(text);
   let err: unknown;
   try {

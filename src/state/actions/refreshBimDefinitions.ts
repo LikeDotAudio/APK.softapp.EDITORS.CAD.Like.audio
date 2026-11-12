@@ -16,8 +16,8 @@ import { partToDefinition, type BimPart } from '../../flow/bimPart';
 export const bimPartIdOf = (def: BlockDefinition): string =>
   def.bimRef?.part || (def.id.startsWith('bim.') ? def.id.slice(4).split('@')[0]! : '');
 
-export function staleBimDefinitions(defs: BlockDefinition[]): BlockDefinition[] {
-  return defs.filter((d) => !d.hostKey && !d.hat && bimPartIdOf(d));
+export function staleBimDefinitions(defs: BlockDefinition[], also: readonly string[] = []): BlockDefinition[] {
+  return defs.filter((d) => !d.hostKey && (!d.hat || also.includes(d.id)) && bimPartIdOf(d));
 }
 
 /** Rebuild `def` in place from `part`, keeping its id and BIM reference. */
@@ -33,8 +33,10 @@ export function refreshDefinition(def: BlockDefinition, part: BimPart): void {
 export async function refreshBimDefinitions(
   store: { schematic: { definitions: BlockDefinition[] }; requestDraw(): void; emit(): void },
   fetcher: (url: string) => Promise<Response> = (url) => fetch(url, { cache: 'no-store' }),
+  /** Definitions to rebuild though they have a hat: built from a drawing's own IFC types (ROAD-3709). */
+  also: readonly string[] = [],
 ): Promise<number> {
-  const stale = staleBimDefinitions(store.schematic.definitions);
+  const stale = staleBimDefinitions(store.schematic.definitions, also);
   if (!stale.length) return 0;
   let done = 0;
   await Promise.all(stale.map(async (def) => {
@@ -59,17 +61,26 @@ export async function refreshBimDefinitions(
  * drawn, its wires had no path and the Wire Manager discovered nothing. Each missing `bim.*`
  * definition gets a stand-in — the size the sheet saved it at, its reference, no ports — which
  * refreshBimDefinitions (no hat: stale) then rebuilds from its part. The ids that were added.
+ *
+ * ROAD-3709: a drawing opened from its own .ifc carries its parts' types (io/ifc/partsInIfc.ts);
+ * a stand-in whose part is among `parts` is built from it at once — ports, connectors, hat — so
+ * it is whole while BIM is offline, and refreshBimDefinitions (passed these ids as `also`)
+ * rebuilds it from /api/bim/parts when BIM answers.
  */
 export function standInBimDefinitions(
   model: { definitions: BlockDefinition[]; placements: Array<{ definitionId: string; bimRef?: BlockDefinition['bimRef'] }> },
   sizes?: Record<string, { w: number; h: number }>,
+  parts?: Record<string, BimPart>,
 ): string[] {
   const added: string[] = [];
   for (const p of model.placements) {
     if (!p.definitionId.startsWith('bim.') || model.definitions.some((d) => d.id === p.definitionId)) continue;
     const part = p.bimRef?.part || p.definitionId.slice(4).split('@')[0]!;
-    model.definitions.push({ id: p.definitionId, name: part, size: { ...(sizes?.[p.definitionId] ?? { w: 120, h: 60 }) }, glyph: [], ports: [],
-      ...(p.bimRef ? { bimRef: { ...p.bimRef } } : {}) });
+    const def: BlockDefinition = { id: p.definitionId, name: part, size: { ...(sizes?.[p.definitionId] ?? { w: 120, h: 60 }) }, glyph: [], ports: [],
+      ...(p.bimRef ? { bimRef: { ...p.bimRef } } : {}) };
+    const carried = parts?.[part];
+    if (carried) { refreshDefinition(def, carried); def.name = partToDefinition(carried).name; }
+    model.definitions.push(def);
     added.push(p.definitionId);
   }
   return added;

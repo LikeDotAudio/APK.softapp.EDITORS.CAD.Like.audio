@@ -112,7 +112,7 @@ export async function openIfcText(store: EditorStore, text: string, fileName: st
     return false;
   }
   store.history.push(store.doc.snapshot());
-  await applySavedSession(store, { ...session, currentFileName: session.currentFileName ?? fileName, userAuth: undefined });
+  await applySavedSession(store, { ...session, currentFileName: session.currentFileName ?? fileName, userAuth: undefined, ...(opened.parts ? { bimParts: opened.parts } : {}) });
   await store.autoSaveSession(false);
   store.showHint(opened.via === 'web-ifc'
     ? `Opened ${fileName} (foreign ${opened.schema ?? 'IFC'}, web-ifc) — ${opened.products} products as ${session.docSnapshot.edges.length} plan edges${opened.truncated ? ', the rest not drawn' : ''}.`

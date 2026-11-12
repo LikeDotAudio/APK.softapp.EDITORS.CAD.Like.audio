@@ -5,6 +5,7 @@ import type { VirtualMirrorState } from '../../core/mirror';
 import type { UserAuth } from '../../core/userAuth';
 import type { SchematicSnapshot } from '../../flow/Schematic';
 import type { DocSnapshot } from '../../model/doc/DocSnapshot';
+import type { BimPart } from '../../flow/bimPart';
 
 /** Everything restored when the app reopens. */
 export interface SavedSession {
@@ -46,6 +47,12 @@ export interface SavedSession {
   mirror?: VirtualMirrorState;
   /** Rooms the user declared (cad-4), each one IfcSpace. */
   spaces?: CadSpace[];
+  /**
+   * Read, not saved: the BIM part types an opened .ifc carries, by part id (io/ifc/partsInIfc.ts).
+   * Its BIM blocks' definitions are built from these first, so their ports show while BIM is
+   * offline, then refreshed from /api/bim/parts when it answers (ROAD-3709).
+   */
+  bimParts?: Record<string, BimPart>;
 }
 
 /** The key the session's .ifc twin is kept under, beside SESSION_KEY, written in the same transaction. */
