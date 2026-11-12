@@ -31,147 +31,52 @@
  *
  * The body is 94 one-action modules under `actions/`, bound as methods here:
  * a 664-line class is easier to read as a table of contents than as a wall.
+ * The methods are in slices/ by area (tool API and input, editing, files,
+ * layers, image and the dyn box), bound onto the class at the foot of this file.
  */
 import { refreshBimDefinitions } from './actions/refreshBimDefinitions';
 import { installFlyClick, toggleFlyOfPicked } from './actions/flyClick';
-import type { CadSpace, CadViewport, ConnectorCable, Layer, LayerIfc, Point, SchematicModel, ToolId, Units, GridMode, ValidationResult } from '../core/types';
+import type { CadSpace, CadViewport, Layer, Point, SchematicModel, ToolId, Units, GridMode, ValidationResult } from '../core/types';
 import { generateUuid } from '../core/generateUuid';
-import { DEFAULT_VIRTUAL_MIRROR, type VirtualMirrorState, type VirtualMirror } from '../core/mirror';
+import { DEFAULT_VIRTUAL_MIRROR, type VirtualMirrorState } from '../core/mirror';
 import type { UserAuth, UserStatus } from '../core/userAuth';
 import { createUserAuth } from '../core/userAuth';
 import { discoverViewports } from '../viewport/discoverViewports';
 import type { ClipboardItem } from './ClipboardItem';
 import { ORIGIN } from './origin';
-import type { DynUi, UiState, LoadingUi } from './UiState';
+import type { UiState, LoadingUi } from './UiState';
 import type { CalibrationState } from '../image/calibration/CalibrationState';
 import { idleCalibration } from '../image/calibration/idleCalibration';
 import type { TracingImage } from '../image/TracingImage';
-import type { RecentFileEntry } from '../io/recentFiles/RecentFileEntry';
 import { DEFAULT_FLOW_DEFINITION } from '../flow/concepts';
 import { createSchematic } from '../flow/Schematic';
-import { autoLayoutSchematic } from '../flow/autoLayout';
-import { applyChamfers } from '../flow/autoWire';
 import { Doc } from '../model/Doc';
-import type { Palette, PaletteFit, PaletteItem } from '../model/palette/PaletteItem';
+import type { Palette, PaletteFit } from '../model/palette/PaletteItem';
 import { History } from '../model/history';
 import { currentEntrance, resumeFromHash, type EntranceProfile } from '../shell/entrance';
 import { getTool } from '../tools/registry';
-import type { AnyTool, PointerInput, ToolApi } from '../tools/types';
+import type { AnyTool, ToolApi } from '../tools/types';
 import type { Snap } from '../viewport/snap/findSnap';
 import { Viewport } from '../viewport/Viewport';
+import { toolSlice } from './slices/toolSlice';
+import { editingSlice } from './slices/editingSlice';
+import { fileSlice } from './slices/fileSlice';
+import { layerSlice } from './slices/layerSlice';
+import { imageSlice } from './slices/imageSlice';
 
-
-
-
-import { addLayer } from './actions/addLayer';
-import { armPaletteItem } from './actions/armPaletteItem';
-import { applyCalibration } from './actions/applyCalibration';
-import { applyLoadedImage } from './actions/applyLoadedImage';
-import { attach } from './actions/attach';
 import { autoSaveSession } from './actions/autoSaveSession';
-import { buildDynUi } from './actions/buildDynUi';
 import { buildUi } from './actions/buildUi';
-import { cancelBasePointPick } from './actions/cancelBasePointPick';
-import { cancelCalibration } from './actions/cancelCalibration';
-import { cancelDyn } from './actions/cancelDyn';
-import { canvasPoint } from './actions/canvasPoint';
-import { captureClipboard } from './actions/captureClipboard';
-import { clearAll } from './actions/clearAll';
-import { closeFile } from './actions/closeFile';
-import { closeDynInput } from './actions/closeDynInput';
-import { createFromClipboard } from './actions/createFromClipboard';
-import { commitDyn } from './actions/commitDyn';
-import { copySelection } from './actions/copySelection';
-import { copySelectionWithReference } from './actions/copySelectionWithReference';
-import { cutSelection } from './actions/cutSelection';
-import { cycleDynMode } from './actions/cycleDynMode';
-import { deleteLayer } from './actions/deleteLayer';
-import { deleteSelection } from './actions/deleteSelection';
-import { deselectAll } from './actions/deselectAll';
-import { deselectLayerEntities } from './actions/deselectLayerEntities';
-import { dynNumbers } from './actions/dynNumbers';
 import { edit } from './actions/edit';
 import { editFlow } from './actions/editFlow';
-import { setConnectorCable } from '../flow/cables';
 import { emit } from './actions/emit';
-import { explodeSelection } from './actions/explodeSelection';
 import { fileBigPicture } from './actions/fileBigPicture';
-import { exportDxf } from './actions/exportDxf';
-import { exportKicad } from './actions/exportKicad';
-import { openIfcText, saveIfcFile } from './actions/ifcFile';
-import { finishBasePointPick } from './actions/finishBasePointPick';
-import { flipHorizontalSelection } from './actions/flipHorizontalSelection';
-import { flipVerticalSelection } from './actions/flipVerticalSelection';
-import { groupSelection } from './actions/groupSelection';
-import { handleCalibrationClick } from './actions/handleCalibrationClick';
-import { handleDoubleClick } from './actions/handleDoubleClick';
-import { handleKeyDown } from './actions/handleKeyDown';
-import { handlePointerDown } from './actions/handlePointerDown';
-import { handlePointerMove } from './actions/handlePointerMove';
-import { handlePointerUp } from './actions/handlePointerUp';
-import { handleWheel } from './actions/handleWheel';
-import { hideAllLayers } from './actions/hideAllLayers';
-import { importDxf } from './actions/importDxf';
-import { importImage } from './actions/importImage';
-import { input } from './actions/input';
-import { loadDxfText } from './actions/loadDxfText';
-import { loadRecentFile } from './actions/loadRecentFile';
-import { loadRecentImage } from './actions/loadRecentImage';
-import { lockAllLayers } from './actions/lockAllLayers';
 import { markDocChanged } from './actions/markDocChanged';
 import { openBigPicture } from './actions/openBigPicture';
-import { openDynInput } from './actions/openDynInput';
-import { pasteClipboard } from './actions/pasteClipboard';
-import { mirrorAnotherMirror } from './actions/mirrorAnotherMirror';
-import { reflectSelectionAcrossMirror } from './actions/reflectSelectionAcrossMirror';
-import { removeImage } from './actions/removeImage';
-import { renameLayer } from './actions/renameLayer';
 import { render } from './actions/render';
 import { requestDraw } from './actions/requestDraw';
-import { resize } from './actions/resize';
-import { resolveDyn } from './actions/resolveDyn';
 import { restoreBrowserSession } from './actions/restoreBrowserSession';
 import { resumeFromHost } from '../shell/hostBridge/hostBridge';
-import { rotateSelectionPrompt } from './actions/rotateSelectionPrompt';
-import { scaleSelectionPrompt } from './actions/scaleSelectionPrompt';
-import { selectAll } from './actions/selectAll';
-import { selectLayerEntities } from './actions/selectLayerEntities';
-import { selectVirtualMirror } from './actions/selectVirtualMirror';
-import { setActiveLayer } from './actions/setActiveLayer';
-import { setCursor } from './actions/setCursor';
-import { setDynValue } from './actions/setDynValue';
-import { setFlowDefinition } from './actions/setFlowDefinition';
-import { setGridMode } from './actions/setGridMode';
-import { setGridSize } from './actions/setGridSize';
-import { setHoverEdge } from './actions/setHoverEdge';
-import { setImageOpacity } from './actions/setImageOpacity';
-import { setImageWorldWidth } from './actions/setImageWorldWidth';
-import { setLayerColor } from './actions/setLayerColor';
-import { setLayerFinish } from './actions/setLayerFinish';
-import { cycleWallExternal, cycleWallLoadBearing, declareRoomFromSelection, promptWallRating, promptWallSize, setLayerIfc, toggleWallLayer, undeclareRoomsInSelection, type WallRating } from './actions/roomsAndWalls';
-import { setLayerStyle, type LayerStyle } from './actions/setLayerStyle';
-import { setMeasurement } from './actions/setMeasurement';
-import { setPalette } from './actions/setPalette';
-import { setSelectionLayer } from './actions/setSelectionLayer';
-import { setSelectionProtected } from './actions/setSelectionProtected';
-import { setShapeMode } from './actions/setShapeMode';
-import { setSnapToGrid } from './actions/setSnapToGrid';
-import { setTool } from './actions/setTool';
-import { setVirtualMirror } from './actions/setVirtualMirror';
-import { toggleSymmetryMode } from './actions/toggleSymmetryMode';
-import { setUnits } from './actions/setUnits';
 import { MM_PER_INCH } from '../model/units/mmPerUnit';
-import { showAllLayers } from './actions/showAllLayers';
-import { showHint } from './actions/showHint';
-import { showOnlyActiveLayer } from './actions/showOnlyActiveLayer';
-import { startCalibration } from './actions/startCalibration';
-import { toggleImageVisible } from './actions/toggleImageVisible';
-import { toggleLayerLock } from './actions/toggleLayerLock';
-import { toggleLayerVisibility } from './actions/toggleLayerVisibility';
-import { toggleShapeMode } from './actions/toggleShapeMode';
-import { undo } from './actions/undo';
-import { unlockAllLayers } from './actions/unlockAllLayers';
-import { updatePointer } from './actions/updatePointer';
 import { validation } from './actions/validation';
 import { zoomIn } from './actions/zoomIn';
 import { zoomOut } from './actions/zoomOut';
@@ -479,368 +384,6 @@ export class EditorStore {
     return editFlow(this, mutate);
   }
 
-  /** Open the cable editor on a wire (the Wire tool, clicking a wire). */
-  openCableEditor(connectorId: number): void {
-    this.cableEditId = this.schematic.connectors.some((c) => c.id === connectorId) ? connectorId : null;
-    this.requestDraw();
-    this.emit();
-  }
-
-  closeCableEditor(): void {
-    if (this.cableEditId === null) return;
-    this.cableEditId = null;
-    this.requestDraw();
-    this.emit();
-  }
-
-  /** Make the open wire a cable (`cable`), or only a line again (null) — flow/cables.ts setConnectorCable. */
-  setCable(connectorId: number, cable: ConnectorCable | null): boolean {
-    return this.editFlow(() => setConnectorCable(this.schematic, connectorId, cable));
-  }
-
-  setFlowDefinition(id: string): void {
-    setFlowDefinition(this, id);
-  }
-
-  setHoverEdge(id: number | null): void {
-    setHoverEdge(this, id);
-  }
-
-  /** Replace the host's palette (a `palette` message over the bridge). */
-  setPalette(palette: Palette | null): void {
-    setPalette(this, palette);
-  }
-
-  /** Arm a palette item and switch to the Palette tool; null disarms. */
-  armPaletteItem(id: string | null): void {
-    armPaletteItem(this, id);
-  }
-
-  setPaletteFit(fit: PaletteFit): void {
-    this.paletteFit = fit;
-    this.emit();
-  }
-
-  paletteItem(): PaletteItem | null {
-    if (!this.palette || this.paletteItemId === null) return null;
-    return this.palette.items.find((i) => i.id === this.paletteItemId) ?? null;
-  }
-
-  setMeasurement(text: string | null): void {
-    setMeasurement(this, text);
-  }
-
-  setCursor(cursor: string): void {
-    setCursor(this, cursor);
-  }
-
-  showHint(message: string, durationMs = 5000): void {
-    showHint(this, message, durationMs);
-  }
-
-  // --------------------------------------------------------------- attachment
-
-  attach(canvas: HTMLCanvasElement): () => void {
-    return attach(this, canvas);
-  }
-
-  resize(width: number, height: number): void {
-    resize(this, width, height);
-  }
-
-  // ------------------------------------------------------------------- input
-
-  canvasPoint(e: MouseEvent): Point {
-    return canvasPoint(this, e);
-  }
-
-  /** Recompute snapped/raw cursor positions and any typed-dimension override. */
-  updatePointer(e: MouseEvent, screen: Point): void {
-    updatePointer(this, e, screen);
-  }
-
-  input(e: MouseEvent): PointerInput {
-    return input(this, e);
-  }
-
-  handlePointerMove(e: MouseEvent): void {
-    handlePointerMove(this, e);
-  }
-
-  handlePointerDown(e: MouseEvent): void {
-    handlePointerDown(this, e);
-  }
-
-  handlePointerUp(e: MouseEvent): void {
-    handlePointerUp(this, e);
-  }
-
-  handleDoubleClick(e: MouseEvent): void {
-    handleDoubleClick(this, e);
-  }
-
-  handleWheel(e: WheelEvent): void {
-    handleWheel(this, e);
-  }
-
-  handleKeyDown(e: KeyboardEvent): void {
-    handleKeyDown(this, e);
-  }
-
-  // -------------------------------------------------------------- tool/units
-
-  setTool(id: ToolId): void {
-    setTool(this, id);
-  }
-
-  setUnits(units: Units): void {
-    setUnits(this, units);
-  }
-
-  setGridSize(size: number): void {
-    setGridSize(this, size);
-  }
-
-  setGridMode(mode: GridMode): void {
-    setGridMode(this, mode);
-  }
-
-  setSnapToGrid(enabled: boolean): void {
-    setSnapToGrid(this, enabled);
-  }
-
-  setShapeMode(enabled: boolean): void {
-    setShapeMode(this, enabled);
-  }
-
-  toggleShapeMode(): void {
-    toggleShapeMode(this);
-  }
-
-  // ----------------------------------------------------------------- editing
-
-  selectAll(): void {
-    selectAll(this);
-  }
-
-  deselectAll(): void {
-    deselectAll(this);
-  }
-
-  copySelection(): void {
-    copySelection(this);
-  }
-
-  /**
-   * AutoCAD-style copy with base point: the next click names the reference point,
-   * and paste puts that exact point under the cursor instead of the bbox centre.
-   */
-  copySelectionWithReference(): void {
-    copySelectionWithReference(this);
-  }
-
-  cancelBasePointPick(): void {
-    cancelBasePointPick(this);
-  }
-
-  finishBasePointPick(): void {
-    finishBasePointPick(this);
-  }
-
-  /** Store the selection in the clipboard, relative to the given world origin. */
-  captureClipboard(cx: number, cy: number): number {
-    return captureClipboard(this, cx, cy);
-  }
-
-  cutSelection(): void {
-    cutSelection(this);
-  }
-
-  pasteClipboard(): void {
-    pasteClipboard(this);
-  }
-
-  deleteSelection(): void {
-    deleteSelection(this);
-  }
-
-  undo(): void {
-    undo(this);
-  }
-
-  clearAll(): void {
-    clearAll(this);
-  }
-
-  async closeFile(): Promise<void> {
-    return await closeFile(this);
-  }
-
-  rotateSelectionPrompt(): void {
-    rotateSelectionPrompt(this);
-  }
-
-  scaleSelectionPrompt(): void {
-    scaleSelectionPrompt(this);
-  }
-
-  flipHorizontalSelection(): void {
-    flipHorizontalSelection(this);
-  }
-
-  flipVerticalSelection(): void {
-    flipVerticalSelection(this);
-  }
-
-  setVirtualMirror(x: number, enabled = true, selected = true): void {
-    setVirtualMirror(this, x, enabled, selected);
-  }
-
-  toggleSymmetryMode(): boolean {
-    return toggleSymmetryMode(this);
-  }
-
-  selectVirtualMirror(selected: boolean): void {
-    selectVirtualMirror(this, selected);
-  }
-
-  reflectSelectionAcrossMirror(): void {
-    reflectSelectionAcrossMirror(this);
-  }
-
-  mirrorAnotherMirror(): VirtualMirror[] {
-    return mirrorAnotherMirror(this);
-  }
-
-  groupSelection(): void {
-    groupSelection(this);
-  }
-
-  explodeSelection(): void {
-    explodeSelection(this);
-  }
-
-  async exportDxf(): Promise<void> {
-    return await exportDxf(this);
-  }
-
-  /** File › Export KiCad: the sheet as a KiCad 9/10 project (.kicad_sch, KLC symbols, sym-lib-table). */
-  async exportKicad(): Promise<void> {
-    return await exportKicad(this);
-  }
-
-  /** File → Save .ifc: the drawing as IFC4X3_ADD2 (src/io/ifc). */
-  async saveIfcFile(): Promise<void> {
-    return await saveIfcFile(this);
-  }
-
-  /** File → Open .ifc: an IFC file replaces the drawing (one undo step). */
-  async openIfcText(text: string, fileName: string): Promise<boolean> {
-    return await openIfcText(this, text, fileName);
-  }
-
-  openFileDialog(): void {
-    if (this.openFilePicker) {
-      this.openFilePicker();
-    }
-  }
-
-  triggerOpenBlockEditor(blockName?: string): void {
-    if (this.openBlockEditorModal) {
-      this.openBlockEditorModal(blockName);
-    }
-  }
-
-  triggerOpenSoftappBridge(blockName?: string, defaultAppId?: string): void {
-    if (this.openSoftappBridgeModal) {
-      this.openSoftappBridgeModal(blockName, defaultAppId);
-    }
-  }
-
-  runAutoLayoutSchematic(): boolean {
-    const success = this.editFlow(() => {
-      return autoLayoutSchematic(this.schematic);
-    });
-    if (success) {
-      this.showHint('⚡ Schematic automatically placed and aligned.', 2500);
-    } else {
-      this.showHint('No schematic placements to layout.', 2000);
-    }
-    return success;
-  }
-
-  runAutoRouteWires(): boolean {
-    const success = this.editFlow(() => {
-      let changed = false;
-      for (const connector of this.schematic.connectors) {
-        if (connector.route && connector.route.length >= 3) {
-          connector.route = applyChamfers(connector.route);
-          changed = true;
-        }
-      }
-      return changed;
-    });
-    if (success) {
-      this.showHint('⚡ Chamfered 45° vector routes applied to schematic wires.', 2500);
-    } else {
-      this.showHint('No multi-point connector routes to chamfer.', 2000);
-    }
-    return success;
-  }
-
-  triggerOpenConceptLibrary(): void {
-    if (this.openLibrarySash) {
-      this.openLibrarySash();
-    }
-  }
-
-  triggerOpenStartupModal(): void {
-    if (this.openStartupModal) {
-      this.openStartupModal();
-    }
-  }
-
-  async createFromClipboard(): Promise<boolean> {
-    return await createFromClipboard(this);
-  }
-
-  /**
-   * Display loading screen with "Opening drawings" and caching status,
-   * yielding execution to the browser to ensure the overlay renders before heavy CPU work.
-   */
-  async showLoading(title = 'Opening drawings', subtitle?: string): Promise<void> {
-    this.loading = { active: true, title, subtitle };
-    this.emit();
-    await new Promise<void>((resolve) => setTimeout(resolve, 30));
-  }
-
-  /** Dismiss the loading screen. */
-  hideLoading(): void {
-    this.loading = null;
-    this.emit();
-  }
-
-  toggleFixedTextSize(): void {
-    this.fixedTextSize = !this.fixedTextSize;
-    this.requestDraw();
-    this.emit();
-    this.showHint(
-      this.fixedTextSize ? 'Fixed text size enabled (no zoom scaling).' : 'World scaled text enabled.',
-      2500,
-    );
-  }
-
-  async importDxf(file: File): Promise<void> {
-    return await importDxf(this, file);
-  }
-
-  async loadDxfText(text: string,
-    filename = 'drawing.dxf',
-    sourceUnit?: Units,
-    targetUnit?: Units,): Promise<void> {
-    return await loadDxfText(this, text, filename, sourceUnit, targetUnit);
-  }
-
   zoomToFit(): void {
     zoomToFit(this);
   }
@@ -910,206 +453,17 @@ export class EditorStore {
   setZoom(zoom: number): void {
     setZoom(this, zoom);
   }
+}
 
-  // ------------------------------------------------------------------- layers
-
-  setActiveLayer(id: string): void {
-    setActiveLayer(this, id);
-  }
-
-  addLayer(name: string, color = '#3b82f6'): void {
-    addLayer(this, name, color);
-  }
-
-  toggleLayerVisibility(id: string): void {
-    toggleLayerVisibility(this, id);
-  }
-
-  toggleLayerLock(id: string): void {
-    toggleLayerLock(this, id);
-  }
-
-  showOnlyActiveLayer(): void {
-    showOnlyActiveLayer(this);
-  }
-
-  showAllLayers(): void {
-    showAllLayers(this);
-  }
-
-  hideAllLayers(): void {
-    hideAllLayers(this);
-  }
-
-  lockAllLayers(): void {
-    lockAllLayers(this);
-  }
-
-  unlockAllLayers(): void {
-    unlockAllLayers(this);
-  }
-
-  deleteLayer(id: string): void {
-    deleteLayer(this, id);
-  }
-
-  selectLayerEntities(id: string): void {
-    selectLayerEntities(this, id);
-  }
-
-  deselectLayerEntities(id: string): void {
-    deselectLayerEntities(this, id);
-  }
-
-  setLayerColor(id: string, color: string, aci?: number): void {
-    setLayerColor(this, id, color, aci);
-  }
-
-  setLayerFinish(id: string, finish: string | null): void {
-    setLayerFinish(this, id, finish);
-  }
-
-  // walls and rooms for the IFC export (roomsAndWalls.ts, ROAD-3581)
-  setLayerIfc(id: string, ifc: LayerIfc | null): void {
-    setLayerIfc(this, id, ifc);
-  }
-
-  toggleWallLayer(id: string): void {
-    toggleWallLayer(this, id);
-  }
-
-  promptWallSize(id: string): void {
-    promptWallSize(this, id);
-  }
-
-  cycleWallExternal(id: string): void {
-    cycleWallExternal(this, id);
-  }
-
-  /** Layer menu ▸ Load Bearing: Pset_WallCommon.LoadBearing (true → false → not said). */
-  cycleWallLoadBearing(id: string): void {
-    cycleWallLoadBearing(this, id);
-  }
-
-  /** Layer menu ▸ Acoustic / Fire Rating...: Pset_WallCommon AcousticRating / FireRating, as written. */
-  promptWallRating(id: string, key: WallRating): void {
-    promptWallRating(this, id, key);
-  }
-
-  declareRoomFromSelection(): CadSpace | null {
-    return declareRoomFromSelection(this);
-  }
-
-  undeclareRoomsInSelection(): number {
-    return undeclareRoomsInSelection(this);
-  }
-
-  setLayerStyle(id: string, style: LayerStyle): void {
-    setLayerStyle(this, id, style);
-  }
-
-  renameLayer(id: string, newName: string): void {
-    renameLayer(this, id, newName);
-  }
-
-  setSelectionLayer(layerId: string): void {
-    setSelectionLayer(this, layerId);
-  }
-
-  setSelectionProtected(isProtected: boolean): void {
-    setSelectionProtected(this, isProtected);
-  }
-
-  // ------------------------------------------------------------------- image
-
-  async importImage(file: File): Promise<void> {
-    return await importImage(this, file);
-  }
-
-  async loadRecentImage(dataUrl: string): Promise<void> {
-    return await loadRecentImage(this, dataUrl);
-  }
-
-  applyLoadedImage(img: HTMLImageElement): void {
-    applyLoadedImage(this, img);
-  }
-
-  async loadRecentFile(entry: RecentFileEntry): Promise<void> {
-    return await loadRecentFile(this, entry);
-  }
-
-  removeImage(): void {
-    removeImage(this);
-  }
-
-  toggleImageVisible(): void {
-    toggleImageVisible(this);
-  }
-
-  setImageOpacity(opacity: number): void {
-    setImageOpacity(this, opacity);
-  }
-
-  setImageWorldWidth(width: number): void {
-    setImageWorldWidth(this, width);
-  }
-
-  // ------------------------------------------------------------- calibration
-
-  startCalibration(): void {
-    startCalibration(this);
-  }
-
-  cancelCalibration(): void {
-    cancelCalibration(this);
-  }
-
-  handleCalibrationClick(screen: Point): void {
-    handleCalibrationClick(this, screen);
-  }
-
-  /** Rescale everything so the two picked points are `distance` mm apart. */
-  applyCalibration(distance: number): boolean {
-    return applyCalibration(this, distance);
-  }
-
-  // --------------------------------------------------------- type-to-size box
-
-  openDynInput(anchor: Point): void {
-    openDynInput(this, anchor);
-  }
-
-  closeDynInput(): void {
-    closeDynInput(this);
-  }
-
-  dynNumbers(): Record<string, number | null> {
-    return dynNumbers(this);
-  }
-
-  /** The end point implied by whatever is typed, or null when nothing usable is. */
-  resolveDyn(): Point | null {
-    return resolveDyn(this);
-  }
-
-  buildDynUi(): DynUi | null {
-    return buildDynUi(this);
-  }
-
-  setDynValue(key: string, raw: string): void {
-    setDynValue(this, key, raw);
-  }
-
-  cycleDynMode(): void {
-    cycleDynMode(this);
-  }
-
-  /** Enter in the dyn box: finish the shape at the typed size. */
-  commitDyn(): void {
-    commitDyn(this);
-  }
-
-  cancelDyn(): void {
-    cancelDyn(this);
+/* The rest of the store's methods live in slices/ (one object of methods per area, `this` = the store) and are
+   bound onto the prototype here, as the class's own methods would be: same names, non-enumerable. The interface
+   below merges them into the class's type, so `store.setTool(…)` reads exactly as it did. */
+type Bound<T> = { [K in keyof T]: OmitThisParameter<T[K]> };
+const SLICES = [toolSlice, editingSlice, fileSlice, layerSlice, imageSlice] as const;
+export interface EditorStore
+  extends Bound<typeof toolSlice>, Bound<typeof editingSlice>, Bound<typeof fileSlice>, Bound<typeof layerSlice>, Bound<typeof imageSlice> {}
+for (const slice of SLICES) {
+  for (const [key, d] of Object.entries(Object.getOwnPropertyDescriptors(slice))) {
+    Object.defineProperty(EditorStore.prototype, key, { ...d, enumerable: false });
   }
 }
