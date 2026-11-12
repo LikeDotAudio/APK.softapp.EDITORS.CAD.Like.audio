@@ -10,6 +10,8 @@
  *     and BIM (8150) then holds it assigned to this drawing + sheet; the row leaves the list;
  *   - an assignment written by someone else reaches the palette over the 8160 socket;
  *   - removing the block (the Flow tool's Ctrl-click) frees the instance in BIM, and it is back in the list;
+ *   - a connector (DANTE-RX2) dropped on the placed instance gives THAT instance a port, written to
+ *     BIM's PUT /api/bim/projects/<id>/instances/<i>/ports (ROAD-3688) — the part type untouched;
  *   - a 📚 Library row drags in as a bare part (no occurrence).
  *
  *   node scripts/blocks-palette-headless.mjs [dist] [out.png]
@@ -150,6 +152,36 @@ try {
   await page.waitForSelector('.blocks-here-row', { timeout: 5000 }).catch(() => {});
   const here = await page.$$eval('.blocks-here-row', (els) => els.map((e) => e.innerText));
   check(here.some((t) => /FOH mixer/.test(t) && /stadium\/D1/.test(t)), `📄 This drawing shows it: ${here.join(' | ').replace(/\n/g, ' ')}`);
+
+  // ROAD-3688: a connector dropped on the placed D1 gives THAT instance its connector — the two unknown INs
+  // first, then a new port — and BIM (8150) holds each change as the instance's own ports
+  const dropConnectorOnD1 = () => page.evaluate(() => {
+    const canvas = [...document.querySelectorAll('canvas')].sort((a, b) => b.width * b.height - a.width * a.height)[0];
+    const r = canvas.getBoundingClientRect();
+    const dt = new DataTransfer();
+    dt.setData('application/app-connector', 'DANTE-RX2');
+    const at = { clientX: r.left + r.width / 2, clientY: r.top + r.height / 2, bubbles: true, cancelable: true, dataTransfer: dt };
+    canvas.dispatchEvent(new DragEvent('dragover', at));
+    canvas.dispatchEvent(new DragEvent('drop', at));
+  });
+  const ownPorts = async (until) => {
+    let o = null;
+    for (let i = 0; i < 30 && !until(o); i++) { await new Promise((r) => setTimeout(r, 200)); o = (await http('GET', `${W}/projects/stadium/instances/D1/ports`)).body; }
+    return o;
+  };
+  await dropConnectorOnD1();
+  let own = await ownPorts((o) => o && Object.keys(o.port_connectors ?? {}).length);
+  check(JSON.stringify(own?.port_connectors) === '{"IN_1":"DANTE-RX2"}' && !own.ports.length,
+    `a DANTE-RX2 on D1's body filled its unknown IN 1, and BIM holds it: ${JSON.stringify(own?.port_connectors)}`);
+  await dropConnectorOnD1();
+  await dropConnectorOnD1();
+  own = await ownPorts((o) => o?.ports?.length);
+  check(own?.ports?.length === 1 && own.ports[0].connector === 'DANTE-RX2' && own.ports[0].side === 'input' && Object.keys(own.port_connectors).length === 2,
+    `the third one is a NEW port of D1, in BIM: ${JSON.stringify(own?.ports)} · ${JSON.stringify(own?.port_connectors)}`);
+  const type = (await http('GET', `${W}/parts/acme/mixer-8`)).body;
+  check(!JSON.stringify(type.ports).includes('DANTE'), 'the part type acme/mixer-8 is untouched');
+  check(JSON.stringify((await http('GET', `${R}/api/bim/projects/stadium/instances/D1/ports`)).body.ports) === JSON.stringify(own?.ports),
+    'the library app (8160) reads the same');
 
   // someone else places D2 elsewhere: the socket brings it here
   await page.click('.blocks-tab[data-tab="project"]');

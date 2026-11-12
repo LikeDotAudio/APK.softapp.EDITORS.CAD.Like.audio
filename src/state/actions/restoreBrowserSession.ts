@@ -6,6 +6,7 @@ import { restoreSchematic } from '../../flow/Schematic';
 import { loadSessionFromBrowser } from '@io/browserStorage/loadSessionFromBrowser';
 import { generateUuid } from '../../core/generateUuid';
 import { sessionInMm } from '@io/browserStorage/sessionInMm';
+import { refreshBimDefinitions, standInBimDefinitions } from './refreshBimDefinitions';
 
 export async function restoreBrowserSession(store: EditorStore): Promise<void> {
   await store.showLoading('Opening drawings', 'Restoring cached drawing from browser memory...');
@@ -35,6 +36,8 @@ export async function applySavedSession(store: EditorStore, saved: SavedSession)
   store.doc.restore(session.docSnapshot);
   store.currentFileName = session.currentFileName ?? null;
   if (session.schematic) restoreSchematic(store.schematic, session.schematic);
+  // its BIM blocks' definitions: stand-ins now, rebuilt from their parts (ROAD-3689)
+  if (session.schematic && standInBimDefinitions(store.schematic, session.schematic.sizes).length) void refreshBimDefinitions(store);
   store.units = session.units || 'in';
   store.gridSize = session.gridSize || 6.35; // mm
   store.gridMode = session.gridMode || 'lines';

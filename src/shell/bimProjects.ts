@@ -9,12 +9,14 @@
  * /library/ and /api/bim) — GET /api/bim/projects[/<id>?drawing=] — and its socket pushes
  * {"type": "projects"} on every change. WRITES go through the gateway to BIM's own 8150 (the bench
  * credential): PUT /api/bim/projects/<id>/assignments/<instance> {drawing, sheet, placement},
- * DELETE …?drawing=, and the device-list import PUT /api/bim/projects/<id>.
+ * DELETE …?drawing=, and the device-list import PUT /api/bim/projects/<id>. An occurrence's OWN ports
+ * (a connector dropped on it — flow/dropConnector.ts) are written to
+ * PUT /api/bim/projects/<id>/instances/<instance>/ports {ports, port_connectors} (ROAD-3688).
  *
  * WHERE THE WRITES GO: localStorage `cad.bimApi`, else `bim=` in the address hash, else this
  * origin's /api/bim (the gateway; Storage-Portal :8080 refuses the write and the palette says so).
  */
-import type { BimOccurrence, BimRef, BlockPlacement } from '../core/types';
+import type { BimOccurrence, BimRef, BlockPlacement, Port } from '../core/types';
 import type { BimPart } from '../flow/bimPart';
 
 export interface ProjectRow {
@@ -119,4 +121,70 @@ export async function importProject(base: string, id: string, body: Record<strin
   return answer(await f(`${base}/projects/${encodeURIComponent(id)}`, {
     method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
   }), `import ${id}`);
+}
+
+/** ONE instance's own ports (ROAD-3688): what connectors dropped on it gave it, never its part type. */
+export interface InstancePorts { ports: Port[]; port_connectors: Record<string, string> }
+
+/** A placement's own ports as BIM's instance-ports record holds them. */
+export function instancePortsOf(p: BlockPlacement): InstancePorts {
+  return { ports: p.ports ?? [], port_connectors: p.portConnectors ?? {} };
+}
+
+/**
+ * Which occurrences' own ports to write, by GlobalId: on a drawing just opened (`before` null) every
+ * occurrence that HAS own ports (one with none says nothing new); after, every one whose own ports
+ * changed — back to none included, which clears BIM's record. An occurrence taken off the drawing is
+ * not written: what was fitted to the device stays with it.
+ */
+export function portWrites(before: ReadonlyMap<string, string> | null, now: readonly BlockPlacement[]):
+  { writes: Array<{ occ: BimOccurrence; body: InstancePorts }>; seen: Map<string, string> } {
+  const seen = new Map<string, string>();
+  const writes: Array<{ occ: BimOccurrence; body: InstancePorts }> = [];
+  for (const p of now) {
+    if (!p.occurrence?.globalId) continue;
+    const body = instancePortsOf(p);
+    const sig = JSON.stringify(body);
+    seen.set(p.occurrence.globalId, sig);
+    const was = before?.get(p.occurrence.globalId);
+    const empty = !body.ports.length && !Object.keys(body.port_connectors).length;
+    if (was === undefined ? !empty : was !== sig) writes.push({ occ: p.occurrence, body });
+  }
+  return { writes, seen };
+}
+
+export async function putInstancePorts(base: string, occ: BimOccurrence, body: InstancePorts, f: typeof fetch = fetch): Promise<unknown> {
+  return answer(await f(`${base}/projects/${encodeURIComponent(occ.project)}/instances/${encodeURIComponent(occ.instance)}/ports`, {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+  }), `ports of ${occ.instance}`);
+}
+
+/**
+ * Keep BIM's record of each placed occurrence's own ports equal to the drawing's (ROAD-3688): watches
+ * the store (debounced), writes what portWrites says through the gateway. A drawing with no name
+ * tracks nothing, like the assignments. Returns the unsubscribe.
+ */
+export function installInstancePortsSync(store: {
+  subscribe(fn: () => void): () => void; currentFileName: string | null;
+  schematic: { placements: BlockPlacement[] }; showHint(text: string, ms?: number): void;
+}, f: typeof fetch = fetch, delayMs = 400, writeBase: () => string = bimWriteBase): () => void {
+  let drawing: string | null = null;
+  let seen: Map<string, string> | null = null;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let lastError = '';
+  const run = () => {
+    const name = drawingName(store);
+    if (!name) { drawing = null; seen = null; return; }
+    const { writes, seen: next } = portWrites(drawing === name ? seen : null, store.schematic.placements);
+    drawing = name; seen = next;
+    if (!writes.length) return;
+    const base = writeBase();
+    for (const w of writes) void putInstancePorts(base, w.occ, w.body, f).then(() => { lastError = ''; }).catch((e: Error) => {
+      if (e.message !== lastError) store.showHint(e.message, 5000);
+      lastError = e.message;
+    });
+  };
+  const off = store.subscribe(() => { clearTimeout(timer); timer = setTimeout(run, delayMs); });
+  run();
+  return () => { clearTimeout(timer); off(); };
 }

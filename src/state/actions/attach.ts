@@ -3,7 +3,7 @@
 import type { EditorStore } from '../EditorStore';
 import { BIM_DRAG_MIME, bimPartOfDrop, occurrenceOfDrop, placeBimPart } from './dropBimPart';
 import { offerBimDropToHost } from '../../shell/hostBridge/hostBridge';
-import { currentSheet } from '../../shell/bimProjects';
+import { currentSheet, installInstancePortsSync } from '../../shell/bimProjects';
 import { installPuck } from '../../viewport/puck/installPuck';
 import { CONNECTOR_DRAG_MIME, dropConnectorAt } from './dropConnector';
 
@@ -84,6 +84,8 @@ export function attach(store: EditorStore, canvas: HTMLCanvasElement): () => voi
   window.addEventListener('blur', onBlur);
   // the SpaceMouse, posted in by the OS shell: pans and zooms the sheet (viewport/puck)
   const detachPuck = installPuck(store);
+  // a connector dropped on a placed occurrence: its own ports written back to BIM (ROAD-3688)
+  const detachPorts = installInstancePortsSync(store);
 
   return () => {
     canvas.removeEventListener('mousemove', onMove);
@@ -98,6 +100,7 @@ export function attach(store: EditorStore, canvas: HTMLCanvasElement): () => voi
     window.removeEventListener('keyup', onKeyUp);
     window.removeEventListener('blur', onBlur);
     detachPuck();
+    detachPorts();
     if (store.frameHandle) cancelAnimationFrame(store.frameHandle);
     store.frameHandle = 0;
     store.canvas = null;

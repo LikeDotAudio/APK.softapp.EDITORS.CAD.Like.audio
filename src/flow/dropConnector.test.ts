@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import type { BlockDefinition, SchematicModel } from '../core/types';
 import { partToDefinition } from './bimPart';
-import { connectorDirection, dropConnector, nextPortLabel } from './dropConnector';
+import { connectorDirection, connectorFamily, dropConnector, nextPortLabel, sameFamily } from './dropConnector';
 import { definitionFor, portsOf, portWorldPoint } from './Schematic';
 
 /** The owner's sheet: an "Unidentified NMOS node", RECEIVER 0 in and SENDER 0 out, both `RJ45?`. */
@@ -98,5 +98,43 @@ describe('a connector dropped on a device', () => {
   it('a label after the ports of its kind', () => {
     expect(nextPortLabel([{ id: 'A', side: 'input', label: 'Ch 7', domain: 'audio' }], 'input', 'DANTE-RX2')).toBe('Ch 8');
     expect(nextPortLabel([], 'output', 'BNC')).toBe('BNC 1');
+  });
+
+  it('ROAD-3688: a guessed port takes only a connector of its family (DANTE-RX2 never fills an XLR3-F? input)', () => {
+    expect(connectorFamily('XLR3-F')).toMatchObject({ family: 'XLR', network: false });
+    expect(connectorFamily('DANTE-RX2')).toMatchObject({ network: true, carried: true });
+    expect(connectorFamily('RJ45')).toMatchObject({ family: 'RJ', network: true, carried: false });
+    expect(sameFamily('XLR3-F', 'XLR3-M')).toBe(true);
+    expect(sameFamily('RJ45', 'DANTE-RX2')).toBe(true);
+    expect(sameFamily('DANTE', 'AES67')).toBe(true);
+    expect(sameFamily('XLR3-F', 'DANTE-RX2')).toBe(false);
+    expect(sameFamily('RJ45', 'SFP')).toBe(false);   // two network plugs are two connectors
+    const MIC: BlockDefinition = partToDefinition({
+      id: 'acme/box', name: 'Box',
+      ports: [
+        { group: 'IN', side: 'input', domain: 'audio', connector: 'XLR3-F', connector_guess: true },
+        { group: 'NET', side: 'input', domain: 'network', connector: 'RJ45', connector_guess: true },
+      ],
+    });
+    const m: SchematicModel = {
+      definitions: [MIC], placements: [{ id: 1, definitionId: MIC.id, at: { x: 0, y: 0 }, layerId: '0', refdes: 'U1' }],
+      connectors: [], groups: [], nextPlacementId: 2, nextConnectorId: 1, nextGroupId: 1,
+    };
+    expect(dropConnector(m, 'DANTE-RX2', { x: 0, y: 0 }, 1)).toMatchObject({ kind: 'assigned', portId: 'NET', was: 'RJ45?' });
+    expect(dropConnector(m, 'DANTE-RX2', { x: 0, y: 0 }, 1)).toMatchObject({ kind: 'added', side: 'input' });   // IN stays XLR3-F?
+    expect(definitionFor(m, m.placements[0]!)!.ports.find((p) => p.id === 'IN')).toMatchObject({ connector: 'XLR3-F', connectorGuess: true });
+    expect(dropConnector(m, 'XLR3-F', { x: 0, y: 0 }, 1)).toMatchObject({ kind: 'assigned', portId: 'IN', was: 'XLR3-F?' });
+  });
+
+  it('ROAD-3688: an XLR fills an XLR guess of the other gender; a BNC adds a port', () => {
+    const BOX: BlockDefinition = partToDefinition({
+      id: 'acme/box2', name: 'Box 2', ports: [{ group: 'IN', side: 'input', domain: 'audio', connector: 'XLR3-F', connector_guess: true }],
+    });
+    const m: SchematicModel = {
+      definitions: [BOX], placements: [{ id: 1, definitionId: BOX.id, at: { x: 0, y: 0 }, layerId: '0' }],
+      connectors: [], groups: [], nextPlacementId: 2, nextConnectorId: 1, nextGroupId: 1,
+    };
+    expect(dropConnector(m, 'BNC', { x: 0, y: 0 }, 1)).toMatchObject({ kind: 'added' });
+    expect(dropConnector(m, 'XLR3-M', { x: 0, y: 0 }, 1)).toMatchObject({ kind: 'assigned', portId: 'IN' });
   });
 });

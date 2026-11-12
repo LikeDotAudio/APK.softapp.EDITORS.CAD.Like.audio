@@ -3,6 +3,7 @@
 import type { Point, Port, PortSide, SchematicModel } from '../core/types';
 import { getEssenceCategory } from '../connectors/adapterRules';
 import { lookupConnectorLoose } from '../connectors/ConnectorLookup';
+import { CARRIED_OVER_IP_FAMILIES, signalFamilyOf } from '../connectors/signalFormats';
 import { portId as toPortId } from './bimPart';
 import { definitionFor, hitPlacementAt, placementOf, portsOf } from './Schematic';
 
@@ -14,8 +15,9 @@ import { definitionFor, hitPlacementAt, placementOf, portsOf } from './Schematic
  *  - dropped ON or NEAR A PORT → that port gets the connector (its `RJ45?` guess becomes the
  *    word), whatever it had;
  *  - dropped on the BODY → the first port whose connector is unknown or only guessed and that
- *    fits (the guess is this connector; else the right side for a receiver/sender and the
- *    same kind of signal) gets it;
+ *    fits (the guess is this connector; else a guess OF ITS FAMILY — connectorFamily, ROAD-3688;
+ *    else a port with no connector on the right side for a receiver/sender and the same kind
+ *    of signal) gets it;
  *  - else → a NEW port with that connector: inputs/receivers left, outputs/senders right, a
  *    two-way one (RJ45, a network) on the side nearest the drop, power along the bottom —
  *    named and numbered after the ports of its kind already there (`RECEIVER 0` → `RECEIVER 1`).
@@ -83,15 +85,43 @@ export function nextPortLabel(ports: readonly Port[], side: PortSide, type: stri
   return `${type} ${same + 1}`;
 }
 
-/** Does an unknown port fit this connector? Its guess IS it; else the right side and kind of signal. */
-function fits(p: Port, type: string, dir: ConnectorDirection): 'exact' | 'fits' | null {
+/**
+ * A connector's FAMILY — what a guessed port must share with a connector to take it (ROAD-3688):
+ * a physical connector's vocabulary family (contracts/ifc/connectors.json: `XLR`, `RJ`, `Coaxial`,
+ * `USB` …), a format carried over IP (Dante, AES67, ST 2110, NMOS …) `network` and `carried`, and
+ * the network plugs (RJ, SFP, QSFP) `network` too. Pure.
+ */
+export interface ConnectorFamily { family: string; network: boolean; carried: boolean }
+export function connectorFamily(type: string): ConnectorFamily {
+  const known = lookupConnectorLoose(type);
+  const fmt = signalFamilyOf(known?.abbreviation ?? type);
+  const carried = !!fmt && CARRIED_OVER_IP_FAMILIES.has(fmt);
+  const essence = getEssenceCategory(known?.abbreviation ?? type);
+  const network = carried || essence === 'physical_network' || essence === 'transport_ip'
+    || /^(RJ|SFP|QSFP)/i.test(known?.entry.ifc?.family ?? '');
+  const family = known?.entry.ifc?.family ?? (carried ? 'network' : fmt ?? known?.entry.group ?? (essence !== 'unknown' ? essence : type.trim().toUpperCase()));
+  return { family: family.toUpperCase(), network, carried };
+}
+
+/** Two connectors of one family: the same plug family, or a carried format and a network plug / another carried one. */
+export function sameFamily(a: string, b: string): boolean {
+  const x = connectorFamily(a), y = connectorFamily(b);
+  return x.family === y.family || (x.network && y.network && (x.carried || y.carried));
+}
+
+/**
+ * Does an unknown port fit this connector? Its guess IS it ('exact'); a GUESSED port only a connector
+ * of the guess's family ('family': a Dante connector fills a Dante / RJ45 guess, an XLR an XLR guess —
+ * never DANTE-RX2 into an `XLR3-F?`); a port with no connector the right side and kind of signal ('fits').
+ */
+function fits(p: Port, type: string, dir: ConnectorDirection): 'exact' | 'family' | 'fits' | null {
   if (!unknownConnector(p)) return null;
   if (p.connector && p.connector.toUpperCase() === type.toUpperCase()) return 'exact';
-  if (dir === 'power') return p.side === 'power' ? 'fits' : null;
+  if (dir === 'power') return p.side === 'power' && (!p.connector || sameFamily(p.connector, type)) ? (p.connector ? 'family' : 'fits') : null;
   if (p.side === 'power' || p.side === 'control') return null;
   if (dir !== 'both' && p.side !== dir) return null;
+  if (p.connector) return sameFamily(p.connector, type) ? 'family' : null;
   const want = connectorDomain(type);
-  if (p.connector && dir === 'both' && getEssenceCategory(p.connector) !== getEssenceCategory(type)) return null;
   if (want && p.domain && p.domain !== want && !(want === 'network' || p.domain === 'network')) return null;
   return 'fits';
 }
@@ -122,7 +152,7 @@ export function dropOnDevice(model: SchematicModel, placementId: number, type: s
   if (!placement || !def) return null;
   const dir = connectorDirection(type);
   const ranked = def.ports.map((p) => ({ p, f: fits(p, type, dir) })).filter((x) => x.f);
-  const pick = ranked.find((x) => x.f === 'exact') ?? ranked[0];
+  const pick = ranked.find((x) => x.f === 'exact') ?? ranked.find((x) => x.f === 'family') ?? ranked[0];
   if (pick) return assign(model, placementId, pick.p.id, type);
   return addPort(model, placementId, type, sideFor(dir, model, placementId, at));
 }

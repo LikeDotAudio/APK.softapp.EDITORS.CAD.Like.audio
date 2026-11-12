@@ -51,6 +51,11 @@ export const DATAFLOW_FAMILIES: ReadonlySet<string> = new Set(
   Object.entries(DOC.families).filter(([, f]) => f.slot === 'Logic').map(([name]) => name),
 );
 
+/** The families carried over IP — a network port's flows (slot Protocols, SystemType DATA): Dante, ST 2110, NMOS … */
+export const CARRIED_OVER_IP_FAMILIES: ReadonlySet<string> = new Set(
+  Object.entries(DOC.families).filter(([, f]) => f.slot === 'Protocols' && f.SystemType === 'DATA').map(([name]) => name),
+);
+
 /** The family a format id belongs to (exact id), or undefined for anything that is not one. */
 export const signalFamilyOf = (type: string): string | undefined => BY_ID.get(type);
 

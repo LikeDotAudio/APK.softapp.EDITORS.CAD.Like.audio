@@ -51,3 +51,26 @@ export async function refreshBimDefinitions(
   if (done) { store.requestDraw(); store.emit(); }
   return done;
 }
+
+/**
+ * A drawing OPENED (File ▸ Open Model, a restored session) names its BIM blocks only by
+ * definition id and BIM reference — a definition is not part of a saved sheet. Found in the
+ * flight of ROAD-3689: every BIM block of a reopened drawing had no definition, so it was not
+ * drawn, its wires had no path and the Wire Manager discovered nothing. Each missing `bim.*`
+ * definition gets a stand-in — the size the sheet saved it at, its reference, no ports — which
+ * refreshBimDefinitions (no hat: stale) then rebuilds from its part. The ids that were added.
+ */
+export function standInBimDefinitions(
+  model: { definitions: BlockDefinition[]; placements: Array<{ definitionId: string; bimRef?: BlockDefinition['bimRef'] }> },
+  sizes?: Record<string, { w: number; h: number }>,
+): string[] {
+  const added: string[] = [];
+  for (const p of model.placements) {
+    if (!p.definitionId.startsWith('bim.') || model.definitions.some((d) => d.id === p.definitionId)) continue;
+    const part = p.bimRef?.part || p.definitionId.slice(4).split('@')[0]!;
+    model.definitions.push({ id: p.definitionId, name: part, size: { ...(sizes?.[p.definitionId] ?? { w: 120, h: 60 }) }, glyph: [], ports: [],
+      ...(p.bimRef ? { bimRef: { ...p.bimRef } } : {}) });
+    added.push(p.definitionId);
+  }
+  return added;
+}
