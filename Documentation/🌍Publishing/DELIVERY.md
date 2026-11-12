@@ -50,5 +50,25 @@ Part of a bigger app: this bundle is the `07b · Drawing` and `06a · Big Pictur
 - **big-picture@2: the Big Picture filed as IFC** (2.12.0, ROAD-3598 answer 12, IFC-CORE-DELTAS cad-6) — `src/io/bigPicture/bigPictureIfc.ts` files the sheet as the CAD's schematic IFC (IFC4X3_ADD2 STEP, byte-deterministic: docKey `big-picture`, mm) and `bigPictureApi.ts` posts it to `/api/v2/big-picture` with the digest compare-and-swap; reads come back through `importIfc`. `contract/big-picture@2/` (schema + samples written from `$sheet`); `bigPictureContract.test.ts` proves the samples are this writer's bytes, the sheet round-trips, the v1 sheet comes through IFC unchanged, and a sheet still filed as JSON opens from v1 (read-only until 2027-01-01). The sample's STEP: IfcOpenShell validate(express_rules) 0, every APK_/Pset_ set declared, apk-av.ids all pass, every IfcRelConnectsPorts SOURCE → SINK. Server side WEB.OsApi `osapi/big_picture.py`. Verified: `npm test`.
 - **A new sheet shows mm** (2.12.0, ROAD-3598 answer 13) — `EditorStore.units` defaults to `'mm'` and the grid to 10 mm (host@1 already said mm); a saved session keeps its own choice. Hosts checked: host@1 samples (`node contract/validate.mjs`), EDITORS.Acoustic.Like.audio `npm test` (cadContract), the OS Simulation host only re-opens a non-mm session, now not needed. Verified: `npm test`.
 
+## Delivered 2026-11-11 – 2026-11-12
+
+From this repository's own commits (the commit message is the record):
+
+- ROAD-3619: a placed project instance keeps its project and instance through IFC (`687079f`)
+- ROAD-3624: the Big Picture door (🔌 Schematics) answers the puck's consumers.schematic, the drawing board consumers.cad (`87d20ec`)
+- ROAD-3666 (CAD): a fly capsule naming another drawing asks the host to open it — host@1 2.14.0 (`017c328`)
+- vendor: apk-contracts web bundle refreshed from contracts/generated/web (report.ts: LogLine + ProblemRecord, System/Problems family) (`2565243`)
+- Elements: ▾ — the one home of the blocks and elements (owner 2026-11-11) (`e10d0ef`)
+- Connectors dropped on devices; wires From → To on named nets; the Wire Manager (owner 2026-11-11) (`4ae08ec`)
+- CellHell and Elements tables were invisible: the ApkTable wrapper wore APKTable's own placeholder class (`c40c4b2`)
+- vendor/apk-softapp: re-vendored — every problem card is reported through the SDK (ROAD-3695 step 2) (`af916e8`)
+- vendor: apk-contracts web bundle refreshed from contracts/generated/web (five report codes, ROAD-3695; unit-gate, ROAD-3684) (`e1b5cb3`)
+- ROAD-3688, ROAD-3689: dropped connectors reach BIM; a guess takes only its family; wires flown with a real mouse (`7a9cc2e`)
+- dist: rebuilt — dist/vendor/apk-contracts catches up with public/vendor (e1b5cb3) (`1b91bd6`)
+- IFC export asks BIM for the part, not the block: bimPartOf cuts the per-block @suffix (keysight/3235@sim-bench:U19 → keysight/3235) as refreshBimDefinitions does; dist rebuilt (`20388bc`)
+- ROAD-3709, ROAD-3716: a drawing reopened from its own .ifc has its BIM blocks' ports offline; the fly capsule fits its words (`5be2f84`)
+- ROAD-3708: the Blocks palette's Project view shows an occurrence's own ports (`17ed15b`)
+- re-vendor apk-contracts web bundle: contracts 2.4.0 retires APK.audio/Tests/{suite} (ROAD-3729) (`dbb8409`)
+
 ## Releases
 - **Released `2.0.0`, tag `v2.0.0`** (2026-11-01, ROAD-3452, the owner's V2) — no SDK pin; every manifest says 2.0.0; GitHub release `v2.0.0`.
